@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片标记处理测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-6 bg-gray-50">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">图片标记处理测试</h1>
+        
+        <div class="space-y-6">
+            <!-- 测试说明 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <h2 class="font-semibold text-blue-800 mb-2">问题描述</h2>
+                <p class="text-gray-700">用户在AI助手的回复中看到 <code class="bg-gray-200 px-2 py-1 rounded">@image:image.png</code> 这样的文本，但没有显示实际的图片。</p>
+                <p class="text-gray-700 mt-2">这是因为AI在生成回复时包含了图片标记，但前端没有正确处理和渲染这些标记。</p>
+            </div>
+            
+            <!-- 解决方案 -->
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                <h2 class="font-semibold text-green-800 mb-2">解决方案</h2>
+                <p class="text-gray-700">已经在 <code>frontend/user-web/src/app/assistant/page.tsx</code> 中添加了图片标记处理功能：</p>
+                <ol class="list-decimal pl-5 mt-2 space-y-1 text-gray-700">
+                    <li>添加 <code>processMessageContent()</code> 函数，用于解析 <code>@image:</code> 标记</li>
+                    <li>将原始文本中的图片标记替换为可视化图片展示区域</li>
+                    <li>在消息显示时调用处理函数，确保图片标记被正确渲染</li>
+                </ol>
+            </div>
+            
+            <!-- 功能演示 -->
+            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                <h2 class="font-semibold text-gray-800 mb-4">功能演示</h2>
+                
+                <!-- 原始AI回复 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-500 mb-2">原始AI回复（包含图片标记）：</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg font-mono text-sm">
+                        你好！这里是关于郑州的旅行建议：<br>
+                        @image:zhengzhou_map.png<br>
+                        这是郑州的地图，可以帮助你规划行程。<br>
+                        @image:shaolin_temple.jpg<br>
+                        少林寺是必去景点，建议游玩半天时间。
+                    </div>
+                </div>
+                
+                <!-- 处理后的效果 -->
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 mb-2">处理后效果：</h3>
+                    <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                        <div class="text-sm leading-relaxed tracking-wide text-gray-800">
+                            你好！这里是关于郑州的旅行建议：
+                            <div class="my-3">
+                                <div class="text-xs text-gray-500 mb-1">图片: zhengzhou_map.png</div>
+                                <div class="bg-gray-100 rounded-lg p-4 text-center text-gray-500 text-sm">
+                                    🖼️ 图片展示区域
+                                    <div class="text-xs mt-1">(这里会显示 zhengzhou_map.png 的图片)</div>
+                                </div>
+                            </div>
+                            这是郑州的地图，可以帮助你规划行程。
+                            <div class="my-3">
+                                <div class="text-xs text-gray-500 mb-1">图片: shaolin_temple.jpg</div>
+                                <div class="bg-gray-100 rounded-lg p-4 text-center text-gray-500 text-sm">
+                                    🖼️ 图片展示区域
+                                    <div class="text-xs mt-1">(这里会显示 shaolin_temple.jpg 的图片)</div>
+                                </div>
+                            </div>
+                            少林寺是必去景点，建议游玩半天时间。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 技术实现 -->
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                <h2 class="font-semibold text-purple-800 mb-2">技术实现</h2>
+                <pre class="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+// 处理消息内容中的图片标记
+function processMessageContent(content: string): React.ReactNode {
+  const imageRegex = /@image:([^\s]+)/g
+  const parts = []
+  let lastIndex = 0
+  let match
+  
+  while ((match = imageRegex.exec(content)) !== null) {
+    // 添加之前的文本
+    if (match.index > lastIndex) {
+      parts.push(&lt;span key={`text-${lastIndex}`}&gt;{content.slice(lastIndex, match.index)}&lt;/span&gt;)
+    }
+    
+    // 添加图片
+    const imageName = match[1]
+    parts.push(
+      &lt;div key={`image-${match.index}`} className="my-3"&gt;
+        &lt;div className="text-xs text-gray-500 mb-1"&gt;图片: {imageName}&lt;/div&gt;
+        &lt;div className="bg-gray-100 rounded-lg p-4 text-center text-gray-500 text-sm"&gt;
+          🖼️ 图片展示区域
+          &lt;div className="text-xs mt-1"&gt;(这里会显示 {imageName} 的图片)&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+    
+    lastIndex = match.index + match[0].length
+  }
+  
+  // 添加剩余文本
+  if (lastIndex &lt; content.length) {
+    parts.push(&lt;span key={`text-${lastIndex}`}&gt;{content.slice(lastIndex)}&lt;/span&gt;)
+  }
+  
+  // 如果没有图片标记，直接返回原始内容
+  if (parts.length === 0) {
+    return content
+  }
+  
+  return &lt;&gt;{parts}&lt;/&gt;
+}
+                </pre>
+            </div>
+            
+            <!-- 测试步骤 -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <h2 class="font-semibold text-amber-800 mb-2">测试步骤</h2>
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                    <li>访问 <a href="http://localhost:3002/assistant" class="text-blue-600 hover:underline" target="_blank">http://localhost:3002/assistant</a></li>
+                    <li>在AI助手中询问包含图片标记的问题</li>
+                    <li>AI回复中的 <code>@image:</code> 标记会被自动替换为可视化展示区域</li>
+                    <li>如果没有图片标记，内容正常显示</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

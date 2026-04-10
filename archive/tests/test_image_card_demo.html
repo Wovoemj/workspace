@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html> 
+<html lang="zh-CN"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>图片标记与卡片展示演示</title> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+</head> 
+<body class="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 min-h-screen"> 
+    <div class="max-w-4xl mx-auto"> 
+        <div class="text-center mb-8"> 
+            <h1 class="text-3xl font-bold text-gray-800 mb-3">旅行助手 - 图片标记与卡片展示演示</h1> 
+            <div class="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm"> 
+                <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div> 
+                <span class="text-sm text-gray-600">测试页面：http://localhost:3002/assistant</span> 
+            </div> 
+        </div> 
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> 
+            <!-- 问题分析 --> 
+            <div class="bg-white rounded-2xl p-6 border border-blue-100 shadow-lg"> 
+                <div class="flex items-center gap-3 mb-4"> 
+                    <div class="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center"> 
+                        <span class="text-amber-600">🔍</span> 
+                    </div> 
+                    <h2 class="text-xl font-semibold text-gray-800">问题分析</h2> 
+                </div> 
+                
+                <div class="space-y-4"> 
+                    <div class="p-3 bg-gray-50 rounded-lg"> 
+                        <h3 class="font-medium text-gray-700 mb-1">1. 图片标记未展示</h3> 
+                        <p class="text-sm text-gray-600">用户看到：<code class="bg-gray-200 px-2 py-0.5 rounded text-xs">@image:image.png</code></p> 
+                        <p class="text-sm text-gray-600 mt-1">期望看到：可视化图片展示区域</p> 
+                    </div> 
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg"> 
+                        <h3 class="font-medium text-gray-700 mb-1">2. 卡片展示问题</h3> 
+                        <p class="text-sm text-gray-600">行程内容显示卡片，但卡片内部不处理图片标记</p> 
+                        <p class="text-sm text-gray-600 mt-1">图片标记只在对非行程内容（纯文本）时处理</p> 
+                    </div> 
+                    
+                    <div class="p-3 bg-gray-50 rounded-lg"> 
+                        <h3 class="font-medium text-gray-700 mb-1">3. 开场问候不明显</h3> 
+                        <p class="text-sm text-gray-600">用户可能没注意到开场问候语</p> 
+                        <p class="text-sm text-gray-600 mt-1">需要更友好、突出的开场</p> 
+                    </div> 
+                </div> 
+            </div> 
+            
+            <!-- 解决方案 --> 
+            <div class="bg-white rounded-2xl p-6 border border-blue-100 shadow-lg"> 
+                <div class="flex items-center gap-3 mb-4"> 
+                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center"> 
+                        <span class="text-green-600">✅</span> 
+                    </div> 
+                    <h2 class="text-xl font-semibold text-gray-800">已实施的解决方案</h2> 
+                </div> 
+                
+                <div class="space-y-4"> 
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-200"> 
+                        <h3 class="font-semibold text-green-800 mb-2">🔧 TripCard组件增强</h3> 
+                        <div class="space-y-2 text-sm text-gray-700"> 
+                            <div class="flex items-center gap-2"> 
+                                <div class="h-2 w-2 bg-green-500 rounded-full"></div> 
+                                <span><strong>非行程内容</strong>但有图片标记 → 显示处理后内容</span> 
+                            </div> 
+                            <div class="flex items-center gap-2"> 
+                                <div class="h-2 w-2 bg-green-500 rounded-full"></div> 
+                                <span><strong>行程内容</strong>卡片 → 在卡片底部显示图片标记</span> 
+                            </div> 
+                            <div class="flex items-center gap-2"> 
+                                <div class="h-2 w-2 bg-green-500 rounded-full"></div> 
+                                <span>无论哪种情况，<code>@image:</code>标记都会被正确处理</span> 
+                            </div> 
+                        </div> 
+                    </div> 
+                    
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-200"> 
+                        <h3 class="font-semibold text-blue-800 mb-2">🎯 开场问候优化</h3> 
+                        <div class="space-y-2 text-sm text-gray-700"> 
+                            <div class="flex items-center gap-2"> 
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div> 
+                                <span>更友好、更有吸引力的欢迎语</span> 
+                            </div> 
+                            <div class="flex items-center gap-2"> 
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div> 
+                                <span>清晰的<strong>功能介绍</strong>和使用示例</span> 
+                            </div> 
+                            <div class="flex items-center gap-2"> 
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div> 
+                                <span>突出展示<strong>操作提示</strong>和<strong>实用功能</strong></span> 
+                            </div> 
+                        </div> 
+                    </div> 
+                    
+                    <div class="p-4 bg-purple-50 rounded-xl border border-purple-200"> 
+                        <h3 class="font-semibold text-purple-800 mb-2">🖼️ 图片标记处理逻辑</h3> 
+                        <div class="text-sm text-gray-700 space-y-1"> 
+                            <p><strong>检测机制：</strong>正则表达式 <code>/@image:([^\s]+)/g</code></p> 
+                            <p><strong>展示效果：</strong>文件名的可视化展示区域</p> 
+                            <p><strong>兼容性：</strong>所有AI回复中的图片标记都会被处理</p> 
+                        </div> 
+                    </div> 
+                </div> 
+            </div> 
+        </div> 
+        
+        <!-- 演示示例 --> 
+        <div class="mt-8 bg-white rounded-2xl p-6 border border-blue-100 shadow-lg"> 
+            <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">🎨 演示示例</h2> 
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> 
+                <!-- AI回复示例 --> 
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-5 border border-gray-200"> 
+                    <h3 class="font-semibold text-gray-700 mb-3">🤖 AI回复（包含图片标记）</h3> 
+                    <div class="bg-white p-4 rounded-lg shadow-inner"> 
+                        <div class="text-sm font-mono whitespace-pre-wrap bg-gray-50 p-3 rounded"> 
+你好！关于郑州的旅行建议： 
+@image:zhengzhou_map.png 
+这是郑州的地图，包含主要景点分布。 
+@image:shaolin_temple.jpg 
+少林寺值得一去，建议游玩半天。 
+
+以下是3天行程安排： 
+**第1天：郑州市区** 
+上午：参观郑州博物馆 
+下午：游览人民公园 
+晚上：品尝烩面 
+
+**第2天：登封少林寺** 
+上午：参观少林寺 
+下午：观看武术表演 
+晚上：返回郑州 
+
+**第3天：开封一日游** 
+上午：参观清明上河园 
+下午：游览龙亭公园 
+晚上：返回郑州，行程结束 
+                        </div> 
+                    </div> 
+                </div> 
+                
+                <!-- 预期效果 --> 
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200"> 
+                    <h3 class="font-semibold text-gray-700 mb-3">✨ 预期展示效果</h3> 
+                    <div class="space-y-4"> 
+                        <div class="bg-white p-4 rounded-lg shadow-sm"> 
+                            <h4 class="font-medium text-gray-700 mb-2">🗺️ 行程卡片</h4> 
+                            <p class="text-sm text-gray-600">将会显示<strong>3天的行程卡片</strong>，支持点击折叠/展开</p> 
+                        </div> 
+                        
+                        <div class="bg-white p-4 rounded-lg shadow-sm"> 
+                            <h4 class="font-medium text-gray-700 mb-2">🖼️ 图片标记展示</h4> 
+                            <p class="text-sm text-gray-600">在卡片底部会显示两个图片区域：</p> 
+                            <ul class="text-xs text-gray-500 mt-1 pl-4 space-y-1"> 
+                                <li>📋 图片: zhengzhou_map.png</li> 
+                                <li>📋 图片: shaolin_temple.jpg</li> 
+                            </ul> 
+                        </div> 
+                        
+                        <div class="bg-white p-4 rounded-lg shadow-sm"> 
+                            <h4 class="font-medium text-gray-700 mb-2">🎯 功能亮点</h4> 
+                            <div class="text-xs text-gray-600 space-y-1"> 
+                                <div class="flex items-center gap-1"> 
+                                    <span class="text-green-500">✓</span> 
+                                    <span>卡片展示行程信息</span> 
+                                </div> 
+                                <div class="flex items-center gap-1"> 
+                                    <span class="text-green-500">✓</span> 
+                                    <span>图片标记可视化展示</span> 
+                                </div> 
+                                <div class="flex items-center gap-1"> 
+                                    <span class="text-green-500">✓</span> 
+                                    <span>交互式折叠/展开功能</span> 
+                                </div> 
+                            </div> 
+                        </div> 
+                    </div> 
+                </div> 
+            </div> 
+        </div> 
+        
+        <!-- 测试步骤 --> 
+        <div class="mt-8 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl p-6 text-white shadow-xl"> 
+            <h2 class="text-xl font-semibold mb-4">🚀 测试步骤</h2> 
+            <ol class="space-y-2 list-decimal pl-5 text-blue-50"> 
+                <li>访问 <strong><a href="http://localhost:3002/assistant" class="underline" target="_blank">http://localhost:3002/assistant</a></strong></li> 
+                <li>检查页面是否显示<strong>友好的开场问候语</strong></li> 
+                <li>输入包含<strong>行程信息</strong>的问题</li> 
+                <li>观察回复是否以<strong>卡片形式展示</strong></li> 
+                <li>如果回复包含<code>@image:</code>标记，检查是否显示为<strong>可视化区域</strong></li> 
+                <li>测试卡片<strong>点击折叠/展开功能</strong></li> 
+            </ol> 
+        </div> 
+        
+        <!-- 预期结果 --> 
+        <div class="mt-6 grid grid-cols-3 gap-4"> 
+            <div class="bg-white rounded-xl p-4 border border-green-200 shadow-sm text-center"> 
+                <div class="h-12 w-12 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center"> 
+                    <span class="text-green-600 text-lg">✅</span> 
+                </div> 
+                <h4 class="font-medium text-gray-700">开场问候</h4> 
+                <p class="text-xs text-gray-500 mt-1">显示友好欢迎语</p> 
+            </div> 
+            
+            <div class="bg-white rounded-xl p-4 border border-blue-200 shadow-sm text-center"> 
+                <div class="h-12 w-12 mx-auto mb-2 rounded-full bg-blue-100 flex items-center justify-center"> 
+                    <span class="text-blue-600 text-lg">🗺️</span> 
+                </div> 
+                <h4 class="font-medium text-gray-700">行程卡片</h4> 
+                <p class="text-xs text-gray-500 mt-1">正确展示交互式卡片</p> 
+            </div> 
+            
+            <div class="bg-white rounded-xl p-4 border border-purple-200 shadow-sm text-center"> 
+                <div class="h-12 w-12 mx-auto mb-2 rounded-full bg-purple-100 flex items-center justify-center"> 
+                    <span class="text-purple-600 text-lg">🖼️</span> 
+                </div> 
+                <h4 class="font-medium text-gray-700">图片展示</h4> 
+                <p class="text-xs text-gray-500 mt-1">标记转为可视化区域</p> 
+            </div> 
+        </div> 
+        
+        <!-- 问题解决状态 --> 
+        <div class="mt-8 bg-white rounded-2xl p-6 border border-amber-100 shadow-lg"> 
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">📊 问题解决状态</h2> 
+            <table class="w-full text-sm"> 
+                <thead> 
+                    <tr class="bg-gray-50"> 
+                        <th class="text-left p-3">问题</th> 
+                        <th class="text-left p-3">状态</th> 
+                        <th class="text-left p-3">验证方法</th> 
+                    </tr> 
+                </thead> 
+                <tbody> 
+                    <tr class="border-b border-gray-100"> 
+                        <td class="p-3">@image:标记未显示图片</td> 
+                        <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">✅ 已修复</span></td> 
+                        <td class="p-3 text-gray-600">查看AI回复是否显示可视化图片区域</td> 
+                    </tr> 
+                    <tr class="border-b border-gray-100"> 
+                        <td class="p-3">卡片不处理图片标记</td> 
+                        <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">✅ 已修复</span></td> 
+                        <td class="p-3 text-gray-600">检查行程卡片是否在底部显示图片</td> 
+                    </tr> 
+                    <tr class="border-b border-gray-100"> 
+                        <td class="p-3">开场问候不明显</td> 
+                        <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">✅ 已优化</span></td> 
+                        <td class="p-3 text-gray-600">验证页面加载时是否有突出欢迎语</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="p-3">信息展示不完整</td> 
+                        <td class="p-3"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">🎯 已增强</span></td> 
+                        <td class="p-3 text-gray-600">确认公共出行、时间、美食等信息齐全</td> 
+                    </tr> 
+                </tbody> 
+            </table> 
+        </div> 
+    </div> 
+</body> 
+</html> 

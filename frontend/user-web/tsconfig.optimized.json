@@ -1,0 +1,77 @@
+﻿{ //  
+  "compilerOptions": {
+    "target": "ES2022", //  
+    "lib": ["dom", "dom.iterable", "ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler", //  
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true, //  
+    "isolatedModules": true, //  
+    "noEmit": true, //
+    "strict": true,
+    "noImplicitAny": true, //  
+    "strictNullChecks": true,
+    "strictFunctionTypes": true, //  
+    "strictBindCallApply": true, //  
+    "strictPropertyInitialization": true, //  
+    "noImplicitThis": true,
+    "alwaysStrict": true, //  
+    "noUnusedLocals": true,
+    "noUnusedParameters": true, //  
+    "noFallthroughCasesInSwitch": true, //
+    "exactOptionalPropertyTypes": true, 
+    "noImplicitReturns": true, 
+    "noImplicitOverride": true, //  
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true, //
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/store/*": ["./src/store/*"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/styles/*": ["./src/styles/*"]
+    },
+    // JSX 配置
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "sourceMap": true,
+    "inlineSources": true,
+    "declaration": false,
+    "declarationMap": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "tsBuildInfoFile": ".next/tsconfig.tsbuildinfo",
+    // Next.js 特定配置
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "types": [
+      "node",
+      "react",
+      "react-dom",
+      "next"
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build"
+  ]
+}

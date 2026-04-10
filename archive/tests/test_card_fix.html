@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html> 
+<html lang="zh-CN"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>卡片展示修复测试</title> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <style> 
+        body { 
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+            min-height: 100vh; 
+            font-family: 'Inter', sans-serif; 
+        } 
+        .test-card { 
+            background: white; 
+            border-radius: 1rem; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+            transition: all 0.3s ease; 
+        } 
+        .test-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); 
+        } 
+        .status-badge { 
+            display: inline-block; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 9999px; 
+            font-size: 0.75rem; 
+            font-weight: 500; 
+        } 
+        .status-success { 
+            background-color: #d1fae5; 
+            color: #065f46; 
+        } 
+        .status-info { 
+            background-color: #dbeafe; 
+            color: #1e40af; 
+        } 
+        .status-warning { 
+            background-color: #fef3c7; 
+            color: #92400e; 
+        } 
+    </style> 
+</head> 
+<body class="p-6 md:p-10"> 
+    <div class="max-w-4xl mx-auto"> 
+        <div class="mb-10"> 
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">卡片展示修复测试</h1> 
+            <p class="text-gray-600 mb-4">验证修复Agent模式卡片展示和普通模式错误提示的问题</p> 
+            
+            <div class="flex flex-wrap gap-2 mb-6"> 
+                <span class="status-badge status-success">✓ 已完成</span> 
+                <span class="status-badge status-info">⚡ Agent模式优化</span> 
+                <span class="status-badge status-warning">🔧 普通模式提示</span> 
+            </div> 
+        </div> 
+
+        <!-- 修复内容展示 --> 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"> 
+            <!-- 修复1：卡片展示优化 --> 
+            <div class="test-card p-6"> 
+                <div class="flex items-center gap-3 mb-4"> 
+                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center"> 
+                        <span class="text-white text-lg">🎯</span> 
+                    </div> 
+                    <h2 class="text-xl font-bold text-gray-900">修复1：卡片展示二选一</h2> 
+                </div> 
+                <p class="text-gray-700 mb-4"> 
+                    解决了Agent模式下卡片和文字同时展示的问题。现在： 
+                </p> 
+                <ul class="space-y-2 text-gray-600 mb-4"> 
+                    <li class="flex items-start gap-2"> 
+                        <span class="text-green-500 mt-1">✓</span> 
+                        <span>检测到行程内容时，<strong>只显示卡片</strong>，隐藏原始文字</span> 
+                    </li> 
+                    <li class="flex items-start gap-2"> 
+                        <span class="text-green-500 mt-1">✓</span> 
+                        <span>非行程内容时，正常显示文字</span> 
+                    </li> 
+                    <li class="flex items-start gap-2"> 
+                        <span class="text-green-500 mt-1">✓</span> 
+                        <span>默认使用卡片展示，提升视觉效果</span> 
+                    </li> 
+                </ul> 
+                <div class="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg border border-blue-100"> 
+                    <strong>技术实现：</strong> 修改了 <code>isTripContent</code> 检测函数和消息渲染逻辑 
+                </div> 
+            </div> 
+
+            <!-- 修复2：错误提示优化 --> 
+            <div class="test-card p-6"> 
+                <div class="flex items-center gap-3 mb-4"> 
+                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-400 flex items-center justify-center"> 
+                        <span class="text-white text-lg">🛠️</span> 
+                    </div> 
+                    <h2 class="text-xl font-bold text-gray-900">修复2：友好错误提示</h2> 
+                </div> 
+                <p class="text-gray-700 mb-4"> 
+                    改善了普通模式失败时的用户体验： 
+                </p> 
+                <ul class="space-y-2 text-gray-600 mb-4"> 
+                    <li class="flex items-start gap-2"> 
+                        <span class="text-green-500 mt-1">✓</span> 
+                        <span>API密钥缺失时，<strong>推荐使用Agent模式</strong></span> 
+                    </li> 
+                    <li class="flex items-start gap-2"> 
+                        <span class="text-green-500 mt-1">✓</span> 
+                        <span>提供清晰的解决方案和操作指引</span> 
+                    </li> 
+                    <li class="flex items-start gap-2"> 
+                        <span class="text-green-500 mt-1">✓</span> 
+                        <span>根据错误类型提供针对性的建议</span> 
+                    </li> 
+                </ul> 
+                <div class="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100"> 
+                    <strong>提示示例：</strong> "📱 <strong>普通模式暂时不可用</strong>...建议：⚡ <strong>使用Agent模式</strong>" 
+                </div> 
+            </div> 
+        </div> 
+
+        <!-- 修复3：格式支持增强 --> 
+        <div class="test-card p-6 mb-10"> 
+            <div class="flex items-center gap-3 mb-4"> 
+                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-400 flex items-center justify-center"> 
+                    <span class="text-white text-lg">🌍</span> 
+                </div> 
+                <h2 class="text-xl font-bold text-gray-900">修复3：多格式支持增强</h2> 
+            </div> 
+            <p class="text-gray-700 mb-4"> 
+                增强了行程解析函数，支持Agent模式返回的各种格式： 
+            </p> 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"> 
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"> 
+                    <h3 class="font-semibold text-gray-800 mb-2">中文格式支持</h3> 
+                    <ul class="text-sm text-gray-600 space-y-1"> 
+                        <li>第1天 / 第一天</li> 
+                        <li>上午 / 下午 / 晚上</li> 
+                        <li>⏰ / ☀️ / 🌙 等emoji</li> 
+                        <li>💰 预估费用：¥500</li> 
+                        <li>🏨 住宿：XXX酒店</li> 
+                    </ul> 
+                </div> 
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"> 
+                    <h3 class="font-semibold text-gray-800 mb-2">英文格式支持</h3> 
+                    <ul class="text-sm text-gray-600 space-y-1"> 
+                        <li>Day 1 / Day One</li> 
+                        <li>Morning / Afternoon / Evening</li> 
+                        <li>City: Luoyang</li> 
+                        <li>💰 Estimated cost: $100</li> 
+                        <li>🏨 Accommodation: XXX Hotel</li> 
+                    </ul> 
+                </div> 
+            </div> 
+            <div class="text-sm text-purple-600 bg-purple-50 p-3 rounded-lg border border-purple-100"> 
+                <strong>技术增强：</strong> 扩展了正则表达式模式，支持中英文混合格式和更多emoji 
+            </div> 
+        </div> 
+
+        <!-- 使用指南 --> 
+        <div class="test-card p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200"> 
+            <h2 class="text-xl font-bold text-gray-900 mb-4">如何使用修复后的功能</h2> 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> 
+                <div> 
+                    <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"> 
+                        <span class="text-blue-600">⚡</span> 
+                        Agent模式 
+                    </h3> 
+                    <ol class="space-y-2 text-gray-700"> 
+                        <li>1. 点击输入框左侧的<strong>闪电按钮</strong></li> 
+                        <li>2. 输入行程请求，如"河南5日游"</li> 
+                        <li>3. 查看<strong>卡片形式的行程规划</strong></li> 
+                        <li>4. 观察工具调用状态标签</li> 
+                    </ol> 
+                </div> 
+                <div> 
+                    <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"> 
+                        <span class="text-gray-600">💬</span> 
+                        普通模式 
+                    </h3> 
+                    <ol class="space-y-2 text-gray-700"> 
+                        <li>1. 确保已配置AI服务商API密钥</li> 
+                        <li>2. 如遇错误，查看<strong>友好的解决方案提示</strong></li> 
+                        <li>3. 按照提示切换到Agent模式</li> 
+                        <li>4. 或配置API密钥后重试</li> 
+                    </ol> 
+                </div> 
+            </div> 
+        </div> 
+
+        <div class="mt-8 text-center text-gray-500 text-sm"> 
+            <p>修复完成时间：2026年4月7日</p> 
+            <p class="mt-2">检查文件：<code>frontend/user-web/src/app/assistant/page.tsx</code></p> 
+        </div> 
+    </div> 
+</body> 
+</html> 

@@ -1,0 +1,926 @@
+﻿<!DOCTYPE html> <!--   -->
+<html lang="zh-CN"> 
+<head> <!--   -->
+  <meta charset="UTF-8" /> <!--   -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <title>智能旅游助手 · 管理后台</title> <!--   -->
+  <style> <!--   -->
+    html, body, #root { height: 100%; margin: 0; } 
+    body { <!--   -->
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 
+        'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif; <!--   -->
+      background: #f8fafc; <!--   -->
+    } <!--   -->
+  </style> <!--   -->
+</head> <!--   -->
+<body> 
+  <div id="root"></div> <!--   -->
+  <script type="module"> 
+    import React, { useState, useEffect, useCallback } from 'https://esm.sh/react@18.2.0' <!--   -->
+    import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client' <!--   -->
+    import htm from 'https://esm.sh/htm@3.1.1' <!--   -->
+    import { 
+      ConfigProvider, <!--   -->
+      App, 
+      Layout, <!--   -->
+      Menu, <!--   -->
+      Card, <!--   -->
+      Row, 
+      Col, 
+      Statistic, <!--   -->
+      Table, <!--   -->
+      Button, 
+      Modal, <!--   -->
+      Form, <!--   -->
+      Input, 
+      InputNumber, 
+      Select, 
+      Checkbox, 
+      Popconfirm, 
+      Spin, 
+      Typography, 
+      Tag, 
+      Empty, 
+      Skeleton, 
+      Space, 
+      Breadcrumb, 
+      theme, 
+    } from 'https://esm.sh/antd@5.22.6?deps=react@18.2.0,react-dom@18.2.0' 
+    import zhCN from 'https://esm.sh/antd@5.22.6/es/locale/zh_CN?deps=react@18.2.0,react-dom@18.2.0' 
+    import { 
+      DashboardOutlined, 
+      EnvironmentOutlined, 
+      FileTextOutlined, 
+      SettingOutlined, 
+      PlusOutlined, 
+    } from 'https://esm.sh/@ant-design/icons@5.5.1?deps=react@18.2.0' 
+
+    const html = htm.bind(React.createElement) 
+    const { Header, Sider, Content } = Layout 
+    const { Text, Title } = Typography 
+
+    const TOKEN_KEY = 'admin_token' 
+
+    function AdminLogin({ onLogin }) { 
+      const [email, setEmail] = useState('') 
+      const [password, setPassword] = useState('') 
+      const [loading, setLoading] = useState(false) 
+      const [error, setError] = useState('') 
+
+      const handleSubmit = async (e) => { 
+        e.preventDefault() 
+        setError('') 
+        setLoading(true) 
+        try { 
+          const res = await fetch(`${apiBase()}/admin/login`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ email, password }), 
+          }) 
+          const data = await res.json().catch(() => ({})) 
+          if (!res.ok || !data.success) { 
+            setError(data.error || '登录失败，请检查邮箱和密码') 
+            return 
+          } 
+          onLogin(data.token) 
+        } catch (err) { 
+          setError('网络错误，请重试') 
+        } finally { 
+          setLoading(false) 
+        } 
+      } 
+
+      return html` 
+        <div style=${{ 
+          minHeight: '100vh', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+          fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", 
+        }}> 
+          <div style=${{ 
+            background: '#fff', 
+            borderRadius: 16, 
+            padding: '40px 36px', 
+            width: '100%', 
+            maxWidth: 400, 
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)', 
+          }}> 
+            <div style=${{ textAlign: 'center', marginBottom: 32 }}> 
+              <div style=${{ 
+                fontSize: 40, 
+                marginBottom: 8, 
+              }}>🗺️</div> 
+              <h1 style=${{ fontSize: 22, fontWeight: 700, color: '#1e293b', margin: '0 0 6px' }}> 
+                管理后台 
+              </h1> 
+              <p style=${{ color: '#64748b', fontSize: 14, margin: 0 }}> 
+                请使用管理员账号登录 
+              </p> 
+            </div> 
+            <form onSubmit=${handleSubmit}> 
+              <div style=${{ marginBottom: 20 }}> 
+                <label style=${{ 
+                  display: 'block', 
+                  fontSize: 14, 
+                  fontWeight: 600, 
+                  color: '#374151', 
+                  marginBottom: 6, 
+                }}> 
+                  管理员邮箱 
+                </label> 
+                <input 
+                  type="email" 
+                  value=${email} 
+                  onInput=${(e) => setEmail(e.target.value)} 
+                  placeholder="admin@example.com" 
+                  required 
+                  style=${{ 
+                    width: '100%', 
+                    padding: '10px 14px', 
+                    fontSize: 14, 
+                    border: '1.5px solid #e2e8f0', 
+                    borderRadius: 10, 
+                    outline: 'none', 
+                    boxSizing: 'border-box', 
+                    transition: 'border-color 0.2s', 
+                  }} 
+                  onFocus=${(e) => (e.target.style.borderColor = '#2563eb')} 
+                  onBlur=${(e) => (e.target.style.borderColor = '#e2e8f0')} 
+                /> 
+              </div> 
+              <div style=${{ marginBottom: 24 }}> 
+                <label style=${{ 
+                  display: 'block', 
+                  fontSize: 14, 
+                  fontWeight: 600, 
+                  color: '#374151', 
+                  marginBottom: 6, 
+                }}> 
+                  密码 
+                </label> 
+                <input 
+                  type="password" 
+                  value=${password} 
+                  onInput=${(e) => setPassword(e.target.value)} 
+                  placeholder="••••••••" 
+                  required 
+                  style=${{ 
+                    width: '100%', 
+                    padding: '10px 14px', 
+                    fontSize: 14, 
+                    border: '1.5px solid #e2e8f0', 
+                    borderRadius: 10, 
+                    outline: 'none', 
+                    boxSizing: 'border-box', 
+                    transition: 'border-color 0.2s', 
+                  }} 
+                  onFocus=${(e) => (e.target.style.borderColor = '#2563eb')} 
+                  onBlur=${(e) => (e.target.style.borderColor = '#e2e8f0')} 
+                /> 
+              </div> 
+              ${error ? html` 
+                <div style=${{ 
+                  color: '#ef4444', 
+                  fontSize: 13, 
+                  marginBottom: 16, 
+                  padding: '8px 12px', 
+                  background: '#fef2f2', 
+                  borderRadius: 8, 
+                  border: '1px solid #fecaca', 
+                }}> 
+                  ${error} 
+                </div> 
+              ` : null} 
+              <button 
+                type="submit" 
+                disabled=${loading} 
+                style=${{ 
+                  width: '100%', 
+                  padding: '11px', 
+                  fontSize: 15, 
+                  fontWeight: 600, 
+                  color: '#fff', 
+                  background: loading ? '#93c5fd' : 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
+                  border: 'none', 
+                  borderRadius: 10, 
+                  cursor: loading ? 'not-allowed' : 'pointer', 
+                  transition: 'opacity 0.2s', 
+                }} 
+              > 
+                ${loading ? '登录中…' : '登录'} 
+              </button> 
+            </form> 
+            <div style=${{ 
+              marginTop: 24, 
+              textAlign: 'center', 
+              fontSize: 12, 
+              color: '#94a3b8', 
+            }}> 
+              仅限管理员访问 · 智能旅游助手 
+            </div> 
+          </div> 
+        </div> 
+      ` 
+    } 
+
+    function AdminGate({ children }) { 
+      const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '') 
+
+      if (!token) { 
+        return html`<${AdminLogin} onLogin=${(t) => { 
+          localStorage.setItem(TOKEN_KEY, t) 
+          setToken(t) 
+        }} />` 
+      } 
+
+      // 将 token 注入到 window，方便 AdminShell 中 fetch 时自动携带 
+      window.__adminToken = token 
+      return children 
+    } 
+
+    function apiBase() { 
+      if (window.location.protocol === 'file:') return 'http://127.0.0.1:5001/api' 
+      return `${window.location.origin.replace(/\/$/, '')}/api` 
+    } 
+
+    async function fetchJson(path, options = {}) { 
+      const adminToken = window.__adminToken || '' 
+      const res = await fetch(`${apiBase()}${path}`, { 
+        headers: { 
+          'Content-Type': 'application/json', 
+          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {}), 
+          ...(options.headers || {}), 
+        }, 
+        ...options, 
+      }) 
+      const data = await res.json().catch(() => ({})) 
+      if (!res.ok) { 
+        throw new Error(data.error || data.message || `${res.status} ${res.statusText}`) 
+      } 
+      return data 
+    } 
+
+    function formatInt(n) { 
+      if (n == null || Number.isNaN(n)) return '—' 
+      return Number(n).toLocaleString('zh-CN') 
+    } 
+
+    function AdminShell() { 
+      const { message } = App.useApp() 
+      const [collapsed, setCollapsed] = useState(false) 
+      const [menuKey, setMenuKey] = useState('dashboard') 
+
+      const [stats, setStats] = useState(null) 
+      const [statsLoading, setStatsLoading] = useState(true) 
+
+      const [destList, setDestList] = useState([]) 
+      const [destTotal, setDestTotal] = useState(0) 
+      const [destPage, setDestPage] = useState(1) 
+      const [destPageSize] = useState(10) 
+      const [destKeyword, setDestKeyword] = useState('') 
+      const [destLoading, setDestLoading] = useState(false) 
+
+      const [pages, setPages] = useState([]) 
+      const [pagesLoading, setPagesLoading] = useState(false) 
+
+      const [configRows, setConfigRows] = useState([]) 
+      const [configsLoading, setConfigsLoading] = useState(false) 
+
+      const [destModalOpen, setDestModalOpen] = useState(false) 
+      const [destSaving, setDestSaving] = useState(false) 
+      const [destForm] = Form.useForm() 
+
+      const [pageModalOpen, setPageModalOpen] = useState(false) 
+      const [pageSaving, setPageSaving] = useState(false) 
+      const [pageForm] = Form.useForm() 
+
+      const [configModalOpen, setConfigModalOpen] = useState(false) 
+      const [configSaving, setConfigSaving] = useState(false) 
+      const [configForm] = Form.useForm() 
+
+      const editingDestId = Form.useWatch('id', destForm) 
+      const editingPageId = Form.useWatch('id', pageForm) 
+
+      const loadStats = useCallback(async () => { 
+        setStatsLoading(true) 
+        try { 
+          const data = await fetchJson('/stats') 
+          setStats(data.stats || {}) 
+        } catch (e) { 
+          message.error(e.message || '加载统计失败') 
+          setStats(null) 
+        } finally { 
+          setStatsLoading(false) 
+        } 
+      }, [message]) 
+
+      const loadDestinations = useCallback( 
+        async (page = 1, kw = destKeyword) => { 
+          setDestLoading(true) 
+          try { 
+            const q = new URLSearchParams({ page: String(page), per_page: String(destPageSize) }) 
+            if (kw) q.set('keyword', kw) 
+            const data = await fetchJson(`/admin/destinations?${q}`) 
+            setDestList(data.destinations || []) 
+            setDestTotal(data.total || 0) 
+            setDestPage(page) 
+          } catch (e) { 
+            message.error(e.message || '加载景点失败') 
+            setDestList([]) 
+          } finally { 
+            setDestLoading(false) 
+          } 
+        }, 
+        [destKeyword, destPageSize, message], 
+      ) 
+
+      const loadPages = useCallback(async () => { 
+        setPagesLoading(true) 
+        try { 
+          const data = await fetchJson('/pages') 
+          setPages(data.pages || []) 
+        } catch (e) { 
+          message.error(e.message || '加载页面失败') 
+          setPages([]) 
+        } finally { 
+          setPagesLoading(false) 
+        } 
+      }, [message]) 
+
+      const loadConfigs = useCallback(async () => { 
+        setConfigsLoading(true) 
+        try { 
+          const data = await fetchJson('/configs') 
+          const obj = data.configs || {} 
+          setConfigRows( 
+            Object.entries(obj).map(([key, value]) => ({ 
+              key, 
+              value: typeof value === 'object' ? JSON.stringify(value) : String(value), 
+            })), 
+          ) 
+        } catch (e) { 
+          message.error(e.message || '加载配置失败') 
+          setConfigRows([]) 
+        } finally { 
+          setConfigsLoading(false) 
+        } 
+      }, [message]) 
+
+      useEffect(() => { 
+        loadStats() 
+      }, [loadStats]) 
+
+      useEffect(() => { 
+        if (menuKey === 'destinations') loadDestinations(1) 
+      }, [menuKey, loadDestinations]) 
+
+      useEffect(() => { 
+        if (menuKey === 'pages') loadPages() 
+      }, [menuKey, loadPages]) 
+
+      useEffect(() => { 
+        if (menuKey === 'configs') loadConfigs() 
+      }, [menuKey, loadConfigs]) 
+
+      const openDestCreate = () => { 
+        destForm.resetFields() 
+        destForm.setFieldsValue({ rating: 5, ticket_price: 0 }) 
+        setDestModalOpen(true) 
+      } 
+
+      const openDestEdit = async (record) => { 
+        try { 
+          const data = await fetchJson(`/admin/destinations/${record.id}`) 
+          const d = data.destination 
+          destForm.setFieldsValue({ 
+            id: d.id, 
+            name: d.name, 
+            city: d.city, 
+            province: d.province, 
+            description: d.description || '', 
+            cover_image: d.cover_image || '', 
+            rating: d.rating, 
+            ticket_price: d.ticket_price, 
+          }) 
+          setDestModalOpen(true) 
+        } catch (e) { 
+          message.error(e.message || '读取景点失败') 
+        } 
+      } 
+
+      const submitDest = async () => { 
+        try { 
+          const v = await destForm.validateFields() 
+          setDestSaving(true) 
+          const id = v.id 
+          const body = { 
+            name: v.name, 
+            city: v.city, 
+            province: v.province, 
+            description: v.description || '', 
+            cover_image: v.cover_image || '', 
+            rating: Number(v.rating), 
+            ticket_price: Number(v.ticket_price), 
+          } 
+          if (id) { 
+            await fetchJson(`/admin/destinations/${id}`, { method: 'PUT', body: JSON.stringify(body) }) 
+            message.success('已更新景点') 
+          } else { 
+            await fetchJson('/admin/destinations', { method: 'POST', body: JSON.stringify(body) }) 
+            message.success('已新增景点') 
+          } 
+          setDestModalOpen(false) 
+          loadDestinations(destPage, destKeyword) 
+          loadStats() 
+        } catch (e) { 
+          if (e?.errorFields) return 
+          message.error(e.message || '保存失败') 
+        } finally { 
+          setDestSaving(false) 
+        } 
+      } 
+
+      const deleteDest = async (id) => { 
+        try { 
+          await fetchJson(`/admin/destinations/${id}`, { method: 'DELETE' }) 
+          message.success('已删除') 
+          loadDestinations(destPage, destKeyword) 
+          loadStats() 
+        } catch (e) { 
+          message.error(e.message || '删除失败') 
+        } 
+      } 
+
+      const openPageCreate = () => { 
+        pageForm.resetFields() 
+        setPageModalOpen(true) 
+      } 
+
+      const openPageEdit = (p) => { 
+        pageForm.setFieldsValue({ 
+          id: p.id, 
+          name: p.name, 
+          title: p.title, 
+          html_content: p.html_content, 
+          css_content: p.css_content || '', 
+        }) 
+        setPageModalOpen(true) 
+      } 
+
+      const submitPage = async () => { 
+        try { 
+          const v = await pageForm.validateFields() 
+          setPageSaving(true) 
+          await fetchJson('/pages', { 
+            method: 'POST', 
+            body: JSON.stringify({ 
+              name: v.name, 
+              title: v.title, 
+              html_content: v.html_content, 
+              css_content: v.css_content || '', 
+            }), 
+          }) 
+          message.success('页面已保存') 
+          setPageModalOpen(false) 
+          loadPages() 
+          loadStats() 
+        } catch (e) { 
+          if (e?.errorFields) return 
+          message.error(e.message || '保存失败') 
+        } finally { 
+          setPageSaving(false) 
+        } 
+      } 
+
+      const submitConfig = async () => { 
+        try { 
+          const v = await configForm.validateFields() 
+          setConfigSaving(true) 
+          await fetchJson('/configs', { 
+            method: 'POST', 
+            body: JSON.stringify({ 
+              key: v.key, 
+              value: v.value, 
+              value_type: v.value_type, 
+              category: v.category || '', 
+              is_public: !!v.is_public, 
+            }), 
+          }) 
+          message.success('配置已保存') 
+          setConfigModalOpen(false) 
+          configForm.resetFields() 
+          loadConfigs() 
+          loadStats() 
+        } catch (e) { 
+          if (e?.errorFields) return 
+          message.error(e.message || '保存失败') 
+        } finally { 
+          setConfigSaving(false) 
+        } 
+      } 
+
+      const menuItems = [ 
+        { key: 'dashboard', icon: React.createElement(DashboardOutlined), label: '数据概览' }, 
+        { key: 'destinations', icon: React.createElement(EnvironmentOutlined), label: '景点管理' }, 
+        { key: 'pages', icon: React.createElement(FileTextOutlined), label: '页面管理' }, 
+        { key: 'configs', icon: React.createElement(SettingOutlined), label: '网站配置' }, 
+      ] 
+
+      const destColumns = [ 
+        { title: 'ID', dataIndex: 'id', width: 72 }, 
+        { title: '名称', dataIndex: 'name', ellipsis: true }, 
+        { title: '城市', dataIndex: 'city', width: 100 }, 
+        { title: '省份', dataIndex: 'province', width: 100 }, 
+        { 
+          title: '评分', 
+          dataIndex: 'rating', 
+          width: 88, 
+          render: (v) => html`<${Tag} color="orange">⭐ ${v}</${Tag}>`, 
+        }, 
+        { 
+          title: '门票', 
+          dataIndex: 'ticket_price', 
+          width: 96, 
+          render: (v) => `¥${Number(v).toLocaleString('zh-CN')}`, 
+        }, 
+        { 
+          title: '操作', 
+          key: 'actions', 
+          width: 160, 
+          fixed: 'right', 
+          render: (_, r) => 
+            html`<${Space} size="small"> 
+              <${Button} type="link" size="small" onClick=${() => openDestEdit(r)}>编辑</${Button}> 
+              <${Popconfirm} 
+                title="确定删除该景点？" 
+                okText="删除" 
+                cancelText="取消" 
+                onConfirm=${() => deleteDest(r.id)} 
+              > 
+                <${Button} type="link" size="small" danger>删除</${Button}> 
+              </${Popconfirm}> 
+            </${Space}>`, 
+        }, 
+      ] 
+
+      const pageColumns = [ 
+        { title: 'ID', dataIndex: 'id', width: 72 }, 
+        { title: '名称', dataIndex: 'name', ellipsis: true }, 
+        { title: '标题', dataIndex: 'title', ellipsis: true }, 
+        { 
+          title: '状态', 
+          dataIndex: 'is_active', 
+          width: 96, 
+          render: (v) => 
+            v 
+              ? html`<${Tag} color="success">启用</${Tag}>` 
+              : html`<${Tag}>禁用</${Tag}>`, 
+        }, 
+        { 
+          title: '操作', 
+          key: 'a', 
+          width: 88, 
+          render: (_, p) => 
+            html`<${Button} type="link" size="small" onClick=${() => openPageEdit(p)}>编辑</${Button}>`, 
+        }, 
+      ] 
+
+      const configColumns = [ 
+        { title: '键', dataIndex: 'key', ellipsis: true }, 
+        { title: '值', dataIndex: 'value', ellipsis: true }, 
+      ] 
+
+      const breadcrumbMap = { 
+        dashboard: '数据概览', 
+        destinations: '景点管理', 
+        pages: '页面管理', 
+        configs: '网站配置', 
+      } 
+
+      const renderDashboard = () => { 
+        if (statsLoading) { 
+          return html`<${Card}> 
+            <${Skeleton} active paragraph=${{ rows: 4 }} /> 
+          </${Card}>` 
+        } 
+        if (!stats) { 
+          return html`<${Empty} description="暂无统计数据" />` 
+        } 
+        return html`<div> 
+          <${Row} gutter=${[16, 16]}> 
+            <${Col} xs=${24} sm=${12} md=${8} lg=${6}> 
+              <${Card} size="small" variant="borderless" style=${{ boxShadow: '0 1px 2px rgba(15,23,42,.06)' }}> 
+                <${Statistic} title="景点" value=${stats.destinations} formatter=${(v) => formatInt(v)} prefix=${'📍 '} /> 
+              </${Card}> 
+            </${Col}> 
+            <${Col} xs=${24} sm=${12} md=${8} lg=${6}> 
+              <${Card} size="small" variant="borderless" style=${{ boxShadow: '0 1px 2px rgba(15,23,42,.06)' }}> 
+                <${Statistic} title="行程" value=${stats.trips} formatter=${(v) => formatInt(v)} prefix=${'🗺️ '} /> 
+              </${Card}> 
+            </${Col}> 
+            <${Col} xs=${24} sm=${12} md=${8} lg=${6}> 
+              <${Card} size="small" variant="borderless" style=${{ boxShadow: '0 1px 2px rgba(15,23,42,.06)' }}> 
+                <${Statistic} title="用户" value=${stats.users} formatter=${(v) => formatInt(v)} prefix=${'👤 '} /> 
+              </${Card}> 
+            </${Col}> 
+            <${Col} xs=${24} sm=${12} md=${8} lg=${6}> 
+              <${Card} size="small" variant="borderless" style=${{ boxShadow: '0 1px 2px rgba(15,23,42,.06)' }}> 
+                <${Statistic} title="页面" value=${stats.pages} formatter=${(v) => formatInt(v)} prefix=${'📄 '} /> 
+              </${Card}> 
+            </${Col}> 
+            <${Col} xs=${24} sm=${12} md=${8} lg=${6}> 
+              <${Card} size="small" variant="borderless" style=${{ boxShadow: '0 1px 2px rgba(15,23,42,.06)' }}> 
+                <${Statistic} title="配置项" value=${stats.configs} formatter=${(v) => formatInt(v)} prefix=${'⚙️ '} /> 
+              </${Card}> 
+            </${Col}> 
+          </${Row}> 
+          <${Card} 
+            title="趋势与活跃" 
+            style=${{ marginTop: 16 }} 
+            extra=${html`<${Text} type="secondary">最近 30 天 · 占位</${Text}>`} 
+          > 
+            <${Empty} 
+              image=${Empty.PRESENTED_IMAGE_SIMPLE} 
+              description="后端 /api/stats 提供按日序列后，可在此接入 ECharts 折线图" 
+            /> 
+          </${Card}> 
+        </div>` 
+      } 
+
+      const renderDestinations = () => html`<${Card} 
+        title="景点管理" 
+        extra=${html`<${Button} type="primary" icon=${React.createElement(PlusOutlined)} onClick=${openDestCreate}>新增景点</${Button}>`} 
+      > 
+        <${Space} direction="vertical" style=${{ width: '100%' }} size="middle"> 
+          <${Input.Search} 
+            allowClear 
+            placeholder="按名称搜索" 
+            onSearch=${(v) => { 
+              setDestKeyword(v || '') 
+              loadDestinations(1, v || '') 
+            }} 
+            style=${{ maxWidth: 320 }} 
+          /> 
+          <${Table} 
+            rowKey="id" 
+            loading=${destLoading} 
+            columns=${destColumns} 
+            dataSource=${destList} 
+            scroll=${{ x: 900 }} 
+            locale=${{ emptyText: html`<${Empty} description="暂无景点数据" />` }} 
+            pagination=${{ 
+              current: destPage, 
+              pageSize: destPageSize, 
+              total: destTotal, 
+              showSizeChanger: false, 
+              showTotal: (t) => `共 ${t} 条`, 
+              onChange: (p) => loadDestinations(p, destKeyword), 
+            }} 
+          /> 
+        </${Space}> 
+      </${Card}>` 
+
+      const renderPages = () => html`<${Card} 
+        title="页面管理" 
+        extra=${html`<${Button} type="primary" icon=${React.createElement(PlusOutlined)} onClick=${openPageCreate}>新增页面</${Button}>`} 
+      > 
+        <${Spin} spinning=${pagesLoading}> 
+          <${Table} 
+            rowKey="id" 
+            columns=${pageColumns} 
+            dataSource=${pages} 
+            locale=${{ emptyText: html`<${Empty} description="暂无页面" />` }} 
+            pagination=${false} 
+          /> 
+        </${Spin}> 
+      </${Card}>` 
+
+      const renderConfigs = () => html`<${Card} 
+        title="网站配置" 
+        extra=${html`<${Button} 
+          type="primary" 
+          icon=${React.createElement(PlusOutlined)} 
+          onClick=${() => { 
+            configForm.resetFields() 
+            configForm.setFieldsValue({ value_type: 'string', is_public: true }) 
+            setConfigModalOpen(true) 
+          }} 
+          >新增配置</${Button}>`} 
+      > 
+        <${Text} type="secondary" style=${{ display: 'block', marginBottom: 12 }}> 
+          当前列表来自 GET /api/configs（仅 is_public=true 的项）。完整管理可走数据库或扩展管理接口。 
+        </${Text}> 
+        <${Spin} spinning=${configsLoading}> 
+          <${Table} 
+            rowKey="key" 
+            columns=${configColumns} 
+            dataSource=${configRows} 
+            locale=${{ emptyText: html`<${Empty} description="暂无配置" />` }} 
+            pagination=${false} 
+          /> 
+        </${Spin}> 
+      </${Card}>` 
+
+      let body 
+      if (menuKey === 'dashboard') body = renderDashboard() 
+      else if (menuKey === 'destinations') body = renderDestinations() 
+      else if (menuKey === 'pages') body = renderPages() 
+      else body = renderConfigs() 
+
+      return html`<${Layout} style=${{ minHeight: '100vh' }}> 
+        <${Sider} 
+          collapsible 
+          collapsed=${collapsed} 
+          onCollapse=${setCollapsed} 
+          breakpoint="lg" 
+          theme="light" 
+          width=${220} 
+          style=${{ borderRight: '1px solid #e2e8f0' }} 
+        > 
+          <div 
+            style=${{ 
+              height: 56, 
+              margin: '12px 16px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              fontWeight: 700, 
+              fontSize: 15, 
+              color: '#1e293b', 
+            }} 
+          > 
+            🗺️ 旅游助手后台 
+          </div> 
+          <${Menu} 
+            mode="inline" 
+            selectedKeys=${[menuKey]} 
+            items=${menuItems} 
+            onClick=${({ key }) => setMenuKey(key)} 
+            style=${{ borderRight: 0 }} 
+          /> 
+        </${Sider}> 
+        <${Layout}> 
+          <${Header} 
+            style=${{ 
+              background: '#fff', 
+              padding: '0 24px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              borderBottom: '1px solid #e2e8f0', 
+            }} 
+          > 
+            <${Breadcrumb} 
+              items=${[ 
+                { title: '管理后台' }, 
+                { title: breadcrumbMap[menuKey] || '' }, 
+              ]} 
+            /> 
+            <${Text} type="secondary">本地开发 · ${apiBase()}</${Text}> 
+          </${Header}> 
+          <${Content} style=${{ margin: 24, minHeight: 280 }}>${body}</${Content}> 
+        </${Layout}> 
+
+        <${Modal} 
+          title=${editingDestId ? '编辑景点' : '新增景点'} 
+          open=${destModalOpen} 
+          onOk=${submitDest} 
+          onCancel=${() => setDestModalOpen(false)} 
+          confirmLoading=${destSaving} 
+          destroyOnClose 
+          width=${560} 
+        > 
+          <${Form} form=${destForm} layout="vertical" preserve=${false} style=${{ marginTop: 16 }}> 
+            <${Form.Item} name="id" hidden><${Input} /></${Form.Item}> 
+            <${Form.Item} label="景点名称" name="name" rules=${[{ required: true, message: '请输入名称' }]}> 
+              <${Input} placeholder="名称" /> 
+            </${Form.Item}> 
+            <${Row} gutter=${16}> 
+              <${Col} span=${12}> 
+                <${Form.Item} label="城市" name="city" rules=${[{ required: true }]}> 
+                  <${Input} /> 
+                </${Form.Item}> 
+              </${Col}> 
+              <${Col} span=${12}> 
+                <${Form.Item} label="省份" name="province" rules=${[{ required: true }]}> 
+                  <${Input} /> 
+                </${Form.Item}> 
+              </${Col}> 
+            </${Row}> 
+            <${Form.Item} label="描述" name="description"> 
+              <${Input.TextArea} rows=${3} /> 
+            </${Form.Item}> 
+            <${Form.Item} label="封面图片路径/URL" name="cover_image"> 
+              <${Input} placeholder="scenic_images/xxx.jpg 或 URL" /> 
+            </${Form.Item}> 
+            <${Row} gutter=${16}> 
+              <${Col} span=${12}> 
+                <${Form.Item} label="评分" name="rating"> 
+                  <${InputNumber} min=${0} max=${5} step=${0.1} style=${{ width: '100%' }} /> 
+                </${Form.Item}> 
+              </${Col}> 
+              <${Col} span=${12}> 
+                <${Form.Item} label="门票价格" name="ticket_price"> 
+                  <${InputNumber} min=${0} step=${0.01} style=${{ width: '100%' }} /> 
+                </${Form.Item}> 
+              </${Col}> 
+            </${Row}> 
+          </${Form}> 
+        </${Modal}> 
+
+        <${Modal} 
+          title=${editingPageId ? '编辑页面（将新建一条记录）' : '新增页面'} 
+          open=${pageModalOpen} 
+          onOk=${submitPage} 
+          onCancel=${() => setPageModalOpen(false)} 
+          confirmLoading=${pageSaving} 
+          destroyOnClose 
+          width=${720} 
+        > 
+          <${Text} type="warning" style=${{ display: 'block', marginBottom: 8 }}> 
+            说明：当前后端仅提供 POST /pages；编辑会以相同内容再提交一条（与旧版行为一致）。后续可接 PUT 与 Monaco 编辑器。 
+          </${Text}> 
+          <${Form} form=${pageForm} layout="vertical" preserve=${false}> 
+            <${Form.Item} name="id" hidden><${Input} /></${Form.Item}> 
+            <${Form.Item} label="页面名称" name="name" rules=${[{ required: true }]}> 
+              <${Input} /> 
+            </${Form.Item}> 
+            <${Form.Item} label="页面标题" name="title" rules=${[{ required: true }]}> 
+              <${Input} /> 
+            </${Form.Item}> 
+            <${Form.Item} label="HTML 内容" name="html_content" rules=${[{ required: true }]}> 
+              <${Input.TextArea} rows=${8} /> 
+            </${Form.Item}> 
+            <${Form.Item} label="CSS 内容" name="css_content"> 
+              <${Input.TextArea} rows=${4} /> 
+            </${Form.Item}> 
+          </${Form}> 
+        </${Modal}> 
+
+        <${Modal} 
+          title="新增配置" 
+          open=${configModalOpen} 
+          onOk=${submitConfig} 
+          onCancel=${() => setConfigModalOpen(false)} 
+          confirmLoading=${configSaving} 
+          destroyOnClose 
+        > 
+          <${Form} form=${configForm} layout="vertical" preserve=${false} style=${{ marginTop: 16 }}> 
+            <${Form.Item} label="配置键" name="key" rules=${[{ required: true }]}> 
+              <${Input} /> 
+            </${Form.Item}> 
+            <${Form.Item} label="配置值" name="value" rules=${[{ required: true }]}> 
+              <${Input} /> 
+            </${Form.Item}> 
+            <${Form.Item} label="值类型" name="value_type"> 
+              <${Select} 
+                options=${[ 
+                  { value: 'string', label: '字符串' }, 
+                  { value: 'int', label: '整数' }, 
+                  { value: 'float', label: '浮点数' }, 
+                  { value: 'bool', label: '布尔值' }, 
+                  { value: 'json', label: 'JSON' }, 
+                ]} 
+              /> 
+            </${Form.Item}> 
+            <${Form.Item} label="分类" name="category"> 
+              <${Input} placeholder="如 basic" /> 
+            </${Form.Item}> 
+            <${Form.Item} name="is_public" valuePropName="checked"> 
+              <${Checkbox}>公开</${Checkbox}> 
+            </${Form.Item}> 
+          </${Form}> 
+        </${Modal}> 
+      </${Layout}>` 
+    } 
+
+    function RootApp() { 
+      return html`<${ConfigProvider} 
+        locale=${zhCN} 
+        theme=${{ 
+          token: { 
+            colorPrimary: '#2563eb', 
+            colorSuccess: '#10b981', 
+            colorWarning: '#f59e0b', 
+            colorError: '#ef4444', 
+            colorBgLayout: '#f8fafc', 
+            borderRadius: 8, 
+            fontFamily: 
+              "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif", 
+          }, 
+          algorithm: theme.defaultAlgorithm, 
+        }} 
+      > 
+        <${App}> 
+          <${AdminGate}> 
+            <${AdminShell} /> 
+          </${AdminGate}> 
+        </${App}> 
+      </${ConfigProvider}>` 
+    } 
+
+    createRoot(document.getElementById('root')).render(html`<${RootApp} />`) 
+  </script> 
+</body> 
+</html> 

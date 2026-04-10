@@ -1,0 +1,105 @@
+﻿# 告警规则配置
+groups:
+  - name: travel-assistant-alerts
+    rules:
+      # API 响应时间告警
+      - alert: HighApiResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API 响应时间过高"
+          description: "API 响应时间在最近5分钟内超过2秒: {{ $value }}s"
+
+      # API 错误率告警
+      - alert: HighApiErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API 错误率过高"
+          description: "API 错误率在最近5分钟内超过5%: {{ $value }}"
+
+      # 数据库连接数告警
+      - alert: HighDatabaseConnections
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "数据库连接数过高"
+          description: "数据库连接数使用率超过80%: {{ $value }}"
+
+      # Redis 内存使用率告警
+      - alert: HighRedisMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis 内存使用率过高"
+          description: "Redis 内存使用率超过80%: {{ $value }}"
+
+      # 应用无响应告警
+      - alert: ApplicationDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "应用服务无响应"
+          description: "应用服务 {{ $labels.instance }} 在过去1分钟内无响应"
+
+      # 高CPU使用率告警
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU使用率过高"
+          description: "CPU使用率在最近5分钟内超过80%: {{ $value }}"
+
+      # 高内存使用率告警
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存使用率过高"
+          description: "内存使用率在最近5分钟内超过85%: {{ $value }}"
+
+  - name: travel-assistant-business-alerts
+    rules:
+      # 订单量异常告警
+      - alert: LowOrderRate
+        expr: rate(orders_created_total[1h]) < 1
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "订单创建率过低"
+          description: "过去1小时订单创建率低于1个/小时: {{ $value }}"
+
+      # 用户活跃度异常告警
+      - alert: LowUserActivity
+        expr: rate(user_logins_total[1h]) < 5
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "用户活跃度过低"
+          description: "过去1小时用户登录数少于5次: {{ $value }}"
+
+      # 支付失败率告警
+      - alert: HighPaymentFailureRate
+        expr: rate(payment_failed_total[5m]) / rate(payment_attempts_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "支付失败率过高"
+          description: "支付失败率在最近5分钟内超过10%: {{ $value }}"

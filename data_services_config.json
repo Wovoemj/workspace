@@ -1,0 +1,149 @@
+﻿{
+  "_comment": "数据服务配置文件 - 定义所有Docker服务的启动参数",
+  "services": {
+    "_comment_mysql": "MySQL数据库服务 - 用于存储用户数据、订单等结构化数据",
+    "mysql": {
+      "name": "MySQL Database",
+      "command": "docker run --name mysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=travel_assistant -e MYSQL_USER=travel_user -e MYSQL_PASSWORD=travel_pass mysql:8.0",
+      "working_dir": ".",
+      "environment": {
+        "MYSQL_ROOT_PASSWORD": "rootpassword",
+        "MYSQL_DATABASE": "travel_assistant",
+        "MYSQL_USER": "travel_user",
+        "MYSQL_PASSWORD": "travel_pass"
+      },
+      "depends_on": [],
+      "health_check": "mysqladmin ping -h localhost",
+      "timeout": 60,
+      "auto_restart": true,
+      "max_restarts": 3
+    },
+    "_comment_redis": "Redis缓存服务 - 用于API响应缓存、会话存储等",
+    "redis": {
+      "name": "Redis Cache",
+      "command": "docker run --name redis -d -p 6379:6379 redis:7-alpine redis-server --appendonly yes",
+      "working_dir": ".",
+      "environment": {
+        "REDIS_PASSWORD": "",
+        "REDIS_MAXMEMORY": "512mb",
+        "REDIS_MAXMEMORY_POLICY": "allkeys-lru"
+      },
+      "depends_on": [],
+      "health_check": "redis-cli ping",
+      "timeout": 30,
+      "auto_restart": true,
+      "max_restarts": 3
+    },
+    "_comment_elasticsearch": "Elasticsearch搜索引擎 - 用于全文搜索和日志分析",
+    "elasticsearch": {
+      "name": "Elasticsearch",
+      "command": "docker run --name elasticsearch -d -p 9200:9200 -p 9300:9300 -e \"discovery.type=single-node\" -e \"ES_JAVA_OPTS=-Xms512m -Xmx512m\" elasticsearch:8.11.0",
+      "working_dir": ".",
+      "environment": {
+        "discovery.type": "single-node",
+        "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
+      },
+      "depends_on": [],
+      "health_check": "curl -f http://localhost:9200/_cluster/health",
+      "timeout": 120,
+      "auto_restart": true,
+      "max_restarts": 2
+    },
+    "_comment_mongodb": "MongoDB文档数据库 - 用于存储非结构化数据",
+    "mongodb": {
+      "name": "MongoDB",
+      "command": "docker run --name mongodb -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=adminpass mongo:7.0",
+      "working_dir": ".",
+      "environment": {
+        "MONGO_INITDB_ROOT_USERNAME": "admin",
+        "MONGO_INITDB_ROOT_PASSWORD": "adminpass"
+      },
+      "depends_on": [],
+      "health_check": "mongosh --eval 'db.runCommand(\"ping\").ok'",
+      "timeout": 60,
+      "auto_restart": true,
+      "max_restarts": 3
+    },
+    "_comment_neo4j": "Neo4j图数据库 - 用于知识图谱和关系数据",
+    "neo4j": {
+      "name": "Neo4j Graph Database",
+      "command": "docker run --name neo4j -d -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:5.15.0",
+      "working_dir": ".",
+      "environment": {
+        "NEO4J_AUTH": "neo4j/password"
+      },
+      "depends_on": [],
+      "health_check": "curl -f http://localhost:7474",
+      "timeout": 90,
+      "auto_restart": true,
+      "max_restarts": 2
+    },
+    "_comment_rabbitmq": "RabbitMQ消息队列 - 用于异步任务处理和事件驱动",
+    "rabbitmq": {
+      "name": "RabbitMQ Message Queue",
+      "command": "docker run --name rabbitmq -d -p 5672:5672 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=adminpass rabbitmq:3.12-management",
+      "working_dir": ".",
+      "environment": {
+        "RABBITMQ_DEFAULT_USER": "admin",
+        "RABBITMQ_DEFAULT_PASS": "adminpass"
+      },
+      "depends_on": [],
+      "health_check": "curl -f http://localhost:15672",
+      "timeout": 60,
+      "auto_restart": true,
+      "max_restarts": 3
+    },
+    "_comment_influxdb": "InfluxDB时序数据库 - 用于存储监控指标和时间序列数据",
+    "influxdb": {
+      "name": "InfluxDB Time Series",
+      "command": "docker run --name influxdb -d -p 8086:8086 -e DOCKER_INFLUXDB_INIT_MODE=setup -e DOCKER_INFLUXDB_INIT_USERNAME=admin -e DOCKER_INFLUXDB_INIT_PASSWORD=adminpass -e DOCKER_INFLUXDB_INIT_ORG=travel_assistant -e DOCKER_INFLUXDB_INIT_BUCKET=metrics influxdb:2.7",
+      "working_dir": ".",
+      "environment": {
+        "DOCKER_INFLUXDB_INIT_MODE": "setup",
+        "DOCKER_INFLUXDB_INIT_USERNAME": "admin",
+        "DOCKER_INFLUXDB_INIT_PASSWORD": "adminpass",
+        "DOCKER_INFLUXDB_INIT_ORG": "travel_assistant",
+        "DOCKER_INFLUXDB_INIT_BUCKET": "metrics"
+      },
+      "depends_on": [],
+      "health_check": "curl -f http://localhost:8086/health",
+      "timeout": 60,
+      "auto_restart": true,
+      "max_restarts": 3
+    },
+    "_comment_grafana": "Grafana监控面板 - 用于可视化监控数据",
+    "grafana": {
+      "name": "Grafana Monitoring",
+      "command": "docker run --name grafana -d -p 3000:3000 -e GF_SECURITY_ADMIN_PASSWORD=admin grafana/grafana:latest",
+      "working_dir": ".",
+      "environment": {
+        "GF_SECURITY_ADMIN_PASSWORD": "admin"
+      },
+      "depends_on": ["prometheus"],
+      "health_check": "curl -f http://localhost:3000",
+      "timeout": 30,
+      "auto_restart": true,
+      "max_restarts": 3
+    },
+    "_comment_prometheus": "Prometheus监控系统 - 用于收集和存储监控指标",
+    "prometheus": {
+      "name": "Prometheus Monitoring",
+      "command": "docker run --name prometheus -d -p 9090:9090 -v $(pwd)/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest",
+      "working_dir": ".",
+      "environment": {},
+      "depends_on": [],
+      "health_check": "curl -f http://localhost:9090/-/healthy",
+      "timeout": 30,
+      "auto_restart": true,
+      "max_restarts": 3
+    }
+  },
+  "_comment_global_settings": "全局设置 - 控制服务管理器的行为",
+  "global_settings": {
+    "docker_cleanup": true,
+    "log_level": "INFO",
+    "health_check_interval": 30,
+    "auto_restart_interval": 300,
+    "max_concurrent_starts": 3
+  }
+}

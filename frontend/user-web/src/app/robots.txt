@@ -1,0 +1,4 @@
+﻿User-Agent: *
+Allow: /
+
+Sitemap: https://travel-assistant.example.com/sitemap.xml
