@@ -21,21 +21,21 @@ export default function CartPage() {
   const onAddSample = () => {
     addItem({
       product_id: 'demo_exp_1',
-            product_name: '示例：杭州周边体?',
+      product_name: '示例：杭州周边体验',
       product_type: 'experience',
       quantity: 1,
       unit_price: 199,
     })
-        toast.success('已加入示例到购物?')
+    toast.success('已加入示例到购物车')
   }
 
-  const onCheckout = async () => {
+const onCheckout = async () => {
     if (!user?.id) {
       toast.error('请先登录')
       return
     }
     if (items.length === 0) {
-            toast.error('购物车为?')
+      toast.error('购物车为空')
       return
     }
 
@@ -92,31 +92,31 @@ export default function CartPage() {
 
   const onLogout = () => {
     logout()
-        toast.success('已退出登?')
+    toast.success('已退出登录')
     router.push('/')
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="card p-6">
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">购物</h1>
-                <p className="text-gray-600 mt-2">提交订单会调用后?`/api/orders` 创建订单（不包含真实支付）?/p>
+                <h1 className="text-2xl font-bold text-gray-900">购物车</h1>
+                <p className="text-gray-600 mt-2">提交订单会调用后端 `/api/orders` 创建订单（不包含真实支付）</p>
               </div>
               {isAuthenticated ? (
                 <button onClick={onLogout} className="btn btn-outline">
-                  退出登?
+                  退出登录
                 </button>
               ) : null}
             </div>
 
             {!isAuthenticated ? (
               <div className="mt-6 card p-4 bg-white border border-gray-200 text-gray-700">
-                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看购物车并提交订单?
+                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看购物车并提交订单
               </div>
             ) : items.length === 0 ? (
               <div className="mt-6 card p-6 text-gray-600">
@@ -183,7 +183,7 @@ export default function CartPage() {
                         清空购物?
                       </button>
                       <button className="btn btn-primary" onClick={onCheckout} disabled={submitting}>
-                        {submitting ? '提交中? : '提交订单'}
+                        {submitting ? '提交中...' : '提交订单'}
                       </button>
                     </div>
                   </div>

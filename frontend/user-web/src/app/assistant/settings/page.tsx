@@ -42,8 +42,8 @@ function uid() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
-/** 内联删除确认按钮：首次点击进入「确认？」状态，再次点击执行删除，移开鼠标则重?*/
-function DeleteConfirmButton({ onConfirm, label = '删除' }: { onConfirm: () {
+/** 内联删除确认按钮：首次点击进入「确认？」状态，再次点击执行删除，移开鼠标则重置 */
+function DeleteConfirmButton({ onConfirm, label = '删除' }: { onConfirm: () => void; label?: string }) {
   const [confirming, setConfirming] = useState(false)
   return confirming ? (
     <span className="inline-flex items-center gap-1">
@@ -87,17 +87,17 @@ const WEB_TOOL_META: Record<
 > = {
   brave: {
     label: 'Brave 搜索',
-        desc: '网页检索与摘要，适合事实核对与资料查找?',
+        desc: '网页检索与摘要，适合事实核对与资料查找',
     icon: Search,
   },
   news: {
     label: '联网新闻',
-        desc: '抓取近期新闻标题与摘要（演示：由助手侧工具启用后生效）?',
+        desc: '抓取近期新闻标题与摘要（演示：由助手侧工具启用后生效）',
     icon: Newspaper,
   },
   weather: {
     label: '实时天气',
-        desc: '按城市查询当前天气概况（演示：需后端工具接入）?',
+        desc: '按城市查询当前天气概况（演示：需后端工具接入）',
     icon: CloudSun,
   },
 }
@@ -162,7 +162,7 @@ export default function AssistantSettingsPage() {
       uploadedAt: Date.now(),
     }
     persist({ ...settings, kbFiles: [...settings.kbFiles, row] })
-        toast.success('已加入处理队?')
+        toast.success('已加入处理队列')
     window.setTimeout(() => {
       const next = loadAiAgentSettings()
       const kbFiles = next.kbFiles.map((k) =>
@@ -179,7 +179,7 @@ export default function AssistantSettingsPage() {
 
   const removeKb = (id: string) => {
     persist({ ...settings, kbFiles: settings.kbFiles.filter((k) => k.id !== id) })
-        toast.success('已移?')
+        toast.success('已移除')
   }
 
   const openExternal = (kind: 'dh' | 'vc') => {
@@ -188,7 +188,7 @@ export default function AssistantSettingsPage() {
       window.setTimeout(() => {
         setDhLoading(false)
         persist({ ...settings, digitalHumanConfigured: true })
-                toast.success('已标记数字人工作台（演示?')
+                toast.success('已标记数字人工作台（演示）')
       }, 900)
       return
     }
@@ -203,7 +203,7 @@ export default function AssistantSettingsPage() {
   const exportJson = async () => {
     try {
       await navigator.clipboard.writeText(JSON.stringify(settings, null, 2))
-            toast.success('配置 JSON 已复?')
+            toast.success('配置 JSON 已复制')
     } catch {
       toast.error('复制失败')
     }
@@ -267,9 +267,9 @@ export default function AssistantSettingsPage() {
   const kbBadge = useMemo(() => {
     const n = settings.kbFiles.length
     const ready = settings.kbFiles.filter((k) => k.status === 'ready').length
-        if (!n) return { text: '未上?', tone: 'bg-slate-100 text-slate-600 border-slate-200' }
-        if (ready === n) return { text: '已就?', tone: 'bg-emerald-50 text-emerald-800 border-emerald-200' }
-        return { text: '处理?', tone: 'bg-amber-50 text-amber-900 border-amber-200' }
+    if (!n) return { text: '未上传', tone: 'bg-slate-100 text-slate-600 border-slate-200' }
+    if (ready === n) return { text: '已就绪', tone: 'bg-emerald-50 text-emerald-800 border-emerald-200' }
+    return { text: '处理中', tone: 'bg-amber-50 text-amber-900 border-amber-200' }
   }, [settings.kbFiles])
 
   if (!hydrated) {
@@ -281,7 +281,7 @@ export default function AssistantSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen page-bg">
       <Navbar />
 
       <main className="pt-16 pb-20">
@@ -298,9 +298,9 @@ export default function AssistantSettingsPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
                 <Settings2 className="h-3.5 w-3.5" />
-                智能体配置中?
+                智能体配置中
               </div>
-              <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">智能体配</h1>
+              <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">智能体配置</h1>
               <p className="mt-2 text-sm text-muted-foreground max-w-2xl leading-relaxed">
                 集中管理知识库、桌面扩展能力与联网工具开关；下方预览区用于快速调试对话。配置默认保存在浏览器本地，可导?JSON 备份?
               </p>
@@ -321,7 +321,7 @@ export default function AssistantSettingsPage() {
                 className="travel-btn-gradient inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold disabled:opacity-60 active:scale-[0.98] transition"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                {saving ? '保存中? : '保存并应?'}
+                                {saving ? '保存中...' : '保存并应用'}
               </button>
             </div>
           </div>
@@ -343,15 +343,15 @@ export default function AssistantSettingsPage() {
                 </span>
               )}
             </div>
-            <p className="text-sm text-muted-foreground mt-1">系统提示词、欢迎语与底层模型（展示用选项可与后端实际可用模型对齐）?/p>
+            <p className="text-sm text-muted-foreground mt-1">系统提示词、欢迎语与底层模型（展示用选项可与后端实际可用模型对齐）</p>
             <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
-                <label className="text-sm font-semibold text-foreground">系统提示词（System Prompt?/label>
+                <label className="text-sm font-semibold text-foreground">系统提示词（System Prompt）</label>
                 <textarea
                   className="input mt-1.5 min-h-[100px] w-full resize-y"
-                  value={settings.systemPrompt}   // value?
+                  value={settings.systemPrompt}
                   onChange={(e) => setSettings((s) => ({ ...s, systemPrompt: e.target.value }))}
-                  placeholder="定义助手人设、语气与边界?
+                  placeholder="定义助手人设、语气与边界"
                 />
               </div>
               <div>
@@ -377,12 +377,12 @@ export default function AssistantSettingsPage() {
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm font-semibold text-foreground">敏感?/ 输出过滤（每行一条，可选）</label>
+                <label className="text-sm font-semibold text-foreground">敏感词/ 输出过滤（每行一条，可选）</label>
                 <textarea
                   className="input mt-1.5 min-h-[80px] w-full font-mono text-xs"
-                  value={settings.filterRules}   // value?
+                  value={settings.filterRules}
                   onChange={(e) => setSettings((s) => ({ ...s, filterRules: e.target.value }))}
-                  placeholder="例如?#10;竞品名A&#10;内部代号"
+                  placeholder="例如：竞品名A&#10;内部代号"
                 />
                 <p className="text-xs text-muted-foreground mt-1">当前为前端记录；真正拦截需在服务端审核链路实现</p>
               </div>
@@ -414,7 +414,7 @@ export default function AssistantSettingsPage() {
               </div>
 
               <p className="text-xs text-muted-foreground mt-4">
-                支持格式?span className="font-medium text-foreground">PDF、Word?doc/.docx）、TXT、Markdown</span>
+                支持格式：<span className="font-medium text-foreground">PDF、Word（.doc/.docx）、TXT、Markdown</span>
                 （演示：任意文件会进入模拟解析队列）
               </p>
 
@@ -476,11 +476,11 @@ export default function AssistantSettingsPage() {
                       : 'bg-slate-100 text-slate-600 border-slate-200'
                   }`}
                 >
-                                    {settings.digitalHumanConfigured ? '已配? : '未配?'}
+                                    {settings.digitalHumanConfigured ? '已配置' : '未配置'}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-4">
-                <span className="font-medium text-foreground">什么是数字人？</span> 将助手以虚拟形象呈现，适合接待与讲解场景?
+                <span className="font-medium text-foreground">什么是数字人？</span> 将助手以虚拟形象呈现，适合接待与讲解场景
                 <button
                   type="button"
                   title="在桌面客户端完成摄像头与形象绑定"
@@ -496,7 +496,7 @@ export default function AssistantSettingsPage() {
                 className="mt-3 w-full travel-btn-gradient inline-flex items-center justify-center gap-2 py-2.5 active:scale-[0.99] transition disabled:opacity-70"
               >
                 {dhLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-                {dhLoading ? '正在打开? : '进入桌面数字人工作台'}
+                {dhLoading ? '正在打开...' : '进入桌面数字人工作台'}
               </button>
             </div>
 
@@ -517,12 +517,12 @@ export default function AssistantSettingsPage() {
                     settings.voiceCloneName ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'
                   }`}
                 >
-                                    {settings.voiceCloneName ? '已克? : '未配?'}
+                                    {settings.voiceCloneName ? '已克隆' : '未配置'}
                 </span>
               </div>
               <div className="mt-4 rounded-xl border border-border/50 bg-muted/30 px-3 py-2 text-sm">
                 <span className="text-muted-foreground">当前默认音色</span>
-                                <span className="font-medium">{settings.voiceCloneName || '未设置（使用系统默认?'}</span>
+                                <span className="font-medium">{settings.voiceCloneName || '未设置（使用系统默认）'}</span>
               </div>
               <button
                 type="button"
@@ -531,7 +531,7 @@ export default function AssistantSettingsPage() {
                 className="mt-3 w-full btn btn-outline inline-flex items-center justify-center gap-2 py-2.5 hover:bg-rose-50/50 hover:border-rose-300/50 active:scale-[0.99] transition"
               >
                 {vcLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-                                {vcLoading ? '正在打开? : '进入桌面音色克隆工作?'}
+                                {vcLoading ? '正在打开...' : '进入桌面音色克隆工作台'}
               </button>
             </div>
 
@@ -568,7 +568,7 @@ export default function AssistantSettingsPage() {
                             </span>
                           </div>
                           <div className={`text-[11px] mt-0.5 font-medium ${on ? 'text-cyan-600' : 'text-muted-foreground/60'}`}>
-                                                        {on ? '🟢 已启? : '?已关?'}
+                                                        {on ? '🟢 已启用' : '⚪ 已关闭'}
                           </div>
                         </div>
                       </div>
@@ -605,12 +605,12 @@ export default function AssistantSettingsPage() {
               <Bot className="h-5 w-5 text-sky-600" />
               API 调用统计（本地累计）
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">预览区每次成功调?/api/chat 后累加，便于观察用量（费用为粗略估算）?/p>
+            <p className="text-sm text-muted-foreground mt-1">预览区每次成功调用 /api/chat 后累加，便于观察用量（费用为粗略估算）</p>
             <div className="mt-4 grid grid-cols-3 gap-3">
               {[
                 { k: '调用次数', v: String(settings.stats.calls) },
-                                { k: 'Token（估?', v: String(settings.stats.tokens) },
-                                { k: '费用（估?', v: `¥${settings.stats.estCost.toFixed(4)}` },
+                                { k: 'Token（估算）', v: String(settings.stats.tokens) },
+                                { k: '费用（估算）', v: `¥${settings.stats.estCost.toFixed(4)}` },
               ].map((row) => (
                 <div key={row.k} className="rounded-2xl border border-border/60 bg-background/60 px-4 py-3">
                   <div className="text-xs text-muted-foreground">{row.k}</div>
@@ -648,7 +648,7 @@ export default function AssistantSettingsPage() {
                   type="button"
                   onClick={() => setPreviewExpanded((v) => !v)}
                   className="p-2 rounded-xl border border-border/60 hover:bg-background/80 transition active:scale-95"
-                  title={previewExpanded ? '退出全? : '全屏预览'}
+                  title={previewExpanded ? '退出全屏' : '全屏预览'}
                 >
                   {previewExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </button>

@@ -22,7 +22,7 @@ export default function PrivacyPage() {
               <span className="text-xl font-bold">法律声明</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">隐私政策</h1>
-            <p className="text-white/80">最后更新日期：2026???/p>
+            <p className="text-white/80">最后更新日期：2026年4月10日</p>
           </div>
         </div>
 
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
             <div className="prose prose-slate max-w-none">
               <h2 className="text-xl font-bold text-slate-900 mb-4">1. 信息收集</h2>
               <p className="text-slate-600 mb-4">
-                我们收集您主动提供的信息，包括注册信息（姓名、手机号、电子邮箱）、行程偏好、搜索记录等，以为您提供个性化的旅行服务?
+                我们收集您主动提供的信息，包括注册信息（姓名、手机号、电子邮箱）、行程偏好、搜索记录等，以为您提供个性化的旅行服务。
               </p>
 
               <h2 className="text-xl font-bold text-slate-900 mb-4">2. 信息使用</h2>
@@ -66,9 +66,9 @@ export default function PrivacyPage() {
 
               <h2 className="text-xl font-bold text-slate-900 mb-4">7. 联系我们</h2>
               <p className="text-slate-600 mb-4">
-                如您对隐私政策有任何疑问，请联系我们?br />
+                如您对隐私政策有任何疑问，请联系我们。<br />
                 邮箱：privacy@travelai.com<br />
-                电话?00-888-9999
+                电话：400-888-9999
               </p>
             </div>
           </div>

@@ -110,7 +110,7 @@ export default function TicketPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen page-bg">
         <Navbar />
         <main className="pt-16">
           <div className="max-w-2xl mx-auto px-4 py-12">
@@ -127,7 +127,7 @@ export default function TicketPage() {
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen page-bg">
         <Navbar />
         <main className="pt-16">
           <div className="max-w-2xl mx-auto px-4 py-12">
@@ -148,7 +148,7 @@ export default function TicketPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

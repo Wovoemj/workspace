@@ -14,10 +14,10 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
 const tripTypes = [
-    { icon: Car, name: '自驾?', desc: '自由驰骋，随心所?', count: 128 },
-    { icon: Bike, name: '骑行?', desc: '绿色出行，健康休?', count: 86 },
-    { icon: Footprints, name: '徒步?', desc: '亲近自然，挑战自?', count: 64 },
-    { icon: MapPin, name: '周末?', desc: '说走就走，周末出?', count: 256 },
+        { icon: Car, name: '自驾？', desc: '自由驰骋，随心所？', count: 128 },
+        { icon: Bike, name: '骑行？', desc: '绿色出行，健康休？', count: 86 },
+        { icon: Footprints, name: '徒步？', desc: '亲近自然，挑战自？', count: 64 },
+        { icon: MapPin, name: '周末？', desc: '说走就走，周末出？', count: 256 },
 ]
 
 const nearbySpots = [
@@ -25,13 +25,13 @@ const nearbySpots = [
   { name: '千年古镇水乡', distance: '35km', tags: ['人文', '美食'], price: '¥50' },
   { name: '海滨度假小镇', distance: '50km', tags: ['海滨', '休闲'], price: '免费' },
   { name: '高山草甸露营', distance: '80km', tags: ['露营', '星空'], price: '¥30' },
-    { name: '生态农庄采?', distance: '25km', tags: ['亲子', '农家'], price: '¥80' },
+        { name: '生态农庄采？', distance: '25km', tags: ['亲子', '农家'], price: '¥80' },
   { name: '峡谷漂流探险', distance: '60km', tags: ['刺激', '水上'], price: '¥180' },
 ]
 
 export default function LocalDestinationsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
 

@@ -16,22 +16,22 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
 const features = [
-  { icon: Brain, title: 'AI智能规划', desc: '基于您的偏好和预算，AI智能生成最优行程路? },
+  { icon: Brain, title: 'AI智能规划', desc: '基于您的偏好和预算，AI智能生成最优行程路线' },
   { icon: Route, title: '个性化定制', desc: '根据您的兴趣点，定制专属旅行体验' },
   { icon: Calendar, title: '日程管理', desc: '自动生成每日时间表，合理安排行程' },
-  { icon: MapPin, title: '景点推荐', desc: '精选目的地，发现当地独特风? },
+  { icon: MapPin, title: '景点推荐', desc: '精选目的地，发现当地独特风景' },
 ]
 
 const steps = [
-    { step: '1', title: '输入需?', desc: '告诉AI您的旅行目的地、时间、人数和偏好' },
+        { step: '1', title: '输入需求', desc: '告诉AI您的旅行目的地、时间、人数和偏好' },
   { step: '2', title: 'AI生成', desc: '智能算法为您规划最优路线和日程安排' },
   { step: '3', title: '自由调整', desc: '根据您的意见随时修改行程细节' },
-    { step: '4', title: '一键出?', desc: '生成完整行程单，随时查看和分? },
+        { step: '4', title: '一键出行', desc: '生成完整行程单，随时查看和分享' },
 ]
 
 export default function ItineraryServicePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
 
@@ -97,8 +97,8 @@ export default function ItineraryServicePage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-6">适用场景</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                                '周末周边自驾?', '小长假深度游', '亲子家庭?',
-                                '情侣浪漫之旅', '闺蜜购物之旅', '商务出差顺便?',
+                                                                '周末周边自驾？', '小长假深度游', '亲子家庭？',
+                                                                '情侣浪漫之旅', '闺蜜购物之旅', '商务出差顺便？',
               ].map((scene) => (
                 <div key={scene} className="flex items-center gap-3 bg-white rounded-xl p-4">
                   <CheckCircle className="h-5 w-5 text-blue-500 shrink-0" />

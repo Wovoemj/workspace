@@ -1,0 +1,89 @@
+{
+  "common": {
+    "home": "ホーム",
+    "destinations": "観光地",
+    "products": "商品",
+    "assistant": "AIアシスタント",
+    "itineraries": "旅程",
+    "travelNotes": "ガイド",
+    "support": "サポート",
+    "login": "ログイン",
+    "register": "登録",
+    "logout": "ログアウト",
+    "search": "検索",
+    "searchPlaceholder": "観光地または商品を検索...",
+    "myProfile": "マイページ",
+    "favorites": "お気に入り",
+    "orders": "注文",
+    "coupons": "クーポン",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "share": "共有",
+    "back": "戻る"
+  },
+  "nav": {
+    "home": "ホーム",
+    "destinations": "観光地",
+    "products": "商品",
+    "assistant": "AIアシスタント",
+    "itineraries": "マイ旅程",
+    "travelNotes": "ガイド",
+    "support": "サポート",
+    "coupons": "クーポン",
+    "profile": "マイページ"
+  },
+  "footer": {
+    "about": "会社概要",
+    "contact": "お問い合わせ",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "copyright": "著作権所有"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "confirmPassword": "パスワード確認",
+    "username": "ユーザー名",
+    "nickname": "ニックネーム",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "hasAccount": "アカウントをお持ちですか？",
+    "loginSuccess": "ログイン成功",
+    "registerSuccess": "登録成功"
+  },
+  "destination": {
+    "ticketPrice": "チケット",
+    "openTime": "営業時間",
+    "rating": "評価",
+    "location": "所在地",
+    "description": "紹介",
+    "mapView": "地図で見る",
+    "addFavorite": "お気に入りに追加",
+    "removeFavorite": "お気に入りから削除"
+  },
+  "trip": {
+    "create": "旅程を作成",
+    "edit": "旅程を編集",
+    "delete": "旅程を削除",
+    "share": "旅程を共有",
+    "day": "{day}日目",
+    "noTrips": "旅程がありません",
+    "createFirst": "最初の旅行を計画しましょう！"
+  },
+  "coupon": {
+    "claim": "今すぐ领取",
+    "claimed": "领取済み",
+    "use": "今すぐ使用",
+    "expired": "期限切れ",
+    "available": "领取可能",
+    "my": "マイクーポン"
+  }
+}

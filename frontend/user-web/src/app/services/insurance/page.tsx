@@ -13,14 +13,14 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
 const plans = [
-    { name: '基础保障', price: '¥20', coverage: ['意外伤害 10?', '意外医疗 1?', '航班延误 200?'], popular: false },
-    { name: '尊享保障', price: '¥50', coverage: ['意外伤害 30?', '意外医疗 3?', '航班延误 500?', '行李丢失 500?'], popular: true },
-    { name: '至尊保障', price: '¥100', coverage: ['意外伤害 50?', '意外医疗 5?', '航班延误 1000?', '行李丢失 2000?', '紧急救?'], popular: false },
+        { name: '基础保障', price: '¥20', coverage: ['意外伤害 10万', '意外医疗 1万', '航班延误 200元'], popular: false },
+        { name: '尊享保障', price: '¥50', coverage: ['意外伤害 30万', '意外医疗 3万', '航班延误 500元', '行李丢失 500元'], popular: true },
+        { name: '至尊保障', price: '¥100', coverage: ['意外伤害 50万', '意外医疗 5万', '航班延误 1000元', '行李丢失 2000元', '紧急救援'], popular: false },
 ]
 
 export default function InsurancePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
@@ -40,9 +40,9 @@ export default function InsurancePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
             {[
-              { icon: Heart, title: '全程保障', desc: '从出发到返回，全程守? },
-                            { icon: Clock, title: '快速理?', desc: '线上报案，快速审? },
-                            { icon: DollarSign, title: '高性价?', desc: '最?0元起，保障一整程' },
+              { icon: Heart, title: '全程保障', desc: '从出发到返回，全程守护' },
+                                                        { icon: Clock, title: '快速理赔', desc: '线上报案，快速审核' },
+                                                        { icon: DollarSign, title: '高性价比', desc: '最低20元起，保障一整程' },
             ].map((item) => {
               const Icon = item.icon
               return (
@@ -67,7 +67,7 @@ export default function InsurancePage() {
                 )}
                 <div className="text-center mb-6">
                   <h3 className="text-xl font-bold text-slate-900 mb-2">{plan.name}</h3>
-                  <div className="text-3xl font-bold text-blue-600">{plan.price}<span className="text-base text-slate-500">/?/span></div>
+                  <div className="text-3xl font-bold text-blue-600">{plan.price}<span className="text-base text-slate-500">/起</span></div>
                 </div>
                 <ul className="space-y-3 mb-6">
                   {plan.coverage.map((item) => (
@@ -89,10 +89,10 @@ export default function InsurancePage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">理赔流程</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                { step: '01', title: '报案', desc: '发生事故后，联系客服或线上报? },
+                { step: '01', title: '报案', desc: '发生事故后，联系客服或线上报案' },
                 { step: '02', title: '提交材料', desc: '上传相关证明材料' },
                 { step: '03', title: '审核', desc: '保险公司审核材料' },
-                { step: '04', title: '理赔', desc: '审核通过后，快速打? },
+                { step: '04', title: '理赔', desc: '审核通过后，快速打款' },
               ].map((item) => (
                 <div key={item.step} className="text-center">
                   <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">

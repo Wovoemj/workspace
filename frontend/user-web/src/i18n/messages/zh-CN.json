@@ -1,0 +1,89 @@
+{
+  "common": {
+    "home": "首页",
+    "destinations": "目的地",
+    "products": "产品",
+    "assistant": "AI助手",
+    "itineraries": "行程",
+    "travelNotes": "攻略",
+    "support": "客服",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录",
+    "search": "搜索",
+    "searchPlaceholder": "搜索目的地或产品...",
+    "myProfile": "我的",
+    "favorites": "收藏",
+    "orders": "订单",
+    "coupons": "优惠券",
+    "loading": "加载中...",
+    "error": "出错了",
+    "retry": "重试",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "share": "分享",
+    "back": "返回"
+  },
+  "nav": {
+    "home": "首页",
+    "destinations": "目的地",
+    "products": "产品",
+    "assistant": "AI助手",
+    "itineraries": "我的行程",
+    "travelNotes": "攻略",
+    "support": "客服",
+    "coupons": "领券中心",
+    "profile": "个人中心"
+  },
+  "footer": {
+    "about": "关于我们",
+    "contact": "联系我们",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "copyright": "版权所有"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "email": "邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "username": "用户名",
+    "nickname": "昵称",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "没有账号？",
+    "hasAccount": "已有账号？",
+    "loginSuccess": "登录成功",
+    "registerSuccess": "注册成功"
+  },
+  "destination": {
+    "ticketPrice": "门票",
+    "openTime": "开放时间",
+    "rating": "评分",
+    "location": "位置",
+    "description": "介绍",
+    "mapView": "地图查看",
+    "addFavorite": "收藏",
+    "removeFavorite": "取消收藏"
+  },
+  "trip": {
+    "create": "创建行程",
+    "edit": "编辑行程",
+    "delete": "删除行程",
+    "share": "分享行程",
+    "day": "第{day}天",
+    "noTrips": "暂无行程",
+    "createFirst": "开始规划你的第一次旅行吧"
+  },
+  "coupon": {
+    "claim": "立即领取",
+    "claimed": "已领取",
+    "use": "立即使用",
+    "expired": "已过期",
+    "available": "可领取",
+    "my": "我的优惠券"
+  }
+}

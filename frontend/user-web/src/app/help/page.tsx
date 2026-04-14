@@ -17,28 +17,27 @@ const categories = [
   {
     title: '账户问题',
     icon: '👤',
-        items: ['如何注册账号', '忘记密码怎么?', '如何修改个人信息', '账户安全问题']
+                items: ['如何注册账号', '忘记密码怎么？', '如何修改个人信息', '账户安全问题']
   },
   {
     title: '行程规划',
-    icon: '🗺?,
+    icon: '🗺',
     items: ['如何使用AI规划', '如何创建行程', '如何添加景点', '行程如何分享']
   },
   {
     title: '订单问题',
     icon: '📦',
-        items: ['如何下单', '支付方式有哪?', '如何取消订单', '退款流?']
+    items: ['如何下单', '支付方式有哪些', '如何取消订单', '退款流程']
   },
   {
     title: '会员服务',
-    icon: '?,
-        items: ['会员等级说明', '如何升级会员', '会员权益有哪?', '积分如何使用']
+    icon: '👑',
   },
 ]
 
 export default function HelpPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
 
@@ -49,7 +48,7 @@ export default function HelpPage() {
               <span className="text-xl font-bold">客户支持</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">帮助中心</h1>
-            <p className="text-white/80">遇到问题？我们随时为您服</p>
+            <p className="text-white/80">遇到问题？我们随时为您服务</p>
           </div>
         </div>
 
@@ -101,7 +100,7 @@ export default function HelpPage() {
                   <h3 className="font-bold text-slate-900 text-lg">{cat.title}</h3>
                 </div>
                 <ul className="space-y-2">
-                  {cat.items.map((item) => (
+                  {cat.items?.map((item) => (
                     <li key={item}>
                       <Link href="/help/faq"
                         className="flex items-center justify-between text-slate-600 hover:text-blue-600 transition py-1">

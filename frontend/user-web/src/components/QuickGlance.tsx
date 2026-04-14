@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { Star, Gem, Crown, Award, Eye, History } from 'lucide-react'
 
 interface QuickGlanceItem {
@@ -14,7 +15,7 @@ interface QuickGlanceProps {
   items: QuickGlanceItem[]
 }
 
-const iconMap = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   star: Star,
   gem: Gem,
   crown: Crown,
@@ -29,11 +30,11 @@ export default function QuickGlance({ title = '必看清单', items }: QuickGlan
       <h3 className="text-h3 text-gray-900 mb-4">{title}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((item) => {
-          const Icon = iconMap[item.icon || 'star']
+          const Icon = iconMap[item.icon || 'star'] || Star
           return (
             <div key={item.id} className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Icon className="w-5 h-5 text-primary" />
+                {Icon && <Icon className="w-5 h-5 text-primary" />}
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">{item.title}</h4>

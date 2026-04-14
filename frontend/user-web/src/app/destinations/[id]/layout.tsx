@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     }
 
     const title = `${destination.name} - 完美旅程目的地详情`;
-    const description = destination.description || `${destination.name}位于${destination.city}，是一个值得游览的旅游目的地。`;
+    const description = destination.description?.replace(/\[citation:\d+\]/g, '') || `${destination.name}位于${destination.city}，是一个值得游览的旅游目的地。`;
 
     return {
       title,

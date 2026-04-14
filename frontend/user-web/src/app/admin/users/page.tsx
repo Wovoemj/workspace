@@ -53,7 +53,7 @@ function UserManagementTable() {
   const [total, setTotal] = useState(0)
   const [keyword, setKeyword] = useState('')
   const [searchTimer, setSearchTimer] = useState<any>(null)
-  /* 编辑状?*/
+  /* 编辑状态 */
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState<Partial<AdminUser>>({})
   /* 创建用户弹窗 */
@@ -107,12 +107,12 @@ function UserManagementTable() {
       // 更新本地数据
       setUsers(prev => prev.map(u => u.id === editingId ? res.user : u))
       setEditingId(null); setEditData({})
-    } catch (e: any) { alert('?保存失败: ' + e.message) }
+    } catch (e: any) { alert('❌ 保存失败: ' + e.message) }
   }
 
   /* ---- 删除用户 ---- */
   const deleteUser = async (id: string, name: string) => {
-    if (!confirm(`确定删除用户?{name}」？此操作不可逆，且会级联删除该用户的评论！`)) return
+    if (!confirm(`确定删除用户「${name}」？此操作不可逆，且会级联删除该用户的评论！`)) return
     try {
       await adminFetch(`/api/admin/users/${id}`, { method: 'DELETE' })
       setUsers(prev => prev.filter(u => u.id !== id))
@@ -126,8 +126,8 @@ function UserManagementTable() {
     const f = createForm
     console.log('=== createUser called ===', JSON.stringify(f))
     if (!f.username.trim()) { alert('请输入用户名'); return }
-        if (!f.password.trim()) { alert('请输入密?'); return }
-        if (f.password.length < 4) { alert('密码至少4?'); return }
+    if (!f.password.trim()) { alert('请输入密码'); return }
+    if (f.password.length < 4) { alert('密码至少4位'); return }
 
     setCreating(true)
     try {
@@ -149,10 +149,10 @@ function UserManagementTable() {
       setShowCreate(false)
       setCreateForm({ username: '', password: '', nickname: '', email: '', phone: '', membership_level: '1' })
       fetchUsers()
-      alert(`?用户?{res.user.username}」创建成功（ID: ${res.user.id}）`)
+      alert(`✅ 用户「${res.user.username}」创建成功（ID: ${res.user.id}）`)
     } catch (e: any) {
       console.error('创建失败:', e)
-            alert('?创建失败: ' + e.message + '\n\n请确认后端已重启（新增了POST /api/admin/users接口）?')
+      alert('创建失败: ' + e.message + '\n\n请确认后端已重启（新增了POST /api/admin/users接口）')
     } finally {
       setCreating(false)
     }
@@ -169,7 +169,7 @@ function UserManagementTable() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input type="text" placeholder="搜索用户?昵称/邮箱/手机..." value={keyword}
+            <input type="text" placeholder="搜索用户名/昵称/邮箱/手机..." value={keyword}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent w-72"
             />
@@ -180,7 +180,7 @@ function UserManagementTable() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">?<strong>{total}</strong> 位用</span>
+          <span className="text-sm text-gray-500">共 <strong>{total}</strong> 位用户</span>
           <button onClick={() => setShowCreate(true)}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 active:bg-blue-800 shadow-sm transition-colors cursor-pointer"
           >
@@ -215,7 +215,7 @@ function UserManagementTable() {
                 users.map((u) => (
                   <tr key={u.id} className="hover:bg-green-50/30 transition-colors group">
                     {editingId === u.id ? (
-                      /* ===== 编辑模式?===== */
+                      /* ===== 编辑模式 ===== */
                       <>
                         <td className="px-4 py-2 text-gray-400 font-mono text-xs">{u.id}</td>
                         <td className="px-4 py-2">
@@ -238,7 +238,7 @@ function UserManagementTable() {
                           <select value={editData.membership_level ?? 1} onChange={(e) => setEditData({ ...editData, membership_level: parseInt(e.target.value) })}
                             className="px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
                             {[
-                              { l: 1, name: 'LV1 普通会? },
+                              { l: 1, name: 'LV1 普通会员' },
                               { l: 2, name: 'LV2 铜牌会员' },
                               { l: 3, name: 'LV3 银牌会员' },
                               { l: 4, name: 'LV4 金牌会员' },
@@ -305,7 +305,7 @@ function UserManagementTable() {
                               </button>
                             )}
                             {u.is_admin && (
-                              <span className="text-[10px] text-gray-300 italic" title="不能删除管理员账?>保留</span>
+                              <span className="text-[10px] text-gray-300 italic" title="不能删除管理员账号">保留</span>
                             )}
                           </div>
                         </td>
@@ -321,7 +321,7 @@ function UserManagementTable() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-            <span className="text-xs text-gray-400">?{page} / {totalPages} 页，?{total} ?/span>
+            <span className="text-xs text-gray-400">第 {page} / {totalPages} 页，共 {total} 条</span>
             <div className="flex items-center gap-1">
               <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
                 className="px-2.5 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
@@ -368,10 +368,10 @@ function UserManagementTable() {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">用户?<span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">用户名<span className="text-red-500">*</span></label>
                   <input autoFocus value={createForm.username}
                     onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
-                    placeholder="2-30位字?
+                    placeholder="2-30位字符"
                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
                   />
                 </div>
@@ -379,7 +379,7 @@ function UserManagementTable() {
                   <label className="block text-xs font-medium text-gray-500 mb-1">密码 <span className="text-red-500">*</span></label>
                   <input type="password" value={createForm.password}
                     onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                    placeholder="至少4?
+                    placeholder="至少4位"
                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
                   />
                 </div>
@@ -399,7 +399,7 @@ function UserManagementTable() {
                   <label className="block text-xs font-medium text-gray-500 mb-1">邮箱</label>
                   <input type="email" value={createForm.email}
                     onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-                    placeholder="可?
+                    placeholder="可选"
                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
                   />
                 </div>
@@ -407,7 +407,7 @@ function UserManagementTable() {
                   <label className="block text-xs font-medium text-gray-500 mb-1">手机</label>
                   <input value={createForm.phone}
                     onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
-                    placeholder="可?
+                    placeholder="可选"
                     className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
                   />
                 </div>
@@ -420,18 +420,18 @@ function UserManagementTable() {
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
                 >
                   {[
-                                        { l: 1, name: 'LV1 · 普通会?', desc: '基础用户权限' },
+                                                                                { l: 1, name: 'LV1 · 普通会？', desc: '基础用户权限' },
                     { l: 2, name: 'LV2 · 铜牌会员', desc: '初级特权' },
                     { l: 3, name: 'LV3 · 银牌会员', desc: '中级特权 + 折扣' },
                     { l: 4, name: 'LV4 · 金牌会员', desc: '高级特权 + 优先服务' },
                     { l: 5, name: 'LV5 · 白金会员', desc: '尊贵体验' },
                     { l: 6, name: 'LV6 · 钻石会员', desc: '专属客服通道' },
-                    { l: 7, name: 'LV7 · 大师会员', desc: '定制化服? },
-                    { l: 8, name: 'LV8 · 超级会员', desc: '全平台权益解? },
+                    { l: 7, name: 'LV7 · 大师会员', desc: '定制化服务' },
+                    { l: 8, name: 'LV8 · 超级会员', desc: '全平台权益解锁' },
                     { l: 9, name: 'LV9 · 尊享会员', desc: '顶级礼遇' },
                     { l: 10, name: 'LV10 · 至尊VIP', desc: '最高级别，全部权益' },
                   ].map(item => (
-                    <option key={item.l} value={item.l}>{item.name} ?{item.desc}</option>
+                    <option key={item.l} value={item.l}>{item.name} · {item.desc}</option>
                   ))}
                 </select>
                 <p className="mt-1 text-[11px] text-gray-400">不同等级对应不同的平台权益和折扣力度</p>
@@ -449,7 +449,7 @@ function UserManagementTable() {
                 disabled={creating}
                 className={`inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors cursor-pointer ${creating ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {creating ? <><Loader2 className="h-4 w-4 animate-spin" /> 创建?..</> : <><Plus className="h-4 w-4" /> 确认创建</>}
+                {creating ? <><Loader2 className="h-4 w-4 animate-spin" /> 创建中...</> : <><Plus className="h-4 w-4" /> 确认创建</>}
               </button>
             </div>
           </div>
@@ -464,7 +464,7 @@ function UserManagementTable() {
 export default function AdminUsersPage() {
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-green-50/30">
+      <div className="min-h-screen page-bg">
         <Navbar />
         <main className="pt-16 pb-12">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -481,7 +481,7 @@ export default function AdminUsersPage() {
                 </div>
               </div>
               <Link href="/admin" className="text-sm text-gray-500 hover:text-blue-600 font-medium transition-colors flex items-center gap-1">
-                ?返回后台首页
+                                ?返回后台首页
               </Link>
             </div>
 

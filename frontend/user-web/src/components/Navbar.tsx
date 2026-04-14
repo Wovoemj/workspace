@@ -17,8 +17,10 @@ import {
   UserPlus,
   ChevronDown,
   Sparkles,
+  BookOpen,
 } from 'lucide-react'
 import { useUIStore, useCartStore, useUserStore } from '@/store'
+import { GlobalSearch } from './GlobalSearch'
 
 interface NavbarProps {
   className?: string
@@ -104,6 +106,7 @@ export function Navbar({ className = '' }: NavbarProps) {
   const navItems = [
     { href: '/', label: '首页', icon: MapPin },
     { href: '/destinations', label: '目的地', icon: MapPin },
+    { href: '/travel-notes', label: '攻略', icon: BookOpen },
     { href: '/itineraries', label: '行程规划', icon: Calendar },
     { href: '/about', label: '关于我们', icon: Heart },
   ]
@@ -161,6 +164,8 @@ export function Navbar({ className = '' }: NavbarProps) {
 
 
             <div className="flex items-center space-x-2 sm:space-x-4">
+              <GlobalSearch />
+
               <Link href="/assistant" className="hidden lg:inline-flex travel-btn-gradient px-4 py-2 text-sm">
                 <Sparkles className="h-4 w-4 mr-2" />
                 AI 助手
@@ -229,7 +234,7 @@ export function Navbar({ className = '' }: NavbarProps) {
               ) : (
                 <>
                   {(() => {
-                    const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?
+                    const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?'
                     const hasAvatar = Boolean(user?.avatar_url)
                     const bgClass = isScrolled
                       ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-2 border-white shadow-lg'

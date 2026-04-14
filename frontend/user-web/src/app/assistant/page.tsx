@@ -16,6 +16,7 @@ type ChatMsg = {
   createdAt: number
   planTrip?: any
   planItems?: any[]
+  isWelcome?: boolean
 }
 
 // ========== 行程规划输入解析函数 ==========
@@ -915,32 +916,43 @@ export default function AssistantPage() {
   const [sending, setSending] = useState(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const [backendOk, setBackendOk] = useState<boolean | null>(null)
-  const [selectedProvider, setSelectedProvider] = useState('moonshot')
-  const [selectedModel, setSelectedModel] = useState('kimi-k2.5')
+  const [selectedProvider] = useState('zhipu')
+  const [selectedModel] = useState('glm-4-flash')
   const [showHistory, setShowHistory] = useState(false)
   const [sessions, setSessions] = useState<Array<{ id: string; title: string; createdAt: number; msgs: ChatMsg[] }>>([])
   const [sessionId, setSessionId] = useState<string>(() => uid())
+
+  // 欢迎词内容
+  const WELCOME_CONTENT = `🎉🌟 **你好呀！欢迎使用旅行助手！** 🌟🎉
+
+😊 **我是「小游」**，你的专属旅行规划师～
+✨ 我能帮你规划完美的行程，发现隐藏的美食宝藏！
+
+🌍 **我能帮你做这些事**：
+📅 **行程规划** - 想去哪里玩几天？告诉我，我来安排！
+🍜 **美食探索** - 本地人才知道的隐藏美食，我全知道！
+🏨 **住宿推荐** - 选对酒店，旅行体验翻倍！
+🚗 **交通导航** - 公共交通、自驾路线，我帮你规划！
+💰 **预算控制** - 帮你精打细算，不花冤枉钱！
+📸 **拍照打卡** - 推荐最适合拍照的景点！
+
+💬 **试试这样跟我说**：
+1️⃣ "想去杭州3天，预算2000"
+2️⃣ "周末去南京有什么好玩的"
+3️⃣ "云南有什么特色美食推荐？"
+4️⃣ "帮我规划一个3天的厦门之旅"
+
+🎯 **直接说目的地，我来给你推荐**！
+
+💡 **小贴士**：点击行程卡片可以展开更多详情～`
+
   const [msgs, setMsgs] = useState<ChatMsg[]>([
     {
       id: uid(),
       role: 'assistant',
-      content:
-        '🎉 **你好呀！欢迎使用旅行助手！** 🎉\n\n' +
-        '🌟 **我是「小游」**，你的专属旅行规划师，很期待为你服务～\n\n' +
-        '🌍 **我能帮你做这些事**：\n' +
-        '📅 **行程规划** - 想去哪里玩几天？告诉我，我来安排明明白白的行程！\n' +
-        '🍜 **美食探索** - 本地人才知道的隐藏美食，我全知道！\n' +
-        '🏨 **住宿推荐** - 选对酒店，旅行体验翻倍提升！\n' +
-        '🚗 **交通导航** - 公共交通、自驾路线，我帮你规划！\n' +
-        '💰 **预算控制** - 帮你精打细算，不花冤枉钱！\n\n' +
-        '💬 **试试这样跟我说**：\n' +
-        '1️⃣ "想去杭州3天，预算2000"\n' +
-        '2️⃣ "周末去南京有什么好玩的"\n' +
-        '3️⃣ "云南有什么特色美食推荐？"\n' +
-        '4️⃣ "帮我规划一个3天的厦门之旅"\n\n' +
-        '🎯 **或者直接说目的地，我来给你推荐**！\n\n' +
-        '💡 **小贴士**：点击行程卡片可以展开更多详情，包括公共交通、附近美食、住宿建议等哦～',
+      content: WELCOME_CONTENT,
       createdAt: Date.now(),
+      isWelcome: true,
     },
   ])
 
@@ -958,6 +970,7 @@ export default function AssistantPage() {
 
   const [agentMode, setAgentMode] = useState(false)
   const [agentTools, setAgentTools] = useState<Array<{tool: string, label: string, status: 'thinking'|'done'}>>([])
+  const [agentStreaming, setAgentStreaming] = useState(false)  // Agent流式响应是否开始接收内容
 
   const [showPlannerHelper, setShowPlannerHelper] = useState(false)
 
@@ -1007,12 +1020,9 @@ export default function AssistantPage() {
           msgs: s.msgs as ChatMsg[],
         }))
       if (!next.length) return
+      // 只加载会话列表，不自动加载消息（让用户看到欢迎词）
       setSessions(next)
-      const latest = next[0]
-      setSessionId(latest.id)
-      setMsgs(latest.msgs)
-      setStreamMsgId(null)
-      setStreamText('')
+      setSessionId(next[0].id)
     } catch {
       // ignore
     }
@@ -1026,10 +1036,11 @@ export default function AssistantPage() {
       setStreamMsgId(null)
       return
     }
-    const step = full.length > 600 ? 12 : full.length > 200 ? 4 : 2
+    // 加快渲染速度，减少等待感
+    const step = full.length > 800 ? 8 : full.length > 400 ? 5 : 3
     const t = window.setTimeout(() => {
       setStreamText(full.slice(0, Math.min(full.length, streamText.length + step)))
-    }, 14)
+    }, 8)
     return () => window.clearTimeout(t)
   }, [streamMsgId, streamText, msgs])
 
@@ -1163,7 +1174,8 @@ export default function AssistantPage() {
     setMsgs(nextMsgs)
 
     try {
-      const res = await fetch('/api/chat', {
+      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const res = await fetch(`${backendBase}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
@@ -1225,6 +1237,7 @@ export default function AssistantPage() {
     if (!text || sending) return
     setAutoScrollEnabled(true)
     setSending(true)
+    setAgentStreaming(false)  // 重置流式状态
     const controller = new AbortController()
     setAbortController(controller)
     setInput('')
@@ -1233,12 +1246,11 @@ export default function AssistantPage() {
     setAgentTools([])
 
     const userMsg: ChatMsg = { id: uid(), role: 'user', content: text, createdAt: Date.now() }
-    const nextMsgs = [...msgs, userMsg]
-    setMsgs(nextMsgs)
-
     const assistantId = uid()
     const assistantMsg: ChatMsg = { id: assistantId, role: 'assistant', content: '', createdAt: Date.now() }
-    const msgsWithAssistant = [...nextMsgs, assistantMsg]
+    
+    // 一次性添加用户消息和AI占位消息，避免重复渲染
+    const msgsWithAssistant = [...msgs, userMsg, assistantMsg]
     setMsgs(msgsWithAssistant)
 
     let accContent = ''
@@ -1250,7 +1262,7 @@ export default function AssistantPage() {
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          messages: nextMsgs.map(({ role, content }) => ({ role, content })),
+          messages: msgsWithAssistant.slice(0, -1).map(({ role, content }: ChatMsg) => ({ role, content })),
         }),
       })
 
@@ -1263,6 +1275,8 @@ export default function AssistantPage() {
 
       const decoder = new TextDecoder()
       let buffer = ''
+      let lastRenderTime = 0
+      const RENDER_INTERVAL = 50 // 节流间隔ms
 
       while (true) {
         const { done, value } = await reader.read()
@@ -1282,9 +1296,18 @@ export default function AssistantPage() {
 
           if (event.type === 'content') {
             accContent += event.data
-            setMsgs(prev => prev.map(m =>
-              m.id === assistantId ? { ...m, content: accContent } : m
-            ))
+            // 收到第一个非空内容时，标记流式响应开始
+            if (accContent.trim() && !agentStreaming) {
+              setAgentStreaming(true)
+            }
+            // 节流更新
+            const now = Date.now()
+            if (now - lastRenderTime >= RENDER_INTERVAL) {
+              lastRenderTime = now
+              setMsgs(prev => prev.map(m =>
+                m.id === assistantId ? { ...m, content: accContent } : m
+              ))
+            }
           } else if (event.type === 'thinking') {
             setAgentTools(prev => [...prev, { tool: event.tool, label: event.label, status: 'thinking' }])
           } else if (event.type === 'tool_result') {
@@ -1305,7 +1328,7 @@ export default function AssistantPage() {
       ))
 
       setBackendOk(true)
-      persistSession([...nextMsgs, { ...assistantMsg, content: finalContent }])
+      persistSession([...msgs, userMsg, { ...assistantMsg, content: finalContent }])
     } catch (e: any) {
       if (e?.name === 'AbortError') return
       const rawMsg: string = e?.message || '未知错误'
@@ -1318,6 +1341,7 @@ export default function AssistantPage() {
       ))
     } finally {
       setSending(false)
+      setAgentStreaming(false)
       setAbortController(null)
       setTimeout(() => setAgentTools([]), 3000)
     }
@@ -1350,7 +1374,8 @@ export default function AssistantPage() {
     }
 
     try {
-      const res = await fetch('/api/itinerary/generate', {
+      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const res = await fetch(`${backendBase}/api/itinerary/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1406,19 +1431,30 @@ export default function AssistantPage() {
     )
   }
 
+  // 防止重复发送的锁
+  const sendingLockRef = useRef(false)
+
   async function onSend() {
     const text = input.trim()
-    if (!text || sending) return
+    if (!text || sending || sendingLockRef.current) return
+    
+    // 获取锁
+    sendingLockRef.current = true
+    
+    try {
+      if (agentMode) {
+        await onSendAgent()
+        return
+      }
 
-    if (agentMode) {
-      await onSendAgent()
-      return
-    }
-
-    if (detectPlannerRequest(text)) {
-      await onSendPlanner()
-    } else {
-      await onSendChat()
+      if (detectPlannerRequest(text)) {
+        await onSendPlanner()
+      } else {
+        await onSendChat()
+      }
+    } finally {
+      // 释放锁
+      sendingLockRef.current = false
     }
   }
 
@@ -1427,18 +1463,9 @@ export default function AssistantPage() {
       {
         id: uid(),
         role: 'assistant',
-        content: '👋 你好呀！我是「小游」，你的专属旅行规划师～\n\n' +
-          '我可以帮你做这些事🗺️：\n' +
-          '📅 **行程规划** - 告诉我想去哪儿、玩几天，我来安排得明明白白！\n' +
-          '🍜 **美食推荐** - 本地人才知道的好吃哒～\n' +
-          '🏨 **住宿建议** - 选对酒店，旅行体验翻倍！\n' +
-          '💰 **预算估算** - 帮你精打细算，不花冤枉钱\n\n' +
-          '💡 **随便聊聊**：\n' +
-          '- "想去杭州3天，预算2000"\n' +
-          '- "周末去南京怎么玩？"\n' +
-          '- "云南有什么好吃的"\n\n' +
-          '📍 或者直接说目的地，我来给你推荐～',
+        content: WELCOME_CONTENT,
         createdAt: Date.now(),
+        isWelcome: true,
       },
     ])
     setStreamMsgId(null)
@@ -1469,7 +1496,7 @@ export default function AssistantPage() {
   const chatInputPlaceholder = '跟小游说说你想去哪儿玩～ 比如：杭州3天，预算2000，喜欢拍照'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-cyan-50/30">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
@@ -1575,8 +1602,6 @@ export default function AssistantPage() {
                   '杭州3天亲子游',
                   '周末北京文化之旅',
                   '云南拍照打卡路线',
-                  '日本7天自由行攻略',
-                  '泰国美食之旅',
                   '海边度假推荐',
                   '冬季滑雪去哪'
                 ].map((hint) => (
@@ -1607,64 +1632,6 @@ export default function AssistantPage() {
                   <div className="text-blue-100 text-xs">你的专属旅行规划师 · 在线</div>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
-                  <select
-                    value={selectedProvider}
-                    onChange={(e) => {
-                      setSelectedProvider(e.target.value)
-                      if (e.target.value === 'aws') {
-                        setSelectedModel('amazon.titan-text-express-v1')
-                      } else if (e.target.value === 'zhipu') {
-                        setSelectedModel('glm-4.5-air')
-                      } else if (e.target.value === 'moonshot') {
-                        setSelectedModel('kimi-k2.5')
-                      } else {
-                        setSelectedModel('')
-                      }
-                    }}
-                    className="text-xs px-3 py-1.5 rounded-full bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-all cursor-pointer appearance-none"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
-                  >
-                    <option value="moonshot" style={{ color: '#1e293b' }}>Moonshot AI</option>
-                    <option value="zhipu" style={{ color: '#1e293b' }}>智谱 GLM-4</option>
-                    <option value="aws" style={{ color: '#1e293b' }}>AWS Bedrock</option>
-                    <option value="openai" style={{ color: '#1e293b' }}>OpenAI</option>
-                  </select>
-
-                  {selectedProvider === 'moonshot' && (
-                    <select
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                      className="text-xs px-3 py-1.5 rounded-full bg-blue-500/30 text-white border border-blue-400/50 hover:bg-blue-500/40 transition-all cursor-pointer"
-                    >
-                      <option value="kimi-k2.5" style={{ color: '#1e293b' }}>🌙 Kimi K2.5</option>
-                      <option value="moonshot-v1-8k" style={{ color: '#1e293b' }}>📄 v1-8k</option>
-                      <option value="moonshot-v1-32k" style={{ color: '#1e293b' }}>📄 v1-32k</option>
-                    </select>
-                  )}
-
-                  {selectedProvider === 'zhipu' && (
-                    <select
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                      className="text-xs px-3 py-1.5 rounded-full bg-cyan-500/30 text-white border border-cyan-400/50 hover:bg-cyan-500/40 transition-all cursor-pointer"
-                    >
-                      <option value="glm-4.5-air" style={{ color: '#1e293b' }}>✨ GLM-4.5 Air</option>
-                      <option value="glm-4.6v" style={{ color: '#1e293b' }}>👁️ GLM-4.6V (视觉)</option>
-                    </select>
-                  )}
-
-                  {selectedProvider === 'aws' && (
-                    <select
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                      className="text-xs px-3 py-1.5 rounded-full bg-amber-500/30 text-white border border-amber-400/50 hover:bg-amber-500/40 transition-all cursor-pointer"
-                    >
-                      <option value="amazon.titan-text-express-v1" style={{ color: '#1e293b' }}>🔷 Titan</option>
-                      <option value="deepseek.deepseek-v3-0324" style={{ color: '#1e293b' }}>🟢 DeepSeek V3</option>
-                      <option value="qwen.qwen3-32b" style={{ color: '#1e293b' }}>🟠 Qwen3 32B</option>
-                      <option value="minimax.minimax-m2.5" style={{ color: '#1e293b' }}>🟣 MiniMax M2.5</option>
-                    </select>
-                  )}
                   <button
                     type="button"
                     className="text-xs px-3 py-1.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition-all"
@@ -1718,7 +1685,7 @@ export default function AssistantPage() {
                             : 'rounded-3xl rounded-bl-sm border border-gray-100 bg-white text-gray-800 shadow-sm backdrop-blur-sm'
                         }`}
                       >
-                          {m.role === 'assistant' && isTripContent(displayContent) && !m.planTrip ? (
+                          {m.role === 'assistant' && !m.isWelcome && isTripContent(displayContent) && !m.planTrip ? (
                             <>
                               <TripCard content={displayContent} />
                             </>
@@ -1817,7 +1784,8 @@ export default function AssistantPage() {
                   )
                 })}
 
-                {sending ? (
+                {/* Agent模式流式响应中，收到内容后隐藏"正在思考"占位UI */}
+                {sending && !agentStreaming ? (
                   <div className="flex justify-start items-end gap-3">
                     <div className="shrink-0 flex flex-col items-center">
                       <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg shadow-blue-500/25 animate-pulse">
@@ -1827,12 +1795,16 @@ export default function AssistantPage() {
                     </div>
                     <div className="max-w-[80%] rounded-2xl rounded-bl-sm border border-blue-100 bg-gradient-to-br from-white to-blue-50/50 px-5 py-4 text-sm leading-relaxed whitespace-pre-wrap text-gray-800 shadow-sm">
                       <div className="flex items-center gap-3">
-                        <span className="font-medium text-blue-700">🤔 让我想想</span>
+                        <span className="font-medium text-blue-700">🤔 正在思考中</span>
                         <div className="flex gap-1">
                           <span className="h-2 w-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '0ms' }}></span>
                           <span className="h-2 w-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '150ms' }}></span>
                           <span className="h-2 w-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
                         </div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2 flex items-center gap-2">
+                        <span className="text-blue-400">💡</span>
+                        <span>小游正在查询信息，请稍候...</span>
                       </div>
                     </div>
                   </div>
@@ -1875,25 +1847,11 @@ export default function AssistantPage() {
 
                 <div className="flex items-center gap-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-200">
                   <div className="flex items-center gap-2 pl-3">
-                    <button type="button" className="btn btn-ghost w-10 h-10 rounded-full justify-center hover:bg-blue-50 transition-colors hover:scale-105" onClick={onPickAttachment} aria-label="上传图片">
-                      <Paperclip className="h-5 w-5 text-gray-500" />
+                    <button type="button" className="btn btn-ghost w-12 h-12 rounded-full justify-center transition-colors hover:scale-105 hover:bg-blue-50" onClick={onPickAttachment} aria-label="上传图片">
+                      <Paperclip className="h-6 w-6 text-gray-500" />
                     </button>
-                    <button type="button" className={`btn btn-ghost w-10 h-10 rounded-full justify-center transition-colors hover:scale-105 ${recognizing ? 'text-blue-600 bg-blue-50' : 'hover:bg-blue-50'}`} onClick={onToggleVoice} aria-label="语音输入">
-                      <Mic className={`h-5 w-5 ${recognizing ? 'animate-pulse text-blue-600' : 'text-gray-500'}`} />
-                    </button>
-
-                    <button
-                      type="button"
-                      title={agentMode ? '当前：Agent模式（AI会主动调用工具）' : '当前：普通模式（点击开启Agent模式）'}
-                      onClick={() => setAgentMode(v => !v)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:scale-105 ${
-                        agentMode
-                          ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-sm shadow-purple-200'
-                          : 'text-gray-500 hover:text-purple-600 hover:bg-purple-50 border border-gray-200'
-                      }`}
-                    >
-                      <span className="text-sm">✨</span>
-                      <span className="hidden sm:inline">{agentMode ? 'Agent模式' : 'Agent模式'}</span>
+                    <button type="button" className={`btn btn-ghost w-12 h-12 rounded-full justify-center transition-colors hover:scale-105 ${recognizing ? 'text-blue-600 bg-blue-50' : 'hover:bg-blue-50'}`} onClick={onToggleVoice} aria-label="语音输入">
+                      <Mic className={`h-6 w-6 ${recognizing ? 'animate-pulse text-blue-600' : 'text-gray-500'}`} />
                     </button>
                   </div>
 
@@ -1909,7 +1867,7 @@ export default function AssistantPage() {
                         setShowPlannerHelper(false)
                       }
                     }}
-                    placeholder={agentMode ? '⚡Agent模式：AI会主动查天气、搜景点、生成行程...' : chatInputPlaceholder}
+                    placeholder={chatInputPlaceholder}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend() }
                     }}
@@ -1926,11 +1884,7 @@ export default function AssistantPage() {
                   )}
 
                   <button
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg transition-all mr-1 ${
-                      agentMode
-                        ? 'bg-gradient-to-r from-violet-600 to-purple-500'
-                        : 'bg-gradient-to-r from-blue-600 to-cyan-500'
-                    }`}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-lg transition-all mr-1"
                     disabled={!canSend}
                     onClick={onSend}
                   >
@@ -1938,10 +1892,7 @@ export default function AssistantPage() {
                   </button>
                 </div>
                 <div className="mt-2 text-center text-xs text-gray-400">
-                  {agentMode
-                    ? '⚡Agent模式已开启 · AI会自动调用天气、景点、行程等工具获取真实数据'
-                    : '⏎ Enter 发送，Shift + Enter 换行 · 小游会主动帮你完善行程信息 💡'
-                  }
+                  ⏎ Enter 发送，Shift + Enter 换行 · 小游会主动帮你完善行程信息 💡
                 </div>
               </div>
             </div>

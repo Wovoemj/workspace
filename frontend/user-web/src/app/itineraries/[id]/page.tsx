@@ -28,6 +28,7 @@ import {
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { useUserStore } from '@/store'
+import { TripCalendar } from '@/components/TripCalendar'
 
 type TripItem = {
   id: number
@@ -102,6 +103,8 @@ export default function TripDetailPage() {
   const [items, setItems] = useState<TripItem[]>([])
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+  const [selectedDay, setSelectedDay] = useState(1)
 
   const groupedByDay = useMemo(() => {
     const map = new Map<number, TripItem[]>()
@@ -238,7 +241,7 @@ export default function TripDetailPage() {
   const gradient = coverGradients[tripId % coverGradients.length] || coverGradients[0]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/30 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -362,9 +365,35 @@ export default function TripDetailPage() {
 
               {/* 每日行程 */}
               <div className="mb-8">
-                <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-600" />每日行程安排
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-blue-600" />每日行程安排
+                  </h2>
+                  {items.length > 0 && (
+                    <div className="flex items-center gap-2 bg-white rounded-lg border border-slate-200 p-1">
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                          viewMode === 'list' 
+                            ? 'bg-sky-100 text-sky-700' 
+                            : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        列表
+                      </button>
+                      <button
+                        onClick={() => setViewMode('calendar')}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                          viewMode === 'calendar' 
+                            ? 'bg-sky-100 text-sky-700' 
+                            : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        日历
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 {items.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-10 text-center">
@@ -374,6 +403,92 @@ export default function TripDetailPage() {
                     <Link href="/assistant" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-xl font-medium hover:shadow-lg transition">
                       <Sparkles className="h-5 w-5" />AI 生成行程
                     </Link>
+                  </div>
+                ) : viewMode === 'calendar' ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-1">
+                      <TripCalendar 
+                        trip={trip} 
+                        items={items} 
+                        selectedDay={selectedDay}
+                        onDayClick={setSelectedDay}
+                      />
+                    </div>
+                    <div className="lg:col-span-2 space-y-4">
+                      {groupedByDay
+                        .filter(({ day }) => selectedDay === 0 || day === selectedDay)
+                        .map(({ day, items: dayItems }) => {
+                          const totalDuration = dayItems.reduce((acc, it) => {
+                            if (it.start_time && it.end_time) {
+                              const start = it.start_time.split(':').map(Number)
+                              const end = it.end_time.split(':').map(Number)
+                              return acc + (end[0] * 60 + end[1]) - (start[0] * 60 + start[1])
+                            }
+                            return acc
+                          }, 0)
+                          const hours = Math.floor(totalDuration / 60)
+                          const mins = totalDuration % 60
+
+                          return (
+                            <div key={day} className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                              <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 text-white">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                      <span className="text-lg font-bold">D{day}</span>
+                                    </div>
+                                    <div>
+                                      <div className="font-bold text-lg">第 {day} 天</div>
+                                      {dayItems[0]?.location && (
+                                        <div className="text-white/70 text-sm flex items-center gap-1">
+                                          <MapPin className="h-3.5 w-3.5" />{dayItems[0].location.split(',')[0]}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {totalDuration > 0 && (
+                                    <div className="text-sm text-white/80 bg-white/10 px-3 py-1.5 rounded-lg">
+                                      总计 {hours > 0 ? `${hours}小时` : ''}{mins > 0 ? `${mins}分钟` : ''}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="p-5">
+                                <div className="relative">
+                                  <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-200" />
+                                  <div className="space-y-4">
+                                    {dayItems.map((it, index) => (
+                                      <div key={it.id} className="relative flex gap-4">
+                                        <div className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                          it.destination?.cover_image ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600'
+                                        }`}>
+                                          <span className="text-sm font-bold">{index + 1}</span>
+                                        </div>
+                                        <div className="flex-1 min-w-0 pt-1">
+                                          {it.start_time && (
+                                            <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-md mb-1">
+                                              {it.start_time}{it.end_time ? ` - ${it.end_time}` : ''}
+                                            </span>
+                                          )}
+                                          <h4 className="font-semibold text-slate-900">{it.title || '未命名行程'}</h4>
+                                          {it.description && (
+                                            <p className="text-sm text-slate-600 mt-1 line-clamp-2">{it.description}</p>
+                                          )}
+                                          {it.location && (
+                                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                              <MapPin className="h-3 w-3" />{it.location}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-6">

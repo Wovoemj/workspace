@@ -2,6 +2,7 @@
 """
 更新目的地经纬度数据
 """
+python app.py
 
 import os  # 导入模块
 import sys  # 导入模块

@@ -14,10 +14,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
 
 
 const statusMap: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-    pending: { label: '待支?', color: 'text-orange-500 bg-orange-50', icon: <CreditCard className="h-4 w-4" /> },
-    paid: { label: '已支?', color: 'text-green-500 bg-green-50', icon: <CheckCircle className="h-4 w-4" /> },
-    cancelled: { label: '已取?', color: 'text-gray-500 bg-gray-50', icon: <XCircle className="h-4 w-4" /> },
-    refunded: { label: '已退?', color: 'text-blue-500 bg-blue-50', icon: <RefreshCw className="h-4 w-4" /> },
+        pending: { label: '待支？', color: 'text-orange-500 bg-orange-50', icon: <CreditCard className="h-4 w-4" /> },
+        paid: { label: '已支？', color: 'text-green-500 bg-green-50', icon: <CheckCircle className="h-4 w-4" /> },
+        cancelled: { label: '已取？', color: 'text-gray-500 bg-gray-50', icon: <XCircle className="h-4 w-4" /> },
+        refunded: { label: '已退？', color: 'text-blue-500 bg-blue-50', icon: <RefreshCw className="h-4 w-4" /> },
 }
 
 export default function OrdersPage() {
@@ -62,7 +62,7 @@ export default function OrdersPage() {
 
   const onLogout = () => {
     logout()
-        toast.success('已退出登?')
+                toast.success('已退出登？')
     router.push('/')
   }
 
@@ -97,7 +97,7 @@ export default function OrdersPage() {
       const payData = await payRes.json().catch(() => ({}))
 
       if (payData?.success) {
-                toast.success('支付成功?')
+                                toast.success('支付成功？')
         // 刷新订单列表
         const refreshRes = await fetch(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${token}` } })
         const refreshData = await refreshRes.json().catch(() => ({}))
@@ -116,7 +116,7 @@ export default function OrdersPage() {
 
   // 取消订单
   const handleCancel = async (orderId: string) => {
-        if (!confirm('确定要取消这个订单吗?')) return
+                if (!confirm('确定要取消这个订单吗？')) return
 
     const token = localStorage.getItem('auth_token')
     if (!token) return
@@ -133,7 +133,7 @@ export default function OrdersPage() {
         throw new Error(data?.error || '取消失败')
       }
 
-            toast.success('订单已取?')
+                        toast.success('订单已取？')
       // 刷新订单列表
       const refreshRes = await fetch(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${token}` } })
       const refreshData = await refreshRes.json().catch(() => ({}))
@@ -148,7 +148,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -156,7 +156,7 @@ export default function OrdersPage() {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">我的订单</h1>
-                <p className="text-gray-600 mt-2">订单来自后端 `/api/orders`?/p>
+                <p className="text-gray-600 mt-2">订单来自后端 `/api/orders`</p>
               </div>
               {isAuthenticated ? (
                 <button onClick={onLogout} className="btn btn-outline">

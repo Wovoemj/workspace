@@ -67,6 +67,10 @@ func (g *Gateway) SetupRoutes() {
         userGroup := api.Group("/users")
         userGroup.Any("/*path", g.proxyToService("user-service"))
 
+        // Favorites proxy
+        api.Any("/favorites", g.proxyToService("user-service"))
+        api.Any("/favorites/*path", g.proxyToService("user-service"))
+
         // Order service proxy
         orderGroup := api.Group("/orders")
         orderGroup.Any("/*path", g.proxyToService("order-service"))

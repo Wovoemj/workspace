@@ -86,10 +86,10 @@ def _is_admin(user: User) -> bool:
 
 def _prompt_password() -> str:
     while True:
-        p1 = click.prompt("密码（不少于 6 位）", hide_input=True,
+        p1 = click.prompt("密码（不少于 8 位，需包含大小写字母和数字）", hide_input=True,
                           default="", show_default=False)
-        if len(p1) < 6:
-            click.echo("⚠  密码长度不能少于 6 位，请重新输入。")
+        if len(p1) < 8:
+            click.echo("⚠  密码长度不能少于 8 位，请重新输入。")
             continue
         p2 = click.prompt("确认密码", hide_input=True)
         if p1 != p2:
@@ -118,8 +118,8 @@ def create_user(email: str, admin: bool, username: str, nickname: str, password:
 
         if not password:
             password = _prompt_password()
-        elif len(password) < 6:
-            click.echo("❌  密码长度不能少于 6 位。")
+        elif len(password) < 8:
+            click.echo("❌  密码长度不能少于 8 位。")
             sys.exit(1)
 
         if not username:

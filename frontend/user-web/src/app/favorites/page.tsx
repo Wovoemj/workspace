@@ -95,7 +95,7 @@ export default function FavoritesPage() {
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.success) throw new Error(data?.error || `HTTP ${res.status}`)
-            toast.success('已添加示例收?')
+                        toast.success('已添加示例收？')
       await loadFavorites()
     } catch (e: any) {
       toast.error(e?.message || '添加示例收藏失败')
@@ -116,7 +116,7 @@ export default function FavoritesPage() {
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.success) throw new Error(data?.error || `HTTP ${res.status}`)
-            toast.success('已取消收?')
+      toast.success('已取消收藏')
       await loadFavorites()
     } catch (e: any) {
       toast.error(e?.message || '取消收藏失败')
@@ -126,7 +126,7 @@ export default function FavoritesPage() {
   const coverSrc = (d: Favorite) => resolveCoverSrc(d?.cover_image)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -134,14 +134,14 @@ export default function FavoritesPage() {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">我的收藏</h1>
-                  <p className="text-gray-600 mt-2">收藏数据来自后端 `/api/favorites`?/p>
+                  <p className="text-gray-600 mt-2">收藏数据来自后端 `/api/favorites` 接口</p>
               </div>
-              <div className="text-sm text-gray-700">?{count} ?/div>
+              <div className="text-sm text-gray-700">共 {count} 项</div>
             </div>
 
             {!isAuthenticated ? (
               <div className="mt-6 card p-4 bg-white border border-gray-200 text-gray-700">
-                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看收藏?
+                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看收藏
               </div>
             ) : loading ? (
               <div className="mt-6 space-y-3">

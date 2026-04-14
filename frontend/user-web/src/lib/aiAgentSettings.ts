@@ -28,13 +28,13 @@ export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
   { id: 'mimo-v2-flash', label: 'Xiaomi MiMo V2 Flash' },
   { id: 'mimo-v2-pro', label: 'Xiaomi MiMo V2 Pro' },
   { id: 'mimo-v2-omni', label: 'Xiaomi MiMo V2 Omni' },
-  { id: 'gpt-4o', label: 'GPT-4o（需后端配置? },
+  { id: 'gpt-4o', label: 'GPT-4o（需后端配置）' },
 ]
 
 export const DEFAULT_SETTINGS: AiAgentSettingsState = {
   systemPrompt:
-        '你是「智旅助手」的旅行顾问：语气友好、条理清晰；不确定时主动说明假设；涉及价?政策时提醒以官方为准?',
-    welcomeMessage: '你好！我是你的旅行助手，可以帮你规划行程、推荐目的地与估算预算?',
+                '你是「智旅助手」的旅行顾问：语气友好、条理清晰；不确定时主动说明假设；涉及价?政策时提醒以官方为准？',
+        welcomeMessage: '你好！我是你的旅行助手，可以帮你规划行程、推荐目的地与估算预算？',
   modelId: 'mimo-v2-flash',
   filterRules: '',
   webTools: { brave: true, news: true, weather: true },

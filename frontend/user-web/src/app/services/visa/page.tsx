@@ -23,15 +23,15 @@ const countries = [
 ]
 
 const services = [
-  { icon: FileText, title: '材料指导', desc: '专业顾问一对一指导，准备材料不再迷? },
-    { icon: Clock, title: '加急服?', desc: '提供加急办理，最?个工作日出签' },
-  { icon: CheckCircle, title: '全程代办', desc: '代填表格、代预约、代取护? },
+  { icon: FileText, title: '材料指导', desc: '专业顾问一对一指导，准备材料不再迷茫' },
+        { icon: Clock, title: '加急服务', desc: '提供加急办理，最快3个工作日出签' },
+  { icon: CheckCircle, title: '全程代办', desc: '代填表格、代预约、代取护照' },
   { icon: MessageCircle, title: '贴心跟进', desc: '实时进度通知，有问题随时咨询' },
 ]
 
 export default function VisaPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
         <div className="bg-gradient-to-r from-violet-600 to-purple-500 text-white">
@@ -42,7 +42,7 @@ export default function VisaPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">签证办理</h1>
             <p className="text-white/90 text-lg max-w-2xl">
-              专业签证服务，让您的出境旅行更简单。我们提供全?00+国家的签证办理服?
+              专业签证服务，让您的出境旅行更简单。我们提供全球100+国家的签证办理服务
             </p>
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function VisaPage() {
 
 
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">我们的服</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">我们的服务</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service) => {
                 const Icon = service.icon
@@ -85,11 +85,11 @@ export default function VisaPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">办理流程</h2>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {[
-                { step: '1', title: '咨询下单', desc: '选择国家，提交订? },
+                { step: '1', title: '咨询下单', desc: '选择国家，提交订单' },
                 { step: '2', title: '准备材料', desc: '按清单准备所需材料' },
                 { step: '3', title: '邮寄材料', desc: '将材料邮寄给我们' },
                 { step: '4', title: '办理签证', desc: '我们代为递交申请' },
-                { step: '5', title: '收取护照', desc: '签证办好后寄回给? },
+                { step: '5', title: '收取护照', desc: '签证办好后寄回给您' },
               ].map((item) => (
                 <div key={item.step} className="text-center relative">
                   <div className="w-10 h-10 bg-violet-600 text-white rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-3">
@@ -112,7 +112,7 @@ export default function VisaPage() {
                   通用材料
                 </h3>
                 <ul className="space-y-2 text-slate-600">
-                                    {['护照原件（有效期6个月以上?', '签证申请?', '白底彩照2?', '身份证复印件', '户口本复印件', '在职证明/在读证明'].map((item) => (
+                                                                        {['护照原件（有效期6个月以上）', '签证申请表', '白底彩照2张', '身份证复印件', '户口本复印件', '在职证明/在读证明'].map((item) => (
                     <li key={item} className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                       {item}
@@ -126,7 +126,7 @@ export default function VisaPage() {
                   资产证明
                 </h3>
                 <ul className="space-y-2 text-slate-600">
-                  {['?个月银行流水', '收入证明', '房产证复印件（可选）', '车辆行驶证复印件（可选）', '存款证明（可选）'].map((item) => (
+                  {['6个月银行流水', '收入证明', '房产证复印件（可选）', '车辆行驶证复印件（可选）', '存款证明（可选）'].map((item) => (
                     <li key={item} className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                       {item}
@@ -140,7 +140,7 @@ export default function VisaPage() {
 
 
           <div className="bg-gradient-to-r from-violet-600 to-purple-600 rounded-3xl p-8 text-white text-center">
-            <h2 className="text-2xl font-bold mb-4">开始办理您的签</h2>
+            <h2 className="text-2xl font-bold mb-4">开始办理您的签证</h2>
             <p className="text-white/80 mb-6">专业顾问在线为您解答，选择最适合您的签证方案</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/contact" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-violet-600 rounded-xl font-bold hover:bg-violet-50 transition">

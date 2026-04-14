@@ -13,7 +13,7 @@ import { Footer } from '@/components/Footer'
 
 export default function FeedbackPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">

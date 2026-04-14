@@ -13,7 +13,7 @@ export default function PlannerRedirectPage() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50/30 to-cyan-50/20 flex items-center justify-center">
+    <div className="min-h-screen page-bg flex items-center justify-center">
       <div className="text-center">
         <div className="flex justify-center mb-6">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 shadow-2xl">

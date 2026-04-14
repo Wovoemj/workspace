@@ -1,0 +1,89 @@
+{
+  "common": {
+    "home": "Home",
+    "destinations": "Destinations",
+    "products": "Products",
+    "assistant": "AI Assistant",
+    "itineraries": "Trips",
+    "travelNotes": "Guides",
+    "support": "Support",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "search": "Search",
+    "searchPlaceholder": "Search destinations or products...",
+    "myProfile": "Profile",
+    "favorites": "Favorites",
+    "orders": "Orders",
+    "coupons": "Coupons",
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "share": "Share",
+    "back": "Back"
+  },
+  "nav": {
+    "home": "Home",
+    "destinations": "Destinations",
+    "products": "Products",
+    "assistant": "AI Assistant",
+    "itineraries": "My Trips",
+    "travelNotes": "Guides",
+    "support": "Support",
+    "coupons": "Coupons",
+    "profile": "Profile"
+  },
+  "footer": {
+    "about": "About Us",
+    "contact": "Contact Us",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "All Rights Reserved"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "username": "Username",
+    "nickname": "Nickname",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "No account?",
+    "hasAccount": "Have an account?",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful"
+  },
+  "destination": {
+    "ticketPrice": "Ticket",
+    "openTime": "Open Time",
+    "rating": "Rating",
+    "location": "Location",
+    "description": "Description",
+    "mapView": "View on Map",
+    "addFavorite": "Add to Favorites",
+    "removeFavorite": "Remove from Favorites"
+  },
+  "trip": {
+    "create": "Create Trip",
+    "edit": "Edit Trip",
+    "delete": "Delete Trip",
+    "share": "Share Trip",
+    "day": "Day {day}",
+    "noTrips": "No trips yet",
+    "createFirst": "Start planning your first trip!"
+  },
+  "coupon": {
+    "claim": "Claim Now",
+    "claimed": "Claimed",
+    "use": "Use Now",
+    "expired": "Expired",
+    "available": "Available",
+    "my": "My Coupons"
+  }
+}

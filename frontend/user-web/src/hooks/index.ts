@@ -145,3 +145,6 @@ export function useIntersectionObserver(
 
   return entry
 }
+
+// Re-export SWR hooks
+export { useSWR, defaultFetcher, authFetcher, preloadSWR, clearSWRCache } from './useSWR'

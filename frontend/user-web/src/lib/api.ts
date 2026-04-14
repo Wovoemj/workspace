@@ -89,4 +89,19 @@ export const miscApi = {
   health: () => api.get('/api/health'),
 }
 
+/** 优惠券API */
+export const couponApi = {
+  // 获取可领取的优惠券
+  available: () => api.get('/api/coupons/available'),
+  // 领取优惠券
+  claim: (couponId: number) => api.post('/api/coupons/claim', { coupon_id: couponId }),
+  // 领取优惠券（通过券码）
+  claimByCode: (code: string) => api.post('/api/coupons/claim', { code }),
+  // 获取我的优惠券
+  my: (status?: 'all' | 'unused' | 'used') => api.get('/api/coupons/my', { params: { status } }),
+  // 使用优惠券（计算折扣）
+  apply: (couponId: number, orderAmount: number) => 
+    api.post('/api/coupons/apply', { coupon_id: couponId, order_amount: orderAmount }),
+}
+
 export { api as axiosInstance }

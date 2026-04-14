@@ -15,7 +15,7 @@ import { Footer } from '@/components/Footer'
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
 

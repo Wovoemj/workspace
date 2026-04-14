@@ -48,10 +48,10 @@ type StatusTab = {
 
 const statusTabs: StatusTab[] = [
   { key: 'all', label: '全部', icon: Filter, color: 'text-gray-600', bgColor: 'bg-gray-100' },
-    { key: 'pending', label: '待完?', icon: AlertCircle, color: 'text-amber-600', bgColor: 'bg-amber-50' },
-    { key: 'planning', label: '规划?', icon: Clock, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-    { key: 'in_progress', label: '进行?', icon: PlayCircle, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
-    { key: 'completed', label: '已完?', icon: CheckCircle2, color: 'text-violet-600', bgColor: 'bg-violet-50' },
+        { key: 'pending', label: '待完？', icon: AlertCircle, color: 'text-amber-600', bgColor: 'bg-amber-50' },
+        { key: 'planning', label: '规划？', icon: Clock, color: 'text-blue-600', bgColor: 'bg-blue-50' },
+        { key: 'in_progress', label: '进行？', icon: PlayCircle, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+        { key: 'completed', label: '已完？', icon: CheckCircle2, color: 'text-violet-600', bgColor: 'bg-violet-50' },
 ]
 
 const coverGradients = [
@@ -99,7 +99,7 @@ export default function ItineraryRoutesPage() {
       const data = await res.json().catch(() => ({}))
       if (res.status === 401) {
         localStorage.removeItem('auth_token')
-                toast.error('登录已过期，请重新登?')
+                                toast.error('登录已过期，请重新登？')
         router.push('/login')
         return
       }
@@ -148,7 +148,7 @@ export default function ItineraryRoutesPage() {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+      <div className="min-h-screen page-bg">
         <Navbar />
         <main className="pt-16 pb-28 lg:pb-10">
           <div className="max-w-4xl mx-auto px-4 py-10 text-center">
@@ -168,7 +168,7 @@ export default function ItineraryRoutesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

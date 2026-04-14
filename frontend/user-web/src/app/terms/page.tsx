@@ -12,7 +12,7 @@ import { Footer } from '@/components/Footer'
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
         <div className="bg-gradient-to-r from-slate-700 to-slate-600 text-white">
@@ -22,7 +22,7 @@ export default function TermsPage() {
               <span className="text-xl font-bold">法律声明</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">服务条款</h1>
-            <p className="text-white/80">最后更新日期：2026???/p>
+            <p className="text-white/80">最后更新日期：2026年4月10日</p>
           </div>
         </div>
 
@@ -31,12 +31,12 @@ export default function TermsPage() {
             <div className="prose prose-slate max-w-none">
               <h2 className="text-xl font-bold text-slate-900 mb-4">1. 服务说明</h2>
               <p className="text-slate-600 mb-4">
-                智能旅游助手（以下简?我们"）致力于为用户提供AI驱动的旅行规划、智能推荐和相关服务。使用我们的服务即表示您同意遵守本服务条款?
+                智能旅游助手（以下简称"我们"）致力于为用户提供AI驱动的旅行规划、智能推荐和相关服务。使用我们的服务即表示您同意遵守本服务条款。
               </p>
 
               <h2 className="text-xl font-bold text-slate-900 mb-4">2. 用户注册</h2>
               <p className="text-slate-600 mb-4">
-                您需要注册账户才能使用部分功能。注册时您应提供真实、准确的信息，并妥善保管账户信息。您理解并同意对账户下所有活动负责?
+                您需要注册账户才能使用部分功能。注册时您应提供真实、准确的信息，并妥善保管账户信息。您理解并同意对账户下所有活动负责。
               </p>
 
               <h2 className="text-xl font-bold text-slate-900 mb-4">3. 服务使用</h2>

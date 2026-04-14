@@ -41,6 +41,77 @@
 - `TipsAccordion` - 实用锦囊（可折叠）
 - `NearbyMap` - 周边联动（地图+景点列表）
 
+## 行程日历视图（2026-04-15 新增）
+- `TripCalendar.tsx` - 行程日历组件
+- 支持月历视图，有行程的日期标记圆点
+- 点击日期跳转到当天行程
+- 快速跳转按钮（Day 1-14）
+- 行程详情页支持列表/日历视图切换
+
+## 分享功能（2026-04-15 新增）
+- `ShareButton.tsx` - 分享按钮组件
+- 支持复制链接、微信（扫码）、微博、海报
+- 使用 navigator.share API（移动端）
+- 景点详情页和行程详情页已集成
+
+## UGC 内容系统（2026-04-15 新增）
+- `TravelNote` 模型（models.py）
+- 后端 API：`/api/travel-notes` CRUD + 点赞
+- 前端页面：
+  - `/travel-notes` - 游记广场
+  - `/travel-notes/new` - 写游记
+  - `/travel-notes/[id]` - 游记详情
+- Navbar 添加「攻略」入口
+
+## 优惠券系统（2026-04-15 新增）
+- `Coupon` + `UserCoupon` 模型（models.py）
+- 后端 API：`/api/coupons/*` 领取/使用/我的
+- 前端页面：`/coupons` - 领券中心
+
+## 用户成长体系（2026-04-15 新增）
+- User 模型添加 `points` 积分字段
+- `/api/users/me/points` - 积分详情
+- `/api/users/me/points/history` - 积分记录
+- 等级：普通(0-999) → 白银(1000-4999) → 黄金(5000-19999) → 铂金(20000+)
+
+## 推荐有礼（2026-04-15 新增）
+- User 模型添加 `invite_code` + `invited_by` 字段
+- `/api/users/invite` - 获取邀请码和链接
+- `/api/users/invite/stats` - 邀请统计
+- 注册时填写邀请码，双方各得 50 积分
+- 前端 `/profile/invite` - 邀请好友页面
+
+## 第三方 API 服务（2026-04-15 新增）
+- `services/flight_service.py` - 航班服务（抽象类 + 模拟数据）
+- `services/hotel_service.py` - 酒店服务（抽象类 + 模拟数据）
+- `services/weather_service.py` - 天气服务（封装心知天气）
+- 后端 API：
+  - `/api/flights/search` - 搜索航班
+  - `/api/flights/:id` - 航班详情
+  - `/api/hotels/search` - 搜索酒店
+  - `/api/hotels/:id` - 酒店详情
+  - `/api/hotels/:id/rooms` - 房型列表
+
+## 客服系统（2026-04-15 新增）
+- `SupportTicket` + `TicketReply` 模型（models.py）
+- 后端 API：`/api/support/tickets` CRUD + 回复
+- 前端页面：`/support` - 客服中心
+  - 常见问题 FAQ
+  - 提交工单表单
+  - 工单列表
+
+## 多语言支持（2026-04-15 新增）
+- `next-intl` 框架
+- 语言文件：`src/i18n/messages/{zh-CN,en,ja}.json`
+- 语言切换器：`LanguageSwitcher.tsx`
+- 路由方案：`/zh-CN/xxx`, `/en/xxx`, `/ja/xxx`
+
+## PWA 支持（2026-04-15 新增）
+- `public/manifest.json` - PWA 清单配置
+- `src/components/InstallPrompt.tsx` - 安装提示组件
+- layout.tsx 添加 manifest/appleWebApp/themeColor
+- 支持添加到主屏幕
+
 ## 前端大规模损坏修复（2026-04-10）
 ### 问题根源
 自动注释注入脚本将 `//` 注释插入所有行（包括 JSX 标签行），导致 ~66 个前端文件编译失败。

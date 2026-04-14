@@ -259,7 +259,7 @@ export default function ProfilePage() {
     router.push('/')
   }
 
-  const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?
+  const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?'
   const avatarGradients = [
     'from-blue-600 to-purple-600',
     'from-emerald-600 to-teal-500',
@@ -268,12 +268,12 @@ export default function ProfilePage() {
     'from-indigo-600 to-violet-600',
   ]
   const avatarIdx = Math.abs((avatarInitial?.charCodeAt(0) || 0) % avatarGradients.length)
-  const membershipText = user?.membership_level && user.membership_level > 1 ? `VIP ${user.membership_level}` : '普通会?
+  const membershipText = user?.membership_level && user.membership_level > 1 ? `VIP ${user.membership_level}` : '普通会员'
 
   const coverSrc = (d: { cover_image?: string | null }) => resolveCoverSrc(d?.cover_image)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16">
         <div className="lg:hidden">
@@ -306,26 +306,25 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <div className="hidden lg:block max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="hidden lg:block max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="card p-6 relative">
             {isAuthenticated ? (
-              <div className="absolute top-4 right-4 flex items-center gap-1 z-10">
+              <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
                 <Link
                   href="/profile/edit"
-                  className="btn btn-outline p-2 h-9 px-3 justify-center gap-1"
+                  className="btn btn-outline p-2 h-9 px-3 flex items-center gap-1.5"
                   aria-label="编辑资料"
-                  title="编辑资料"
                 >
                   <Pencil className="h-4 w-4" />
-                  <span className="hidden sm:inline text-sm">编辑</span>
+                  <span className="text-sm">编辑</span>
                 </Link>
                 <button
                   onClick={onLogout}
-                  className="btn btn-destructive hidden sm:inline-flex py-2 h-9 px-3"
+                  className="btn btn-destructive h-9 px-3 flex items-center gap-1.5"
                   type="button"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span className="ml-1">退</span>
+                  <span className="text-sm">退出</span>
                 </button>
               </div>
             ) : null}
@@ -375,7 +374,7 @@ export default function ProfilePage() {
                   ) : null}
                   <span className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 ml-0 sm:ml-2 mt-2 sm:mt-0 align-middle border ${user?.is_admin ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
                     <Crown className="h-3 w-3" />
-                    {user?.is_admin ? '管理? : membershipText}
+                    {user?.is_admin ? '管理员' : membershipText}
                   </span>
                 </p>
               </div>
@@ -383,7 +382,7 @@ export default function ProfilePage() {
 
             {!isAuthenticated || !user ? (
               <div className="mt-6 card p-4 bg-white border border-gray-200 text-gray-700">
-                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看个人信息?
+                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看个人信息
               </div>
             ) : (
               <>
@@ -515,10 +514,10 @@ export default function ProfilePage() {
                       <div>
                         <div className="text-sm text-gray-600">我的行程</div>
                         <div className="text-2xl font-bold text-gray-900 mt-1">
-                          {counts.trips > 0 ? counts.trips : '?}
+                          {counts.trips > 0 ? counts.trips : '0'}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                                                    {counts.trips > 0 ? '查看行程时间? : '去创建行?'}
+                                                    {counts.trips > 0 ? '查看行程时间' : '去创建行程'}
                         </div>
                       </div>
                       <ArrowRight className="h-4 w-4 text-blue-600" />
@@ -533,7 +532,7 @@ export default function ProfilePage() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-sm text-gray-600">我的收藏</div>
-                        <div className="text-2xl font-bold text-gray-900 mt-1">{counts.favorites > 0 ? counts.favorites : '?}</div>
+                        <div className="text-2xl font-bold text-gray-900 mt-1">{counts.favorites > 0 ? counts.favorites : '0'}</div>
                         <div className="text-xs text-gray-500 mt-1">
                           {counts.favorites > 0 ? '管理喜欢的目的地' : '去发现目的地'}
                         </div>
@@ -550,9 +549,9 @@ export default function ProfilePage() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-sm text-gray-600">我的订单</div>
-                        <div className="text-2xl font-bold text-gray-900 mt-1">{counts.orders > 0 ? counts.orders : '?}</div>
+                        <div className="text-2xl font-bold text-gray-900 mt-1">{counts.orders > 0 ? counts.orders : '0'}</div>
                         <div className="text-xs text-gray-500 mt-1">
-                                                    {counts.orders > 0 ? '查看订单与状? : '去提交订?'}
+                                                    {counts.orders > 0 ? '查看订单与状态' : '去提交订单'}
                         </div>
                       </div>
                       <ArrowRight className="h-4 w-4 text-blue-600" />
@@ -568,7 +567,7 @@ export default function ProfilePage() {
                         <div>
                           <div className="font-semibold text-gray-900">我的收藏</div>
                           <div className="text-xs text-gray-500 mt-1">
-                                                        {favoritesLoading ? '加载中...' : counts.favorites ? `?${counts.favorites} 个` : '还没有收?'}
+                                                        {favoritesLoading ? '加载中...' : counts.favorites ? `${counts.favorites} 个` : '还没有收?'}
                           </div>
                         </div>
                       </div>
@@ -577,7 +576,7 @@ export default function ProfilePage() {
                           href="/favorites"
                           className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1 font-medium"
                         >
-                          查看全部 {counts.favorites} ?
+                          查看全部 {counts.favorites}
                           <ArrowRight className="h-3 w-3" />
                         </Link>
                       ) : null}
@@ -617,7 +616,7 @@ export default function ProfilePage() {
                         </div>
                       ) : (
                         <div className="card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                          还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的</Link> 试试吧?
+                          还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的</Link> 试试吧
                         </div>
                       )}
                     </div>
@@ -677,7 +676,7 @@ export default function ProfilePage() {
                                   {p.destination.city} · {p.destination.province}
                                 </div>
                                 <div className="text-[11px] text-gray-500 mt-1">
-                                  访问日期：{p.visitDate ? new Date(p.visitDate).toLocaleDateString('zh-CN') : '?}
+                                  访问日期：{p.visitDate ? new Date(p.visitDate).toLocaleDateString('zh-CN') : ''}
                                   {p.visitCount > 1 ? ` · 去过 ${p.visitCount} 次` : ''}
                                 </div>
                               </div>
@@ -697,7 +696,7 @@ export default function ProfilePage() {
                 <div className="mt-6 card p-4 bg-gray-50 border-gray-200">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="text-gray-700 text-sm">
-                      修改昵称、旅行偏好与预算？前往编辑页一次性保存?
+                      修改昵称、旅行偏好与预算？前往编辑页一次性保存
                     </div>
                     <Link href="/profile/edit" className="btn btn-primary text-sm shrink-0">
                       编辑资料
@@ -712,7 +711,7 @@ export default function ProfilePage() {
                     className="btn btn-outline w-full justify-center text-red-600 border-red-200 hover:bg-red-50"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span className="ml-2">退出登</span>
+                    <span className="ml-2">退出登录</span>
                   </button>
                 </div>
                       </>
@@ -725,7 +724,7 @@ export default function ProfilePage() {
                             <h2 className="text-xl font-bold text-gray-900">我的订单</h2>
                             <p className="text-sm text-gray-500 mt-1">点击查看详情与商品明</p>
                           </div>
-                          <div className="text-sm text-gray-500">{counts.orders} ?/div>
+                          <div className="text-sm text-gray-500">{counts.orders}</div>
                         </div>
 
                         {countsLoading ? (
@@ -739,13 +738,13 @@ export default function ProfilePage() {
                                 <div key={String(orderId)} className="card p-4 bg-white border border-gray-200">
                                   <div className="flex items-start justify-between gap-4">
                                     <div className="min-w-0">
-                                      <div className="text-sm text-gray-500">订单号：{o?.order_no || '?}</div>
+                                      <div className="text-sm text-gray-500">订单号：{o?.order_no || '无'}</div>
                                       <div className="text-gray-900 font-semibold mt-1">
                                         总金额：¥{Number(o?.total_amount || 0).toLocaleString()}
                                       </div>
                                       <div className="text-sm text-gray-600 mt-1">
-                                        状态：{o?.status || '?}
-                                        {o?.payment_method ? ` · 支付方式?{o.payment_method}` : ''}
+                                        状态：{o?.status || '未知'}
+                                        {o?.payment_method ? ` · 支付方式：{o.payment_method}` : ''}
                                       </div>
                                     </div>
                                     <div className="text-xs text-gray-500 whitespace-nowrap">
@@ -799,7 +798,7 @@ export default function ProfilePage() {
                             <h2 className="text-xl font-bold text-gray-900">我的收藏</h2>
                             <p className="text-sm text-gray-500 mt-1">喜欢的目的地产品卡片网格</p>
                           </div>
-                          <div className="text-sm text-gray-500">{counts.favorites} ?/div>
+                          <div className="text-sm text-gray-500">{counts.favorites}</div>
                         </div>
 
                         {favoritesLoading ? (
@@ -844,7 +843,7 @@ export default function ProfilePage() {
                                     </div>
                                       {typeof f.rating === 'number' && f.rating > 0 ? (
                                         <div className="text-xs text-coral-600 font-semibold whitespace-nowrap">
-                                          <span className="mr-1">?/span>
+                                          <span className="mr-1">★</span>
                                           {f.rating.toFixed(1)}
                                         </div>
                                       ) : null}
@@ -856,7 +855,7 @@ export default function ProfilePage() {
                           </div>
                         ) : (
                           <div className="mt-4 card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                            还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的</Link> 试试吧?
+                            还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的</Link> 试试吧
                           </div>
                         )}
                       </div>
@@ -869,7 +868,7 @@ export default function ProfilePage() {
                             <h2 className="text-xl font-bold text-gray-900">浏览足迹</h2>
                             <p className="text-sm text-gray-500 mt-1">按时间线展示你最近浏览的目的</p>
                           </div>
-                          <div className="text-sm text-gray-500">{footprintTotal || footprints.length} ?/div>
+                          <div className="text-sm text-gray-500">{footprintTotal || footprints.length}</div>
                         </div>
 
                         {footprintsLoading ? (
@@ -911,7 +910,7 @@ export default function ProfilePage() {
                                     {p.destination.city} · {p.destination.province}
                                   </div>
                                   <div className="text-[11px] text-gray-500 mt-1">
-                                    访问日期：{p.visitDate ? new Date(p.visitDate).toLocaleDateString('zh-CN') : '?}
+                                    访问日期：{p.visitDate ? new Date(p.visitDate).toLocaleDateString('zh-CN') : ''}
                                     {p.visitCount > 1 ? ` · 去过 ${p.visitCount} 次` : ''}
                                   </div>
                                 </div>
@@ -920,7 +919,7 @@ export default function ProfilePage() {
                           </div>
                         ) : (
                           <div className="mt-4 card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                            你还没有足迹。去 <Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 里生成行程吧?
+                            你还没有足迹。去 <Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 里生成行程吧
                           </div>
                         )}
                       </div>
@@ -933,7 +932,7 @@ export default function ProfilePage() {
                             <h2 className="text-xl font-bold text-gray-900">我的行程</h2>
                             <p className="text-sm text-gray-500 mt-1">查看你创建的旅行计划</p>
                           </div>
-                          <div className="text-sm text-gray-500">{counts.trips} ?/div>
+                          <div className="text-sm text-gray-500">{counts.trips}</div>
                         </div>
 
                         {countsLoading ? (

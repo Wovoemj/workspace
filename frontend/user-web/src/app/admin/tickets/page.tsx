@@ -64,7 +64,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 
 const categoryMap: Record<string, { label: string }> = {
   ticket: { label: '门票' },
-  tour: { label: '跟团? },
+  tour: { label: '跟团游' },
   package: { label: '套餐' },
 }
 
@@ -115,10 +115,10 @@ export default function AdminTicketsPage() {
   }
 
   const handleDelete = async (id: number) => {
-        if (!confirm('确定要下架这个产品吗?')) return
+                if (!confirm('确定要下架这个产品吗？')) return
     try {
       await adminFetch(`/api/admin/tickets/products/${id}`, { method: 'DELETE' })
-            toast.success('已下?')
+                        toast.success('已下？')
       loadProducts()
     } catch (e: any) {
       toast.error(e?.message || '操作失败')
@@ -335,7 +335,7 @@ export default function AdminTicketsPage() {
 }
 
 // 产品编辑弹窗组件
-function ProductModal({ product, onClose, onSave }: { product: Product | null; onClose: () {
+function ProductModal({ product, onClose, onSave }: { product: Product | null; onClose: () => void; onSave: (p: any) => void }) {
   const [form, setForm] = useState({
     name: product?.name || '',
     subtitle: product?.subtitle || '',
@@ -354,7 +354,7 @@ function ProductModal({ product, onClose, onSave }: { product: Product | null; o
 
   const handleSubmit = async () => {
     if (!form.name || !form.base_price) {
-            toast.error('请填写必填字?')
+                        toast.error('请填写必填字？')
       return
     }
     setSaving(true)
@@ -372,7 +372,7 @@ function ProductModal({ product, onClose, onSave }: { product: Product | null; o
       })
       if (data.success) {
         toast.success(product ? '更新成功' : '创建成功')
-        onSave()
+        onSave(form)
       }
     } catch (e: any) {
       toast.error(e?.message || '操作失败')

@@ -25,22 +25,21 @@ db = SQLAlchemy(app)
 # 导入模型
 from sqlalchemy import text
 from werkzeug.security import generate_password_hash
+import getpass
 
-# 定义User模型
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    nickname = db.Column(db.String(80), nullable=False, default="")
-    email = db.Column(db.String(120), unique=True)
-    phone = db.Column(db.String(20), unique=True)
-    avatar_url = db.Column(db.String(500))
-    password_hash = db.Column(db.String(255), nullable=False)
-    membership_level = db.Column(db.Integer, default=1)
-    is_admin = db.Column(db.Boolean, default=False)
-    preferences = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+def validate_password(password):
+    """验证密码强度：至少8位，包含大小写字母和数字"""
+    if len(password) < 8:
+        return False, "密码长度至少8位"
+    if not any(c.isupper() for c in password):
+        return False, "密码必须包含大写字母"
+    if not any(c.islower() for c in password):
+        return False, "密码必须包含小写字母"
+    if not any(c.isdigit() for c in password):
+        return False, "密码必须包含数字"
+    return True, ""
+
 
 def create_admin():
     import sqlite3
@@ -52,10 +51,6 @@ def create_admin():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    username = "admin"
-    email = "admin@example.com"
-    password = "123456"
-    
     # 检查用户表是否存在
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
     if not cursor.fetchone():
@@ -63,14 +58,58 @@ def create_admin():
         conn.close()
         return
     
+    # ============ 交互式输入用户名 ============
+    print("\n=== 创建管理员账号 ===\n")
+    
+    # 输入用户名
+    while True:
+        username = input("用户名: ").strip()
+        if not username:
+            print("用户名不能为空")
+            continue
+        if len(username) < 3 or len(username) > 20:
+            print("用户名长度需在3-20个字符之间")
+            continue
+        break
+    
+    # 输入邮箱
+    while True:
+        email = input("邮箱: ").strip()
+        if not email:
+            print("邮箱不能为空")
+            continue
+        if '@' not in email or '.' not in email:
+            print("请输入有效的邮箱地址")
+            continue
+        break
+    
+    # 输入密码（隐藏）
+    while True:
+        print("\n密码要求：至少8位，包含大小写字母和数字")
+        password = getpass.getpass("设置密码: ")
+        if not password:
+            print("密码不能为空")
+            continue
+        valid, msg = validate_password(password)
+        if not valid:
+            print(msg)
+            continue
+        
+        # 确认密码
+        confirm = getpass.getpass("确认密码: ")
+        if password != confirm:
+            print("两次输入的密码不一致")
+            continue
+        break
+    
     # 检查用户是否已存在
     cursor.execute("SELECT id FROM user WHERE email = ? OR username = ?", (email.lower(), username))
     if cursor.fetchone():
-        print(f"管理员账号已存在")
+        print(f"\n❌ 用户名或邮箱已存在")
         conn.close()
         return
     
-    # 获取表的列信息
+    # 获取表的列信息（动态检测）
     cursor.execute("PRAGMA table_info(user)")
     columns = [row[1] for row in cursor.fetchall()]
     
@@ -102,10 +141,10 @@ def create_admin():
     conn.commit()
     conn.close()
     
-    print(f"✅ 管理员创建成功!")
+    print(f"\n✅ 管理员创建成功!")
     print(f"   用户名: {username}")
     print(f"   邮箱: {email}")
-    print(f"   密码: {password}")
+
 
 if __name__ == "__main__":
     from datetime import datetime

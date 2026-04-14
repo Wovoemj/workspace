@@ -25,12 +25,12 @@ type Destination = {
 }
 
 const regions = [
-    { name: '华北地区', provinces: ['北京', '天津', '河北', '山西', '内蒙?'], emoji: '🏛? },
-    { name: '东北地区', provinces: ['辽宁', '吉林', '黑龙?'], emoji: '❄️' },
+  { name: '华北地区', provinces: ['北京', '天津', '河北', '山西', '内蒙古'], emoji: '🏛️' },
+  { name: '东北地区', provinces: ['辽宁', '吉林', '黑龙江'], emoji: '❄️' },
   { name: '华东地区', provinces: ['上海', '江苏', '浙江', '安徽', '福建', '江西', '山东'], emoji: '🌆' },
   { name: '华中地区', provinces: ['河南', '湖北', '湖南'], emoji: '🌸' },
   { name: '华南地区', provinces: ['广东', '广西', '海南'], emoji: '🌴' },
-  { name: '西南地区', provinces: ['重庆', '四川', '贵州', '云南', '西藏'], emoji: '🏔? },
+  { name: '西南地区', provinces: ['重庆', '四川', '贵州', '云南', '西藏'], emoji: '🏔️' },
   { name: '西北地区', provinces: ['陕西', '甘肃', '青海', '宁夏', '新疆'], emoji: '🐪' },
 ]
 
@@ -61,7 +61,7 @@ export default function DomesticDestinationsPage() {
     : destinations
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
 
@@ -71,9 +71,9 @@ export default function DomesticDestinationsPage() {
               <Mountain className="h-8 w-8" />
               <span className="text-xl font-bold">国内旅游</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">国内</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">国内旅游</h1>
             <p className="text-white/90 text-lg max-w-2xl">
-              探索祖国大好河山，从北国雪景到南疆海岛，从东海岸到西部高原，每一次出发都是新的发?
+              探索祖国大好河山，从北国雪景到南疆海岛，从东海岸到西部高原，每一次出发都是新的发现
             </p>
             <div className="flex flex-wrap gap-3 mt-6">
               <Link href="/destinations/popular" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">热门推荐</Link>
@@ -131,7 +131,7 @@ export default function DomesticDestinationsPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-slate-900">
                   {selectedRegion || '全国'}目的地
-                  <span className="text-slate-500 font-normal text-base ml-2">?{filteredDestinations.length} ?/span>
+                  <span className="text-slate-500 font-normal text-base ml-2">({filteredDestinations.length} 个)</span>
                 </h2>
                 {selectedRegion && (
                   <button onClick={() => setSelectedRegion(null)} className="text-sm text-emerald-600 hover:underline flex items-center gap-1">

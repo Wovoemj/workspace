@@ -67,7 +67,7 @@ export function ProductResultsList({ products, selectedId, onSelect }: Props) {
                 ? 'border-primary/50 shadow-sm ring-1 ring-primary/15'
                 : 'border-border/60 hover:border-primary/25 hover:shadow-sm'
             }`}
-            aria-label={`选择结果?{p.name || '产品'}`}
+            aria-label={`选择结果${p.name || '产品'}`}
           >
             <div className="flex gap-3 p-3">
               <div className="relative w-28 h-[86px] shrink-0 rounded-xl overflow-hidden bg-muted-foreground/10">
@@ -98,14 +98,14 @@ export function ProductResultsList({ products, selectedId, onSelect }: Props) {
                   <div className="text-right shrink-0">
                     <div className="text-sm font-extrabold text-primary">
                       <span className="text-[11px] font-semibold text-muted-foreground mr-1">{typeMeta.label}</span>
-                      {formatPrice(p.price)}?
+                      {formatPrice(p.price)}
                     </div>
                     {shouldShowRating(p.rating) ? (
                       <div className="text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                         <span className="font-semibold">{formatRating(p.rating)}</span>
                         {Number(p.review_count || 0) > 0 ? (
-                          <span className="text-muted-foreground">（{Number(p.review_count || 0).toLocaleString()}?/span>
+                          <span className="text-muted-foreground">（{Number(p.review_count || 0).toLocaleString()})</span>
                         ) : null}
                       </div>
                     ) : null}
@@ -131,7 +131,7 @@ export function ProductResultsList({ products, selectedId, onSelect }: Props) {
                     className="text-xs font-semibold text-primary hover:underline underline-offset-2"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    打开详情 ?
+                    打开详情 &gt;
                   </Link>
                 </div>
               </div>

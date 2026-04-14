@@ -11,6 +11,7 @@ import {
   Upload, ImagePlus
 } from 'lucide-react'
 import { AdminGuard } from '@/components/AdminGuard'
+import { toast } from 'react-hot-toast'
 
 /** 后端地址 */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
@@ -84,16 +85,14 @@ function StatCard({ icon: Icon, label, value, color, subText }: {
   const c = colorMap[color] || colorMap.blue
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
-      <div className={`absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gradient-to-br ${c.bg} opacity-10 group-hover:opacity-20 transition-opacity`} style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }} />
-      <div className="relative flex items-center justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">{label}</p>
-          <p className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900">{value.toLocaleString()}</p>
-          {subText && <p className="mt-1 text-xs text-gray-400">{subText}</p>}
-        </div>
-        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.bg} shadow-sm`}>
-          <Icon className="h-6 w-6 text-white" />
-        </div>
+      {/* Logo移到右上角 */}
+      <div className={`absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${c.bg} shadow-sm`}>
+        <Icon className="h-5 w-5 text-white" />
+      </div>
+      <div className="relative">
+        <p className="text-xs font-medium uppercase tracking-wider text-gray-400 pr-12">{label}</p>
+        <p className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900">{value.toLocaleString()}</p>
+        {subText && <p className="mt-1 text-xs text-gray-400">{subText}</p>}
       </div>
     </div>
   )
@@ -230,13 +229,27 @@ function DestinationTable() {
       setLoading(true)
       const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })
       if (keyword.trim()) params.set('keyword', keyword.trim())
-      const data = await adminFetch<{ success: boolean; destinations: Destination[]; total: number }>(
-        `/api/admin/destinations?${params.toString()}`
-      )
+      
+      // 使用原生fetch添加错误处理
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : ''
+      const url = `${API_BASE}/api/admin/destinations?${params.toString()}`
+      
+      const res = await fetch(url, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      })
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`)
+      }
+      
+      const data = await res.json()
+      console.log('API Response:', data) // 调试日志
+      
       setDestinations(data.destinations || [])
       setTotal(data.total || 0)
     } catch (e: any) {
       console.error('加载目的地失败', e.message)
+      toast.error('加载数据失败: ' + e.message)
     } finally {
       setLoading(false)
     }
@@ -754,7 +767,7 @@ export default function AdminPage() {
 
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30">
+      <div className="min-h-screen page-bg">
         <Navbar />
         <main className="pt-16 pb-12">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">

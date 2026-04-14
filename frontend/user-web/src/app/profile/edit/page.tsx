@@ -64,7 +64,7 @@ export default function ProfileEditPage() {
       return
     }
 
-    // 验证文件大小（最?MB?
+    // 验证文件大小（最大 5MB）
     if (file.size > 2 * 1024 * 1024) {
       toast.error('图片大小不能超过2MB')
       return
@@ -112,7 +112,7 @@ export default function ProfileEditPage() {
       }
     } catch (err: any) {
       toast.error(err?.message || '头像上传失败')
-      // 恢复原头?
+      // 恢复原头像
       setAvatarPreview(user?.avatar_url || null)
     } finally {
       setUploadingAvatar(false)
@@ -191,10 +191,10 @@ export default function ProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16">
-        <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
             <Link
               href="/profile"
@@ -211,7 +211,7 @@ export default function ProfileEditPage() {
 
             {!user ? (
               <p className="mt-6 text-gray-600">
-                请先 <Link href="/login" className="text-blue-600 underline">登录</Link>?
+                请先 <Link href="/login" className="text-blue-600 underline">登录</Link>
               </p>
             ) : (
               <form className="space-y-4 mt-6" onSubmit={onSave}>
@@ -244,7 +244,7 @@ export default function ProfileEditPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span>{(form.nickname || user?.nickname || '?)[0].toUpperCase()}</span>
+                        <span>{(form.nickname || user?.nickname || '?')[0].toUpperCase()}</span>
                       )}
                     </div>
                     <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
@@ -256,8 +256,8 @@ export default function ProfileEditPage() {
                     </div>
                   </div>
                   <div className="min-w-0 flex-1">
-                                        <div className="font-semibold text-slate-800 truncate">{user?.nickname || '旅行?'}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 truncate">{user?.email || user?.phone || '?}</div>
+                                        <div className="font-semibold text-slate-800 truncate">{user?.nickname || '旅行用户'}</div>
+                    <div className="text-xs text-slate-500 mt-0.5 truncate">{user?.email || user?.phone || '未设置'}</div>
                     <div className="flex flex-wrap items-center gap-2 mt-2">
                       {user?.is_admin ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700">
@@ -269,7 +269,7 @@ export default function ProfileEditPage() {
                         </span>
                       )}
                       <span className="text-[11px] text-slate-400">
-                        注册?{user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-CN') : '?}
+                        注册时间：{user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-CN') : '未知'}
                       </span>
                     </div>
                   </div>
@@ -280,7 +280,7 @@ export default function ProfileEditPage() {
                     <span className="text-sm text-gray-600">昵称</span>
                     <input
                       className="input bg-white w-full mt-1"
-                      value={form.nickname}   // value?
+                      value={form.nickname}   // value
                       onChange={(e) => setForm((s) => ({ ...s, nickname: e.target.value }))}
                       placeholder={user?.nickname ? `当前：${user.nickname}` : '设置你的昵称'}
                     />
@@ -291,13 +291,13 @@ export default function ProfileEditPage() {
                     <span className="text-sm text-gray-600">偏好风格</span>
                     <select
                       className="input bg-white w-full mt-1"
-                      value={form.travel_style}   // value?
+                      value={form.travel_style}   // value
                       onChange={(e) => setForm((s) => ({ ...s, travel_style: e.target.value as typeof form.travel_style }))}
                     >
-                      <option value="adventure">🧗 冒险 ?追求刺激与挑</option>
-                      <option value="relaxation">🏖 休闲 ?放松身心为主</option>
-                      <option value="cultural">🏛 人文 ?探索历史文化</option>
-                      <option value="business">💼 商务 ?兼顾工作与出</option>
+                      <option value="adventure">🧗 冒险 - 追求刺激与挑战</option>
+                      <option value="relaxation">🏖 休闲 - 放松身心为主</option>
+                      <option value="cultural">🏛 人文 - 探索历史文化</option>
+                      <option value="business">💼 商务 - 兼顾工作与出行</option>
                     </select>
                     <span className="text-[11px] text-slate-400 mt-1 block">影响行程推荐的整体基</span>
                   </label>
@@ -310,7 +310,7 @@ export default function ProfileEditPage() {
                       className="input bg-white w-full mt-1"
                       type="number"
                       min={1}
-                      value={form.group_size}   // value?
+                      value={form.group_size}   // value
                       onChange={(e) => setForm((s) => ({ ...s, group_size: Number(e.target.value) }))}
                     />
                     <span className="text-[11px] text-slate-400 mt-1 block">用于预算和行程规划参</span>
@@ -322,16 +322,16 @@ export default function ProfileEditPage() {
                       <input
                         className="input bg-white w-1/2"
                         type="number"
-                        value={form.budget_min}   // value?
+                        value={form.budget_min}   // value
                         onChange={(e) => setForm((s) => ({ ...s, budget_min: Number(e.target.value) }))}
-                        placeholder="最?
+                        placeholder="最低预算"
                       />
                       <input
                         className="input bg-white w-1/2"
                         type="number"
-                        value={form.budget_max}   // value?
+                        value={form.budget_max}   // value
                         onChange={(e) => setForm((s) => ({ ...s, budget_max: Number(e.target.value) }))}
-                        placeholder="最?
+                        placeholder="最高预算"
                       />
                     </div>
                     <span className="text-[11px] text-slate-400 mt-1 block">0 表示不设上限</span>
@@ -342,18 +342,18 @@ export default function ProfileEditPage() {
                   <span className="text-sm text-gray-600">兴趣标签</span>
                   <input
                     className="input bg-white w-full mt-1"
-                    value={form.interests}   // value?
+                    value={form.interests}   // value
                     onChange={(e) => setForm((s) => ({ ...s, interests: e.target.value }))}
-                                        placeholder="美食, 自然风景, 博物?" 摄影"
+                    placeholder="美食, 自然风景, 博物馆, 摄影"
                   />
-                  <span className="text-[11px] text-slate-400 mt-1 block">多个标签用逗号分隔，帮?AI 推荐更精</span>
+                  <span className="text-[11px] text-slate-400 mt-1 block">多个标签用逗号分隔，帮助 AI 推荐更精准</span>
                 </label>
 
                 <label className="block">
                   <span className="text-sm text-gray-600">常去目的</span>
                   <input
                     className="input bg-white w-full mt-1"
-                    value={form.destinations}   // value?
+                    value={form.destinations}   // value
                     onChange={(e) => setForm((s) => ({ ...s, destinations: e.target.value }))}
                     placeholder="上海, 杭州, 北京"
                   />

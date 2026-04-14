@@ -14,24 +14,24 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
 const jobs = [
-    { title: '高级前端工程?', dept: '技术部', location: '北京', type: '全职', salary: '25K-45K' },
-    { title: 'AI算法工程?', dept: '技术部', location: '北京/上海', type: '全职', salary: '30K-60K' },
-    { title: '产品经理', dept: '产品?', location: '北京', type: '全职', salary: '20K-40K' },
-    { title: 'UI/UX设计?', dept: '设计?', location: '北京', type: '全职', salary: '18K-35K' },
-    { title: '旅游产品运营', dept: '运营?', location: '北京', type: '全职', salary: '15K-25K' },
-    { title: '内容编辑', dept: '内容?', location: '远程', type: '兼职', salary: '8K-15K' },
+        { title: '高级前端工程？', dept: '技术部', location: '北京', type: '全职', salary: '25K-45K' },
+        { title: 'AI算法工程？', dept: '技术部', location: '北京/上海', type: '全职', salary: '30K-60K' },
+        { title: '产品经理', dept: '产品？', location: '北京', type: '全职', salary: '20K-40K' },
+        { title: 'UI/UX设计？', dept: '设计？', location: '北京', type: '全职', salary: '18K-35K' },
+        { title: '旅游产品运营', dept: '运营？', location: '北京', type: '全职', salary: '15K-25K' },
+        { title: '内容编辑', dept: '内容？', location: '远程', type: '兼职', salary: '8K-15K' },
 ]
 
 const benefits = [
-    { icon: Heart, title: '六险一?', desc: '全额缴纳，安心保? },
-    { icon: Sparkles, title: '弹性工?', desc: '灵活上下班，拒绝996' },
-  { icon: Rocket, title: '成长空间', desc: '扁平管理，快速晋? },
-  { icon: Users, title: '免费旅游', desc: '每年旅游基金，说走就? },
+    { icon: Heart, title: '六险一金', desc: '全额缴纳，安心保障' },
+    { icon: Sparkles, title: '弹性工作', desc: '灵活上下班，拒绝996' },
+  { icon: Rocket, title: '成长空间', desc: '扁平管理，快速晋升' },
+  { icon: Users, title: '免费旅游', desc: '每年旅游基金，说走就走' },
 ]
 
 export default function CareersPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
         <div className="bg-gradient-to-r from-violet-600 to-purple-500 text-white">

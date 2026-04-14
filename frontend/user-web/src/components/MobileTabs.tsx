@@ -31,7 +31,7 @@ export function MobileTabs() {
   const active = getActiveKey(pathname)
 
   const beforeHome: TabDef[] = [
-        { key: 'destinations', href: '/destinations', label: '目的?', icon: MapPinned },
+                { key: 'destinations', href: '/destinations', label: '目的？', icon: MapPinned },
     { key: 'itineraries', href: '/itineraries', label: '行程', icon: Calendar },
   ]
   const afterHome: TabDef[] = [

@@ -82,10 +82,10 @@ function isGuestNickname(nickname: string | undefined) {
 }
 
 function formatVisitLabel(iso: string) {
-  if (!iso) return '?
+  if (!iso) return '未知'
   const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return '?
-  return `${d.getFullYear()}?{d.getMonth() + 1}?到访`
+  if (Number.isNaN(d.getTime())) return '未知'
+  return `${d.getFullYear()}年${d.getMonth() + 1}月到访`
 }
 
 function levelFromUser(user: User) {
@@ -125,7 +125,7 @@ export function MobileProfile({
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressFp = useRef<MobileFootprint | null>(null)
 
-  const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?
+  const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?'
   const avatarGradients = [
     'from-sky-500 to-indigo-600',
     'from-emerald-500 to-teal-600',
@@ -142,7 +142,7 @@ export function MobileProfile({
     { key: 'footprint', label: '足迹', badge: footprintTotal || footprints.length },
     { key: 'messages', label: '消息', badge: messagesUnread },
     { key: 'orders', label: '订单', badge: counts.orders },
-        { key: 'coupons', label: '优惠?', badge: couponCount },
+                { key: 'coupons', label: '优惠？', badge: couponCount },
   ]
 
   const tabIndex = tabs.findIndex((t) => t.key === tab)
@@ -174,7 +174,7 @@ export function MobileProfile({
     setRefreshing(true)
     try {
       await onRefresh()
-            toast.success('已更?')
+                        toast.success('已更？')
     } catch {
       toast.error('刷新失败')
     } finally {
@@ -187,7 +187,7 @@ export function MobileProfile({
     const id = String(user.id || '')
     if (!id) return
     void navigator.clipboard.writeText(id).then(
-            () => toast.success('ID 已复?'),
+                        () => toast.success('ID 已复？'),
       () => toast.error('复制失败'),
     )
   }
@@ -216,7 +216,7 @@ export function MobileProfile({
       const ok = window.confirm(`删除?{fp.destination.name}」的这条足迹？`)
       if (ok) {
         void onDeleteFootprint(fp.id).then(
-                    () => toast.success('已删?'),
+                                        () => toast.success('已删？'),
           () => toast.error('删除失败'),
         )
       }
@@ -290,7 +290,7 @@ export function MobileProfile({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-lg font-bold text-slate-900 truncate">
-                                    {user.nickname?.trim() || '旅行?'}
+                                                                        {user.nickname?.trim() || '旅行者'}
                 </h1>
                 <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
                   旅行达人
@@ -317,7 +317,7 @@ export function MobileProfile({
 
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
                 <span className="inline-flex items-center gap-1">
-                  ID {String(user.id).slice(0, 8)}?
+                  ID {String(user.id).slice(0, 8)}
                   <button type="button" onClick={onCopyId} className="rounded p-0.5 text-sky-600" aria-label="复制 ID">
                     <Copy className="h-3.5 w-3.5" />
                   </button>
@@ -326,12 +326,12 @@ export function MobileProfile({
                 <span>
                   {user.phone
                     ? user.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-                                        : '未绑定手?'}
+                                                                                : '未绑定手机'}
                 </span>
               </div>
 
               <p className="mt-2 text-xs font-medium text-slate-600">
-                {cityCount} 座城?· {counts.favorites} 条收?· {reviewCount} 条点?
+                {cityCount} 座城市· {counts.favorites} 条收藏· {reviewCount} 条点评
               </p>
             </div>
           </div>
@@ -417,7 +417,7 @@ export function MobileProfile({
 
       <div className="mx-4 mt-6 grid grid-cols-4 gap-2 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
         <Quick href="/orders" icon={ClipboardList} label="我的订单" />
-                <Quick href="/cart" icon={Ticket} label="购物?" />
+                <Quick href="/cart" icon={Ticket} label="购物车" />
         <Quick href="/help" icon={Headphones} label="帮助反馈" />
         <Quick href="/about" icon={Info} label="关于我们" />
       </div>
@@ -433,7 +433,7 @@ export function MobileProfile({
         <div className="flex gap-3 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
           {[
             { t: '草原星空', s: '锡林郭勒 · 自驾', img: 'scenic_images/__auto__/placeholder.png' },
-                        { t: '森林温泉', s: '兴安?· 慢旅?', img: 'scenic_images/__auto__/placeholder.png' },
+                                                { t: '森林温泉', s: '兴安?· 慢旅？', img: 'scenic_images/__auto__/placeholder.png' },
             { t: '沙漠公路', s: '阿拉?· 出片', img: 'scenic_images/__auto__/placeholder.png' },
           ].map((c) => (
             <Link
@@ -472,7 +472,7 @@ export function MobileProfile({
             <div className="mt-2 divide-y divide-slate-100">
               <SettingsRow
                 icon={Bell}
-                label="通知与消?
+                label="通知与消息"
                 onClick={() => {
                   setSettingsOpen(false)
                   router.push('/notifications')
@@ -480,7 +480,7 @@ export function MobileProfile({
               />
               <SettingsRow
                 icon={HelpCircle}
-                label="帮助与常见问?
+                label="帮助与常见问题"
                 onClick={() => {
                   setSettingsOpen(false)
                   router.push('/help')
@@ -488,8 +488,8 @@ export function MobileProfile({
               />
               <SettingsRow
                 icon={Share2}
-                label="邀请好?
-                                onClick={() => toast('邀请活动即将上?')}
+                label="邀请好友"
+                                                                onClick={() => toast('邀请活动即将上线')}
               />
               <SettingsRow icon={Sparkles} label="清除缓存" onClick={clearCacheDemo} />
               <SettingsRow
@@ -509,7 +509,7 @@ export function MobileProfile({
               }}
               className="mt-4 w-full rounded-2xl border border-rose-200 bg-rose-50 py-3 text-sm font-semibold text-rose-700"
             >
-              退出登?
+              退出登录
             </button>
             <p className="mt-4 text-center text-[11px] text-slate-400">智旅助手 · v2.0</p>
           </div>
@@ -538,9 +538,9 @@ export function MobileProfile({
             <div className="flex items-start gap-3">
               <UserCircle2 className="h-10 w-10 shrink-0 text-sky-600" />
               <div>
-                <h3 className="text-lg font-bold text-slate-900">设置你的昵称与头</h3>
+                <h3 className="text-lg font-bold text-slate-900">设置你的昵称与头像</h3>
                 <p className="mt-1 text-sm text-slate-600">
-                  完善资料可解锁更多个性化推荐；完成资料还可领取专属优惠券（演示）?
+                  完善资料可解锁更多个性化推荐；完成资料还可领取专属优惠券（演示）哦
                 </p>
               </div>
             </div>
@@ -562,7 +562,7 @@ export function MobileProfile({
                 }}
                 className="flex-1 rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white"
               >
-                去完?
+                去完成
               </button>
             </div>
           </div>
@@ -710,7 +710,7 @@ function FootprintTab({
         <Footprints className="mx-auto h-10 w-10 text-slate-300" />
         <p className="mt-3 text-sm text-slate-600">还没去过任何地方</p>
         <Link href="/destinations" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky-600">
-          探索热门目的?
+          探索热门目的地
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -744,7 +744,7 @@ function FootprintTab({
               </div>
               <div className="mt-1 text-[11px] text-slate-400">{formatVisitLabel(p.visitDate)}</div>
               <div className="mt-1 text-[11px] font-medium text-sky-700">
-                去过 {p.visitCount} ?
+                去过 {p.visitCount} 次
               </div>
             </div>
           </button>
@@ -754,11 +754,11 @@ function FootprintTab({
         <button
           type="button"
           onClick={() =>
-            toast(`?${total} 条足迹，当前展示最?${footprints.length} 条`)
+            toast(`共${total} 条足迹，当前展示最${footprints.length} 条`)
           }
           className="flex w-full items-center justify-center gap-1 rounded-xl border border-slate-200 py-3 text-sm font-medium text-slate-700 active:bg-slate-50"
         >
-          查看全部足迹（{total}?
+          查看全部足迹（{total}）
           <Maximize2 className="h-4 w-4" />
         </button>
       ) : null}
@@ -766,7 +766,7 @@ function FootprintTab({
   )
 }
 
-function MessagesTab({ unread, router }: { unread: number; router: { push: (href: string) {
+function MessagesTab({ unread, router }: { unread: number; router: { push: (href: string) => void } }) {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
@@ -810,7 +810,7 @@ function OrdersTab({
           onClick={() => router.push('/cart')}
           className="mt-4 text-sm font-semibold text-sky-600"
         >
-          去下?
+          去下单
         </button>
       </div>
     )
@@ -819,9 +819,9 @@ function OrdersTab({
     <div className="space-y-3">
       {orders.map((o: any) => (
         <div key={String(o.id)} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
-          <div className="text-xs text-slate-500">订单?{o.order_no || '?}</div>
+          <div className="text-xs text-slate-500">订单号：{o.order_no || '无'}</div>
           <div className="mt-1 text-sm font-semibold text-slate-900">¥{Number(o.total_amount || 0).toLocaleString()}</div>
-          <div className="mt-1 text-xs text-slate-600">{o.status || '?}</div>
+          <div className="mt-1 text-xs text-slate-600">{o.status || '未知'}</div>
         </div>
       ))}
       <button
@@ -835,7 +835,7 @@ function OrdersTab({
   )
 }
 
-function CouponsTab({ count, router }: { count: number; router: { push: (href: string) {
+function CouponsTab({ count, router }: { count: number; router: { push: (href: string) => void } }) {
   return (
     <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">
       <div className="flex items-center gap-3">
@@ -845,7 +845,7 @@ function CouponsTab({ count, router }: { count: number; router: { push: (href: s
         <div>
           <div className="text-sm font-bold text-slate-900">我的优惠</div>
           <div className="mt-0.5 text-xs text-slate-600">
-                        {count > 0 ? `可用 ${count} 张` : '暂无可用优惠?'}
+                                                {count > 0 ? `可用 ${count} 张` : '暂无可用优惠券'}
           </div>
         </div>
       </div>
@@ -857,7 +857,7 @@ function CouponsTab({ count, router }: { count: number; router: { push: (href: s
         }}
         className="mt-4 w-full rounded-xl bg-sky-600 py-3 text-sm font-semibold text-white active:scale-[0.99]"
       >
-        去领?/ 看看目的?
+        去领取 / 看看目的地
       </button>
     </div>
   )

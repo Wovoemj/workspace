@@ -1,8 +1,9 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { CalendarDays, ChevronLeft, ChevronRight, Drama, Hotel, MapPin, Plane, Search, Star, Ticket } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
@@ -29,12 +30,50 @@ function formatDestinationTicket(d: Destination) {
   return '价格待补充'
 }
 
-function HomeDestinationCarouselCard({ d, coverSrc, ticketLabel }: { d: Destination; coverSrc: string; ticketLabel: string }) {
-  const [imgLoaded, setImgLoaded] = useState(false)
+// 生成图片 srcset
+function generateSrcSet(baseSrc: string): string {
+  if (!baseSrc || baseSrc.startsWith('data:') || baseSrc.includes('placeholder')) {
+    return ''
+  }
+  const widths = [320, 480, 640, 800, 1200]
+  return widths
+    .map(w => {
+      if (baseSrc.includes('?')) {
+        return `${baseSrc}&w=${w} ${w}w`
+      }
+      return `${baseSrc}?w=${w} ${w}w`
+    })
+    .join(', ')
+}
+
+// 骨架屏组件
+function SkeletonCard({ className = '' }: { className?: string }) {
   return (
-    <Link href={`/destinations/${d.id}`} className="snap-start min-w-[220px] md:min-w-[240px]">
-      <div className="group rounded-2xl border border-white/15 bg-white/60 backdrop-blur-md hover:bg-white/80 transition-all overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 will-change-transform">
-        <div className="relative h-44 sm:h-48">
+    <div className={`rounded-2xl bg-card border border-border/70 p-3 animate-pulse ${className}`}>
+      <div className="h-36 sm:aspect-[16/10] sm:h-auto rounded-xl bg-muted-foreground/10" />
+      <div className="mt-3 h-4 bg-muted-foreground/10 rounded w-2/3" />
+      <div className="mt-2 h-3 bg-muted-foreground/10 rounded w-1/2" />
+    </div>
+  )
+}
+
+function HomeDestinationCarouselCard({ d, coverSrc, ticketLabel, priority = false }: { 
+  d: Destination
+  coverSrc: string
+  ticketLabel: string
+  priority?: boolean
+}) {
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  
+  const optimizedSrc = hasError ? FALLBACK_MEDIA_PATH : coverSrc
+  const srcSet = useMemo(() => generateSrcSet(coverSrc), [coverSrc])
+
+  return (
+    <Link href={`/destinations/${d.id}`} className="block w-full">
+      <div className="group rounded-2xl border border-white/15 bg-white/60 backdrop-blur-md hover:bg-white/80 transition-all overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 will-change-transform mx-1">
+        <div className="relative h-52 sm:h-60">
+          {/* 骨架屏 */}
           <div
             className={`absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 animate-pulse transition-opacity duration-300 ${
               imgLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
@@ -42,18 +81,23 @@ function HomeDestinationCarouselCard({ d, coverSrc, ticketLabel }: { d: Destinat
             aria-hidden
           />
 
+          {/* 图片 */}
           <img
-            src={coverSrc}
+            src={optimizedSrc}
+            srcSet={srcSet || undefined}
+            sizes="(max-width: 768px) 50vw, 240px"
             alt={`${d.name}风景`}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-            loading="lazy"
+            className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
             onLoad={() => setImgLoaded(true)}
-            onError={(e) => {
-              onImgErrorUseFallback(e)
+            onError={() => {
+              if (!hasError) setHasError(true)
               setImgLoaded(true)
             }}
           />
 
+          {/* 标签 */}
           <div className="absolute top-2 left-2 flex gap-1.5">
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/90 text-white backdrop-blur-sm">必玩推荐</span>
           </div>
@@ -65,6 +109,7 @@ function HomeDestinationCarouselCard({ d, coverSrc, ticketLabel }: { d: Destinat
             </div>
           ) : null}
 
+          {/* 底部渐变和信息 */}
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-3 left-3 right-3">
             <div className="flex items-center gap-1.5">
@@ -84,6 +129,15 @@ function HomeDestinationCarouselCard({ d, coverSrc, ticketLabel }: { d: Destinat
   )
 }
 
+// 数据缓存
+const dataCache = {
+  destinations: null as Destination[] | null,
+  products: null as Product[] | null,
+  timestamp: 0
+}
+
+const CACHE_DURATION = 5 * 60 * 1000 // 5分钟
+
 export default function HomePage() {
   const router = useRouter()
 
@@ -99,15 +153,46 @@ export default function HomePage() {
     return resolveCoverSrc(d.cover_image)
   }
 
+  // 预加载详情页数据
+  const preloadDestination = useCallback((id: number) => {
+    // 使用 requestIdleCallback 在浏览器空闲时预加载
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => {
+        // 预加载详情页
+        const link = document.createElement('link')
+        link.rel = 'prefetch'
+        link.href = `/destinations/${id}`
+        document.head.appendChild(link)
+      })
+    }
+  }, [])
+
+  // 加载热门目的地 - 带缓存
   useEffect(() => {
     let cancelled = false
     async function run() {
+      // 检查缓存
+      if (dataCache.destinations && Date.now() - dataCache.timestamp < CACHE_DURATION) {
+        if (!cancelled) {
+          setPopularDestinations(dataCache.destinations!)
+          setPopularLoading(false)
+        }
+        return
+      }
+
       setPopularLoading(true)
       try {
-        const res = await fetch(`/api/destinations?per_page=12&page=1`, { cache: 'no-store' })
+        const res = await fetch(`/api/destinations?per_page=4&page=1&light=true&sort_by=popular&order=desc`, {
+          cache: 'default' // 使用浏览器缓存
+        })
         const data = await res.json().catch(() => ({}))
         const list = (data?.destinations ?? data?.items ?? data?.data ?? []) as Destination[]
-        if (!cancelled) setPopularDestinations(list)
+        if (!cancelled) {
+          setPopularDestinations(list)
+          // 更新缓存
+          dataCache.destinations = list
+          dataCache.timestamp = Date.now()
+        }
       } catch {
         if (!cancelled) setPopularDestinations([])
       } finally {
@@ -120,15 +205,32 @@ export default function HomePage() {
     }
   }, [])
 
+  // 加载精选产品 - 带缓存
   useEffect(() => {
     let cancelled = false
     async function run() {
+      // 检查缓存
+      if (dataCache.products && Date.now() - dataCache.timestamp < CACHE_DURATION) {
+        if (!cancelled) {
+          setProducts(dataCache.products!)
+          setProductsLoading(false)
+        }
+        return
+      }
+
       setProductsLoading(true)
       try {
-        const res = await fetch(`/api/products?status=active&sort=rating&limit=8`, { cache: 'no-store' })
+        const res = await fetch(`/api/products?status=active&sort=rating&limit=8`, { 
+          cache: 'default'
+        })
         const data = await res.json().catch(() => ({}))
         const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]
-        if (!cancelled) setProducts(list)
+        if (!cancelled) {
+          setProducts(list)
+          // 更新缓存
+          dataCache.products = list
+          dataCache.timestamp = Date.now()
+        }
       } catch {
         if (!cancelled) setProducts([])
       } finally {
@@ -193,7 +295,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0c4a6e] via-[#0284c7]/5 to-white">
+    <div className="min-h-screen">
       <Navbar />
 
       <main className="pt-16">
@@ -311,7 +413,7 @@ export default function HomePage() {
                   >
                     探索更多 <span aria-hidden>→</span>
                   </Link>
-                  <div className="hidden sm:flex items-center gap-2">
+                  <div className="hidden items-center gap-2">
                     <button
                       type="button"
                       onClick={() => scrollByAmount(-1)}
@@ -334,13 +436,13 @@ export default function HomePage() {
                 <div className="relative">
                   <div
                     ref={scrollRef}
-                    className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-2"
                   >
                     {popularLoading ? (
-                      Array.from({ length: 8 }).map((_, i) => (
+                      Array.from({ length: 4 }).map((_, i) => (
                         <div
                           key={i}
-                          className="snap-start min-w-[240px] md:min-w-[260px] rounded-2xl bg-card border border-border/70 p-3 animate-pulse"
+                          className="rounded-2xl bg-card border border-border/70 p-3 animate-pulse"
                         >
                           <div className="h-36 sm:aspect-[16/10] sm:h-auto rounded-xl bg-muted-foreground/10" />
                           <div className="mt-3 h-4 bg-muted-foreground/10 rounded w-2/3" />
@@ -348,13 +450,19 @@ export default function HomePage() {
                         </div>
                       ))
                     ) : popularDestinations.length ? (
-                      popularDestinations.map((d) => (
-                        <HomeDestinationCarouselCard
+                      popularDestinations.map((d, index) => (
+                        <div 
                           key={d.id}
-                          d={d}
-                          coverSrc={getDestinationCoverSrc(d)}
-                          ticketLabel={formatDestinationTicket(d)}
-                        />
+                          className="w-full"
+                          onMouseEnter={() => preloadDestination(d.id)}
+                        >
+                          <HomeDestinationCarouselCard
+                            d={d}
+                            coverSrc={getDestinationCoverSrc(d)}
+                            ticketLabel={formatDestinationTicket(d)}
+                            priority={index < 4}
+                          />
+                        </div>
                       ))
                     ) : (
                       <div className="text-sm text-muted-foreground p-2">暂无数据</div>
@@ -366,14 +474,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 bg-slate-50/70 dark:bg-slate-950/40 border-y border-border/40">
+        <section className="py-20 bg-slate-50/70 dark:bg-slate-950/40 border-y border-border/40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">核心特色</h2>
               <p className="text-sm md:text-base text-muted-foreground mt-2">为什么选择智旅助手</p>
             </div>
 
-            <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
               {features.map((f) => (
                 <div
                   key={f.title}
@@ -406,8 +514,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-10">
-          <div className="rounded-3xl border border-border/60 bg-card/70 backdrop-blur p-4 md:p-6 shadow-sm">
+        {/* 视觉分隔区 */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="h-px bg-gradient-to-r from-transparent via-slate-300/50 to-transparent" />
+        </div>
+
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="rounded-3xl border border-border/60 bg-card/70 backdrop-blur p-6 md:p-8 shadow-sm">
             <div className="flex items-center justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg md:text-xl font-bold">快速入口</h2>
@@ -438,16 +551,17 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-          <div className="flex items-end justify-between gap-4 mb-6">
+        {/* 精选产品区 */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="flex items-end justify-between gap-4 mb-8">
             <div>
               <h2 className="text-xl md:text-2xl font-extrabold text-foreground">精选推荐产品</h2>
-              <p className="text-sm text-muted-foreground mt-1">按用户评分与口碑精选，未登录也可浏览</p>
+              <p className="text-sm text-muted-foreground mt-2">按用户评分与口碑精选，未登录也可浏览</p>
             </div>
           </div>
 
           {productsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-card border border-border/60 overflow-hidden animate-pulse">
                   <div className="aspect-[4/3] bg-muted-foreground/10" />
@@ -460,7 +574,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : products.length ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {products.map((p, idx) => (
                 <Link
                   key={p.id}

@@ -15,15 +15,15 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
 const services = [
-  { icon: Users, title: '专属顾问', desc: '一对一专属旅行顾问，全程服? },
+  { icon: Users, title: '专属顾问', desc: '一对一专属旅行顾问，全程服务' },
   { icon: Sparkles, title: '量身定制', desc: '根据您的需求，定制专属行程' },
-  { icon: Plane, title: '品质保障', desc: '精选酒店、航班、用车服? },
-  { icon: Clock, title: '全程跟进', desc: '行前、行中、行后全程服? },
+  { icon: Plane, title: '品质保障', desc: '精选酒店、航班、用车服务' },
+  { icon: Clock, title: '全程跟进', desc: '行前、行中、行后全程服务' },
 ]
 
 export default function CustomServicePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-sky-50/40 to-white">
+    <div className="min-h-screen page-bg">
       <Navbar />
       <main className="pt-16 pb-28 lg:pb-10">
 
@@ -35,7 +35,7 @@ export default function CustomServicePage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">私人定制</h1>
             <p className="text-white/90 text-lg max-w-2xl mb-8">
-              专属旅行顾问为您打造独一无二的旅行体验，从行程到细节，全程定制服?
+              专属旅行顾问为您打造独一无二的旅行体验，从行程到细节，全程定制服务
             </p>
             <div className="flex flex-wrap gap-4">
               <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition">
@@ -53,7 +53,7 @@ export default function CustomServicePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">我们的服</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">我们的服务</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service) => {
                 const Icon = service.icon
@@ -75,10 +75,10 @@ export default function CustomServicePage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">定制流程</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                                { step: '01', title: '需求沟?', desc: '告知旅行目的地、时间和特殊需? },
+                                                                { step: '01', title: '需求沟通', desc: '告知旅行目的地、时间和特殊需求' },
                 { step: '02', title: '方案定制', desc: '专属顾问为您设计行程方案' },
-                { step: '03', title: '确认行程', desc: '根据反馈调整至满意为? },
-                { step: '04', title: '享受旅程', desc: '全程贴心服务，无忧出? },
+                { step: '03', title: '确认行程', desc: '根据反馈调整至满意为止' },
+                { step: '04', title: '享受旅程', desc: '全程贴心服务，无忧出行' },
               ].map((item) => (
                 <div key={item.step} className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-500 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
@@ -94,14 +94,14 @@ export default function CustomServicePage() {
 
           <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">立即定制您的专属行程</h2>
-            <p className="text-slate-500 mb-8">我们的旅行顾问将?4小时内与您联</p>
+            <p className="text-slate-500 mb-8">我们的旅行顾问将在24小时内与您联系</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/contact" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition">
                 <MessageCircle className="h-5 w-5" />
                 在线咨询
               </Link>
               <Link href="/assistant" className="inline-flex items-center gap-2 px-6 py-3 border border-purple-300 text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition">
-                AI 快速规?
+                AI 快速规划
               </Link>
             </div>
           </div>

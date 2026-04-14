@@ -16,6 +16,7 @@ import QuickGlance from '@/components/QuickGlance'
 import Timeline from '@/components/Timeline'
 import TipsAccordion from '@/components/TipsAccordion'
 import NearbyMap from '@/components/NearbyMap'
+import { ShareButton } from '@/components/ShareButton'
 
 type Destination = {
   id: number
@@ -30,6 +31,33 @@ type Destination = {
   lng?: number
   lat?: number
   location?: string
+}
+
+type TimelineItem = {
+  id: number
+  timeLabel: string
+  title: string
+  description: string
+  tags: string[]
+}
+
+type HighlightItem = {
+  id: number
+  title: string
+  description: string
+  icon: 'star' | 'gem' | 'crown' | 'award' | 'eye' | 'history'
+}
+
+type TipItem = {
+  id: number
+  title: string
+  content: string
+}
+
+type Recommendations = {
+  highlights: HighlightItem[]
+  timeline: TimelineItem[]
+  tips: TipItem[]
 }
 
 async function getDestination(id: string) {
@@ -48,6 +76,10 @@ export default function DestinationDetailPage({ params }: { params: { id: string
   const [item, setItem] = useState<Destination | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // 推荐数据
+  const [recommendations, setRecommendations] = useState<Recommendations | null>(null)
+  const [recLoading, setRecLoading] = useState(true)
 
   const [comments, setComments] = useState<DestinationComment[]>([])
   const [commentsLoading, setCommentsLoading] = useState(true)
@@ -84,6 +116,32 @@ export default function DestinationDetailPage({ params }: { params: { id: string
       }
     }
     run()
+    return () => {
+      cancelled = true
+    }
+  }, [params.id])
+
+  // 获取推荐数据
+  useEffect(() => {
+    if (!params.id) return
+    let cancelled = false
+    
+    async function loadRecommendations() {
+      setRecLoading(true)
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}/recommendations`)
+        const data = await res.json()
+        if (!cancelled && data.success) {
+          setRecommendations(data.recommendations)
+        }
+      } catch (e) {
+        console.error('加载推荐数据失败:', e)
+      } finally {
+        if (!cancelled) setRecLoading(false)
+      }
+    }
+    
+    loadRecommendations()
     return () => {
       cancelled = true
     }
@@ -156,7 +214,7 @@ export default function DestinationDetailPage({ params }: { params: { id: string
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen">
       <Navbar />
       <main className="pt-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -178,45 +236,34 @@ export default function DestinationDetailPage({ params }: { params: { id: string
           {!loading && !error && item && (
             <>
               {/* 场馆名片 Hero Card */}
-              <HeroCard
-                name={item.name}
-                city={item.city}
-                province={item.province}
-                rating={item.rating}
-                openTime={item.open_time}
-                ticketPrice={item.ticket_price}
-                coverImage={item.cover_image}
-                tags={[]}
-              />
+              <div className="relative">
+                <HeroCard
+                  name={item.name}
+                  city={item.city}
+                  province={item.province}
+                  rating={item.rating}
+                  openTime={item.open_time}
+                  ticketPrice={item.ticket_price}
+                  coverImage={item.cover_image}
+                  tags={[]}
+                />
+                <div className="absolute top-4 right-4">
+                  <ShareButton 
+                    title={item.name} 
+                    description={`${item.city} · ${item.province}`}
+                    type="destination"
+                  />
+                </div>
+              </div>
 
               {/* 必看清单 Quick Glance */}
               <QuickGlance
                 title="必看清单"
-                items={[
-                  {
-                    id: 1,
-                    title: '贾湖骨笛',
-                    description: '世界最早的可吹奏乐器，距今约9000年',
-                    icon: 'star',
-                  },
-                  {
-                    id: 2,
-                    title: '云纹铜禁',
-                    description: '春秋时期青铜器，工艺精湛',
-                    icon: 'gem',
-                  },
-                  {
-                    id: 3,
-                    title: '武则天金简',
-                    description: '唯一一件属于武则天的文物',
-                    icon: 'crown',
-                  },
-                  {
-                    id: 4,
-                    title: '四神云气图壁画',
-                    description: '西汉早期墓葬壁画，气势恢宏',
-                    icon: 'history',
-                  },
+                items={recommendations?.highlights || [
+                  { id: 1, title: '核心景点', description: '最具代表性的景观', icon: 'star' },
+                  { id: 2, title: '特色体验', description: '当地特色活动', icon: 'gem' },
+                  { id: 3, title: '文化遗迹', description: '历史文化遗存', icon: 'crown' },
+                  { id: 4, title: '周边美食', description: '特色小吃推荐', icon: 'history' },
                 ]}
               />
 
@@ -226,7 +273,7 @@ export default function DestinationDetailPage({ params }: { params: { id: string
                   <div className="flex-1">
                     <h2 className="text-h2 text-gray-900 mb-4">简介</h2>
                     <p className="text-body text-gray-700 leading-relaxed">
-                      {item.description || '暂无简介（可在后端更新 description 字段）。'}
+                      {item.description?.replace(/\[citation:\d+\]/g, '') || '暂无简介'}
                     </p>
                   </div>
                   <div className="md:w-72">
@@ -251,67 +298,23 @@ export default function DestinationDetailPage({ params }: { params: { id: string
               {/* 时间轴行程 Timeline */}
               <Timeline
                 title="一日游时间轴"
-                items={[
-                  {
-                    id: 1,
-                    timeLabel: '上午',
-                    title: '常设展厅参观',
-                    description: '建议路线：1楼→2楼→3楼，重点看“中原古代文明之光”',
-                    tags: ['2小时', '室内', '步行'],
-                  },
-                  {
-                    id: 2,
-                    timeLabel: '中午',
-                    title: '院内餐厅午餐',
-                    description: '推荐尝试河南特色烩面，人均约30元',
-                    tags: ['1小时', '餐饮', '推荐'],
-                  },
-                  {
-                    id: 3,
-                    timeLabel: '下午',
-                    title: '专题展览深度游',
-                    description: '根据当天开放的特展，可选择“楚国青铜器”或“唐宋文物”',
-                    tags: ['2.5小时', '室内', '讲解'],
-                  },
-                  {
-                    id: 4,
-                    timeLabel: '晚上',
-                    title: '文创商店购物',
-                    description: '购买纪念品，推荐骨笛复制品、云纹铜禁书签',
-                    tags: ['1小时', '购物', '纪念品'],
-                  },
+                items={recommendations?.timeline || [
+                  { id: 1, timeLabel: '上午', title: '入园游览', description: '开始游览，感受当地风情', tags: ['2小时', '推荐'] },
+                  { id: 2, timeLabel: '中午', title: '特色午餐', description: '品尝当地美食', tags: ['1小时', '餐饮'] },
+                  { id: 3, timeLabel: '下午', title: '核心景点', description: '参观主要景点', tags: ['2小时', '精华'] },
+                  { id: 4, timeLabel: '傍晚', title: '休闲时光', description: '周边漫步，享受悠闲时光', tags: ['1小时', '自由'] },
                 ]}
               />
 
               {/* 实用锦囊 Tips Accordion */}
               <TipsAccordion
                 title="实用锦囊"
-                items={[
-                  {
-                    id: 1,
-                    title: '交通指南',
-                    content: '地铁2号线关虎屯站C口出，步行约8分钟。院内停车场较小，建议公共交通。',
-                  },
-                  {
-                    id: 2,
-                    title: '餐饮建议',
-                    content: '院内餐厅提供河南特色烩面、胡辣汤等，人均30-50元。周边有正弘城购物中心，餐饮选择丰富。',
-                  },
-                  {
-                    id: 3,
-                    title: '拍照提示',
-                    content: '室内禁止使用闪光灯，部分展厅禁止拍照（有明确标识）。最佳拍摄点：大厅旋转楼梯、青铜器展柜前。',
-                  },
-                  {
-                    id: 4,
-                    title: '最佳游览时间',
-                    content: '工作日早上9:00-11:00人较少，周末下午较拥挤。特展刚开放时人流最多，建议避开。',
-                  },
-                  {
-                    id: 5,
-                    title: '特殊服务',
-                    content: '提供免费轮椅租赁（需押金）、语音导览器（20元/次）、定时免费讲解（10:00、14:00各一场）。',
-                  },
+                items={recommendations?.tips || [
+                  { id: 1, title: '交通指南', content: '建议提前规划交通路线，选择合适的出行方式。' },
+                  { id: 2, title: '餐饮建议', content: '周边餐饮选择丰富，可品尝当地特色美食。' },
+                  { id: 3, title: '拍照提示', content: '建议穿着舒适，热门景点人流较多，建议错峰拍照。' },
+                  { id: 4, title: '最佳游览时间', content: '建议避开节假日和周末高峰期，上午早些时候人较少。' },
+                  { id: 5, title: '温馨提示', content: '建议提前查看开放时间和门票信息，携带必要的随身物品。' },
                 ]}
               />
 
