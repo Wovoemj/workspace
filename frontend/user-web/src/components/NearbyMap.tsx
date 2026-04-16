@@ -107,75 +107,56 @@ export default function NearbyMap({
   // 用于 useEffect 依赖数组的稳定值
   const centerKey = center ? `${center[0]},${center[1]}` : null
 
-  // 动态获取周边数据
-  useEffect(() => {
-    // 检查重试次数，防止无限循环
-    if (retryCountRef.current >= MAX_RETRY) {
-      console.warn(`已达到最大重试次数 ${MAX_RETRY}，停止获取周边数据`)
-      setLoading(false)
-      setErrorMessage('获取周边数据失败，请稍后重试')
-      return
-    }
+  // 使用高德 PlaceSearch 获取真实周边 POI
+  const searchNearbyPOIs = (AMap: any, centerPos: [number, number]) => {
+    if (!AMap?.PlaceSearch) return
 
-    const fetchNearby = async () => {
-      // 检查中心坐标是否有效
-      if (!centerKey) {
-        console.warn('无效的地图中心坐标:', center)
-        setErrorMessage('无效的坐标数据')
-        return
-      }
+    setLoading(true)
 
-      const [lng, lat] = center!
-      if (lng === 0 || lat === 0 || isNaN(lng) || isNaN(lat)) {
-        console.warn('坐标值为0或无效:', center)
-        setErrorMessage('该景点暂无位置数据')
-        return
-      }
+    const placeSearch = new AMap.PlaceSearch({
+      type: '050000|060000|070000|080000|100000|110000|141200',
+      pageSize: 10,
+      pageIndex: 1,
+      extensions: 'base',
+    })
 
-      setLoading(true)
-      setErrorMessage(null)
+    placeSearch.searchNearBy('', centerPos, 3000, (status: string, result: any) => {
+      if (status === 'complete' && result.poiList?.pois?.length > 0) {
+        const amapItems: NearbyItem[] = result.poiList.pois.map((poi: any) => {
+          const typeInfo = poi.type || ''
+          const mainType = typeInfo.split(';')[0] || '其他'
+          return {
+            id: `amap_${poi.id}`,
+            name: poi.name,
+            description: mainType,
+            address: poi.address || '',
+            distance: poi.distance ? `${(parseInt(poi.distance) / 1000).toFixed(1)}km` : '未知',
+            icon: getIconByType(mainType),
+            position: poi.location ? [parseFloat(poi.location.lng), parseFloat(poi.location.lat)] : undefined,
+            type: mainType,
+            data_source: 'amap',
+          }
+        }).filter((item: NearbyItem) => item.position && item.position.length === 2)
 
-      try {
-        const location = `${lng},${lat}`
-        console.log('正在获取周边数据，坐标:', location)
-        const response = await fetch(`/api/nearby?location=${encodeURIComponent(location)}&limit=8`)
-        
-        if (!response.ok) {
-          throw new Error(`API请求失败: ${response.status}`)
-        }
-        
-        const data = await response.json()
-
-        if (data.success && data.items && data.items.length > 0) {
-          // 转换经纬度为 position 并添加图标
-          const processedItems = data.items.map((item: any) => ({
-            ...item,
-            icon: item.icon || getIconByType(item.type || ''),
-            position: item.lng && item.lat ? [item.lng, item.lat] : undefined,
-            description: item.description || item.address || '暂无描述',
-          })).filter((item: NearbyItem) => item.position && item.position.length === 2)
-
-          setNearbyItems(processedItems)
-          // 成功获取数据后重置重试计数
-          retryCountRef.current = 0
-        } else {
-          console.warn('API返回空数据:', data)
-          setNearbyItems([])
-          setErrorMessage('暂无周边数据')
-        }
-      } catch (error) {
-        console.error('获取周边数据失败:', error)
+        setNearbyItems(amapItems)
+        retryCountRef.current = 0
+      } else {
+        // 无结果（如偏远地区）或搜索失败，不显示假数据
         setNearbyItems([])
-        setErrorMessage('获取周边数据失败')
-        // 增加重试计数
-        retryCountRef.current++
-      } finally {
-        setLoading(false)
       }
-    }
+      setLoading(false)
+      setErrorMessage(null)
+    })
+  }
 
-    fetchNearby()
-    // 依赖数组使用 centerKey，当坐标有效时触发
+  // 动态获取周边数据 - 已整合到地图初始化完成回调中
+  // 此 useEffect 仅作为备用触发（如 props center 变化时重新搜索）
+  useEffect(() => {
+    if (!centerKey || !mapInstance.current) return
+    const AMap = (window as any).AMap
+    if (AMap?.PlaceSearch && center) {
+      searchNearbyPOIs(AMap, center)
+    }
   }, [centerKey])
 
   // 地图初始化
@@ -202,7 +183,7 @@ export default function NearbyMap({
         const AMap = await AMapLoader.load({
           key: amapKey,
           version: '2.0',
-          plugins: ['AMap.ToolBar', 'AMap.Scale'],
+          plugins: ['AMap.ToolBar', 'AMap.Scale', 'AMap.PlaceSearch'],
         })
 
         if (!mapContainer.current) return
@@ -237,6 +218,9 @@ export default function NearbyMap({
         mapInstance.current = map
         setMapLoaded(true)
         setMapError(null)
+
+        // 地图加载完成后，立即搜索周边真实 POI
+        searchNearbyPOIs(AMap, center!)
       } catch (error) {
         console.error('高德地图加载失败:', error)
         setMapError('地图加载失败，请检查网络连接')
@@ -314,18 +298,11 @@ export default function NearbyMap({
     })
   }, [nearbyItems, propItems, mapLoaded])
 
-  // 如果没有传入 items 且没有获取到数据，显示提示
+  // 如果没有获取到数据，显示提示
   const displayItems = nearbyItems.length > 0 ? nearbyItems : (propItems || [])
   const hasRealData = nearbyItems.length > 0
 
-  // 降级展示数据：当 API 失败时显示默认推荐
-  const fallbackItems: NearbyItem[] = [
-    { id: 'fallback-1', name: '周边餐厅', description: '附近美食推荐', address: '根据您的位置推荐', distance: '0.5km', type: '餐厅', icon: 'restaurant', rating: 4.5 },
-    { id: 'fallback-2', name: '便利店', description: '日常购物便利', address: '24小时营业', distance: '0.3km', type: '购物', icon: 'shopping', rating: 4.2 },
-    { id: 'fallback-3', name: '咖啡馆', description: '休闲小憩好去处', address: '商务洽谈推荐', distance: '0.8km', type: '咖啡', icon: 'coffee', rating: 4.6 },
-  ]
-  const showFallback = !hasRealData && !loading && !errorMessage
-  const itemsToShow = displayItems.length > 0 ? displayItems : (showFallback ? fallbackItems : [])
+  const itemsToShow = displayItems.length > 0 ? displayItems : []
 
   // 重试函数
   const handleRetry = () => {
@@ -398,8 +375,7 @@ export default function NearbyMap({
             itemsToShow.map((item) => {
               const Icon = iconMap[item.icon || 'tree']
               const color = iconColorMap[item.icon || 'tree']
-              const isRealData = item.data_source === 'database'
-              const isFallback = item.id.toString().startsWith('fallback-')
+              const isRealData = item.data_source === 'amap'
 
               return (
                 <div
@@ -423,10 +399,7 @@ export default function NearbyMap({
                     <div className="flex items-center gap-1.5">
                       <h4 className="font-medium text-gray-900 text-sm truncate">{item.name}</h4>
                       {isRealData && (
-                        <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">景点</span>
-                      )}
-                      {isFallback && (
-                        <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">推荐</span>
+                        <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">周边</span>
                       )}
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5 truncate">{item.address || item.description}</p>

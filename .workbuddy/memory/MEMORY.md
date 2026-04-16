@@ -39,7 +39,7 @@
 - `QuickGlance` - 必看清单（网格布局）
 - `Timeline` - 一日游时间轴
 - `TipsAccordion` - 实用锦囊（可折叠）
-- `NearbyMap` - 周边联动（地图+景点列表）
+- `NearbyMap` - 周边联动（地图+真实 POI 列表），使用高德 PlaceSearch 前端搜索
 
 ## 行程日历视图（2026-04-15 新增）
 - `TripCalendar.tsx` - 行程日历组件

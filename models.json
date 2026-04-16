@@ -1,0 +1,126 @@
+{
+  "models": [
+    {
+      "id": "deepseek.v3.2",
+      "name": "DeepSeek V3.2",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": false
+    },
+    {
+      "id": "qwen.qwen3-coder-480b-a35b-instruct",
+      "name": "Qwen3 Coder 480B",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 16384,
+      "supportsToolCall": true,
+      "supportsImages": false
+    },
+    {
+      "id": "google.gemma-3-12b-it",
+      "name": "Gemma 3 12B",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": false,
+      "supportsImages": true
+    },
+    {
+      "id": "moonshotai.kimi-k2.5",
+      "name": "Kimi K2.5",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 16384,
+      "supportsToolCall": true,
+      "supportsImages": true
+    },
+    {
+      "id": "minimax.minimax-m2",
+      "name": "MiniMax M2",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": false
+    },
+    {
+      "id": "minimax.minimax-m2.1",
+      "name": "MiniMax M2.1",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": false
+    },
+    {
+      "id": "minimax.minimax-m2.5",
+      "name": "MiniMax M2.5",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": false
+    },
+    {
+      "id": "anthropic.claude-opus-4-6-v1",
+      "name": "Claude Opus 4.6",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 131072,
+      "supportsToolCall": true,
+      "supportsImages": true
+    },
+    {
+      "id": "anthropic.claude-sonnet-4-6",
+      "name": "Claude Sonnet 4.6",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 65536,
+      "supportsToolCall": true,
+      "supportsImages": true
+    },
+    {
+      "id": "anthropic.claude-haiku-4-5-20251001-v1:0",
+      "name": "Claude Haiku 4.5",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 65536,
+      "supportsToolCall": true,
+      "supportsImages": true
+    },
+    {
+      "id": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+      "name": "Claude Sonnet 4.5",
+      "vendor": "OpenAI",
+      "apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",
+      "url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 65536,
+      "supportsToolCall": true,
+      "supportsImages": true
+    }
+    
+  ]
+}

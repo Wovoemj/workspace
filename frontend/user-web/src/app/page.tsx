@@ -57,6 +57,109 @@ function SkeletonCard({ className = '' }: { className?: string }) {
   )
 }
 
+/* ==================== 可拖动 AI 助手 ==================== */
+function DraggableAIAssistant() {
+  const [position, setPosition] = useState({ x: -1, y: 80 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [hasMoved, setHasMoved] = useState(false)
+  const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null)
+
+  const defaultRight = typeof window !== 'undefined' ? window.innerWidth - 56 - 24 : 600
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+    setHasMoved(false)
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startPosX: position.x < 0 ? defaultRight : position.x,
+      startPosY: position.y,
+    }
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setHasMoved(false)
+    dragRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      startPosX: position.x < 0 ? defaultRight : position.x,
+      startPosY: position.y,
+    }
+  }
+
+  useEffect(() => {
+    if (!isDragging) return
+
+    const handleMove = (clientX: number, clientY: number) => {
+      if (!dragRef.current) return
+      const dx = Math.abs(clientX - dragRef.current.startX)
+      const dy = Math.abs(clientY - dragRef.current.startY)
+      if (dx > 5 || dy > 5) setHasMoved(true)
+
+      const newX = clientX - dragRef.current.startX + dragRef.current.startPosX
+      const newY = clientY - dragRef.current.startY + dragRef.current.startPosY
+      setPosition({ x: Math.max(0, newX), y: Math.max(0, newY) })
+    }
+
+    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY)
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) handleMove(e.touches[0].clientX, e.touches[0].clientY)
+    }
+
+    const handleEnd = () => {
+      setIsDragging(false)
+      dragRef.current = null
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleEnd)
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    window.addEventListener('touchend', handleEnd)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleEnd)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleEnd)
+    }
+  }, [isDragging])
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (hasMoved) {
+      e.preventDefault()
+      e.stopPropagation()
+      setHasMoved(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed z-40 flex flex-col items-end gap-2 select-none"
+      style={position.x < 0 ? { right: '1.5rem', top: position.y } : { left: position.x, top: position.y }}
+    >
+      <div
+        className="hidden sm:block px-3 py-1.5 rounded-xl rounded-br-sm bg-white/95 shadow shadow-black/10 border border-gray-100 text-[11px] text-gray-400 font-medium whitespace-nowrap ai-bubble-fade"
+      >
+        有什么旅行计划？
+      </div>
+      <Link
+        href="/assistant"
+        aria-label="AI 助手"
+        title="AI 助手"
+        onClick={handleClick}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        className="ai-assistant-bubble group flex h-10 w-10 items-center justify-center rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.6)] bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 border-2 border-indigo-300/60 hover:shadow-[0_0_28px_rgba(99,102,241,0.8)] hover:-translate-y-0.5 transition-all"
+      >
+        <span className="text-white text-base drop-shadow-sm">🤖</span>
+      </Link>
+    </div>
+  )
+}
+
 function HomeDestinationCarouselCard({ d, coverSrc, ticketLabel, priority = false }: { 
   d: Destination
   coverSrc: string
@@ -593,19 +696,8 @@ export default function HomePage() {
 
       <Footer />
 
-      <div className="fixed right-6 bottom-6 z-50 flex flex-col items-end gap-2">
-        <div className="hidden sm:block px-3 py-2 rounded-2xl rounded-br-sm bg-white shadow-lg shadow-black/10 border border-gray-100 text-xs text-gray-600 font-medium max-w-[160px] ai-bubble-fade">
-          Hi，想去哪儿？我帮你安排 ✈️
-        </div>
-        <Link
-          href="/assistant"
-          aria-label="AI 助手"
-          title="AI 助手"
-          className="ai-assistant-bubble group flex h-12 w-12 items-center justify-center rounded-2xl border border-white/30 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 backdrop-blur hover:brightness-110 active:scale-[0.98] transition-all"
-        >
-          <span className="text-white text-xl drop-shadow-sm">🤖</span>
-        </Link>
-      </div>
+      {/* 右上角：AI 助手（可拖动悬浮） */}
+      <DraggableAIAssistant />
     </div>
   )
 }

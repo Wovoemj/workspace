@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: '完美旅程',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   openGraph: {
     title: '完美旅程 - 智能旅行规划助手',
     description: '发现你的完美旅程，一站式旅行规划平台。热门目的地 + 精选产品，AI驱动的智能旅行规划与个性化推荐，让旅行更轻松🌍',

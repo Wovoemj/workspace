@@ -135,14 +135,24 @@ export default function TravelNotesPage() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
       <main className="pt-20 pb-16">
         <div className="max-w-6xl mx-auto px-4">
           {/* Header */}
-          <div className="py-8 text-center">
-            <h1 className="text-3xl font-black text-gray-900 mb-2">旅行攻略</h1>
-            <p className="text-gray-600">分享你的旅行故事，发现更多旅行灵感</p>
+          <div className="py-10 text-center">
+            <h1 className="text-3xl font-black text-white drop-shadow mb-2">旅行攻略</h1>
+            <p className="text-white/80">分享你的旅行故事，发现更多旅行灵感</p>
+          </div>
+
+          {/* Decorative gradient banner */}
+          <div className="mb-8 rounded-2xl overflow-hidden shadow-xl">
+            <div className="h-40 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-white text-xl font-bold drop-shadow-lg">发现精彩旅程</p>
+                <p className="text-white/80 text-sm mt-2">浏览来自旅行者的真实分享</p>
+              </div>
+            </div>
           </div>
           
           {/* Search & Actions */}

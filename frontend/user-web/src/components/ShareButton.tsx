@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Share2, Copy, X, QrCode, Wechat, MessageCircle } from 'lucide-react'
+import { Share2, Copy, X, QrCode, MessageCircle } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 interface ShareButtonProps {
@@ -149,7 +149,7 @@ export function ShareButton({
               className="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                <Wechat className="h-5 w-5 text-green-600" />
+                <MessageCircle className="h-5 w-5 text-green-600" />
               </div>
               <span className="text-xs text-gray-600">微信</span>
             </button>

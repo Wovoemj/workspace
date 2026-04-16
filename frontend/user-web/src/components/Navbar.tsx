@@ -126,10 +126,10 @@ export function Navbar({ className = '' }: NavbarProps) {
             : 'max-lg:travel-gradient-header max-lg:shadow-md lg:bg-white/90 lg:backdrop-blur-sm lg:shadow-sm'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 gap-4">
 
-            <div className="flex items-center min-w-0 flex-1 lg:flex-none">
+            <div className="flex items-center min-w-0 shrink-0">
               <Link href="/" className="flex items-center space-x-2 min-w-0">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shrink-0 lg:from-blue-600 lg:to-purple-600 max-lg:from-white/25 max-lg:to-white/10 max-lg:border max-lg:border-white/30">
                   <MapPin className="h-5 w-5 text-white" />
@@ -145,29 +145,31 @@ export function Navbar({ className = '' }: NavbarProps) {
             </div>
 
 
-            <div className="hidden lg:flex items-center gap-3">
-              {navItems.map((item) => (
+            <div className="hidden lg:flex items-center gap-2 flex-1 justify-center mx-4">
+              {[
+                { item: navItems[0], border: 'border-blue-200', bg: 'bg-blue-50', shadow: 'shadow-blue-200/50', icon: 'text-blue-500' },
+                { item: navItems[1], border: 'border-emerald-200', bg: 'bg-emerald-50', shadow: 'shadow-emerald-200/50', icon: 'text-emerald-500' },
+                { item: navItems[2], border: 'border-violet-200', bg: 'bg-violet-50', shadow: 'shadow-violet-200/50', icon: 'text-violet-500' },
+                { item: navItems[3], border: 'border-amber-200', bg: 'bg-amber-50', shadow: 'shadow-amber-200/50', icon: 'text-amber-500' },
+                { item: navItems[4], border: 'border-rose-200', bg: 'bg-rose-50', shadow: 'shadow-rose-200/50', icon: 'text-rose-500' },
+              ].map(({ item, border, bg, shadow, icon }) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`nav-link-hover flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
-                    isScrolled
-                      ? 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                      : 'text-gray-700 hover:bg-gray-100/80 hover:text-blue-600'
-                  }`}
+                  className={`group flex items-center gap-1.5 px-3 py-2 rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${border} ${bg} text-gray-700 hover:text-gray-900`}
                 >
-                  <item.icon className={`h-4 w-4 ${isScrolled ? 'text-gray-500' : 'text-blue-500'}`} />
-                  <span className="whitespace-nowrap">{item.label}</span>
+                  <item.icon className={`h-4 w-4 transition-transform duration-300 group-hover:scale-110 ${icon}`} />
+                  <span className="font-medium">{item.label}</span>
                 </Link>
               ))}
             </div>
 
 
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
               <GlobalSearch />
 
-              <Link href="/assistant" className="hidden lg:inline-flex travel-btn-gradient px-4 py-2 text-sm">
-                <Sparkles className="h-4 w-4 mr-2" />
+              <Link href="/assistant" className="hidden lg:inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white rounded-xl shadow-[0_4px_14px_rgba(99,102,241,0.5)] bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 ring-2 ring-indigo-400/60 hover:shadow-[0_6px_20px_rgba(99,102,241,0.7)] hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500 hover:-translate-y-0.5 transition-all">
+                <Sparkles className="h-4 w-4 animate-pulse" />
                 AI 助手
               </Link>
 

@@ -67,10 +67,13 @@ logger.addHandler(handler)
 # ==================== Redis缓存配置（Lazy Init） ====================
 # Redis 客户端，延迟初始化，首次使用时才创建连接
 _redis_client = None
+_redis_available: bool | None = None  # None=未检测, True=可用, False=不可用
 
 def get_redis():
-    """获取 Redis 客户端实例，延迟初始化，连接失败时返回 None"""
-    global _redis_client
+    """获取 Redis 客户端实例，延迟初始化，连接失败时返回 None（不可用后不再重试）"""
+    global _redis_client, _redis_available
+    if _redis_available is False:
+        return None  # 已知不可用，直接返回，不重试
     if _redis_client is not None:
         return _redis_client
     
@@ -81,14 +84,16 @@ def get_redis():
             db=int(os.getenv('REDIS_DB', '0')),
             password=os.getenv('REDIS_PASSWORD') or None,
             decode_responses=True,
-            socket_connect_timeout=int(os.getenv('REDIS_SOCKET_CONNECT_TIMEOUT', '5')),
-            socket_timeout=int(os.getenv('REDIS_SOCKET_TIMEOUT', '5'))
+            socket_connect_timeout=0.5,  # 连接超时 0.5s，快速失败
+            socket_timeout=1             # 命令超时 1s
         )
         _redis_client.ping()
+        _redis_available = True
         logger.info("Redis 连接成功")
     except Exception as e:
         logger.warning(f"Redis 不可用，缓存和限流功能已禁用: {e}")
         _redis_client = None
+        _redis_available = False  # 标记为不可用，后续不再尝试
     return _redis_client
 
 # 兼容旧代码，提供 redis_client 属性访问
@@ -106,20 +111,43 @@ redis_client = _RedisClientProxy()
 DEFAULT_CACHE_TIMEOUT = int(os.getenv('CACHE_TTL', '300'))
 
 
+# 进程内内存缓存兜底（Redis 不可用时使用），格式: {key: (value, expire_at)}
+_mem_cache: dict[str, tuple[str, float]] = {}
+
 def redis_cache_get(cache_key: str) -> str | None:
-    """从Redis缓存获取值，Redis不可用时返回None"""
+    """从Redis缓存获取值，Redis不可用时从内存缓存取"""
     try:
-        return cast(str | None, cast(Any, redis_client).get(cache_key))
+        val = cast(str | None, cast(Any, redis_client).get(cache_key))
+        if val is not None:
+            return val
     except Exception:
-        return None
+        pass
+    # Redis 不可用，查内存缓存
+    entry = _mem_cache.get(cache_key)
+    if entry:
+        value, expire_at = entry
+        if time.time() < expire_at:
+            return value
+        else:
+            _mem_cache.pop(cache_key, None)
+    return None
 
 
 def redis_cache_set(cache_key: str, value: str, timeout: int = DEFAULT_CACHE_TIMEOUT) -> None:
-    """设置Redis缓存值并指定过期时间，Redis不可用时静默跳过"""
+    """设置Redis缓存值并指定过期时间，Redis不可用时写入内存缓存"""
     try:
         cast(Any, redis_client).setex(cache_key, timeout, value)
+        return
     except Exception:
         pass
+    # Redis 不可用，写内存缓存
+    _mem_cache[cache_key] = (value, time.time() + timeout)
+    # 简单清理：超过 500 条时删掉已过期的
+    if len(_mem_cache) > 500:
+        now = time.time()
+        expired = [k for k, (_, exp) in _mem_cache.items() if now > exp]
+        for k in expired:
+            _mem_cache.pop(k, None)
 
 
 def redis_cache_delete_pattern(prefix: str) -> None:
@@ -128,6 +156,10 @@ def redis_cache_delete_pattern(prefix: str) -> None:
         for key in cast(Any, redis_client).scan_iter(f"{prefix}*"):
             cast(Any, redis_client).delete(key)
     except Exception:
+        # Redis 不可用时也清理内存缓存
+        keys_to_del = [k for k in _mem_cache if k.startswith(prefix)]
+        for k in keys_to_del:
+            _mem_cache.pop(k, None)
         pass
 
 # ==================== API限流配置 ====================
@@ -1006,15 +1038,8 @@ def get_destinations():
     if max_price:
         query = query.filter(Destination.ticket_price <= max_price)
 
-    # 热门城市列表（按热门程度排序）
-    popular_cities = [
-        '北京市', '上海市', '杭州市', '成都市', '广州市', '深圳市',
-        '南京市', '武汉市', '西安市', '重庆市', '苏州市', '长沙市',
-        '天津市', '郑州市', '青岛市', '沈阳市', '大连市', '厦门市',
-        '济南市', '哈尔滨市', '长春市', '福州市', '合肥市', '昆明市'
-    ]
-
     # 根据sort_by参数选择排序字段
+
     if sort_by == 'rating':
         sort_column = Destination.rating
     elif sort_by == 'price':
@@ -1022,13 +1047,8 @@ def get_destinations():
     elif sort_by == 'name':
         sort_column = Destination.name
     elif sort_by == 'popular':
-        # 综合排序：优先热门城市，然后按评分和价格排序
-        # 使用 CASE WHEN 为热门城市赋予较高优先级
-        city_priority = db.case(
-            *[(Destination.city == city, len(popular_cities) - i) for i, city in enumerate(popular_cities)],
-            else_=0
-        )
-        query = query.order_by(city_priority.desc(), Destination.rating.desc().nullslast(), Destination.ticket_price.asc().nullslast())
+        # 直接按评分降序（高评分 = 热门），避免大表 CASE WHEN 全表扫描
+        query = query.order_by(Destination.rating.desc().nullslast(), Destination.id.asc())
     else:
         sort_column = Destination.created_at
         query = query.order_by(sort_column.desc().nullslast())
@@ -2353,86 +2373,6 @@ def serve_media():
 
 # ==================== 周边联动API ====================
 
-import random
-
-def generate_nearby_pois(center_lng, center_lat, count=8):
-    """
-    生成周边 POI 数据（餐厅、咖啡馆、公园、商场等）
-    基于中心坐标生成合理的周边设施分布
-    """
-    # POI 类型配置
-    poi_types = [
-        {'type': '餐厅', 'prefix': ['老北京', '川味', '江南', '新疆', '日式', '韩式', '湘味', '粤式'], 'suffix': ['餐厅', '饭馆', '美食城', '小吃店', '酒楼', '食府'], 'icon': 'coffee'},
-        {'type': '咖啡馆', 'prefix': ['星巴克', '瑞幸', 'Manner', 'Costa', 'Seesaw', 'M Stand', '本地', '街角'], 'suffix': ['咖啡', 'Coffee', ' Cafe', ''], 'icon': 'coffee'},
-        {'type': '公园', 'prefix': ['阳光', '绿荫', ' Riverside', ' Central', '人民', '文化', '体育', '生态'], 'suffix': ['公园', '广场', '绿地', ' Garden', ' Park'], 'icon': 'park'},
-        {'type': '商场', 'prefix': ['万达', '银泰', '万象城', '大悦城', '金鹰', '恒隆', '凯德', '新天地'], 'suffix': ['购物中心', '广场', ' Mall', '百货', '商城'], 'icon': 'shopping'},
-        {'type': '便利店', 'prefix': ['7-Eleven', '全家', '罗森', '喜士多', '便利蜂', '美宜佳', '快客', '好邻居'], 'suffix': ['', '便利店', ''], 'icon': 'shopping'},
-        {'type': '景点', 'prefix': ['', ' nearby', '周边', '附近'], 'suffix': ['景点', '风景区', '旅游区', '名胜古迹'], 'icon': 'tree'},
-    ]
-    
-    # 常见道路名称后缀
-    street_suffixes = ['路', '街', '大道', '巷', '弄', '胡同']
-    
-    items = []
-    for i in range(count):
-        # 随机选择类型
-        poi_config = random.choice(poi_types)
-        prefix = random.choice(poi_config['prefix']) if poi_config['prefix'] else ''
-        suffix = random.choice(poi_config['suffix']) if poi_config['suffix'] else ''
-        
-        # 生成名称
-        if poi_config['type'] == '便利店':
-            name = prefix
-        else:
-            name = f"{prefix}{suffix}" if prefix else suffix
-        
-        if not name:
-            name = f"{poi_config['type']}{i+1}"
-        
-        # 在中心点周围随机分布（0.1-2km范围内）
-        # 使用极坐标随机分布，让点更自然
-        angle = random.uniform(0, 2 * math.pi)
-        distance_km = random.uniform(0.1, min(2.0, 5))  # 0.1-2km范围内
-        
-        # 将距离转换为经纬度偏移
-        # 1度纬度 ≈ 111km
-        # 1度经度 ≈ 111km * cos(纬度)
-        lat_offset = (distance_km / 111.0) * math.sin(angle)
-        lng_offset = (distance_km / (111.0 * math.cos(math.radians(center_lat)))) * math.cos(angle)
-        
-        item_lat = center_lat + lat_offset
-        item_lng = center_lng + lng_offset
-        
-        # 生成地址
-        street_num = random.randint(1, 999)
-        street_name = f"{random.choice(['人民', '解放', '中山', '建设', '和平', '胜利', '东风', '朝阳', '新华', '民主'])}{random.choice(street_suffixes)}"
-        address = f"{street_name}{street_num}号"
-        
-        # 生成评分 (3.5-5.0)
-        rating = round(random.uniform(3.5, 5.0), 1)
-        
-        items.append({
-            'id': f"poi_{i+1}",
-            'name': name,
-            'description': f'{poi_config["type"]}，评分{rating}分，距离{center_lng:.2f},{center_lat:.2f}约{distance_km:.1f}km',
-            'address': address,
-            'distance': f'{distance_km:.1f}km',
-            'lng': round(item_lng, 6),
-            'lat': round(item_lat, 6),
-            'type': poi_config['type'],
-            'rating': rating,
-            'icon': poi_config['icon']
-        })
-    
-    # 按距离排序
-    items.sort(key=lambda x: float(x['distance'].replace('km', '')))
-    
-    # 重新分配 ID 保持排序
-    for i, item in enumerate(items):
-        item['id'] = f"poi_{i+1}"
-    
-    return items
-
 
 # ============ 心知天气API ============
 @app.route('/api/weather', methods=['GET'])
@@ -2713,27 +2653,96 @@ def get_weather_info(city: str) -> str:
     
     try:
         import requests
-        url = 'https://api.seniverse.com/v3/weather/now.json'
-        params = {
-            'key': api_key,
-            'location': city,
-            'language': 'zh-Hans',
-            'unit': 'c'
-        }
-        resp = requests.get(url, params=params, timeout=10)
         
-        if resp.status_code == 200:
-            data = resp.json()
+        # 并行获取多个数据
+        results = {}
+        
+        # 1. 实时天气
+        now_resp = requests.get('https://api.seniverse.com/v3/weather/now.json', 
+            params={'key': api_key, 'location': city, 'language': 'zh-Hans', 'unit': 'c'}, timeout=10)
+        if now_resp.status_code == 200:
+            data = now_resp.json()
             if data.get('results'):
-                result = data['results'][0]
-                now = result.get('now', {})
-                city_name = result.get('location', {}).get('name', city)
-                weather = now.get('text', '未知')
-                temp = now.get('temperature', '0')
-                wind = now.get('wind_direction', '') + now.get('wind_scale', '') + '级'
-                return f"【{city_name}】{weather}，气温{temp}°C，风力{wind}"
+                results['now'] = data['results'][0]
         
-        return f"【{city}】获取天气信息失败"
+        # 2. 3天预报
+        daily_resp = requests.get('https://api.seniverse.com/v3/weather/daily.json',
+            params={'key': api_key, 'location': city, 'language': 'zh-Hans', 'unit': 'c', 'days': 3}, timeout=10)
+        if daily_resp.status_code == 200:
+            data = daily_resp.json()
+            if data.get('results'):
+                results['daily'] = data['results'][0]
+        
+        if not results.get('now'):
+            return f"【{city}】获取天气信息失败"
+        
+        result = results['now']
+        location = result.get('location', {})
+        now = result.get('now', {})
+        
+        city_name = location.get('name', city)
+        weather = now.get('text', '未知')
+        temp = now.get('temperature', '0')
+        humidity = now.get('humidity')
+        wind_dir = now.get('wind_direction', '')
+        wind_scale = now.get('wind_scale', '')
+        wind = f"{wind_dir}{wind_scale}级" if wind_dir and wind_scale else '免费版暂不支持'
+        feel_temp = now.get('feels_like', temp)
+        uv = now.get('uv')
+        humidity_str = f"{humidity}%" if humidity else '免费版暂不支持'
+        uv_str = f"{uv}级" if uv else '免费版暂不支持'
+        
+        # 预报数据
+        forecast_text = ""
+        if 'daily' in results:
+            daily = results['daily'].get('daily', [])
+            if daily:
+                forecast_parts = []
+                from datetime import datetime, timedelta
+                today = datetime.now().date()
+                for day in daily[:3]:
+                    date_str = day.get('date', '')
+                    date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else today
+                    high = day.get('high', '-')
+                    low = day.get('low', '-')
+                    day_weather = day.get('text_day', day.get('text', '未知'))
+                    if date == today:
+                        label = "今天"
+                    elif date == today + timedelta(days=1):
+                        label = "明天"
+                    elif date == today + timedelta(days=2):
+                        label = "后天"
+                    else:
+                        label = date_str[-5:]
+                    forecast_parts.append(f"{label} {day_weather} {low}~{high}°C")
+                forecast_text = "\n📅 未来3天预报：" + " | ".join(forecast_parts)
+        
+        # 组装详细信息
+        info = f"""【{city_name}】实时天气
+🌤️ 天气状况：{weather}
+🌡️ 气温：{temp}°C（体感 {feel_temp}°C）
+💧 湿度：{humidity_str}
+🌬️ 风力：{wind}
+☀️ 紫外线：{uv_str}{forecast_text}
+
+建议："""
+        
+        # 根据天气添加建议
+        if '雨' in weather:
+            info += "记得带伞哦！☂️ 建议穿防水鞋子。"
+        elif '雪' in weather:
+            info += "注意防寒保暖！❄️ 建议穿防滑鞋。"
+        elif '晴' in weather:
+            if uv and uv != '未知' and int(uv) >= 3:
+                info += "紫外线较强，记得涂防晒霜！🧴"
+            else:
+                info += "适合户外活动，注意补水。"
+        elif '阴' in weather or '多云' in weather:
+            info += "天气还不错，适合出行。"
+        else:
+            info += "注意关注天气变化。"
+            
+        return info
         
     except Exception as e:
         logger.error(f"天气查询错误: {e}")
@@ -2801,9 +2810,8 @@ def get_nearby():
     except Exception as e:
         logger.warning(f"从数据库获取周边景点失败: {e}")
 
-    # 2. 生成周边设施数据（餐厅、酒店、商场、交通等）
-    generated_items = generate_nearby_pois(lng, lat, count=max(limit - len(items), 8))
-    items.extend(generated_items)
+    # 2. 周边设施数据由前端 AMap.PlaceSearch 插件直接获取真实 POI
+    #    后端只提供数据库中的景点数据
 
     # 按距离排序
     items.sort(key=lambda x: float(x['distance'].replace('km', '')))
@@ -2944,14 +2952,14 @@ def get_products():
             )
         )
     if min_price is not None:
-        query = query.filter(Product.price >= min_price)
+        query = query.filter(Product.base_price >= min_price)
     if max_price is not None:
-        query = query.filter(Product.price <= max_price)
+        query = query.filter(Product.base_price <= max_price)
 
     # 排序
     sort_map = {
         'rating': Product.rating,
-        'price': Product.price,
+        'price': Product.base_price,
         'sales': Product.sales_count,
         'reviews': Product.review_count,
         'created_at': Product.created_at,
@@ -3025,8 +3033,7 @@ def global_search():
                 Destination.city.contains(keyword),
                 Destination.province.contains(keyword),
                 Destination.description.contains(keyword)
-            ),
-            Destination.status == 'active'
+            )
         )
         dest_page = dest_query.paginate(page=page, per_page=per_page, error_out=False)
         results['destinations'] = [d.to_dict() for d in dest_page.items]
@@ -3282,7 +3289,7 @@ def get_ai_service():
             self.configs = _get_all_ai_configs()
             self.current_idx = 0
             
-        def _call_api(self, config, messages, timeout=120):
+        def _call_api(self, config, messages, timeout=30):
             """调用单个AI服务"""
             import requests as req
             resp = req.post(
@@ -3338,39 +3345,51 @@ def get_ai_service():
         def chat_stream(self, messages):
             """真实 SSE 流式调用，收到 token 立即 yield，优化延迟"""
             import requests as req
-            resp = req.post(
-                f"{self.base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": self.model,
-                    "messages": messages,
-                    "max_tokens": 2048,
-                    "stream": True,
-                    "temperature": 0.7
-                },
-                timeout=120,
-                stream=True
-            )
-            resp.raise_for_status()
-            for line in resp.iter_lines():
-                if not line:
+            # 遍历所有配置尝试
+            for config in self.configs:
+                try:
+                    resp = req.post(
+                        f"{config['base_url']}/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {config['api_key']}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": config['model'],
+                            "messages": messages,
+                            "max_tokens": 2048,
+                            "stream": True,
+                            "temperature": 0.7
+                        },
+                        timeout=30,
+                        stream=True
+                    )
+                    if resp.status_code == 429:
+                        continue
+                    resp.raise_for_status()
+                    for line in resp.iter_lines():
+                        if not line:
+                            continue
+                        line_text = line.decode('utf-8') if isinstance(line, bytes) else line
+                        if line_text.startswith('data: '):
+                            payload = line_text[6:]
+                            if payload.strip() == '[DONE]':
+                                return
+                            try:
+                                chunk_data = json.loads(payload)
+                                delta = chunk_data.get('choices', [{}])[0].get('delta', {})
+                                content = delta.get('content', '')
+                                if content:
+                                    yield content
+                            except Exception:
+                                pass
+                    return
+                except Exception as e:
+                    if '429' in str(e):
+                        continue
+                    logger.warning(f"[{config['name']}] 流式调用失败: {e}")
                     continue
-                line_text = line.decode('utf-8') if isinstance(line, bytes) else line
-                if line_text.startswith('data: '):
-                    payload = line_text[6:]
-                    if payload.strip() == '[DONE]':
-                        return
-                    try:
-                        chunk_data = json.loads(payload)
-                        delta = chunk_data.get('choices', [{}])[0].get('delta', {})
-                        content = delta.get('content', '')
-                        if content:
-                            yield content
-                    except Exception:
-                        pass
+            raise Exception("所有AI服务均不可用")
 
         def chat_with_tools(self, messages, tools):
             """带函数调用的对话 - 支持自动执行工具（遍历所有AI服务）"""
@@ -3395,7 +3414,7 @@ def get_ai_service():
                             "temperature": 0.7,
                             "tools": tools
                         },
-                        timeout=120
+                        timeout=30
                     )
                     
                     if resp.status_code == 429:
@@ -3406,44 +3425,59 @@ def get_ai_service():
                     data = resp.json()
                     assistant_msg = data['choices'][0]['message']
                     
-                    # 检查是否有函数调用
+                    # 检查是否有函数调用，限制最多 3 轮工具调用
                     if 'tool_calls' in assistant_msg:
                         logger.info(f"[{config['name']}] 触发了函数调用")
                         messages = messages + [assistant_msg]
                         
-                        for tool_call in assistant_msg['tool_calls']:
-                            func_name = tool_call['function']['name']
-                            func_args = json.loads(tool_call['function']['arguments'])
-                            result = self.execute_tool(func_name, func_args)
-                            messages.append({
-                                'role': 'tool',
-                                'tool_call_id': tool_call['id'],
-                                'content': result
-                            })
+                        tool_call_count = 0
+                        max_tool_calls = 3  # 最多 3 轮工具调用
                         
-                        # 第二次调用 - 获取最终响应
-                        resp2 = req.post(
-                            f"{config['base_url']}/chat/completions",
-                            headers={
-                                "Authorization": f"Bearer {config['api_key']}",
-                                "Content-Type": "application/json"
-                            },
-                            json={
-                                "model": config['model'],
-                                "messages": messages,
-                                "max_tokens": 2048,
-                                "stream": False,
-                                "temperature": 0.7
-                            },
-                            timeout=120
-                        )
+                        while 'tool_calls' in assistant_msg and tool_call_count < max_tool_calls:
+                            tool_call_count += 1
+                            logger.info(f"[{config['name']}] 工具调用第 {tool_call_count} 轮")
+                            
+                            for tool_call in assistant_msg['tool_calls']:
+                                func_name = tool_call['function']['name']
+                                func_args = json.loads(tool_call['function']['arguments'])
+                                result = self.execute_tool(func_name, func_args)
+                                messages.append({
+                                    'role': 'tool',
+                                    'tool_call_id': tool_call['id'],
+                                    'content': result
+                                })
+                            
+                            # 再次调用获取下一轮响应
+                            resp2 = req.post(
+                                f"{config['base_url']}/chat/completions",
+                                headers={
+                                    "Authorization": f"Bearer {config['api_key']}",
+                                    "Content-Type": "application/json"
+                                },
+                                json={
+                                    "model": config['model'],
+                                    "messages": messages,
+                                    "max_tokens": 2048,
+                                    "stream": False,
+                                    "temperature": 0.7,
+                                    "tools": tools  # 继续传递 tools 以支持多轮调用
+                                },
+                                timeout=30
+                            )
+
+                            if resp2.status_code == 429:
+                                break
+                            
+                            resp2.raise_for_status()
+                            final_data = resp2.json()
+                            assistant_msg = final_data['choices'][0]['message']
+                            
+                            # 如果没有更多工具调用，返回结果
+                            if 'tool_calls' not in assistant_msg:
+                                return assistant_msg.get('content', '') or ''
                         
-                        if resp2.status_code == 429:
-                            continue
-                        
-                        resp2.raise_for_status()
-                        final_data = resp2.json()
-                        return final_data['choices'][0]['message']['content'] or ''
+                        # 达到最大轮次或出错，返回当前内容
+                        return assistant_msg.get('content', '') or ''
                     
                     return assistant_msg.get('content', '')
                     
@@ -3480,9 +3514,58 @@ def get_ai_service():
             elif name == 'get_itinerary':
                 destination = args.get('destination', '')
                 days = args.get('days', 3)
-                return f'您想规划{days}天{destination}旅行，请稍等，我来为您生成详细行程...'
-            else:
-                return f'未知工具: {name}'
+                # 搜索目的地景点
+                from app import Destination
+                dests = Destination.query.filter(
+                    Destination.name.like(f'%{destination}%') | 
+                    Destination.city.like(f'%{destination}%') |
+                    Destination.province.like(f'%{destination}%')
+                ).limit(10).all()
+                
+                if dests:
+                    spots = '\n'.join([f"- **{d.name}**（{d.city}，{d.rating}分，门票约{d.ticket_price}元）" for d in dests[:6]])
+                    itinerary = f"""# {destination} {days}日游行程规划
+
+## 🎯 目的地概览
+{len(dests)}个热门景点推荐
+
+## 🏞️ 推荐景点
+{spots}
+
+## 📅 建议行程安排
+
+**第1天**：抵达后先办理入住，下午游览{dests[0].name if dests else destination}，晚上品尝当地美食
+
+**第2天**：全天游览{dests[1].name if len(dests) > 1 else destination}，体验当地文化
+
+**第3天**：根据返程时间，可选择{dests[2].name if len(dests) > 2 else destination}或自由活动
+
+## 💡 小贴士
+- 建议提前预约热门景点门票
+- 河南美食：烩面、胡辣汤、灌汤包
+- 出行注意防晒，带好雨具
+
+祝您旅途愉快！🚗"""
+                    return itinerary
+                else:
+                    return f"""# {destination} {days}日游行程规划
+
+抱歉，数据库中暂未收录{destination}的详细景点信息。
+
+## 📋 建议行程
+
+**第1天**：抵达{destination}，入住酒店，品尝当地美食
+
+**第2天**：游览当地著名景点（建议提前查询热门景区）
+
+**第3天**：根据返程时间安排自由活动
+
+## 💡 出行建议
+- 可通过本平台的景点搜索功能查找{destination}的景点
+- 建议提前查看天气情况
+- 预订门票时注意开放时间
+
+祝您旅途愉快！🚗"""
 
     _ai_service_cache = AIService()
     _ai_service_config_hash = current_hash
@@ -3553,7 +3636,7 @@ def chat():
     except Exception as e:
         logger.error(f"AI对话失败: {str(e)}")
         return jsonify({
-            'success': True,
+            'success': False,
             'reply': '抱歉，AI服务暂时不可用。您可以尝试刷新页面或稍后重试。',
             'timestamp': datetime.now().isoformat(),
             'mode': 'error_fallback',
@@ -3564,21 +3647,47 @@ def chat():
 def generate_agent_stream(ai_service, messages):
     """生成Agent模式SSE流式响应 - 支持工具调用"""
     try:
-        # 发送开始事件
         yield f"data: {json.dumps({'type': 'thinking', 'tool': 'ai', 'label': '正在思考'}, ensure_ascii=False)}\n\n"
-        yield f"data: {json.dumps({'type': 'content', 'data': ''}, ensure_ascii=False)}\n\n"
 
-        # 使用带工具调用的方法
+        # 尝试带工具调用的流式模式
         try:
-            # 先尝试带工具的调用
-            content = ai_service.chat_with_tools(messages, TRAVEL_AGENT_TOOLS)
-            # 流式输出结果
-            for i in range(0, len(content), 10):
-                yield f"data: {json.dumps({'type': 'content', 'data': content[i:i+10]}, ensure_ascii=False)}\n\n"
-        except AttributeError:
-            # 如果不支持chat_with_tools，回退到普通流式
-            for token in ai_service.chat_stream(messages):
-                yield f"data: {json.dumps({'type': 'content', 'data': token}, ensure_ascii=False)}\n\n"
+            has_stream = hasattr(ai_service, 'chat_stream_with_tools')
+            has_sync = hasattr(ai_service, 'chat_with_tools')
+
+            if has_stream:
+                # 真正的流式工具调用：边生成边输出
+                full = ''
+                for event in ai_service.chat_stream_with_tools(messages, TRAVEL_AGENT_TOOLS):
+                    etype = event.get('type', 'content')
+                    if etype == 'thinking':
+                        yield f"data: {json.dumps({'type': 'thinking', 'tool': event.get('tool', 'tool'), 'label': event.get('label', '处理中')}, ensure_ascii=False)}\n\n"
+                    elif etype == 'tool_result':
+                        yield f"data: {json.dumps({'type': 'tool_result', 'tool': event.get('tool', 'tool')}, ensure_ascii=False)}\n\n"
+                    elif etype == 'content':
+                        chunk = event.get('data', '')
+                        full += chunk
+                        if chunk:
+                            yield f"data: {json.dumps({'type': 'content', 'data': chunk}, ensure_ascii=False)}\n\n"
+                if not full:
+                    yield f"data: {json.dumps({'type': 'content', 'data': '未收到回复，请稍后再试'}, ensure_ascii=False)}\n\n"
+            elif has_sync:
+                # 同步工具调用：完成后一次性流式输出
+                yield f"data: {json.dumps({'type': 'thinking', 'tool': 'tool', 'label': '正在处理'}, ensure_ascii=False)}\n\n"
+                content = ai_service.chat_with_tools(messages, TRAVEL_AGENT_TOOLS)
+                if content:
+                    for i in range(0, len(content), 10):
+                        yield f"data: {json.dumps({'type': 'content', 'data': content[i:i+10]}, ensure_ascii=False)}\n\n"
+                else:
+                    yield f"data: {json.dumps({'type': 'content', 'data': '未收到回复，请稍后再试'}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'type': 'tool_result', 'tool': 'tool'}, ensure_ascii=False)}\n\n"
+            else:
+                # 无工具支持：回退到普通流式
+                for token in ai_service.chat_stream(messages):
+                    yield f"data: {json.dumps({'type': 'content', 'data': token}, ensure_ascii=False)}\n\n"
+
+        except Exception as inner_e:
+            logger.error(f"Agent流式生成内部错误: {str(inner_e)}")
+            yield f"data: {json.dumps({'type': 'content', 'data': 'AI 服务暂时繁忙，请稍后再试～'}, ensure_ascii=False)}\n\n"
 
         yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
 
@@ -3666,6 +3775,13 @@ def agent_chat():
             return jsonify({'error': '缺少messages参数'}), 400
         
         messages = data['messages']
+        
+        # 添加 system prompt（与 /api/chat 保持一致）
+        system_msg = {'role': 'system', 'content': '你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。'}
+        if messages and isinstance(messages, list):
+            # 如果第一条不是 system 消息，插入 system prompt
+            if not (messages[0].get('role') == 'system'):
+                messages = [system_msg] + messages
         
         # 验证消息格式
         if not isinstance(messages, list) or len(messages) == 0:
