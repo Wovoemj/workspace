@@ -1,3 +1,33 @@
+/**
+ * =====================================================
+ * 个人信息编辑模块 - 用户资料修改
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 用户头像上传预览
+ * - 头像上传功能
+ * - 基本信息编辑（昵称）
+ * - 旅行偏好设置：
+ *   - 旅行风格（冒险/休闲/人文/商务）
+ *   - 同行人数
+ *   - 感兴趣的目的地（逗号分隔）
+ *   - 预算范围（最小/最大）
+ * - 表单验证与提交
+ * - 登录状态校验（未登录重定向到登录页）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/users/profile: 获取当前用户资料
+ * - PUT /api/users/profile: 更新用户资料（需登录）
+ * - POST /api/upload/avatar: 上传头像图片
+ * 
+ * 【状态管理】
+ * - useState: form(表单数据), avatarPreview, uploadingAvatar, fileInputRef
+ * - useEffect: 初始化表单数据，同步用户信息
+ */
 'use client'
 
 import type { FormEvent } from 'react'
@@ -84,7 +114,7 @@ export default function ProfileEditPage() {
   const uploadAvatar = async (file: File) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
     if (!token) {
-            toast.error('未登?')
+      toast.error('未登录')
       return
     }
 
@@ -205,8 +235,8 @@ export default function ProfileEditPage() {
             </Link>
           </div>
 
-          <div className="card p-6">
-            <h1 className="text-2xl font-bold text-gray-900">编辑资料与偏</h1>
+          <div className="card p-6 rounded-xl">
+            <h1 className="text-2xl font-bold text-gray-900">编辑资料与偏好</h1>
             <p className="text-sm text-gray-500 mt-1">保存后将影响行程生成与推荐</p>
 
             {!user ? (
@@ -261,11 +291,11 @@ export default function ProfileEditPage() {
                     <div className="flex flex-wrap items-center gap-2 mt-2">
                       {user?.is_admin ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700">
-                          🔐 管理?
+                          🔐 管理员
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700">
-                          普通用?
+                          普通用户
                         </span>
                       )}
                       <span className="text-[11px] text-slate-400">
@@ -299,7 +329,7 @@ export default function ProfileEditPage() {
                       <option value="cultural">🏛 人文 - 探索历史文化</option>
                       <option value="business">💼 商务 - 兼顾工作与出行</option>
                     </select>
-                    <span className="text-[11px] text-slate-400 mt-1 block">影响行程推荐的整体基</span>
+                    <span className="text-[11px] text-slate-400 mt-1 block">影响行程推荐的整体基调</span>
                   </label>
                 </div>
 
@@ -313,11 +343,11 @@ export default function ProfileEditPage() {
                       value={form.group_size}   // value
                       onChange={(e) => setForm((s) => ({ ...s, group_size: Number(e.target.value) }))}
                     />
-                    <span className="text-[11px] text-slate-400 mt-1 block">用于预算和行程规划参</span>
+                    <span className="text-[11px] text-slate-400 mt-1 block">用于预算和行程规划参考</span>
                   </label>
 
                   <label className="block">
-                    <span className="text-sm text-gray-600">预算区间（元</span>
+                    <span className="text-sm text-gray-600">预算区间（元）</span>
                     <div className="flex gap-2 mt-1">
                       <input
                         className="input bg-white w-1/2"
@@ -350,7 +380,7 @@ export default function ProfileEditPage() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm text-gray-600">常去目的</span>
+                  <span className="text-sm text-gray-600">常去目的地</span>
                   <input
                     className="input bg-white w-full mt-1"
                     value={form.destinations}   // value
@@ -361,7 +391,7 @@ export default function ProfileEditPage() {
                 </label>
 
                 <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100 mt-6">
-                  <button className="btn btn-primary justify-center gap-2" type="submit" disabled={!canSave}>
+                  <button className="btn btn-primary justify-center gap-2 rounded-xl border-2" type="submit" disabled={!canSave}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                       <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
@@ -370,7 +400,7 @@ export default function ProfileEditPage() {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-outline justify-center gap-1 text-slate-500"
+                    className="btn btn-outline justify-center gap-1 text-slate-500 rounded-xl border-2 border-slate-200 hover:border-slate-300"
                     onClick={() => {
                       if (user) {
                         setForm({
@@ -382,7 +412,7 @@ export default function ProfileEditPage() {
                           budget_min: user.preferences?.budget_range?.min ?? 0,
                           budget_max: user.preferences?.budget_range?.max ?? 0,
                         })
-                                                toast('已重置为原始?')
+                        toast('已重置为原始值')
                       }
                     }}
                   >
@@ -391,7 +421,7 @@ export default function ProfileEditPage() {
                     </svg>
                     重置
                   </button>
-                  <Link href="/profile" className="btn btn-outline justify-center ml-auto">
+                  <Link href="/profile" className="btn btn-outline justify-center ml-auto rounded-xl border-2 border-slate-200 hover:border-slate-300">
                     返回我的
                   </Link>
                 </div>

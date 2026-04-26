@@ -1,3 +1,39 @@
+/**
+ * =====================================================
+ * 行程详情模块 - 单个行程详细展示与编辑
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 行程基础信息展示（标题、日期、状态、旅行风格、人数、预算）
+ * - 行程日历 TripCalendar 组件
+ * - 每日行程安排展示（时间、地点、活动描述）
+ * - 目的地关联卡片（点击跳转到目的地详情）
+ * - 添加行程项功能（选择目的地、时间安排）
+ * - 编辑行程项（修改时间、地点、内容）
+ * - 删除行程项
+ * - 行程状态管理（待完善→规划中→进行中→已完成）
+ * - 分享行程功能
+ * - 删除整个行程
+ * - 费用估算展示
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - TripCalendar: 行程日历组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/itineraries/${id}: 获取行程详情
+ * - PUT /api/itineraries/${id}: 更新行程信息
+ * - DELETE /api/itineraries/${id}: 删除行程
+ * - GET /api/itineraries/${id}/items: 获取行程项目列表
+ * - POST /api/itineraries/${id}/items: 添加行程项目
+ * - PUT /api/itineraries/${id}/items/${itemId}: 更新行程项目
+ * - DELETE /api/itineraries/${id}/items/${itemId}: 删除行程项目
+ * 
+ * 【状态管理】
+ * - useState: trip(行程数据), items(行程项), loading, editingItem
+ * - useCallback: loadTrip, updateTrip, deleteTrip, addItem, updateItem, deleteItem
+ */
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'

@@ -1,3 +1,27 @@
+/**
+ * =====================================================
+ * 搜索页模块 - 全局搜索功能
+ * =====================================================
+ * 功能说明：
+ *   - 统一的搜索入口，支持目的地和产品搜索
+ *   - 搜索结果分类展示
+ *   - 类型筛选（全部/目的地/产品）
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - components/DestinationCard：目的地卡片
+ *   - components/ProductCard：产品卡片
+ *   - lucide-react：图标库
+ *
+ * 数据来源：
+ *   - GET /api/search：搜索接口
+ *     - 参数：q(关键词), type(类型), page, per_page
+ *
+ * 状态管理：
+ *   - useSearchParams：URL 参数同步
+ *   - useCallback：搜索请求防抖
+ */
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -173,7 +197,6 @@ export default function SearchPage() {
                       <DestinationCard
                         key={dest.id}
                         destination={dest as any}
-                        onClick={() => router.push(`/destinations/${dest.id}`)}
                       />
                     ))}
                   </div>

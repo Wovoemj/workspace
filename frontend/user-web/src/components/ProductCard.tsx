@@ -1,11 +1,30 @@
 'use client'
 
+/**
+ * =====================================================
+ * 产品卡片组件 (ProductCard)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 展示旅游产品（机票、酒店、门票、体验）信息
+ * - 根据产品类型显示不同的图标和标签
+ * - 支持特色产品高亮显示
+ * - 显示价格、评分、标签等信息
+ * 
+ * 产品类型：
+ * - flight: 机票
+ * - hotel: 酒店
+ * - ticket: 门票
+ * - experience: 当地体验
+ */
+
 import { useState } from 'react'
 import { Hotel, Plane, Star, Ticket, Theater, MapPin } from 'lucide-react'
 import { Product } from '@/types'
 import { formatRating, shouldShowRating } from '@/lib/display'
 import { onImgErrorUseFallback, resolveCoverSrc } from '@/lib/media'
 
+/** 产品卡片属性接口 */
 interface ProductCardProps {
   product: Product
   onClick?: () => void
@@ -13,6 +32,15 @@ interface ProductCardProps {
   variant?: 'default' | 'featured'
 }
 
+/**
+ * 产品卡片主组件
+ * @description 展示旅游产品信息的卡片组件
+ * @param props - 组件属性
+ * @param props.product - 产品数据
+ * @param props.onClick - 点击回调（可选）
+ * @param props.className - 自定义样式
+ * @param props.variant - 变体类型：default | featured
+ */
 export function ProductCard({ product, onClick, className = '', variant = 'default' }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false)
   const formatPrice = (price: number) => `¥${price.toLocaleString()}`

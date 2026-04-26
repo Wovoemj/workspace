@@ -1,3 +1,37 @@
+/**
+ * =====================================================
+ * 订单列表页模块 - 订单管理
+ * =====================================================
+ * 功能说明：
+ *   - 展示用户所有订单
+ *   - 订单状态展示（待支付/已支付/已取消/已退款）
+ *   - 订单详情查看（商品明细、预订信息）
+ *   - 支付功能（模拟支付宝流程）
+ *   - 取消订单功能
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - store/index：Zustand 用户状态管理
+ *   - types/index：TypeScript 类型定义
+ *   - lucide-react：图标库
+ *   - react-hot-toast：消息提示
+ *
+ * 数据来源：
+ *   - GET /api/orders：订单列表（需认证）
+ *   - POST /api/orders/{id}/pay：支付订单
+ *   - POST /api/orders/{id}/cancel：取消订单
+ *
+ * 订单状态：
+ *   - pending：待支付
+ *   - paid：已支付
+ *   - cancelled：已取消
+ *   - refunded：已退款
+ *
+ * 状态管理：
+ *   - localStorage：存储 JWT Token
+ *   - useUserStore：用户登录状态
+ */
 'use client'
 
 import { useEffect, useState } from 'react'

@@ -1,3 +1,28 @@
+/**
+ * =====================================================
+ * 优惠活动模块 - 限时优惠产品展示
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 限时优惠倒计时展示（每日24:00重置）
+ * - 高评分产品列表展示
+ * - 产品卡片网格布局
+ * - 优惠标签展示
+ * - 实时倒计时更新（秒级）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - ProductCard: 产品卡片组件
+ * - Product 类型定义
+ * 
+ * 【API 接口】
+ * - GET /api/products?status=active&sort=rating&limit=12: 获取优惠产品列表
+ * 
+ * 【状态管理】
+ * - useState: products(产品列表), loading, now(当前时间戳)
+ * - useMemo: endsAt(今日截止时间), leftMs(剩余毫秒)
+ * - useEffect: 1秒间隔更新倒计时
+ */
 'use client'
 
 import Link from 'next/link'

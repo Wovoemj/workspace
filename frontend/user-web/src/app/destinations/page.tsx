@@ -1,3 +1,30 @@
+/**
+ * =====================================================
+ * 目的地列表页模块 - 景点与旅行产品浏览
+ * =====================================================
+ * 功能说明：
+ *   - 展示所有目的地景点，支持搜索和筛选
+ *   - 提供景点/产品双视图切换
+ *   - 无限滚动/分页加载更多内容
+ *   - 省份筛选、评分筛选功能
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - components/ProductCard：产品卡片
+ *   - components/DestinationCard：目的地卡片
+ *   - hooks/index：自定义 Hooks（useDebounce 防抖）
+ *   - lib/destinationRegions：大洲/地区定义
+ *
+ * 数据来源：
+ *   - GET /api/destinations：目的地列表
+ *   - GET /api/destinations/metadata：省份元数据
+ *   - GET /api/products：产品列表
+ *
+ * 状态管理：
+ *   - useSearchParams：URL 参数同步
+ *   - useInfiniteScroll：无限滚动 Hook
+ */
 'use client'
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'

@@ -1,3 +1,31 @@
+/**
+ * =====================================================
+ * 足迹模块 - 用户浏览历史记录
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 用户足迹列表展示
+ * - 按日期分组展示足迹
+ * - 足迹详情（目的地信息、浏览时间、来源）
+ * - 足迹删除功能（单个/清空全部）
+ * - 目的地快速跳转
+ * - 登录状态校验
+ * - 搜索过滤功能
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/footprints: 获取用户足迹列表
+ * - DELETE /api/footprints/${id}: 删除单条足迹
+ * - DELETE /api/footprints/clear: 清空全部足迹
+ * 
+ * 【状态管理】
+ * - useState: footprints(足迹), groupedFootprints(分组), loading, clearing
+ * - useCallback: loadFootprints, deleteFootprint, clearAllFootprints
+ * - 依赖: isAuthenticated, user
+ */
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'

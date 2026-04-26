@@ -1,3 +1,32 @@
+/**
+ * =====================================================
+ * 客服支持模块 - 工单提交与常见问题
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 三 Tab 切换：常见问题 / 我的工单 / 创建工单
+ * - 常见问题 FAQ 列表（可折叠展开）
+ * - 工单类型选择：订单问题/支付问题/退款申请/账号问题/功能反馈/其他
+ * - 工单创建表单（类型、标题、描述）
+ * - 工单列表展示（状态：待处理/处理中/已解决）
+ * - 工单回复查看（用户/管理员对话）
+ * - 提交回复功能
+ * - 登录状态校验
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/support/tickets: 获取用户工单列表
+ * - POST /api/support/tickets: 创建工单
+ * - GET /api/support/tickets/${id}: 获取工单详情
+ * - POST /api/support/tickets/${id}/replies: 提交工单回复
+ * 
+ * 【状态管理】
+ * - useState: activeTab, tickets, formData, expandedFaq, loading
+ * - useCallback: loadTickets, createTicket, submitReply
+ */
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'

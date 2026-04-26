@@ -1,3 +1,34 @@
+/**
+ * =====================================================
+ * 登录页模块 - 用户认证入口
+ * =====================================================
+ * 功能说明：
+ *   - 支持用户名、邮箱、手机号三种登录方式
+ *   - 实时表单验证与错误提示
+ *   - 密码可见性切换
+ *   - 登录成功后跳转回原页面
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - store/index：Zustand 用户状态管理
+ *   - lib/validation：表单验证工具
+ *   - react-hot-toast：消息提示
+ *
+ * 数据来源：
+ *   - POST /api/users/login：用户登录接口
+ *     - 参数：username/email/phone + password
+ *
+ * 验证规则：
+ *   - 用户名：至少3位
+ *   - 密码：至少6位
+ *   - 邮箱：标准格式验证
+ *   - 手机号：11位数字验证
+ *
+ * 状态管理：
+ *   - useUserStore：登录状态、用户信息
+ *   - localStorage：存储 JWT Token
+ */
 'use client'
 
 import type { FormEvent } from 'react'

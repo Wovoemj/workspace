@@ -1,3 +1,35 @@
+/**
+ * =====================================================
+ * 管理后台首页模块 - 数据统计与概览
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 平台数据统计展示（目的地/用户/行程/订单数等）
+ * - 各省份目的地分布图表
+ * - 热门城市排行
+ * - 行程状态分布
+ * - 订单状态与金额统计
+ * - 会员等级分布
+ * - 最近活动列表（用户/行程/评论/订单）
+ * - 目的地管理入口
+ * - 管理员权限校验（AdminGuard）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - AdminGuard: 管理员权限守卫组件
+ * - 图表库（内联实现）
+ * 
+ * 【API 接口】
+ * - GET /api/admin/stats: 获取平台统计数据
+ * - GET /api/destinations?limit=1000: 获取目的地列表
+ * - GET /api/users?limit=100: 获取用户列表
+ * - GET /api/orders?limit=100: 获取订单列表
+ * - GET /api/comments?limit=100: 获取评论列表
+ * 
+ * 【认证方式】
+ * - admin_token: 存储在 localStorage
+ * - Authorization: Bearer token 请求头
+ */
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
@@ -310,8 +342,8 @@ function DestinationTable() {
         d.id === destId ? { ...d, cover_image: data.destination?.cover_image || d.cover_image } : d
       ))
 
-      // 显示成功提示（用简单方式，避免依赖 toast?
-      alert(`?${data.message || '图片上传成功'}`)
+      // 显示成功提示
+      alert(`${data.message || '图片上传成功'}`)
     } catch (err: any) {
       alert('上传失败: ' + err.message)
     } finally {

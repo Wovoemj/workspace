@@ -1,0 +1,40 @@
+# 路由配置 - 将请求转发到后端服务
+
+# Flask 后端 (端口 5000)
+routes:
+  - id: flask-api
+    uri: /api/*
+    upstream:
+      type: roundrobin
+      nodes:
+        - host: host.docker.internal
+          port: 5000
+          weight: 1
+    timeout:
+      connect: 60
+      send: 60
+      read: 120  # 较长的超时时间用于 AI 请求
+
+  # AI 对话接口
+  - id: ai-chat
+    uri: /api/ai/*
+    upstream:
+      type: roundrobin
+      nodes:
+        - host: host.docker.internal
+          port: 5000
+          weight: 1
+    timeout:
+      connect: 60
+      send: 180
+      read: 300  # AI 生成可能需要更长时间
+
+  # 静态资源
+  - id: static-files
+    uri: /*
+    upstream:
+      type: roundrobin
+      nodes:
+        - host: host.docker.internal
+          port: 3000
+          weight: 1

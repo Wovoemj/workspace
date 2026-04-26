@@ -1,13 +1,29 @@
 'use client'
 
+/**
+ * =====================================================
+ * 错误状态组件 (ErrorState)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 显示加载失败/错误状态
+ * - 提供重试按钮重新加载
+ * - 可自定义错误消息文本
+ */
+
 import { AlertCircle, RefreshCw } from 'lucide-react'
 
+/** 错误状态组件属性 */
 interface ErrorStateProps {
   message?: string
   onRetry?: () => void
   className?: string
 }
 
+/**
+ * 错误状态组件
+ * @description 加载失败时显示的错误状态界面
+ */
 export function ErrorState({ 
   message = '出错了，请稍后重试', 
   onRetry,

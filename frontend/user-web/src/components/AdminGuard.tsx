@@ -1,15 +1,42 @@
 'use client'
 
+/**
+ * =====================================================
+ * 管理员权限守卫组件 (AdminGuard)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 管理员页面访问权限控制组件
+ * - 未登录时显示登录表单（用户名+密码）
+ * - 自动检测后端服务连接状态
+ * - Token 存储在 localStorage，支持会话恢复
+ * - 提供登出功能
+ * 
+ * 权限机制：
+ * - 使用 admin_token 标识管理员登录状态
+ * - 通过 API 验证 Token 有效性
+ * - 登录成功后显示子组件内容
+ */
+
 import { useEffect, useState, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import { Lock, LogIn, Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Lock, LogIn, Loader2, Eye, EyeOff, AlertCircle, Shield, ChevronDown, User, LogOut } from 'lucide-react'
 
 /** 后端地址，与 admin/page.tsx 保持一致 */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
 
 type Props = {
   children: React.ReactNode
+}
+
+type AdminInfo = {
+  id?: number
+  username?: string
+  nickname?: string
+  email?: string
+  avatar_url?: string
+  membership_level?: number
 }
 
 /** 构造带 admin_token 的 headers */
@@ -22,15 +49,27 @@ function adminHeaders() {
 
 /** 直连后端的认证请求 */
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: { ...adminHeaders(), ...(options?.headers as Record<string, string>) },
-  })
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error((data as any)?.error || `HTTP ${res.status}`)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 8000) // 8秒超时
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: { ...adminHeaders(), ...(options?.headers as Record<string, string>) },
+    })
+    clearTimeout(timeoutId)
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error((data as any)?.error || `HTTP ${res.status}`)
+    }
+    return res.json()
+  } catch (e: any) {
+    clearTimeout(timeoutId)
+    if (e.name === 'AbortError') {
+      throw new Error('请求超时，请检查后端服务是否运行')
+    }
+    throw e
   }
-  return res.json()
 }
 
 export function AdminGuard({ children }: Props) {
@@ -44,21 +83,41 @@ export function AdminGuard({ children }: Props) {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [backendOk, setBackendOk] = useState<boolean | null>(null) // null=未检测 true=在线, false=离线
+  const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null)
+  const [showUserMenu, setShowUserMenu] = useState(false)
 
   // 检测后端是否在线
   useEffect(() => {
     if (token) return
     let cancelled = false
-    fetch(`${API_BASE}/api/health`, { method: 'GET' })
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+    fetch(`${API_BASE}/api/health`, { method: 'GET', signal: controller.signal })
       .then(r => { if (!cancelled) setBackendOk(r.ok) })
       .catch(() => { if (!cancelled) setBackendOk(false) })
+      .finally(() => clearTimeout(timeoutId))
     return () => { cancelled = true }
   }, [token])
+
+  // 获取管理员信息
+  const fetchAdminInfo = useCallback(async () => {
+    try {
+      const data = await apiFetch<{ user?: AdminInfo }>('/api/users/me')
+      if (data?.user) {
+        setAdminInfo(data.user)
+        // 保存到 localStorage 方便其他组件使用
+        localStorage.setItem('admin_info', JSON.stringify(data.user))
+      }
+    } catch {
+      // 忽略错误
+    }
+  }, [])
 
   // 检查是否已有 admin token 并验证其有效性
   const verifyToken = useCallback(async (tok: string): Promise<boolean> => {
     try {
-      await apiFetch<{ success: boolean }>('/api/stats')
+      // 使用一个实际存在的 API 来验证 token
+      await apiFetch<{ destinations?: any[] }>('/api/destinations?page=1&per_page=1')
       return true
     } catch {
       return false
@@ -67,22 +126,35 @@ export function AdminGuard({ children }: Props) {
 
   useEffect(() => {
     const stored = localStorage.getItem('admin_token')
+    // 尝试从 localStorage 恢复管理员信息
+    const storedInfo = localStorage.getItem('admin_info')
+    if (storedInfo) {
+      try {
+        setAdminInfo(JSON.parse(storedInfo))
+      } catch {
+        // ignore
+      }
+    }
+    
     if (stored) {
       // 有 token 时验证是否有效
       verifyToken(stored).then(valid => {
         if (valid) {
           setToken(stored)
+          fetchAdminInfo()
         } else {
           // token 过期或无效，清除并要求重新登录
           localStorage.removeItem('admin_token')
+          localStorage.removeItem('admin_info')
           setToken(null)
+          setAdminInfo(null)
         }
         setLoading(false)
       })
     } else {
       setLoading(false)
     }
-  }, [verifyToken])
+  }, [verifyToken, fetchAdminInfo])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,7 +167,7 @@ export function AdminGuard({ children }: Props) {
 
     try {
       // 直连后端登录（不走 Next.js 代理）
-      const data = await apiFetch<{ success: boolean; token?: string; error?: string }>('/api/admin/login', {
+      const data = await apiFetch<{ success: boolean; token?: string; error?: string; is_admin?: boolean; user?: AdminInfo }>('/api/users/login', {
         method: 'POST',
         body: JSON.stringify({ username: username.trim(), password }),
       })
@@ -106,6 +178,10 @@ export function AdminGuard({ children }: Props) {
       }
 
       localStorage.setItem('admin_token', data.token)
+      if (data.user) {
+        setAdminInfo(data.user)
+        localStorage.setItem('admin_info', JSON.stringify(data.user))
+      }
       setToken(data.token)
       toast.success('管理员登录成功')
     } catch (err: any) {
@@ -117,9 +193,12 @@ export function AdminGuard({ children }: Props) {
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_info')
     setToken(null)
+    setAdminInfo(null)
     setUsername('')
     setPassword('')
+    setShowUserMenu(false)
     toast.success('已退出管理员账号')
   }
 
@@ -200,15 +279,16 @@ export function AdminGuard({ children }: Props) {
                   密码
                 </label>
                 <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    className="input h-11 w-full rounded-xl border-slate-200 bg-white/90 pr-11 text-slate-900 shadow-inner shadow-slate-100/80 placeholder:text-slate-400 focus:border-amber-500 focus:ring-amber-500"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="请输入密码"
-                    autoComplete="current-password"
-                    disabled={loginLoading}
-                  />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="input h-11 w-full rounded-xl border-slate-200 bg-white/90 pl-4 pr-11 text-slate-900 shadow-inner shadow-slate-100/80 placeholder:text-slate-400 focus:border-amber-500 focus:ring-amber-500"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="请输入密码"
+                  autoComplete="off"
+                  tabIndex={1}
+                  disabled={loginLoading}
+                />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -234,7 +314,7 @@ export function AdminGuard({ children }: Props) {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="travel-btn-gradient mt-2 flex w-full items-center justify-center gap-2 py-3.5 text-base disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loginLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -260,19 +340,5 @@ export function AdminGuard({ children }: Props) {
   }
 
   // 已登录，显示内容
-  return (
-    <>
-
-      <div className="fixed top-0 right-0 z-50 m-3">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm text-slate-600 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-slate-800"
-        >
-          <Lock className="h-4 w-4" />
-          退出管理员
-        </button>
-      </div>
-      {children}
-    </>
-  )
+  return children
 }

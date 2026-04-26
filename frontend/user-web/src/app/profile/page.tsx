@@ -1,3 +1,40 @@
+/**
+ * =====================================================
+ * 个人中心页模块 - 用户信息与数据管理
+ * =====================================================
+ * 功能说明：
+ *   - 用户信息展示（头像、昵称、会员等级）
+ *   - 订单、收藏、足迹、行程快速入口
+ *   - 多标签页切换（个人信息/订单/收藏/足迹/行程）
+ *   - 会员等级体系（1-10级）
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - components/profile/MobileProfile：移动端个人中心
+ *   - store/index：Zustand 用户状态管理
+ *   - types/index：TypeScript 类型定义
+ *   - lib/media：媒体资源处理
+ *
+ * 数据来源：
+ *   - GET /api/me/trips：用户行程列表
+ *   - GET /api/favorites：用户收藏列表
+ *   - GET /api/orders：用户订单列表
+ *   - GET /api/me/footprints：浏览足迹
+ *   - GET /api/notifications：未读消息数
+ *
+ * 会员等级体系：
+ *   - 1级：普通会员 🎯
+ *   - 2级：铜牌会员 🥉
+ *   - 3级：银牌会员 🥈
+ *   - 4级：玉牌会员 💚
+ *   - 5级：金牌会员 🥇
+ *   - 6级：钻石会员 💎
+ *   - 7级：白金会员 💠
+ *   - 8级：皇冠会员 🏆
+ *   - 9级：黑金会员 🖤
+ *   - 10级：至尊VIP 👑
+ */
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
@@ -255,7 +292,7 @@ export default function ProfilePage() {
 
   const onLogout = () => {
     logout()
-        toast.success('已退出登?')
+    toast.success('已退出登录')
     router.push('/')
   }
 
@@ -268,7 +305,23 @@ export default function ProfilePage() {
     'from-indigo-600 to-violet-600',
   ]
   const avatarIdx = Math.abs((avatarInitial?.charCodeAt(0) || 0) % avatarGradients.length)
-  const membershipText = user?.membership_level && user.membership_level > 1 ? `VIP ${user.membership_level}` : '普通会员'
+  
+  // 10级会员体系
+  const membershipLevels: Record<number, { name: string; icon: string; color: string }> = {
+    1: { name: '普通会员', icon: '🎯', color: 'bg-gray-100 border-gray-200 text-gray-600' },
+    2: { name: '铜牌会员', icon: '🥉', color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    3: { name: '银牌会员', icon: '🥈', color: 'bg-gray-100 border-gray-300 text-gray-600' },
+    4: { name: '玉牌会员', icon: '💚', color: 'bg-green-50 border-green-200 text-green-700' },
+    5: { name: '金牌会员', icon: '🥇', color: 'bg-yellow-50 border-yellow-300 text-yellow-700' },
+    6: { name: '钻石会员', icon: '💎', color: 'bg-sky-50 border-sky-200 text-sky-700' },
+    7: { name: '白金会员', icon: '💠', color: 'bg-indigo-50 border-indigo-200 text-indigo-700' },
+    8: { name: '皇冠会员', icon: '🏆', color: 'bg-amber-50 border-amber-200 text-amber-700' },
+    9: { name: '黑金会员', icon: '🖤', color: 'bg-zinc-100 border-zinc-300 text-zinc-800' },
+    10: { name: '至尊VIP', icon: '👑', color: 'bg-gradient-to-r from-amber-100 to-orange-100 border-amber-300 text-amber-800' },
+  }
+  const level = user?.membership_level || 1
+  const membershipInfo = membershipLevels[level] || membershipLevels[1]
+  const membershipText = level > 1 ? `${membershipInfo.icon} ${membershipInfo.name}` : `${membershipInfo.icon} ${membershipInfo.name}`
 
   const coverSrc = (d: { cover_image?: string | null }) => resolveCoverSrc(d?.cover_image)
 
@@ -366,13 +419,13 @@ export default function ProfilePage() {
               <div className="min-w-0 pt-1">
                 <h1 className="text-2xl font-bold text-gray-900">{user?.nickname || '我的'}</h1>
                 <p className="text-gray-600 mt-2">
-                                    {user?.nickname ? `Hi，欢迎回来～` : '查看你的行程、收藏和订单?'}
+                  {user?.nickname ? `Hi，欢迎回来～` : '查看你的行程、收藏和订单'}
                   {user?.phone ? (
                     <span className="block sm:inline sm:ml-1 text-sm text-gray-500 mt-1 sm:mt-0">
                       {user.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')}
                     </span>
                   ) : null}
-                  <span className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 ml-0 sm:ml-2 mt-2 sm:mt-0 align-middle border ${user?.is_admin ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 ml-0 sm:ml-2 mt-2 sm:mt-0 align-middle border ${user?.is_admin ? 'bg-gradient-to-r from-amber-100 to-orange-100 border-amber-300 text-amber-800' : membershipInfo.color}`}>
                     <Crown className="h-3 w-3" />
                     {user?.is_admin ? '管理员' : membershipText}
                   </span>
@@ -381,7 +434,7 @@ export default function ProfilePage() {
             </div>
 
             {!isAuthenticated || !user ? (
-              <div className="mt-6 card p-4 bg-white border border-gray-200 text-gray-700">
+              <div className="mt-6 card p-4 bg-white border border-gray-200 rounded-xl text-gray-700">
                 请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看个人信息
               </div>
             ) : (
@@ -508,7 +561,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => (counts.trips ? router.push('/itineraries') : router.push('/assistant'))}
-                    className="card p-4 bg-white border border-gray-200 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                    className="card p-4 bg-white border border-gray-200 rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -517,7 +570,7 @@ export default function ProfilePage() {
                           {counts.trips > 0 ? counts.trips : '0'}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                                                    {counts.trips > 0 ? '查看行程时间' : '去创建行程'}
+                          {counts.trips > 0 ? '查看行程时间' : '去创建行程'}
                         </div>
                       </div>
                       <ArrowRight className="h-4 w-4 text-blue-600" />
@@ -527,7 +580,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => (counts.favorites ? router.push('/favorites') : router.push('/destinations'))}
-                    className="card p-4 bg-white border border-gray-200 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                    className="card p-4 bg-white border border-gray-200 rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -544,7 +597,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => (counts.orders ? router.push('/orders') : router.push('/cart'))}
-                    className="card p-4 bg-white border border-gray-200 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                    className="card p-4 bg-white border border-gray-200 rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -560,14 +613,14 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="mt-6 grid grid-cols-1 gap-4">
-                  <div className="card p-4 bg-white border border-gray-200">
+                  <div className="card p-4 bg-white border border-gray-200 rounded-xl">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-blue-600" />
                         <div>
                           <div className="font-semibold text-gray-900">我的收藏</div>
                           <div className="text-xs text-gray-500 mt-1">
-                                                        {favoritesLoading ? '加载中...' : counts.favorites ? `${counts.favorites} 个` : '还没有收?'}
+                        {favoritesLoading ? '加载中...' : counts.favorites ? `${counts.favorites} 个` : '还没有收藏'}
                           </div>
                         </div>
                       </div>
@@ -615,30 +668,30 @@ export default function ProfilePage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                          还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的</Link> 试试吧
+                        <div className="card p-4 bg-gray-50 border-gray-200 rounded-xl text-gray-700">
+                          还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的地</Link> 试试吧
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="card p-4 bg-white border border-gray-200">
+                  <div className="card p-4 bg-white border border-gray-200 rounded-xl">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-blue-600" />
                         <div>
-                          <div className="font-semibold text-gray-900">最近足</div>
+                          <div className="font-semibold text-gray-900">最近足迹</div>
                           <div className="text-xs text-gray-500 mt-1">
                             {footprintsLoading
                               ? '加载中...'
                               : footprintTotal > 0 || footprints.length
-                                ? `?${footprintTotal || footprints.length} 条，下方展示最?${footprints.length} 条`
-                                : '还没有足迹（?AI 助手生成行程吧）'}
+                                ? `共 ${footprintTotal || footprints.length} 条，下方展示最近 ${footprints.length} 条`
+                                : '还没有足迹（去AI 助手生成行程吧）'}
                           </div>
                         </div>
                       </div>
                       <Link href="/itineraries" className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1">
-                        去行?<ArrowRight className="h-3 w-3" />
+                        去行程<ArrowRight className="h-3 w-3" />
                       </Link>
                     </div>
 
@@ -684,8 +737,8 @@ export default function ProfilePage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                          你还没有足迹。可以先?<Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 里生成行程?
+                        <div className="card p-4 bg-gray-50 border-gray-200 rounded-xl text-gray-700">
+                          你还没有足迹。可以先去<Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 里生成行程吧
                         </div>
                       )}
                     </div>
@@ -693,7 +746,7 @@ export default function ProfilePage() {
                 </div>
 
 
-                <div className="mt-6 card p-4 bg-gray-50 border-gray-200">
+                <div className="mt-6 card p-4 bg-gray-50 border-gray-200 rounded-xl">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="text-gray-700 text-sm">
                       修改昵称、旅行偏好与预算？前往编辑页一次性保存
@@ -722,7 +775,7 @@ export default function ProfilePage() {
                         <div className="flex items-start justify-between gap-4 flex-wrap">
                           <div>
                             <h2 className="text-xl font-bold text-gray-900">我的订单</h2>
-                            <p className="text-sm text-gray-500 mt-1">点击查看详情与商品明</p>
+                            <p className="text-sm text-gray-500 mt-1">点击查看详情与商品明细</p>
                           </div>
                           <div className="text-sm text-gray-500">{counts.orders}</div>
                         </div>
@@ -735,7 +788,7 @@ export default function ProfilePage() {
                               const orderId = o?.id ?? o?.order_no
                               const expanded = expandedOrderId === orderId
                               return (
-                                <div key={String(orderId)} className="card p-4 bg-white border border-gray-200">
+                                <div key={String(orderId)} className="card p-4 bg-white border border-gray-200 rounded-xl">
                                   <div className="flex items-start justify-between gap-4">
                                     <div className="min-w-0">
                                       <div className="text-sm text-gray-500">订单号：{o?.order_no || '无'}</div>
@@ -786,7 +839,7 @@ export default function ProfilePage() {
                             })}
                           </div>
                         ) : (
-                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 text-gray-700">暂无订单</div>
+                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 rounded-xl text-gray-700">暂无订单</div>
                         )}
                       </div>
                     ) : null}
@@ -854,8 +907,8 @@ export default function ProfilePage() {
                             ))}
                           </div>
                         ) : (
-                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                            还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的</Link> 试试吧
+                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 rounded-xl text-gray-700">
+                            还没有收藏。去 <Link className="underline text-blue-600" href="/destinations">发现目的地</Link> 试试吧
                           </div>
                         )}
                       </div>
@@ -866,7 +919,7 @@ export default function ProfilePage() {
                         <div className="flex items-start justify-between gap-4 flex-wrap">
                           <div>
                             <h2 className="text-xl font-bold text-gray-900">浏览足迹</h2>
-                            <p className="text-sm text-gray-500 mt-1">按时间线展示你最近浏览的目的</p>
+                            <p className="text-sm text-gray-500 mt-1">按时间线展示你最近浏览的目的地</p>
                           </div>
                           <div className="text-sm text-gray-500">{footprintTotal || footprints.length}</div>
                         </div>
@@ -918,7 +971,7 @@ export default function ProfilePage() {
                             ))}
                           </div>
                         ) : (
-                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 text-gray-700">
+                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 rounded-xl text-gray-700">
                             你还没有足迹。去 <Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 里生成行程吧
                           </div>
                         )}
@@ -943,26 +996,26 @@ export default function ProfilePage() {
                               <Link
                                 key={String(t.id)}
                                 href={`/itineraries/${t.id}`}
-                                className="block card p-4 bg-white border border-gray-200 hover:shadow-sm transition"
+                                className="block card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-sm transition"
                               >
                                 <div className="flex items-start justify-between gap-4">
                                   <div className="min-w-0">
-                                                                        <div className="font-semibold text-gray-900 truncate">{t.title || '未命名行?'}</div>
+                                                                        <div className="font-semibold text-gray-900 truncate">{t.title || '未命名行程'}</div>
                                     <div className="text-xs text-gray-500 mt-1">
                                       {t.start_date && t.end_date ? `${t.start_date} ~ ${t.end_date}` : t.status ? `状态：${t.status}` : ''}
                                     </div>
                                   </div>
                                   <div className="text-xs text-blue-600 font-semibold whitespace-nowrap">
-                                    查看详情 ?
+                                    查看详情 →
                                   </div>
                                 </div>
                               </Link>
                             ))}
                           </div>
                         ) : (
-                          <div className="mt-4 card p-4 bg-gray-50 border-gray-200 text-gray-700">
-                            还没有行程记录，?<Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 生成一个吧?
-                          </div>
+                        <div className="mt-4 card p-4 bg-gray-50 border-gray-200 rounded-xl text-gray-700">
+                          还没有行程记录，去<Link className="underline text-blue-600" href="/assistant">AI 助手</Link> 生成一个吧
+                        </div>
                         )}
                       </div>
                     ) : null}

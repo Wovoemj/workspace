@@ -1,5 +1,19 @@
 'use client'
 
+/**
+ * =====================================================
+ * 骨架屏卡片组件 (SkeletonCard)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 内容加载前的占位骨架屏组件
+ * - 提供多种变体：
+ *   - default: 通用骨架
+ *   - destination: 目的地卡片骨架
+ *   - product: 产品卡片骨架
+ * - 使用 CSS 动画模拟加载效果
+ */
+
 interface SkeletonCardProps {
   variant?: 'default' | 'destination' | 'product'
   className?: string

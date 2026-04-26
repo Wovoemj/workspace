@@ -1,8 +1,28 @@
 'use client'
 
+/**
+ * =====================================================
+ * PWA 安装提示组件 (InstallPrompt)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - Progressive Web App (PWA) 安装引导组件
+ * - 监听 beforeinstallprompt 事件，提示用户安装应用
+ * - 支持"安装"和"暂不"两个操作
+ * - 使用 localStorage 记录用户选择，避免重复提示
+ * 
+ * 技术细节：
+ * - 使用 Web Share API 进行安装
+ * - 延迟显示 3 秒，避免页面加载时弹窗
+ */
+
 import { useEffect, useState } from 'react'
 import { Download, X } from 'lucide-react'
 
+/**
+ * PWA 安装提示组件
+ * @description 提示用户将应用安装到主屏幕
+ */
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showBanner, setShowBanner] = useState(false)

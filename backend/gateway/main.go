@@ -6,6 +6,7 @@ import (
     "net/http"
     "net/http/httputil"
     "net/url"
+    "strings"
     "time"
 
     "github.com/gin-gonic/gin"
@@ -58,42 +59,59 @@ func (g *Gateway) SetupRoutes() {
     {
         // Product service proxy (景点数据)
         productGroup := api.Group("")
-        productGroup.Any("/destinations", g.proxyToService("product-service"))
-        productGroup.Any("/destinations/:id", g.proxyToService("product-service"))
-        productGroup.Any("/products", g.proxyToService("product-service"))
-        productGroup.Any("/products/:id", g.proxyToService("product-service"))
+        productGroup.Any("/destinations", g.proxyToService("product-service", ""))
+        productGroup.Any("/destinations/:id", g.proxyToService("product-service", ""))
+        productGroup.Any("/products", g.proxyToService("product-service", ""))
+        productGroup.Any("/products/:id", g.proxyToService("product-service", ""))
 
-        // User service proxy
+        // User service proxy - strip /api/users prefix
         userGroup := api.Group("/users")
-        userGroup.Any("/*path", g.proxyToService("user-service"))
+        userGroup.Any("/*path", g.proxyToService("user-service", "/api/users"))
 
         // Favorites proxy
-        api.Any("/favorites", g.proxyToService("user-service"))
-        api.Any("/favorites/*path", g.proxyToService("user-service"))
+        api.Any("/favorites", g.proxyToService("user-service", "/api/favorites"))
+        api.Any("/favorites/*path", g.proxyToService("user-service", "/api/favorites"))
 
         // Order service proxy
         orderGroup := api.Group("/orders")
-        orderGroup.Any("/*path", g.proxyToService("order-service"))
+        orderGroup.Any("/*path", g.proxyToService("order-service", "/api/orders"))
 
 		// AI service proxy
 		aiGroup := api.Group("/ai")
 		{
 			// 具体路由必须先注册，通配符路由后注册
-			aiGroup.Any("/chat", g.proxyToService("ai-service"))
+			aiGroup.Any("/chat", g.proxyToService("ai-service", "/api/ai"))
 
 		}
 
         // Recommendation service proxy
         recommendGroup := api.Group("/recommendations")
-        recommendGroup.Any("/*path", g.proxyToService("recommend-service"))
+        recommendGroup.Any("/*path", g.proxyToService("recommend-service", "/api/recommendations"))
 
         // Notification service proxy
         notificationGroup := api.Group("/notifications")
-        notificationGroup.Any("/*path", g.proxyToService("notification-service"))
+        notificationGroup.Any("/*path", g.proxyToService("notification-service", "/api/notifications"))
+
+        // Stats endpoint (临时实现)
+        api.GET("/stats", func(c *gin.Context) {
+            c.JSON(http.StatusOK, gin.H{
+                "success": true,
+                "stats": gin.H{
+                    "destinations": 0,
+                    "users": 0,
+                    "trips": 0,
+                    "comments": 0,
+                    "orders": 0,
+                    "footprints": 0,
+                    "pages": 0,
+                    "notifications": 0,
+                },
+            })
+        })
     }
 }
 
-func (g *Gateway) proxyToService(serviceName string) gin.HandlerFunc {
+func (g *Gateway) proxyToService(serviceName string, stripPrefix string) gin.HandlerFunc {
     return func(c *gin.Context) {
         serviceURL, exists := g.config.ServiceURLs[serviceName]
         if !exists {
@@ -116,8 +134,12 @@ func (g *Gateway) proxyToService(serviceName string) gin.HandlerFunc {
         // 创建反向代理
         proxy := httputil.NewSingleHostReverseProxy(target)
         
-        // 修改请求路径
         originalPath := c.Request.URL.Path
+        
+        // 替换路径前缀
+        if stripPrefix != "" {
+            c.Request.URL.Path = strings.Replace(c.Request.URL.Path, stripPrefix, "", 1)
+        }
         c.Request.URL.Host = target.Host
         c.Request.URL.Scheme = target.Scheme
         

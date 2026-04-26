@@ -1,10 +1,27 @@
 'use client'
 
+/**
+ * =====================================================
+ * 全局搜索组件 (GlobalSearch)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 全局搜索下拉框，支持搜索目的地和产品
+ * - 实时搜索（300ms防抖），显示搜索结果预览
+ * - 支持搜索历史记录（本地存储，最多10条）
+ * - 显示热门搜索推荐
+ * - 键盘快捷键支持（Enter搜索，Escape关闭）
+ * 
+ * 数据来源：
+ * - 后端 API: GET /api/search
+ */
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, X, Clock, TrendingUp, MapPin, Package, Loader2 } from 'lucide-react'
 
+/** 搜索结果项类型 */
 interface SearchResult {
   id: number
   name: string
@@ -18,6 +35,11 @@ interface GlobalSearchProps {
   className?: string
 }
 
+/**
+ * 全局搜索组件
+ * @description 带下拉结果的全局搜索框
+ * @param props - 组件属性
+ */
 export function GlobalSearch({ className = '' }: GlobalSearchProps) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)

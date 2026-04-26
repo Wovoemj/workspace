@@ -1,3 +1,22 @@
+/**
+ * =====================================================
+ * 类型定义模块 - 智能旅游助手数据类型接口
+ * =====================================================
+ * 
+ * 本模块定义了项目中使用的所有 TypeScript 接口类型，包括：
+ * - 用户相关：User, UserPreferences
+ * - 产品相关：Product, ProductMetadata
+ * - 行程相关：Itinerary, ItineraryDay, ItineraryActivity
+ * - 订单相关：Order, OrderItem
+ * - AI服务：AIConversation, Recommendation
+ * - 目的地评论：DestinationComment
+ * - 搜索过滤：SearchFilters
+ */
+
+/**
+ * 用户基本信息接口
+ * @description 存储用户账户信息、偏好设置和会员等级
+ */
 export interface User {
   id: string
   phone: string
@@ -11,6 +30,10 @@ export interface User {
   updated_at: string
 }
 
+/**
+ * 用户偏好设置接口
+ * @description 定义用户的旅行偏好，包括预算范围、旅行风格等
+ */
 export interface UserPreferences {
   destinations: string[]
   budget_range: {
@@ -22,6 +45,11 @@ export interface UserPreferences {
   interests: string[]
 }
 
+/**
+ * 旅游产品接口
+ * @description 表示机票、酒店、门票、体验等旅游产品
+ * @example  { type: 'hotel', name: '北京饭店', price: 500, location: { city: '北京' } }
+ */
 export interface Product {
   id: string
   type: 'flight' | 'hotel' | 'ticket' | 'experience'
@@ -46,6 +74,10 @@ export interface Product {
   review_count: number
 }
 
+/**
+ * 产品元数据接口
+ * @description 根据产品类型包含不同的扩展信息（机票/酒店/门票/体验）
+ */
 export interface ProductMetadata {
   // Flight specific
   airline?: string
@@ -77,6 +109,10 @@ export interface ProductMetadata {
   includes?: string[]
 }
 
+/**
+ * 旅行行程接口
+ * @description 表示用户规划的多日行程，包含每天的活动安排
+ */
 export interface Itinerary {
   id: string
   user_id: string
@@ -142,6 +178,10 @@ export interface Transportation {
   booking_reference?: string
 }
 
+/**
+ * 订单接口
+ * @description 表示用户的旅游产品订单，包含多个订单项
+ */
 export interface Order {
   id: string
   user_id: string
@@ -166,6 +206,10 @@ export interface OrderItem {
   booking_details: any
 }
 
+/**
+ * AI对话记录接口
+ * @description 存储用户与AI助手的对话历史
+ */
 export interface AIConversation {
   id: string
   user_id: string
@@ -188,6 +232,10 @@ export interface Recommendation {
   expires_at?: string
 }
 
+/**
+ * 应用通知接口
+ * @description 表示用户收到的系统通知
+ */
 export interface AppNotification {
   id: number
   user_id: number

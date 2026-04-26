@@ -1,15 +1,8 @@
-import { getRequestConfig } from 'next-intl/server'
-import { routing } from './i18n/routing'
+// Simplified i18n config - using static locale for now
+export const locale = 'zh-CN'
+export const locales = ['zh-CN', 'en', 'ja']
+export const defaultLocale = 'zh-CN'
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale
-
-  if (!locale || !routing.locales.includes(locale as any)) {
-    locale = routing.defaultLocale
-  }
-
-  return {
-    locale,
-    messages: (await import(`./i18n/messages/${locale}.json`)).default
-  }
-})
+export function getLocale() {
+  return locale
+}

@@ -1,9 +1,28 @@
 'use client'
 
+/**
+ * =====================================================
+ * 分享按钮组件 (ShareButton)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 多平台分享功能（复制链接、微信、微博等）
+ * - 支持移动端原生分享 API (Web Share API)
+ * - 微信分享显示二维码弹窗
+ * - 分享面板点击外部自动关闭
+ * 
+ * 分享渠道：
+ * - 复制链接（Clipboard API）
+ * - 微信（二维码）
+ * - 微博（跳转分享链接）
+ * - 海报生成（预留功能）
+ */
+
 import { useState, useRef, useEffect } from 'react'
 import { Share2, Copy, X, QrCode, MessageCircle } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
+/** 分享按钮属性接口 */
 interface ShareButtonProps {
   title: string
   description?: string
@@ -12,6 +31,16 @@ interface ShareButtonProps {
   type?: 'destination' | 'trip' | 'product'
 }
 
+/**
+ * 分享按钮组件
+ * @description 多平台分享功能组件
+ * @param props - 组件属性
+ * @param props.title - 分享标题
+ * @param props.description - 分享描述
+ * @param props.url - 分享链接（默认：当前页面URL）
+ * @param props.image - 分享图片（预留）
+ * @param props.type - 分享内容类型
+ */
 export function ShareButton({ 
   title, 
   description = '智能旅行助手', 
@@ -178,7 +207,7 @@ export function ShareButton({
           </div>
 
           {/* 移动端原生分享 */}
-          {typeof navigator !== 'undefined' && navigator.share && (
+          {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
             <div className="p-4 pt-0">
               <button
                 onClick={handleNativeShare}

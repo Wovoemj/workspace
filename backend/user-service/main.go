@@ -17,11 +17,14 @@ type Service struct {
 }
 type User struct {
 	ID            uint      `json:"id" gorm:"primaryKey"`
-	Phone         string    `json:"phone" gorm:"unique;not null"`
+	Username      string    `json:"username" gorm:"unique"`
+	Phone         string    `json:"phone" gorm:"unique"`
 	Email         string    `json:"email"`
 	Nickname      string    `json:"nickname"`
+	Password      string    `json:"-"`
 	AvatarURL     string    `json:"avatar_url"`
 	MembershipLevel int      `json:"membership_level"`
+	IsAdmin       bool      `json:"is_admin" gorm:"column:is_admin"`
 	Preferences   UserPreferences `json:"preferences" gorm:"type:jsonb"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
@@ -47,7 +50,8 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Phone    string `json:"phone" binding:"required"`
+	Phone    string `json:"phone"`
+	Username string `json:"username"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -168,16 +172,25 @@ func (s *Service) Login(c *gin.Context) {
 		return
 	}
 
-	// Find user
+	// Find user by phone or username
 	var user User
-	if err := s.db.Where("phone = ?", req.Phone).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+	query := s.db.Where("1=1")
+	if req.Phone != "" {
+		query = query.Where("phone = ?", req.Phone)
+	} else if req.Username != "" {
+		query = query.Where("username = ?", req.Username)
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Phone or username is required"})
+		return
+	}
+	if err := query.First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
 
 	// Check password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 		return
 	}
 
@@ -186,6 +199,7 @@ func (s *Service) Login(c *gin.Context) {
 	
 	s.logger.WithField("user_id", user.ID).Info("User logged in successfully")
 	c.JSON(http.StatusOK, gin.H{
+		"success": true,
 		"message": "Login successful",
 		"token":   token,
 		"user":    user,

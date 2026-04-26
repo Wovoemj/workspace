@@ -1,3 +1,36 @@
+/**
+ * =====================================================
+ * 管理后台 - 票务管理模块
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 产品/票务列表展示
+ * - 产品搜索（名称/分类）
+ * - 产品状态筛选（active/inactive）
+ * - 产品信息编辑
+ *   - 名称、副标题、描述
+ *   - 价格（原价/折扣价）
+ *   - 库存管理（总量/已售/可用）
+ *   - 预订类型（日期/时段）
+ *   - 封面图片
+ * - 上架/下架产品
+ * - 创建新产品
+ * - 刷新列表功能
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - AdminGuard: 管理员权限守卫
+ * 
+ * 【API 接口】
+ * - GET /api/products?status=xxx: 获取产品列表
+ * - POST /api/products: 创建产品
+ * - PUT /api/products/${id}: 更新产品
+ * - DELETE /api/products/${id}: 删除产品
+ * 
+ * 【状态管理】
+ * - useState: products, page, total, keyword, status, loading
+ * - useCallback: fetchProducts, saveProduct, toggleStatus, createProduct
+ */
 'use client'
 
 import { useEffect, useState } from 'react'

@@ -89,7 +89,7 @@
 ### 用户端Web应用 (`user-web/`)
 基于Next.js 14的用户端网站
 - **`src/app/`** - Next.js App Router页面
-  - **`page.tsx`** - 首页
+  - **`page.tsx`** - 首页  
   - **`destinations/`** - 景点列表和详情页面
   - **`trip/`** - 行程管理页面
   - **`assistant/`** - AI助手对话页面
@@ -574,4 +574,3 @@ NEXT_PUBLIC_MAPS_API_KEY=your-maps-api-key
 
 **文档维护**: 本文件结构说明应随项目发展持续更新，新增文件或目录变动需及时同步文档。
 
-**联系方式**: 如有文件结构相关问题，请联系开发团队。

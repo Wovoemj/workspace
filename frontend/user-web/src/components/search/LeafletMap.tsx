@@ -1,8 +1,26 @@
 'use client'
 
+/**
+ * =====================================================
+ * Leaflet 地图组件 (LeafletMap)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 基于 Leaflet 开源地图库的交互式地图组件
+ * - 支持在地图上标注多个产品/目的地位置
+ * - 点击标记显示详情弹窗
+ * - 自动适应所有标记的显示范围
+ * 
+ * 技术实现：
+ * - 动态加载 Leaflet JS/CSS（通过 unpkg CDN）
+ * - 使用 OpenStreetMap 瓦片图层
+ * - 支持选中状态联动（点击列表项定位到地图标记）
+ */
+
 import { useEffect, useMemo, useRef } from 'react'
 import type { CSSProperties } from 'react'
 
+/** 产品/地点数据结构 */
 type ProductLike = {
   id: string | number
   name?: string
@@ -83,6 +101,16 @@ type LeafletMapProps = {
   style?: CSSProperties
 }
 
+/**
+ * Leaflet 地图组件
+ * @description 展示产品/目的地位置的交互式地图
+ * @param props - 组件属性
+ * @param props.products - 产品列表（含经纬度）
+ * @param props.selectedId - 选中的产品ID
+ * @param props.onSelect - 选中回调
+ * @param props.heightClass - 地图高度样式
+ * @param props.style - 自定义样式
+ */
 export function LeafletMap({ products, selectedId, onSelect, heightClass = 'h-[560px]', style }: LeafletMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<any>(null)

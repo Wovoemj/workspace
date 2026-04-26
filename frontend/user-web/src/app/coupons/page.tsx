@@ -1,3 +1,30 @@
+/**
+ * =====================================================
+ * 优惠券中心模块 - 优惠券领取与管理
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 可领取优惠券列表展示
+ * - 已领取优惠券列表展示
+ * - 优惠券状态管理（可用/已使用/已过期）
+ * - 优惠券领取功能（需登录）
+ * - 优惠券详情展示（满减条件、有效期、剩余数量）
+ * - 折扣计算展示（固定金额/百分比）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * - couponApi: 优惠券 API 封装
+ * 
+ * 【API 接口】
+ * - couponApi.list(): 获取优惠券列表
+ * - couponApi.myList(): 获取用户已领取优惠券
+ * - couponApi.claim(id): 领取优惠券
+ * 
+ * 【状态管理】
+ * - useState: coupons(可用), userCoupons(已领取), loading
+ * - useCallback: loadCoupons, loadUserCoupons, claimCoupon
+ */
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
@@ -65,8 +92,8 @@ export default function CouponsPage() {
   const loadAvailable = useCallback(async () => {
     try {
       const res = await couponApi.available()
-      if (res.success) {
-        setAvailableCoupons(res.coupons || [])
+      if (res.data.success) {
+        setAvailableCoupons(res.data.coupons || [])
       }
     } catch (e) {
       console.error('加载优惠券失败', e)
@@ -77,8 +104,8 @@ export default function CouponsPage() {
     if (!isAuthenticated) return
     try {
       const res = await couponApi.my()
-      if (res.success) {
-        setMyCoupons(res.coupons || [])
+      if (res.data.success) {
+        setMyCoupons(res.data.coupons || [])
       }
     } catch (e) {
       console.error('加载我的优惠券失败', e)
@@ -102,12 +129,12 @@ export default function CouponsPage() {
     setClaiming(couponId)
     try {
       const res = await couponApi.claim(couponId)
-      if (res.success) {
+      if (res.data.success) {
         toast.success('领取成功')
         loadAvailable()
         loadMyCoupons()
       } else {
-        toast.error(res.error || '领取失败')
+        toast.error(res.data.error || '领取失败')
       }
     } catch (e: any) {
       toast.error(e.response?.data?.error || '领取失败')

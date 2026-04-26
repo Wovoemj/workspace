@@ -1,3 +1,23 @@
+/**
+ * =====================================================
+ * 热门目的地模块 - 高人气景点展示
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 热门目的地列表展示
+ * - 按评分/浏览量/收藏量排序
+ * - 目的地卡片：名称、城市、省份、评分、价格
+ * - 目的地类型图标：山景/城市/自然风光
+ * - 目的地详情跳转
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - DestinationCard: 目的地卡片组件
+ * 
+ * 【API 接口】
+ * - GET /api/destinations?sort=rating&limit=xxx: 按评分排序
+ * - GET /api/destinations?sort=popular: 按热度排序
+ */
 'use client'
 
 import { useEffect, useState } from 'react'

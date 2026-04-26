@@ -1,3 +1,46 @@
+/**
+ * =====================================================
+ * 产品详情页模块 - 旅游产品详细信息展示与预订
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 产品图库 Gallery 轮播展示
+ * - 四类标签徽章（机票✈️、酒店🏨、门票🎫、当地体验🎭）
+ * - 产品描述、标签、位置信息展示
+ * - 四 Tab 切换：概述 / 行程安排 / 用户评价 / 问答
+ * - 行程安排（根据产品类型动态生成：航班/酒店/门票/体验）
+ * - 用户评价：星级评分、文字、图片上传、评论列表
+ * - 问答模块：提问、官方回复、Q&A 列表
+ * - 日期选择器 + 分时预约时段选择
+ * - 数量选择器（含库存上限）
+ * - 价格实时计算（单价 × 数量）
+ * - 立即预订（创建订单跳转）
+ * - 收藏功能（仅支持目的地收藏）
+ * - 相关推荐产品（同城/高评分）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - ProductCard: 产品卡片组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/products/${id}: 获取产品详情
+ * - GET /api/products/${id}/reviews: 获取产品评论列表
+ * - POST /api/products/${id}/reviews: 提交用户评论（需登录）
+ * - GET /api/products/${id}/qa: 获取产品问答列表
+ * - POST /api/products/${id}/qa: 提交问题（需登录）
+ * - GET /api/tickets/products/${id}/inventory: 获取时间段库存
+ * - GET /api/products?status=active&sort=rating&destination=xxx: 获取相关推荐
+ * - GET /api/favorites: 获取收藏列表
+ * - POST /api/favorites: 添加/取消收藏（需登录）
+ * - POST /api/orders: 创建订单（需登录，模拟支付）
+ * 
+ * 【状态管理】
+ * - useState: product(产品数据), reviews(评论), questions(问答), galleryIndex
+ * - Tab 状态: overview | itinerary | reviews | qa
+ * - 预订状态: selectedDate, selectedTimeSlot, quantity, timeSlots
+ * - 收藏状态: isFavorited, favoritesLoading
+ */
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'

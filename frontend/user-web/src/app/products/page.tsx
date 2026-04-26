@@ -1,3 +1,28 @@
+/**
+ * =====================================================
+ * 产品列表页模块 - 旅行产品浏览与筛选
+ * =====================================================
+ * 功能说明：
+ *   - 展示所有旅行产品（门票、酒店、体验等）
+ *   - 多维度筛选：类别、价格区间、时长、适合人群
+ *   - 排序功能：智能推荐、人气、评分、价格
+ *   - 移动端适配的筛选面板
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - components/ProductCard：产品卡片
+ *   - lucide-react：图标库
+ *
+ * 数据来源：
+ *   - GET /api/products：产品列表
+ *     - 参数：page, per_page, status, category, sort_by, min_price, max_price
+ *
+ * 筛选选项：
+ *   - CATEGORIES：8种产品类别
+ *   - PRICE_RANGES：4档价格区间
+ *   - TAG_OPTIONS：8种适合人群标签
+ */
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -12,43 +37,81 @@ import {
 import { ProductCard } from '@/components/ProductCard'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { Product } from '@/types'
 
-interface Product {
-  id: number
+// API 返回的产品类型（可能有额外字段）
+interface ApiProduct {
+  id: number | string
   name: string
   subtitle?: string
   description?: string
-  category: string
-  base_price: number
+  category?: string
+  base_price?: number
   discount_price?: number
   cover_image?: string
   images?: string[]
   rating?: number
   review_count?: number
   sold_count?: number
-  location?: string
+  location?: string | { city: string; country: string }
   duration?: string
   tags?: string[]
-  inventory_total: number
-  inventory_sold: number
-  status: string
-  created_at: string
-  updated_at: string
-  type?: string
+  inventory_total?: number
+  inventory_sold?: number
+  status?: string
+  created_at?: string
+  updated_at?: string
+  type?: Product['type']
   destination_id?: number
   booking_type?: string
   need_date?: boolean
   need_time?: boolean
+  price?: number
+  original_price?: number
+  inventory?: number
+  metadata?: Product['metadata']
 }
 
 interface ApiResponse {
   success: boolean
-  products: Product[]
+  products: ApiProduct[]
   total: number
   page: number
   per_page: number
   total_pages: number
 }
+
+// 将 API 产品转换为 ProductCard 需要的格式
+function toProductCardProduct(p: ApiProduct): Product {
+  return {
+    id: String(p.id),
+    type: p.type || 'ticket',
+    name: p.name,
+    description: p.description || p.subtitle || '',
+    price: p.price || p.base_price || p.discount_price || 0,
+    original_price: p.original_price || p.base_price,
+    inventory: p.inventory ?? p.inventory_total ?? 0,
+    tags: p.tags || [],
+    metadata: p.metadata || {},
+    status: (p.status === 'active' || p.status === 'inactive' || p.status === 'sold_out') 
+      ? p.status 
+      : p.status === 'active' ? 'active' : 'inactive',
+    images: p.images || [p.cover_image].filter(Boolean) as string[],
+    location: typeof p.location === 'string' 
+      ? { city: p.location, country: '中国', coordinates: { lat: 0, lng: 0 } }
+      : p.location 
+        ? { city: p.location.city || '', country: p.location.country || '中国', coordinates: { lat: 0, lng: 0 } }
+        : { city: '', country: '中国', coordinates: { lat: 0, lng: 0 } },
+    rating: p.rating || 0,
+    review_count: p.review_count || 0,
+  }
+}
+
+// 图标组件
+const TicketIcon = () => <div className="w-5 h-5">🎫</div>
+const HotelIcon = () => <div className="w-5 h-5">🏨</div>
+const TrainIcon = () => <div className="w-5 h-5">🚄</div>
+const FoodIcon = () => <div className="w-5 h-5">🍜</div>
 
 // 筛选选项
 const CATEGORIES = [
@@ -102,16 +165,10 @@ const TAG_OPTIONS = [
   { id: 'cultural', label: '文化体验', color: 'bg-amber-100 text-amber-800' }
 ]
 
-// 图标组件
-const TicketIcon = () => <div className="w-5 h-5">🎫</div>
-const HotelIcon = () => <div className="w-5 h-5">🏨</div>
-const TrainIcon = () => <div className="w-5 h-5">🚄</div>
-const FoodIcon = () => <div className="w-5 h-5">🍜</div>
-
 export default function ProductsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ApiProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -159,15 +216,27 @@ export default function ProductsPage() {
       }
 
       const response = await fetch(`/api/products?${params}`)
+      
+      if (!response.ok) {
+        console.error('获取产品列表失败:', response.status)
+        setProducts([])
+        setTotal(0)
+        setTotalPages(0)
+        return
+      }
+      
       const data: ApiResponse = await response.json()
       
       if (data.success) {
-        setProducts(data.products)
-        setTotal(data.total)
-        setTotalPages(Math.ceil(data.total / 12))
+        setProducts(data.products || [])
+        setTotal(data.total || 0)
+        setTotalPages(Math.ceil((data.total || 0) / 12))
       }
     } catch (error) {
       console.error('获取产品列表失败:', error)
+      setProducts([])
+      setTotal(0)
+      setTotalPages(0)
     } finally {
       setLoading(false)
     }
@@ -494,7 +563,7 @@ export default function ProductsPage() {
                   {products.map(product => (
                     <ProductCard 
                       key={product.id} 
-                      product={product}
+                      product={toProductCardProduct(product)}
                       onClick={() => router.push(`/products/${product.id}`)}
                     />
                   ))}

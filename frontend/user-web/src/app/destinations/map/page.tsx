@@ -1,8 +1,32 @@
+/**
+ * =====================================================
+ * 目的地地图模块 - 地图交互展示
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 目的地地图展示（动态加载 Mapbox/Leaflet）
+ * - 地图缩放控制
+ * - 地图定位功能
+ * - 目的地标记点展示
+ * - 标记点击显示详情弹窗
+ * - 目的地搜索功能
+ * - 地图/卫星图层切换
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - 动态导入地图组件（避免 SSR）
+ * 
+ * 【地图功能】
+ * - 缩放控制（ZoomIn/ZoomOut）
+ * - 定位当前城市
+ * - 点击标记查看目的地信息
+ * - 目的地详情弹窗
+ */
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import AMapLoader from '@amap/amap-jsapi-loader'
+import dynamic from 'next/dynamic'
 import { 
   MapPin, 
   Search, 
@@ -35,18 +59,7 @@ interface MapInstance {
   add: (marker: any) => void
   remove: (marker: any) => void
   getMap?: () => any
-}
-
-// 抑制高德地图 SDK 错误
-if (typeof window !== 'undefined') {
-  const originalConsoleError = console.error
-  console.error = (...args: any[]) => {
-    const message = args[0]?.toString?.() || ''
-    if (message.includes('stadium') || message.includes('AMap') || message.includes('高德')) {
-      return
-    }
-    originalConsoleError.apply(console, args)
-  }
+  setFitView?: () => void
 }
 
 export default function DestinationMapPage() {
@@ -66,42 +79,45 @@ export default function DestinationMapPage() {
   useEffect(() => {
     if (!mapContainerRef.current) return
 
-    AMapLoader.load({
-      key: 'd5d03e5e0e8e5e0e8e5e0e8e5e0e8e5e', // 高德地图 Key
-      version: '2.0',
-      plugins: ['AMap.Geolocation', 'AMap.Geocoder']
-    }).then((AMap) => {
-      const mapInstance = new AMap.Map(mapContainerRef.current!, {
-        viewMode: '2D',
-        zoom: 4,
-        center: [105, 36], // 中国中心
-        mapStyle: mapType === 'satellite' 
-          ? 'amap://styles/satellite' 
-          : 'amap://styles/normal'
+    // 动态导入 AMapLoader 以避免 SSR 问题
+    import('@amap/amap-jsapi-loader').then(({ default: AMapLoader }) => {
+      AMapLoader.load({
+        key: 'd5d03e5e0e8e5e0e8e5e0e8e5e0e8e5e', // 高德地图 Key
+        version: '2.0',
+        plugins: ['AMap.Geolocation', 'AMap.Geocoder']
+      }).then((AMap: any) => {
+        const mapInstance = new AMap.Map(mapContainerRef.current!, {
+          viewMode: '2D',
+          zoom: 4,
+          center: [105, 36], // 中国中心
+          mapStyle: mapType === 'satellite' 
+            ? 'amap://styles/satellite' 
+            : 'amap://styles/normal'
+        })
+
+        mapRef.current = mapInstance
+        setMap(mapInstance as unknown as MapInstance)
+        setLoading(false)
+
+        // 定位用户当前位置
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { longitude, latitude } = position.coords
+              setUserLocation([longitude, latitude])
+              // 定位到用户附近
+              mapInstance.setCenter([longitude, latitude])
+              mapInstance.setZoom(10)
+            },
+            () => {
+              console.log('定位失败')
+            }
+          )
+        }
+      }).catch((e: any) => {
+        console.error('地图加载失败:', e)
+        setLoading(false)
       })
-
-      mapRef.current = mapInstance
-      setMap(mapInstance as unknown as MapInstance)
-      setLoading(false)
-
-      // 定位用户当前位置
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { longitude, latitude } = position.coords
-            setUserLocation([longitude, latitude])
-            // 定位到用户附近
-            mapInstance.setCenter([longitude, latitude])
-            mapInstance.setZoom(10)
-          },
-          () => {
-            console.log('定位失败')
-          }
-        )
-      }
-    }).catch((e) => {
-      console.error('地图加载失败:', e)
-      setLoading(false)
     })
 
     return () => {
@@ -176,7 +192,7 @@ export default function DestinationMapPage() {
 
     // 自动调整视野
     if (destinations.length > 1) {
-      map.setFitView()
+      map.setFitView?.()
     }
   }, [map, destinations])
 

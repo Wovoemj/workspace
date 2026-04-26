@@ -1,3 +1,39 @@
+/**
+ * =====================================================
+ * 目的地详情页模块 - 景点详细信息展示
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 目的地基础信息展示（名称、评分、门票价格、开放时间）
+ * - 场馆名片 HeroCard 组件展示
+ * - 必看清单 QuickGlance 亮点推荐
+ * - 一日游时间轴 Timeline 行程规划
+ * - 实用锦囊 TipsAccordion 游玩攻略
+ * - 周边联动 NearbyMap 地理信息展示
+ * - 用户评论 CommentSection 评论区
+ * - 分享功能 ShareButton
+ * - 足迹记录（自动记录浏览历史）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - HeroCard: 场馆名片组件
+ * - QuickGlance: 亮点展示组件
+ * - Timeline: 时间轴行程组件
+ * - TipsAccordion: 实用锦囊组件
+ * - NearbyMap: 周边地图组件（动态加载）
+ * - CommentSection: 评论区域组件
+ * - ShareButton: 分享按钮组件
+ * - DestinationDetailSkeleton: 加载骨架屏
+ * 
+ * 【API 接口】
+ * - GET /api/destinations/${id}: 获取目的地详情（1小时缓存）
+ * - GET /api/destinations/${id}/recommendations: 获取推荐数据（亮点、时间轴、锦囊）
+ * - POST /api/footprints: 记录用户足迹（需登录）
+ * 
+ * 【状态管理】
+ * - useState: item(目的地数据), recommendations(推荐数据), loading/error状态
+ * - 登录用户自动记录足迹到 /api/footprints
+ */
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -5,7 +41,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
-import { Loader2, MapPin, Star, ArrowLeft, Clock, MessageSquare, RotateCcw } from 'lucide-react'
+import { Loader2, MapPin, Star, ArrowLeft, Clock, Info, Ticket } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useUserStore } from '@/store'
 import type { DestinationComment } from '@/types'
@@ -15,8 +51,16 @@ import HeroCard from '@/components/HeroCard'
 import QuickGlance from '@/components/QuickGlance'
 import Timeline from '@/components/Timeline'
 import TipsAccordion from '@/components/TipsAccordion'
-import NearbyMap from '@/components/NearbyMap'
 import { ShareButton } from '@/components/ShareButton'
+import CommentSection from '@/components/CommentSection'
+import { DestinationDetailSkeleton } from '@/components/LoadingSkeletons'
+import dynamic from 'next/dynamic'
+
+// 动态导入 NearbyMap，避免 SSR 时访问 window
+const NearbyMap = dynamic(() => import('@/components/NearbyMap').then(mod => mod.default), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center"><Loader2 className="animate-spin" /></div>
+})
 
 type Destination = {
   id: number
@@ -81,20 +125,34 @@ export default function DestinationDetailPage({ params }: { params: { id: string
   const [recommendations, setRecommendations] = useState<Recommendations | null>(null)
   const [recLoading, setRecLoading] = useState(true)
 
-  const [comments, setComments] = useState<DestinationComment[]>([])
-  const [commentsLoading, setCommentsLoading] = useState(true)
-  const [commentsError, setCommentsError] = useState<string | null>(null)
-  const [commentText, setCommentText] = useState('')
-
   useEffect(() => {
     if (!params.id) return
     let cancelled = false
+    
     async function run() {
       try {
         setLoading(true)
         setError(null)
-        const dest = await getDestination(params.id)
-        if (!cancelled) setItem(dest)
+        
+        // 并行加载景点详情和推荐数据
+        const [destRes, recRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}/recommendations`)
+        ])
+        
+        const destData = await destRes.json()
+        const recData = await recRes.json()
+        
+        if (!cancelled) {
+          if (destData.success) {
+            setItem(destData.destination)
+          } else {
+            setError(destData.error || '加载失败')
+          }
+          if (recData.success) {
+            setRecommendations(recData.recommendations)
+          }
+        }
 
         // 记录足迹（登录用户）
         try {
@@ -121,98 +179,6 @@ export default function DestinationDetailPage({ params }: { params: { id: string
     }
   }, [params.id])
 
-  // 获取推荐数据
-  useEffect(() => {
-    if (!params.id) return
-    let cancelled = false
-    
-    async function loadRecommendations() {
-      setRecLoading(true)
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}/recommendations`)
-        const data = await res.json()
-        if (!cancelled && data.success) {
-          setRecommendations(data.recommendations)
-        }
-      } catch (e) {
-        console.error('加载推荐数据失败:', e)
-      } finally {
-        if (!cancelled) setRecLoading(false)
-      }
-    }
-    
-    loadRecommendations()
-    return () => {
-      cancelled = true
-    }
-  }, [params.id])
-
-  const loadComments = async () => {
-    if (!params.id) return
-    setCommentsLoading(true)
-    setCommentsError(null)
-    try {
-      const res = await fetch(`/api/destinations/${params.id}/comments?limit=50`, { cache: 'no-store' })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data?.success) throw new Error(data?.error || `HTTP ${res.status}`)
-      setComments((data?.comments ?? []) as DestinationComment[])
-    } catch (e: any) {
-      const msg = e?.message || '评论加载失败'
-      setCommentsError(msg)
-      toast.error(msg)
-    } finally {
-      setCommentsLoading(false)
-    }
-  }
-
-  // 简单轮询实现"实时评论"效果
-  useEffect(() => {
-    if (!params.id) return
-    let t: number | undefined
-    loadComments().catch(() => {})
-    t = window.setInterval(() => {
-      loadComments().catch(() => {})
-    }, 8000)
-    return () => {
-      if (t) window.clearInterval(t)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id])
-
-  const submitComment = async () => {
-    if (!params.id) return
-    if (!isAuthenticated) {
-      toast.error('请先登录再发表评论')
-      router.push('/login')
-      return
-    }
-    const token = localStorage.getItem('auth_token')
-    if (!token) {
-      toast.error('未找到登录 token，请重新登录')
-      router.push('/login')
-      return
-    }
-    const content = commentText.trim()
-    if (!content) {
-      toast.error('评论内容不能为空')
-      return
-    }
-    try {
-      const res = await fetch(`/api/destinations/${params.id}/comments`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data?.success) throw new Error(data?.error || `HTTP ${res.status}`)
-      setCommentText('')
-      toast.success('评论发布成功')
-      await loadComments()
-    } catch (e: any) {
-      toast.error(e?.message || '发布评论失败')
-    }
-  }
-
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -225,12 +191,7 @@ export default function DestinationDetailPage({ params }: { params: { id: string
             </Link>
           </div>
 
-          {loading && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>加载中…</span>
-            </div>
-          )}
+          {loading && <DestinationDetailSkeleton />}
           {error && <div className="card p-4 border-red-200 bg-red-50 text-red-700">加载失败：{error}</div>}
 
           {!loading && !error && item && (
@@ -268,28 +229,52 @@ export default function DestinationDetailPage({ params }: { params: { id: string
               />
 
               {/* 简介与门票卡片 */}
-              <div className="card p-6 mt-6">
-                <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                  <div className="flex-1">
-                    <h2 className="text-h2 text-gray-900 mb-4">简介</h2>
-                    <p className="text-body text-gray-700 leading-relaxed">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                {/* 简介区域 */}
+                <div className="lg:col-span-2 card p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                      <Info className="w-5 h-5 text-white" />
+                    </div>
+                    <h2 className="text-h2 text-gray-900">景点简介</h2>
+                  </div>
+                  <div className="prose prose-gray max-w-none">
+                    <p className="text-body text-gray-700 leading-relaxed whitespace-pre-wrap">
                       {item.description?.replace(/\[citation:\d+\]/g, '') || '暂无简介'}
                     </p>
                   </div>
-                  <div className="md:w-72">
-                    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                      <div className="text-small text-gray-600">门票</div>
-                      <div className="mt-2 text-3xl font-bold text-primary">
-                        {formatPriceStart(item.ticket_price)}
+                </div>
+                
+                {/* 门票预订卡片 */}
+                <div className="card overflow-hidden">
+                  <div className="bg-gradient-to-br from-primary-600 to-primary-700 p-6 text-white">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Ticket className="w-5 h-5" />
+                      <span className="text-sm opacity-90">门票预订</span>
+                    </div>
+                    <div className="text-3xl font-bold">
+                      {formatPriceStart(item.ticket_price)}
+                    </div>
+                    <p className="text-xs opacity-75 mt-1">起/人均</p>
+                  </div>
+                  <div className="p-5">
+                    <Link 
+                      className="block w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl text-center transition-all duration-200 shadow-md hover:shadow-lg"
+                      href="/assistant"
+                    >
+                      让 AI 规划行程
+                    </Link>
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>{item.city} · {item.province}</span>
                       </div>
-                      <div className="mt-6 flex gap-3">
-                        <Link className="btn btn-primary flex-1" href="/assistant">
-                          让 AI 规划行程
-                        </Link>
-                      </div>
-                      <div className="mt-4 text-tiny text-gray-500">
-                        数据来源：后端 `/api/destinations/{item.id}`
-                      </div>
+                      {item.open_time && (
+                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{item.open_time}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -325,79 +310,11 @@ export default function DestinationDetailPage({ params }: { params: { id: string
                 destinationName={item.name}
               />
 
-              {/* 评论区域保持不变 */}
-              <div className="card p-6 mt-6">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">实时评论</h3>
-                </div>
-
-                {commentsLoading ? (
-                  <div className="mt-4 space-y-3">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="card p-4 bg-white">
-                        <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3" />
-                        <div className="mt-2 h-3 bg-gray-200 rounded animate-pulse w-2/3" />
-                        <div className="mt-4 h-14 bg-gray-200 rounded animate-pulse" />
-                      </div>
-                    ))}
-                  </div>
-                ) : commentsError ? (
-                  <div className="mt-3 card p-4 border-red-200 bg-red-50 text-red-700">
-                    <div className="font-semibold">评论加载失败</div>
-                    <div className="text-sm opacity-90 mt-1">{commentsError}</div>
-                    <div className="mt-4 flex gap-3 flex-wrap">
-                      <button className="btn btn-outline" onClick={() => loadComments()} type="button">
-                        <RotateCcw className="h-4 w-4" />
-                        重试
-                      </button>
-                    </div>
-                  </div>
-                ) : comments.length === 0 ? (
-                  <div className="mt-3 card p-4 text-gray-600 text-sm">
-                    暂无评论。可以先发一条，分享你的旅行体验。
-                  </div>
-                ) : (
-                  <div className="mt-4 space-y-3">
-                    {comments.map((c) => (
-                      <div key={c.id} className="card p-4 bg-white">
-                        <div className="flex items-start justify-between gap-4 flex-wrap">
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">
-                              {c.user?.nickname || '匿名用户'}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {c.created_at ? new Date(c.created_at).toLocaleString() : ''}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-gray-700 mt-3 whitespace-pre-wrap break-words">{c.content}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-6 card p-4 bg-gray-50">
-                  <div className="text-sm font-semibold text-gray-900">发表评论</div>
-                  {!isAuthenticated && (
-                    <div className="text-sm text-gray-600 mt-2">
-                      请先 <Link className="underline text-blue-600" href="/login">登录</Link>。
-                    </div>
-                  )}
-                  <textarea
-                    className="input bg-white w-full mt-3 min-h-[92px] resize-y"
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="写下你的旅行体验/建议…"
-                    disabled={!isAuthenticated}
-                  />
-                  <div className="mt-3 flex justify-end">
-                    <button className="btn btn-primary" onClick={submitComment} disabled={!isAuthenticated}>
-                      发布评论
-                    </button>
-                  </div>
-                </div>
-              </div>
+              {/* 评论区域 - 新版精美样式 */}
+              <CommentSection
+                destinationId={item.id}
+                destinationName={item.name}
+              />
             </>
           )}
         </div>

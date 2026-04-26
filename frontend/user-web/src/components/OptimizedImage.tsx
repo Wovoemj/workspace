@@ -1,8 +1,28 @@
 'use client'
 
+/**
+ * =====================================================
+ * 优化图片组件 (OptimizedImage)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 图片加载优化组件
+ * - 支持响应式图片 srcset
+ * - 支持 WebP 格式自动转换
+ * - 支持多种占位符效果（blur、shimmer、empty）
+ * - 自动回退机制（加载失败时显示占位图）
+ * 
+ * 优化特性：
+ * - 懒加载（默认）/ 优先加载（可选）
+ * - 渐进式显示（骨架屏 → 模糊图 → 清晰图）
+ * - 自动生成多尺寸 srcset
+ * - WebP 格式支持检测
+ */
+
 import { useState, useMemo, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 
+/** 优化图片组件属性 */
 interface OptimizedImageProps {
   src: string
   alt: string
@@ -83,6 +103,10 @@ function getLQIPUrl(src: string): string {
   return url.toString()
 }
 
+/**
+ * 优化图片主组件
+ * @description 带响应式、懒加载、WebP 支持的优化图片组件
+ */
 export function OptimizedImage({
   src,
   alt,

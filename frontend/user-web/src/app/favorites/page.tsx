@@ -1,3 +1,29 @@
+/**
+ * =====================================================
+ * 收藏页模块 - 用户收藏目的地管理
+ * =====================================================
+ * 功能说明：
+ *   - 展示用户收藏的目的地列表
+ *   - 取消收藏功能
+ *   - 添加示例收藏（测试用）
+ *   - 跳转查看目的地详情
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - store/index：Zustand 用户状态管理
+ *   - lib/media：媒体资源处理
+ *   - react-hot-toast：消息提示
+ *
+ * 数据来源：
+ *   - GET /api/favorites：收藏列表（需认证）
+ *   - POST /api/favorites：添加收藏
+ *   - DELETE /api/favorites/{id}：删除收藏
+ *
+ * 状态管理：
+ *   - localStorage：JWT Token
+ *   - useUserStore：登录状态
+ */
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'

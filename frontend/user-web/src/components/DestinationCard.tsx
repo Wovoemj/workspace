@@ -1,5 +1,21 @@
 'use client'
 
+/**
+ * =====================================================
+ * 目的地卡片组件 (DestinationCard)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 显示目的地卡片，包含图片、名称、城市、评分等信息
+ * - 支持响应式图片加载（srcset）和懒加载
+ * - 自动生成目的地标签（如"5A景区"、"热门"等）
+ * 
+ * 使用场景：
+ * - 首页目的地推荐列表
+ * - 目的地搜索结果列表
+ * - 收藏目的地展示
+ */
+
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { MapPin, Star } from 'lucide-react'
@@ -7,6 +23,9 @@ import { formatRating, shouldShowRating } from '@/lib/display'
 import { resolveCoverSrc } from '@/lib/media'
 import { deriveDestinationTags } from '@/lib/destinationTags'
 
+/**
+ * 目的地卡片数据项类型
+ */
 export type DestinationCardItem = {
   id: number
   name: string
@@ -26,7 +45,12 @@ interface DestinationCardProps {
   priority?: boolean
 }
 
-// 生成图片的响应式 srcset
+/**
+ * 生成响应式图片 srcset
+ * @description 根据基础图片URL生成多尺寸的 srcset，支持响应式图片加载
+ * @param baseSrc - 基础图片URL
+ * @returns srcset 字符串，用于 <img> 标签
+ */
 function generateSrcSet(baseSrc: string): string {
   if (!baseSrc || baseSrc.startsWith('data:') || baseSrc.includes('placeholder')) {
     return ''
@@ -47,6 +71,15 @@ function generateSrcSet(baseSrc: string): string {
     .join(', ')
 }
 
+/**
+ * 目的地卡片主组件
+ * @description 展示目的地信息的卡片组件，包含图片、名称、城市、评分和标签
+ * @param props - 组件属性
+ * @param props.destination - 目的地数据
+ * @param props.className - 自定义样式类
+ * @param props.imageHeightClass - 移动端图片高度
+ * @param props.priority - 是否优先加载（用于首屏）
+ */
 export function DestinationCard({ 
   destination: d, 
   className = '', 

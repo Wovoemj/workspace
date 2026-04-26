@@ -335,7 +335,9 @@ from models import (
     Notification, UserFootprint, Product, DestinationComment,
     Page, SiteConfig, Menu, Order, OrderItem, ProductQA,
     TravelNote, TravelNoteLike, Coupon, UserCoupon,
-    SupportTicket, TicketReply
+    SupportTicket, TicketReply,
+    AIConversation, TravelPlan, PlanItem,
+    Comment
 )
 # 构建 CORS 白名单
 _cors_origins = [
@@ -592,15 +594,38 @@ def get_current_user():
 
 # 积分相关 API
 def get_level_info(points):
-    """根据积分获取等级信息"""
-    if points >= 20000:
-        return {'level': 4, 'name': '铂金会员', 'icon': '💎', 'next_level': None, 'next_points': None}
-    elif points >= 5000:
-        return {'level': 3, 'name': '黄金会员', 'icon': '🌟', 'next_level': 4, 'next_points': 20000}
+    """根据积分获取等级信息（10级会员体系）"""
+    # 会员等级体系：LV1-LV10
+    # LV1 普通会员: 0-499分
+    # LV2 铜牌会员: 500-999分
+    # LV3 银牌会员: 1000-1999分
+    # LV4 玉牌会员: 2000-3999分
+    # LV5 金牌会员: 4000-7999分
+    # LV6 钻石会员: 8000-14999分
+    # LV7 白金会员: 15000-29999分
+    # LV8 皇冠会员: 30000-49999分
+    # LV9 黑金会员: 50000-99999分
+    # LV10 至尊VIP: 100000+分
+    if points >= 100000:
+        return {'level': 10, 'name': '至尊VIP', 'icon': '👑', 'next_level': None, 'next_points': None}
+    elif points >= 50000:
+        return {'level': 9, 'name': '黑金会员', 'icon': '🖤', 'next_level': 10, 'next_points': 100000}
+    elif points >= 30000:
+        return {'level': 8, 'name': '皇冠会员', 'icon': '🏆', 'next_level': 9, 'next_points': 50000}
+    elif points >= 15000:
+        return {'level': 7, 'name': '白金会员', 'icon': '💠', 'next_level': 8, 'next_points': 30000}
+    elif points >= 8000:
+        return {'level': 6, 'name': '钻石会员', 'icon': '💎', 'next_level': 7, 'next_points': 15000}
+    elif points >= 4000:
+        return {'level': 5, 'name': '金牌会员', 'icon': '🥇', 'next_level': 6, 'next_points': 8000}
+    elif points >= 2000:
+        return {'level': 4, 'name': '玉牌会员', 'icon': '💚', 'next_level': 5, 'next_points': 4000}
     elif points >= 1000:
-        return {'level': 2, 'name': '白银会员', 'icon': '⭐', 'next_level': 3, 'next_points': 5000}
+        return {'level': 3, 'name': '银牌会员', 'icon': '🥈', 'next_level': 4, 'next_points': 2000}
+    elif points >= 500:
+        return {'level': 2, 'name': '铜牌会员', 'icon': '🥉', 'next_level': 3, 'next_points': 1000}
     else:
-        return {'level': 1, 'name': '普通会员', 'icon': '🎯', 'next_level': 2, 'next_points': 1000}
+        return {'level': 1, 'name': '普通会员', 'icon': '🎯', 'next_level': 2, 'next_points': 500}
 
 
 @app.route('/api/users/me/points', methods=['GET'])
@@ -629,9 +654,21 @@ def get_user_points():
         # 计算距离下一级还需要多少积分
         progress = 0
         if level_info['next_points']:
-            prev_points = {'铂金': 5000, '黄金': 1000, '白银': 0}
-            prev = prev_points.get(level_info['name'].replace('会员', ''), 0)
+            # 各等级所需积分
+            level_thresholds = {
+                1: 0, 2: 500, 3: 1000, 4: 2000, 5: 4000,
+                6: 8000, 7: 15000, 8: 30000, 9: 50000, 10: 100000
+            }
+            current_level = level_info['level']
+            prev = level_thresholds.get(current_level, 0)
             progress = int((points - prev) / (level_info['next_points'] - prev) * 100)
+        
+        # 等级名称映射
+        level_names = {
+            1: '普通会员', 2: '铜牌会员', 3: '银牌会员', 4: '玉牌会员',
+            5: '金牌会员', 6: '钻石会员', 7: '白金会员', 8: '皇冠会员',
+            9: '黑金会员', 10: '至尊VIP'
+        }
         
         return jsonify({
             'success': True,
@@ -640,7 +677,7 @@ def get_user_points():
             'level_name': level_info['name'],
             'level_icon': level_info['icon'],
             'next_level': level_info.get('next_level'),
-            'next_level_name': {3: '黄金会员', 4: '铂金会员'}.get(level_info.get('next_level', 0), ''),
+            'next_level_name': level_names.get(level_info.get('next_level', 0), ''),
             'next_points': level_info.get('next_points'),
             'progress': progress
         })
@@ -831,8 +868,12 @@ def api_user_register():
         return jsonify({"success": False, "error": "昵称为必填"}), 400
     if not username:
         return jsonify({"success": False, "error": "用户名为必填"}), 400
-    if not password or len(password) < 8:
-        return jsonify({"success": False, "error": "密码至少8位，需包含大小写字母和数字"}), 400
+    if not password:
+        return jsonify({"success": False, "error": "密码为必填"}), 400
+    if len(password) < 8:
+        return jsonify({"success": False, "error": "密码至少8位"}), 400
+    if not re.search(r'[a-z]', password) or not re.search(r'[A-Z]', password) or not re.search(r'\d', password):
+        return jsonify({"success": False, "error": "密码需包含大小写字母和数字"}), 400
 
     # 检查邮箱是否已存在
     if User.query.filter_by(email=email).first():
@@ -1101,13 +1142,13 @@ def get_destinations_metadata():
          .order_by(db.desc('count'))\
          .limit(100).all()
         
-        # 获取所有省份列表
+        # 获取所有省份列表（按名称A-Z排序）
         province_stats = db.session.query(
             Destination.province,
             db.func.count(Destination.id).label('count')
         ).filter(Destination.province.isnot(None), Destination.province != '')\
          .group_by(Destination.province)\
-         .order_by(db.desc('count'))\
+         .order_by(Destination.province.asc())\
          .limit(50).all()
         
         # 获取评分分布
@@ -1591,6 +1632,11 @@ def get_user_id_from_token():
         return payload.get('user_id')
     except:
         return None
+
+
+def get_current_user_id():
+    """获取当前用户ID（兼容已登录和未登录用户）"""
+    return get_user_id_from_token()
 
 
 @app.route('/api/favorites', methods=['GET'])
@@ -2167,8 +2213,66 @@ def get_stats():
         # 计算平均评分，保留2位小数
         'avg_rating': round(Destination.query.with_entities(db.func.avg(Destination.rating)).scalar() or 0, 2),
         # 计算总收入（所有景点门票价格总和），保留2位小数
-        'total_revenue': round(Destination.query.with_entities(db.func.sum(Destination.ticket_price)).scalar() or 0, 2)
+        'total_revenue': round(Destination.query.with_entities(db.func.sum(Destination.ticket_price)).scalar() or 0, 2),
+        # 补充管理员页面需要的统计
+        'comments': DestinationComment.query.count(),      # 评论总数
+        'orders': Order.query.count(),                     # 订单总数
+        'footprints': UserFootprint.query.count(),        # 用户足迹总数
+        'content_pages': 0,                                 # CMS内容页面（暂无CMS功能，设为0）
+        'notifications': Notification.query.count(),      # 通知消息总数
     }
+    
+    # 省份分布统计（TOP 10）
+    province_stats = db.session.query(
+        Destination.province,
+        db.func.count(Destination.id).label('count')
+    ).filter(Destination.province.isnot(None), Destination.province != '')\
+     .group_by(Destination.province)\
+     .order_by(db.desc('count'))\
+     .limit(10).all()
+    stats['province_distribution'] = [{'province': prov, 'count': count} for prov, count in province_stats]
+    
+    # 城市排行统计（TOP 10）
+    city_stats = db.session.query(
+        Destination.city,
+        Destination.province,
+        db.func.count(Destination.id).label('count')
+    ).filter(Destination.city.isnot(None), Destination.city != '')\
+     .group_by(Destination.city, Destination.province)\
+     .order_by(db.desc('count'))\
+     .limit(10).all()
+    stats['city_top'] = [{'city': city, 'province': prov, 'count': count} for city, prov, count in city_stats]
+
+    # 行程状态分布统计
+    trip_status_stats = db.session.query(
+        Trip.status,
+        db.func.count(Trip.id).label('count')
+    ).group_by(Trip.status).all()
+    stats['trip_status'] = [{'status': status or 'planning', 'count': count} for status, count in trip_status_stats]
+
+    # 订单状态分布统计
+    order_status_stats = db.session.query(
+        Order.status,
+        db.func.count(Order.id).label('count'),
+        db.func.coalesce(db.func.sum(Order.total_amount), 0).label('amount')
+    ).group_by(Order.status).all()
+    stats['order_status'] = [{'status': status or 'pending', 'count': count, 'amount': float(amount)} for status, count, amount in order_status_stats]
+
+    # 最近注册用户（最近10个）
+    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
+    stats['recent_users'] = [u.to_dict() for u in recent_users]
+
+    # 最近行程
+    recent_trips = Trip.query.order_by(Trip.created_at.desc()).limit(5).all()
+    stats['recent_trips'] = [t.to_dict() for t in recent_trips]
+
+    # 最近订单
+    recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
+    stats['recent_orders'] = [o.to_dict() for o in recent_orders]
+
+    # 最近评论
+    recent_comments = Comment.query.order_by(Comment.created_at.desc()).limit(5).all()
+    stats['recent_comments'] = [c.to_dict() for c in recent_comments]
 
     # 将统计信息缓存到Redis，设置60秒过期时间
     redis_cache_set(cache_key, json.dumps(stats), timeout=60)
@@ -2184,6 +2288,135 @@ def get_stats():
         'stats': stats,
         'query_time': round(query_time, 3)
     })
+
+
+@app.route('/api/admin/users', methods=['GET'])
+@rate_limit('admin_users', limit=30)
+def admin_users():
+    """管理端获取用户列表"""
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
+        keyword = request.args.get('keyword', '').strip()
+        
+        query = User.query
+        
+        # 关键词搜索
+        if keyword:
+            query = query.filter(
+                db.or_(
+                    User.username.ilike(f'%{keyword}%'),
+                    User.nickname.ilike(f'%{keyword}%'),
+                    User.email.ilike(f'%{keyword}%'),
+                    User.phone.ilike(f'%{keyword}%')
+                )
+            )
+        
+        # 获取总数
+        total = query.count()
+        
+        # 分页
+        users = query.order_by(User.created_at.desc())\
+                     .offset((page - 1) * per_page)\
+                     .limit(per_page)\
+                     .all()
+        
+        return jsonify({
+            'success': True,
+            'users': [u.to_dict() for u in users],
+            'total': total,
+            'page': page,
+            'per_page': per_page
+        })
+    except Exception as e:
+        logger.error(f"获取用户列表失败: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'users': [],
+            'total': 0
+        }), 500
+
+
+@app.route('/api/admin/users', methods=['POST'])
+@rate_limit('admin_create_user', limit=20)
+def admin_create_user():
+    """管理端创建用户"""
+    try:
+        data = request.get_json() or {}
+        
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        nickname = data.get('nickname', '').strip() or username
+        email = data.get('email', '').strip().lower() or None
+        phone = data.get('phone', '').strip() or None
+        membership_level = data.get('membership_level', 1)
+        
+        if not username:
+            return jsonify({'success': False, 'error': '用户名为必填'}), 400
+        if not password:
+            return jsonify({'success': False, 'error': '密码为必填'}), 400
+        if len(password) < 6:
+            return jsonify({'success': False, 'error': '密码至少6位'}), 400
+        
+        # 检查用户名唯一
+        if User.query.filter_by(username=username).first():
+            return jsonify({'success': False, 'error': '用户名已存在'}), 409
+        
+        # 检查邮箱唯一
+        if email and User.query.filter_by(email=email).first():
+            return jsonify({'success': False, 'error': '邮箱已被注册'}), 409
+        
+        # 检查手机号唯一
+        if phone and User.query.filter_by(phone=phone).first():
+            return jsonify({'success': False, 'error': '手机号已被注册'}), 409
+        
+        # 创建用户
+        user = User(
+            username=username,
+            nickname=nickname,
+            email=email,
+            phone=phone,
+            password_hash=generate_password_hash(password),
+            membership_level=membership_level,
+            points=100,  # 新用户注册奖励100积分
+            invite_code=generate_invite_code()
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        logger.info(f"管理员创建用户成功: {username} (ID: {user.id})")
+        return jsonify({
+            'success': True,
+            'user': user.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"创建用户失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@rate_limit('admin_delete_user', limit=30)
+def admin_delete_user(user_id):
+    """管理端删除用户"""
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'success': False, 'error': '用户不存在'}), 404
+        
+        # 不允许删除自己
+        # 可以在这里添加更多权限检查
+        
+        db.session.delete(user)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': '用户已删除'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"删除用户失败: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/admin/geo/provinces', methods=['GET'])
@@ -2943,7 +3176,7 @@ def get_products():
     if status:
         query = query.filter_by(status=status)
     if product_type:
-        query = query.filter_by(type=product_type)
+        query = query.filter_by(category=product_type)
     if keyword:
         query = query.filter(
             db.or_(
@@ -2960,8 +3193,7 @@ def get_products():
     sort_map = {
         'rating': Product.rating,
         'price': Product.base_price,
-        'sales': Product.sales_count,
-        'reviews': Product.review_count,
+        'sales': Product.sold_count,
         'created_at': Product.created_at,
     }
     sort_column = sort_map.get(sort_by, Product.created_at)
@@ -3595,14 +3827,30 @@ def chat():
         # 如果是 messages 数组格式（前端发送的格式）
         if 'messages' in data and isinstance(data['messages'], list):
             messages = [
-                {'role': 'system', 'content': '你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。'},
+                {'role': 'system', 'content': '''你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。
+
+重要提示：
+1. 回答时使用 Markdown 格式来美化内容
+2. 表格数据请使用 Markdown 表格格式，例如：
+   | 城市 | 天气 | 温度 | 建议 |
+   |------|------|------|------|
+   | 北京 | ☀️ 晴 | 25°C | 适合户外活动 |
+3. 列表项目使用有序或无序列表
+4. 标题使用 ## 或 ### 标注
+5. 重点信息使用 **加粗**'''},
             ]
             messages.extend(data['messages'])
         elif 'message' in data:
             # 单个 message 格式（兼容旧格式）
             user_message = data['message']
             messages = [
-                {'role': 'system', 'content': '你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。'},
+                {'role': 'system', 'content': '''你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。
+
+重要提示：
+1. 回答时使用 Markdown 格式来美化内容
+2. 表格数据请使用 Markdown 表格格式
+3. 列表项目使用有序或无序列表
+4. 标题使用 ## 或 ### 标注'''},
                 {'role': 'user', 'content': user_message}
             ]
         else:
@@ -3777,7 +4025,17 @@ def agent_chat():
         messages = data['messages']
         
         # 添加 system prompt（与 /api/chat 保持一致）
-        system_msg = {'role': 'system', 'content': '你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。'}
+        system_msg = {'role': 'system', 'content': '''你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。
+
+重要提示：
+1. 回答时使用 Markdown 格式来美化内容
+2. 表格数据请使用 Markdown 表格格式，例如：
+   | 城市 | 天气 | 温度 | 建议 |
+   |------|------|------|------|
+   | 北京 | ☀️ 晴 | 25°C | 适合户外活动 |
+3. 列表项目使用有序或无序列表
+4. 标题使用 ## 或 ### 标注
+5. 重点信息使用 **加粗**'''}
         if messages and isinstance(messages, list):
             # 如果第一条不是 system 消息，插入 system prompt
             if not (messages[0].get('role') == 'system'):
@@ -4002,8 +4260,774 @@ def generate_itinerary():
         })
 
     except Exception as e:
+        import traceback
         logger.error(f"行程生成失败: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': f'服务器错误: {str(e)}'}), 500
+
+
+# ==================== AI对话与行程规划 API ====================
+
+def _detect_intent(text: str) -> str:
+    """简单的意图识别"""
+    text_lower = text.lower()
+    if any(k in text_lower for k in ['行程', '规划', '攻略', '几天', '旅行']):
+        return '行程规划'
+    elif any(k in text_lower for k in ['推荐', '建议', '哪个好']):
+        return '推荐咨询'
+    elif any(k in text_lower for k in ['酒店', '住宿', '住哪']):
+        return '酒店咨询'
+    elif any(k in text_lower for k in ['天气', '温度', '气候']):
+        return '天气咨询'
+    elif any(k in text_lower for k in ['价格', '多少钱', '费用', '预算']):
+        return '价格咨询'
+    elif any(k in text_lower for k in ['预订', '订票', '买票']):
+        return '预订咨询'
+    return '通用咨询'
+
+
+@app.route('/api/conversations/save', methods=['POST'])
+def save_conversation():
+    """保存单条对话记录到数据库"""
+    try:
+        data = request.get_json() or {}
+        user_id = data.get('user_id')
+        session_id = data.get('session_id', 'default')
+        role = data.get('role', 'user')
+        content = data.get('content', '')
+        intent = data.get('intent') or _detect_intent(content)
+        metadata = data.get('metadata')
+
+        if not content:
+            return jsonify({'success': False, 'error': '内容不能为空'}), 400
+
+        conversation = AIConversation(
+            user_id=user_id,
+            session_id=session_id,
+            role=role,
+            content=content,
+            intent=intent,
+            meta_data=metadata
+        )
+        db.session.add(conversation)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'id': conversation.id,
+            'conversation': conversation.to_dict()
+        })
+
+    except Exception as e:
+        logger.error(f"保存对话失败: {str(e)}")
+        db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/conversations/history', methods=['GET'])
+def get_conversation_history():
+    """获取对话历史"""
+    try:
+        session_id = request.args.get('session_id')
+        user_id = request.args.get('user_id', type=int)
+        limit = min(100, max(1, request.args.get('limit', 50, type=int)))
+        offset = max(0, request.args.get('offset', 0, type=int))
+
+        query = AIConversation.query
+
+        if session_id:
+            query = query.filter(AIConversation.session_id == session_id)
+        if user_id:
+            query = query.filter(AIConversation.user_id == user_id)
+
+        total = query.count()
+        conversations = query.order_by(AIConversation.created_at.desc()).offset(offset).limit(limit).all()
+
+        return jsonify({
+            'success': True,
+            'total': total,
+            'conversations': [c.to_dict() for c in conversations]
+        })
+
+    except Exception as e:
+        logger.error(f"获取对话历史失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/conversations/sessions', methods=['GET'])
+def get_conversation_sessions():
+    """获取用户的所有会话列表"""
+    try:
+        user_id = request.args.get('user_id', type=int)
+        
+        # 未登录用户也允许访问，返回空列表
+        if not user_id:
+            return jsonify({'success': True, 'sessions': []})
+
+        # 按session_id分组，获取每个会话的最新一条和消息数量
+        from sqlalchemy import func
+
+        sessions = db.session.query(
+            AIConversation.session_id,
+            func.max(AIConversation.created_at).label('latest_at'),
+            func.count(AIConversation.id).label('message_count'),
+            func.max(AIConversation.content).label('latest_content')
+        ).filter(
+            AIConversation.user_id == user_id
+        ).group_by(
+            AIConversation.session_id
+        ).order_by(
+            func.max(AIConversation.created_at).desc()
+        ).limit(20).all()
+
+        result = []
+        for s in sessions:
+            # 获取会话的第一条用户消息作为标题
+            first_msg = AIConversation.query.filter(
+                AIConversation.session_id == s.session_id,
+                AIConversation.role == 'user'
+            ).order_by(AIConversation.created_at.asc()).first()
+
+            title = first_msg.content[:30] + '...' if first_msg and len(first_msg.content) > 30 else (first_msg.content if first_msg else '新对话')
+
+            result.append({
+                'session_id': s.session_id,
+                'title': title,
+                'latest_at': s.latest_at.isoformat() if s.latest_at else None,
+                'message_count': s.message_count,
+                'latest_content': s.latest_content[:100] if s.latest_content else ''
+            })
+
+        return jsonify({
+            'success': True,
+            'sessions': result
+        })
+
+    except Exception as e:
+        logger.error(f"获取会话列表失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/travel-plans', methods=['GET', 'POST'])
+@app.route('/api/travel-plans/<int:plan_id>', methods=['GET', 'PUT', 'DELETE'])
+def manage_travel_plans(plan_id=None):
+    """行程规划管理API"""
+    try:
+        if request.method == 'GET' and plan_id:
+            # 获取单个行程详情
+            plan = TravelPlan.query.get(plan_id)
+            if not plan:
+                return jsonify({'success': False, 'error': '行程不存在'}), 404
+
+            items = PlanItem.query.filter_by(plan_id=plan_id).order_by(
+                PlanItem.day_number, PlanItem.sort_order
+            ).all()
+
+            return jsonify({
+                'success': True,
+                'plan': plan.to_dict(),
+                'items': [item.to_dict() for item in items]
+            })
+
+        elif request.method == 'GET':
+            # 获取行程列表
+            user_id = request.args.get('user_id', type=int)
+            status = request.args.get('status')
+            destination = request.args.get('destination')
+
+            query = TravelPlan.query
+
+            if user_id:
+                query = query.filter(TravelPlan.user_id == user_id)
+            if status:
+                query = query.filter(TravelPlan.status == status)
+            if destination:
+                query = query.filter(TravelPlan.destination.like(f'%{destination}%'))
+
+            plans = query.order_by(TravelPlan.created_at.desc()).limit(50).all()
+
+            return jsonify({
+                'success': True,
+                'plans': [p.to_dict() for p in plans]
+            })
+
+        elif request.method == 'POST':
+            # 创建行程规划
+            data = request.get_json() or {}
+
+            plan = TravelPlan(
+                user_id=data.get('user_id'),
+                session_id=data.get('session_id'),
+                plan_name=data.get('plan_name'),
+                destination=data.get('destination'),
+                start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
+                end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data.get('end_date') else None,
+                budget=data.get('budget'),
+                preferences=data.get('preferences'),
+                plan_details=data.get('plan_details'),
+                status=data.get('status', 'draft')
+            )
+            db.session.add(plan)
+            db.session.flush()
+
+            # 添加行程项目
+            items_data = data.get('items', [])
+            for idx, item_data in enumerate(items_data):
+                item = PlanItem(
+                    plan_id=plan.id,
+                    day_number=item_data.get('day_number', 1),
+                    sort_order=item_data.get('sort_order', idx),
+                    time_slot=item_data.get('time_slot'),
+                    activity_type=item_data.get('activity_type'),
+                    title=item_data.get('title'),
+                    description=item_data.get('description'),
+                    location=item_data.get('location'),
+                    start_time=datetime.strptime(item_data['start_time'], '%H:%M').time() if item_data.get('start_time') else None,
+                    duration_minutes=item_data.get('duration_minutes'),
+                    cost=item_data.get('cost'),
+                    booking_info=item_data.get('booking_info')
+                )
+                db.session.add(item)
+
+            db.session.commit()
+
+            return jsonify({
+                'success': True,
+                'plan': plan.to_dict()
+            }), 201
+
+        elif request.method == 'PUT' and plan_id:
+            # 更新行程
+            plan = TravelPlan.query.get(plan_id)
+            if not plan:
+                return jsonify({'success': False, 'error': '行程不存在'}), 404
+
+            data = request.get_json() or {}
+
+            if 'plan_name' in data:
+                plan.plan_name = data['plan_name']
+            if 'destination' in data:
+                plan.destination = data['destination']
+            if 'start_date' in data:
+                plan.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data['start_date'] else None
+            if 'end_date' in data:
+                plan.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data['end_date'] else None
+            if 'budget' in data:
+                plan.budget = data['budget']
+            if 'preferences' in data:
+                plan.preferences = data['preferences']
+            if 'plan_details' in data:
+                plan.plan_details = data['plan_details']
+            if 'status' in data:
+                plan.status = data['status']
+
+            db.session.commit()
+
+            return jsonify({
+                'success': True,
+                'plan': plan.to_dict()
+            })
+
+        elif request.method == 'DELETE' and plan_id:
+            # 删除行程
+            plan = TravelPlan.query.get(plan_id)
+            if not plan:
+                return jsonify({'success': False, 'error': '行程不存在'}), 404
+
+            # 先删除关联的项目
+            PlanItem.query.filter_by(plan_id=plan_id).delete()
+            db.session.delete(plan)
+            db.session.commit()
+
+            return jsonify({'success': True, 'message': '行程已删除'})
+
+    except Exception as e:
+        logger.error(f"行程管理失败: {str(e)}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/travel-plans/history', methods=['GET'])
+def get_user_travel_history():
+    """获取用户的历史行程（用于参考规划新行程）"""
+    try:
+        user_id = request.args.get('user_id', type=int)
+        
+        # 未登录用户也允许访问，返回空列表
+        if not user_id:
+            return jsonify({'success': True, 'history': []})
+
+        limit = min(10, max(1, request.args.get('limit', 5, type=int)))
+
+        # 获取用户已完成或确认的行程
+        plans = TravelPlan.query.filter(
+            TravelPlan.user_id == user_id,
+            TravelPlan.status.in_(['confirmed', 'completed'])
+        ).order_by(TravelPlan.created_at.desc()).limit(limit).all()
+
+        result = []
+        for plan in plans:
+            items = PlanItem.query.filter_by(plan_id=plan.id).order_by(
+                PlanItem.day_number, PlanItem.sort_order
+            ).all()
+
+            result.append({
+                'id': plan.id,
+                'plan_name': plan.plan_name,
+                'destination': plan.destination,
+                'start_date': plan.start_date.isoformat() if plan.start_date else None,
+                'end_date': plan.end_date.isoformat() if plan.end_date else None,
+                'budget': plan.budget,
+                'preferences': plan.preferences,
+                'status': plan.status,
+                'items': [item.to_dict() for item in items]
+            })
+
+        return jsonify({
+            'success': True,
+            'history': result
+        })
+
+    except Exception as e:
+        logger.error(f"获取历史行程失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/travel-plans/similar', methods=['GET'])
+def get_similar_plans():
+    """获取相似行程（用于参考）"""
+    try:
+        destination = request.args.get('destination')
+        if not destination:
+            return jsonify({'success': False, 'error': '需要destination'}), 400
+
+        # 查找目的地相似的已完成行程
+        plans = TravelPlan.query.filter(
+            TravelPlan.destination.like(f'%{destination}%'),
+            TravelPlan.status == 'completed'
+        ).order_by(TravelPlan.created_at.desc()).limit(5).all()
+
+        result = []
+        for plan in plans:
+            items = PlanItem.query.filter_by(plan_id=plan.id).all()
+            result.append({
+                'id': plan.id,
+                'plan_name': plan.plan_name,
+                'destination': plan.destination,
+                'preferences': plan.preferences,
+                'budget': plan.budget,
+                'item_count': len(items)
+            })
+
+        return jsonify({
+            'success': True,
+            'similar_plans': result
+        })
+
+    except Exception as e:
+        logger.error(f"获取相似行程失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ==================== 行程 API ====================
+
+@app.route('/api/itineraries', methods=['GET'])
+@rate_limit('itineraries_list', limit=60)
+def get_itineraries():
+    """获取当前用户的行程列表（基于Trip表）"""
+    try:
+        # 验证用户登录
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({'success': False, 'error': '请先登录', 'itineraries': []}), 401
+        
+        # 获取查询参数
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        per_page = min(per_page, 50)  # 限制最大每页数量
+        status = request.args.get('status')  # 可选：planning/active/completed
+        
+        # 构建查询
+        query = Trip.query.filter_by(user_id=user_id)
+        if status:
+            query = query.filter_by(status=status)
+        query = query.order_by(Trip.created_at.desc())
+        
+        # 分页
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        trips = pagination.items
+        
+        # 转换为字典格式
+        itineraries = []
+        for trip in trips:
+            item = trip.to_dict()
+            # 获取行程中的景点数量
+            item_count = TripItem.query.filter_by(trip_id=trip.id).count()
+            item['item_count'] = item_count
+            # 获取目的地名称（如果有行程项目关联到景点）
+            first_item = TripItem.query.filter_by(trip_id=trip.id).first()
+            if first_item and first_item.destination_id:
+                dest = Destination.query.get(first_item.destination_id)
+                if dest:
+                    item['destination'] = dest.name
+            itineraries.append(item)
+        
+        return jsonify({
+            'success': True,
+            'itineraries': itineraries,
+            'total': pagination.total,
+            'pages': pagination.pages,
+            'page': page
+        })
+        
+    except Exception as e:
+        logger.error(f"获取行程列表失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e), 'itineraries': []}), 500
+
+
+@app.route('/api/itineraries/<int:trip_id>', methods=['GET'])
+@rate_limit('itinerary_detail', limit=60)
+def get_itinerary_detail(trip_id):
+    """获取行程详情"""
+    try:
+        user_id = get_current_user_id()
+        
+        trip = Trip.query.filter_by(id=trip_id).first()
+        if not trip:
+            return jsonify({'success': False, 'error': '行程不存在'}), 404
+        
+        # 检查权限（自己的行程或者公开行程）
+        if trip.user_id != user_id:
+            return jsonify({'success': False, 'error': '无权访问'}), 403
+        
+        # 获取行程项目
+        items = TripItem.query.filter_by(trip_id=trip_id).order_by(TripItem.day_number, TripItem.sort_order).all()
+        
+        result = trip.to_dict()
+        result['items'] = [item.to_dict() for item in items]
+        
+        # 获取目的地详情
+        if items:
+            dest_ids = list(set([item.destination_id for item in items if item.destination_id]))
+            if dest_ids:
+                destinations = Destination.query.filter(Destination.id.in_(dest_ids)).all()
+                result['destinations'] = [d.to_dict() for d in destinations]
+        
+        return jsonify({'success': True, 'itinerary': result})
+        
+    except Exception as e:
+        logger.error(f"获取行程详情失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/itineraries', methods=['POST'])
+@rate_limit('itineraries_create', limit=20)
+def create_itinerary():
+    """创建行程"""
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({'success': False, 'error': '请先登录'}), 401
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': '请提供行程数据'}), 400
+        
+        # 创建行程
+        trip = Trip(
+            user_id=user_id,
+            title=data.get('title', '我的新行程'),
+            description=data.get('description', ''),
+            start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
+            end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data.get('end_date') else None,
+            status=data.get('status', 'planning')
+        )
+        db.session.add(trip)
+        db.session.flush()  # 获取trip.id
+        
+        # 添加行程项目
+        items = data.get('items', [])
+        for idx, item_data in enumerate(items):
+            item = TripItem(
+                trip_id=trip.id,
+                destination_id=item_data.get('destination_id'),
+                day_number=item_data.get('day_number', 1),
+                title=item_data.get('title', ''),
+                description=item_data.get('description', ''),
+                location=item_data.get('location', ''),
+                start_time=datetime.strptime(item_data['start_time'], '%H:%M').time() if item_data.get('start_time') else None,
+                end_time=datetime.strptime(item_data['end_time'], '%H:%M').time() if item_data.get('end_time') else None,
+                sort_order=item_data.get('sort_order', idx)
+            )
+            db.session.add(item)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '行程创建成功',
+            'itinerary': trip.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"创建行程失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/itineraries/<int:trip_id>', methods=['PUT'])
+@rate_limit('itineraries_update', limit=20)
+def update_itinerary(trip_id):
+    """更新行程"""
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({'success': False, 'error': '请先登录'}), 401
+        
+        trip = Trip.query.filter_by(id=trip_id, user_id=user_id).first()
+        if not trip:
+            return jsonify({'success': False, 'error': '行程不存在或无权访问'}), 404
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': '请提供更新数据'}), 400
+        
+        # 更新字段
+        if 'title' in data:
+            trip.title = data['title']
+        if 'description' in data:
+            trip.description = data['description']
+        if 'start_date' in data:
+            trip.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data['start_date'] else None
+        if 'end_date' in data:
+            trip.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data['end_date'] else None
+        if 'status' in data:
+            trip.status = data['status']
+        
+        # 如果提供了新的行程项目，替换旧的
+        if 'items' in data:
+            TripItem.query.filter_by(trip_id=trip_id).delete()
+            for idx, item_data in enumerate(data['items']):
+                item = TripItem(
+                    trip_id=trip.id,
+                    destination_id=item_data.get('destination_id'),
+                    day_number=item_data.get('day_number', 1),
+                    title=item_data.get('title', ''),
+                    description=item_data.get('description', ''),
+                    location=item_data.get('location', ''),
+                    start_time=datetime.strptime(item_data['start_time'], '%H:%M').time() if item_data.get('start_time') else None,
+                    end_time=datetime.strptime(item_data['end_time'], '%H:%M').time() if item_data.get('end_time') else None,
+                    sort_order=item_data.get('sort_order', idx)
+                )
+                db.session.add(item)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '行程更新成功',
+            'itinerary': trip.to_dict()
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"更新行程失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/itineraries/<int:trip_id>', methods=['DELETE'])
+@rate_limit('itineraries_delete', limit=20)
+def delete_itinerary(trip_id):
+    """删除行程"""
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({'success': False, 'error': '请先登录'}), 401
+        
+        trip = Trip.query.filter_by(id=trip_id, user_id=user_id).first()
+        if not trip:
+            return jsonify({'success': False, 'error': '行程不存在或无权访问'}), 404
+        
+        # 删除行程（关联的TripItem会通过级联删除）
+        db.session.delete(trip)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': '行程删除成功'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"删除行程失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/itineraries/from-chat', methods=['GET'])
+@rate_limit('itineraries_from_chat', limit=30)
+def get_itineraries_from_chat():
+    """从用户的AI对话中提取景点，生成行程推荐"""
+    try:
+        user_id = get_current_user_id()
+        # 支持多个 session_id 参数
+        session_ids = request.args.getlist('session_id')
+        
+        # 构建查询条件：优先用 user_id，其次用 session_id(s)
+        query = AIConversation.query.filter_by(role='user')
+        
+        if user_id:
+            # 已登录用户：优先使用 user_id
+            query = query.filter(AIConversation.user_id == user_id)
+        elif session_ids:
+            # 未登录用户：使用 session_id（查询 user_id 为 null 的记录）
+            if len(session_ids) == 1:
+                query = query.filter(
+                    AIConversation.user_id.is_(None),
+                    AIConversation.session_id == session_ids[0]
+                )
+            else:
+                query = query.filter(
+                    AIConversation.user_id.is_(None),
+                    AIConversation.session_id.in_(session_ids)
+                )
+        else:
+            # 既没有登录也没有 session_id，返回空
+            return jsonify({'success': True, 'recommendations': [], 'message': '暂无对话记录，请先和小游聊天'})
+        
+        conversations = query.order_by(AIConversation.created_at.desc()).limit(100).all()
+        
+        if not conversations:
+            return jsonify({'success': True, 'recommendations': [], 'message': '暂无对话记录，请先和小游聊天'})
+        
+        # 提取所有对话内容
+        all_content = ' '.join([c.content for c in conversations])
+        all_content_lower = all_content.lower()
+        
+        # 从数据库中搜索匹配的景点
+        recommendations = []
+        seen_destinations = set()
+        
+        # 1. 搜索对话中提到的目的地（通过关键词匹配）
+        keywords = _extract_travel_keywords(all_content)
+        
+        # 搜索匹配的目的地
+        for keyword in keywords:
+            if len(keyword) >= 2:
+                dests = Destination.query.filter(
+                    db.or_(
+                        Destination.name.ilike(f'%{keyword}%'),
+                        Destination.city.ilike(f'%{keyword}%'),
+                        Destination.province.ilike(f'%{keyword}%')
+                    )
+                ).limit(5).all()
+                
+                for dest in dests:
+                    if dest.id not in seen_destinations:
+                        seen_destinations.add(dest.id)
+                        recommendations.append({
+                            'destination': dest.to_dict(),
+                            'reason': f'您在对话中提到了"{keyword}"',
+                            'matched_keyword': keyword,
+                            'source': 'chat_match'
+                        })
+        
+        # 2. 如果匹配到的景点不够，补充热门景点
+        if len(recommendations) < 3:
+            popular_dests = Destination.query.filter(
+                Destination.rating >= 4.0,
+                Destination.id.notin_(seen_destinations) if seen_destinations else True
+            ).order_by(Destination.rating.desc()).limit(5).all()
+            
+            for dest in popular_dests:
+                if dest.id not in seen_destinations:
+                    seen_destinations.add(dest.id)
+                    recommendations.append({
+                        'destination': dest.to_dict(),
+                        'reason': '热门推荐景点',
+                        'matched_keyword': None,
+                        'source': 'popular'
+                    })
+        
+        # 3. 分析对话意图，生成行程规划建议
+        plan_suggestions = []
+        intent_keywords = {
+            '行程规划': ['行程', '规划', '安排', '几天', '几天游', '旅行计划'],
+            '景点推荐': ['景点', '好玩', '推荐', '值得去'],
+            '美食推荐': ['美食', '好吃', '餐厅', '小吃', '美食街'],
+            '住宿推荐': ['酒店', '住宿', '民宿', '客栈'],
+        }
+        
+        detected_intents = []
+        for intent, keys in intent_keywords.items():
+            if any(k in all_content_lower for k in keys):
+                detected_intents.append(intent)
+        
+        # 生成行程规划建议
+        if recommendations:
+            trip_days = _extract_trip_days(all_content)
+            plan_suggestions.append({
+                'type': '行程规划',
+                'title': f'{trip_days}日游推荐行程',
+                'destinations': [r['destination'] for r in recommendations[:3]],
+                'description': f'根据您与小游的对话，为您推荐了这{trip_days}天的行程规划'
+            })
+        
+        return jsonify({
+            'success': True,
+            'recommendations': recommendations[:6],  # 最多返回6个推荐
+            'plan_suggestions': plan_suggestions,
+            'detected_intents': detected_intents,
+            'total_conversations': len(conversations),
+            'total_sessions': len(session_ids) if session_ids else (1 if user_id else 0)
+        })
+        
+    except Exception as e:
+        logger.error(f"从对话生成行程推荐失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e), 'recommendations': []}), 500
+
+
+def _extract_travel_keywords(text):
+    """从文本中提取旅行相关关键词"""
+    import re
+    
+    # 常见城市/地区名
+    common_places = [
+        '北京', '上海', '广州', '深圳', '杭州', '苏州', '南京', '成都', '重庆',
+        '西安', '厦门', '三亚', '青岛', '大连', '丽江', '大理', '桂林', '阳朔',
+        '黄山', '泰山', '张家界', '九寨沟', '峨眉山', '青海湖', '拉萨', '新疆',
+        '西藏', '云南', '四川', '贵州', '湖南', '湖北', '安徽', '福建', '山东',
+        '河南', '河北', '山西', '内蒙古', '东北', '海南', '港澳', '台湾', '日本',
+        '泰国', '韩国', '新加坡', '马尔代夫', '巴黎', '伦敦', '纽约', '悉尼'
+    ]
+    
+    keywords = []
+    text_lower = text.lower()
+    
+    # 匹配常见地名
+    for place in common_places:
+        if place in text or place[:2] in text:
+            keywords.append(place)
+    
+    # 提取数字+景点组合
+    patterns = [
+        r'(\d+天|\d+日)',
+        r'(周边|附近|附近)景点',
+        r'适合(\w+)的地方',
+    ]
+    
+    for pattern in patterns:
+        matches = re.findall(pattern, text)
+        keywords.extend(matches)
+    
+    # 去重
+    return list(set(keywords))[:10]
+
+
+def _extract_trip_days(text):
+    """从文本中提取行程天数"""
+    import re
+    match = re.search(r'(\d+)(天|日)', text)
+    if match:
+        days = int(match.group(1))
+        return min(days, 7)  # 最多7天
+    return 3  # 默认3天
 
 
 # ==================== 订单 API ====================
@@ -4213,6 +5237,99 @@ def pay_order(order_no):
     except Exception as e:
         db.session.rollback()
         logger.error(f"支付订单失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ==================== 数据库管理 API ====================
+
+@app.route('/api/admin/database/tables', methods=['GET'])
+@rate_limit('db_tables', limit=60)
+def get_database_tables():
+    """获取所有数据库表及其结构"""
+    try:
+        # 验证管理员登录
+        auth_header = request.headers.get('Authorization', '')
+        admin_token = localStorage.get_item('admin_token') if 'localStorage' in dir() else None
+        
+        # 直接查询 SQLite 的 sqlite_master 获取表信息
+        result = db.session.execute(text(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+        ))
+        tables = [row[0] for row in result]
+        
+        table_info = []
+        for table_name in tables:
+            # 获取表的列信息
+            columns_result = db.session.execute(text(f"PRAGMA table_info({table_name})"))
+            columns = []
+            for col in columns_result:
+                columns.append({
+                    'cid': col[0],
+                    'name': col[1],
+                    'type': col[2],
+                    'notnull': bool(col[3]),
+                    'default': col[4],
+                    'pk': bool(col[5])
+                })
+            
+            # 获取表的行数
+            count_result = db.session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+            row_count = count_result.scalar()
+            
+            table_info.append({
+                'name': table_name,
+                'columns': columns,
+                'row_count': row_count
+            })
+        
+        return jsonify({
+            'success': True,
+            'tables': table_info
+        })
+        
+    except Exception as e:
+        logger.error(f"获取数据库表失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/database/tables/<table_name>', methods=['GET'])
+@rate_limit('db_table_data', limit=60)
+def get_table_data(table_name):
+    """获取指定表的数据"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = min(request.args.get('per_page', 50, type=int), 200)
+        offset = (page - 1) * per_page
+        
+        # 验证表名是否合法（防止 SQL 注入）
+        allowed_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+        if not all(c in allowed_chars for c in table_name):
+            return jsonify({'success': False, 'error': '无效的表名'}), 400
+        
+        # 获取数据
+        data_result = db.session.execute(text(
+            f"SELECT * FROM {table_name} LIMIT :limit OFFSET :offset"
+        ), {'limit': per_page, 'offset': offset})
+        
+        columns = data_result.keys()
+        rows = [dict(zip(columns, row)) for row in data_result]
+        
+        # 获取总数
+        count_result = db.session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+        total = count_result.scalar()
+        
+        return jsonify({
+            'success': True,
+            'table_name': table_name,
+            'columns': list(columns),
+            'data': rows,
+            'total': total,
+            'page': page,
+            'per_page': per_page
+        })
+        
+    except Exception as e:
+        logger.error(f"获取表数据失败: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

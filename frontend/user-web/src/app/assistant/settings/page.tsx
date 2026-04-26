@@ -1,3 +1,33 @@
+/**
+ * =====================================================
+ * AI 助手设置模块 - AI Agent 配置管理
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - AI 模型选择（多模型支持）
+ * - 工具配置（天气查询/地图搜索/网络搜索/翻译等）
+ * - 知识库文件管理：
+ *   - 上传文档（txt/md/pdf）
+ *   - 删除文档
+ *   - 文档列表展示
+ * - 系统提示词配置
+ * - API 配置管理
+ * - 设置保存与重置
+ * - 统计信息展示（对话数/用户数/Token 使用）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - aiAgentSettings: AI 设置管理工具
+ * 
+ * 【本地存储】
+ * - ai_agent_settings_v1: 存储 AI 配置
+ * 
+ * 【配置项】
+ * - MODEL_OPTIONS: 可选模型列表
+ * - DEFAULT_SETTINGS: 默认设置
+ * - KbFile: 知识库文件类型
+ * - WebToolKey: 网络工具配置类型
+ */
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -172,8 +202,8 @@ export default function AssistantSettingsPage() {
       )
       persist({ ...next, kbFiles })
       const done = kbFiles.find((k) => k.id === id)
-      if (done?.status === 'ready') toast.success(`文档?{done.name}」已就绪`)
-      if (done?.status === 'failed') toast.error(`?{done?.name}」处理失败，可删除后重试`)
+      if (done?.status === 'ready') toast.success(`文档「${done.name}」已就绪`)
+      if (done?.status === 'failed') toast.error(`${done?.name}」处理失败，可删除后重试`)
     }, 1400)
   }
 

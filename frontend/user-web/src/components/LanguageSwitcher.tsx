@@ -1,22 +1,44 @@
 'use client'
 
-import { useLocale } from 'next-intl'
+/**
+ * =====================================================
+ * 语言切换组件 (LanguageSwitcher)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 多语言切换组件
+ * - 支持语言：中文、英文、日文
+ * - 通过路由前缀切换语言
+ * - 支持国际化 (i18n) 集成
+ * 
+ * 支持语言：
+ * - zh-CN: 中文（默认）
+ * - en: English
+ * - ja: 日本語
+ */
+
 import { usePathname, useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { Globe } from 'lucide-react'
 
+/** 支持的语言列表 */
 const locales = [
   { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
 ]
 
+/**
+ * 语言切换组件
+ * @description 下拉式语言切换器，支持中英文日文
+ */
 export function LanguageSwitcher() {
   const router = useRouter()
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
-  const locale = useLocale()
-
+  
+  // 默认使用 zh-CN
+  const locale = 'zh-CN'
   const currentLocale = locales.find(l => l.code === locale) || locales[0]
 
   const onSelectChange = (nextLocale: string) => {

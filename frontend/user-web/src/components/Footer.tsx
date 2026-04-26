@@ -1,8 +1,24 @@
 'use client'
 
+/**
+ * =====================================================
+ * 页脚组件 (Footer)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 网站底部信息展示，包含品牌介绍、导航链接、联系方式
+ * - 分为四个导航区块：热门目的地、服务项目、客户支持、关于我们
+ * - 包含社交媒体链接（微信、抖音、微博）
+ * - 自动计算并显示网站运营年份
+ */
+
 import Link from 'next/link'
 import { MapPin, Phone, Mail, Heart, MessageCircle, Share2, Music } from 'lucide-react'
 
+/**
+ * 页脚组件
+ * @description 网站底部组件，展示品牌信息、导航链接和联系方式
+ */
 export function Footer() {
   const startYear = 2025
   const currentYear = new Date().getFullYear()
@@ -16,8 +32,8 @@ export function Footer() {
       { name: '周边游', href: '/destinations/local' },
     ],
     services: [
-      { name: '智能行程规划', href: '/services/itinerary' },
-      { name: '私人定制', href: '/services/custom' },
+      { name: 'AI 智能规划', href: '/assistant' },
+      { name: '旅行攻略', href: '/travel-notes' },
       { name: '旅游保险', href: '/services/insurance' },
       { name: '签证办理', href: '/services/visa' },
     ],

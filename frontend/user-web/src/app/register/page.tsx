@@ -1,3 +1,36 @@
+/**
+ * =====================================================
+ * 注册页模块 - 新用户账号创建
+ * =====================================================
+ * 功能说明：
+ *   - 用户注册表单（用户名、昵称、邮箱、手机号、密码）
+ *   - 实时校验与重复检测
+ *   - 密码强度指示器
+ *   - 注册成功后自动登录
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - store/index：Zustand 用户状态管理
+ *   - lib/validation：表单验证工具
+ *   - react-hot-toast：消息提示
+ *
+ * 数据来源：
+ *   - POST /api/users/register：用户注册接口
+ *   - POST /api/users/check：用户名/邮箱/手机号重复检测
+ *
+ * 验证规则：
+ *   - 用户名：3位以上，字母数字下划线
+ *   - 昵称：2位以上
+ *   - 邮箱：标准格式（必填）
+ *   - 手机号：11位数字（选填）
+ *   - 密码：8位以上，大小写字母+数字
+ *
+ * 密码强度检测：
+ *   - 弱（1级）：基础长度
+ *   - 中等（2级）：较好长度或字符组合
+ *   - 强（3级）：12位+混合字符+特殊符号
+ */
 'use client'
 
 import type { FormEvent } from 'react'
@@ -174,7 +207,8 @@ export default function RegisterPage() {
   }
   const validatePassword = (v: string) => {
     if (!v) return '请输入密码'
-    if (v.length < 6) return '密码至少6位'
+    if (v.length < 8) return '密码至少8位'
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(v)) return '密码需包含大小写字母和数字'
     return null
   }
   const validatePassword2 = (v: string) => {
@@ -187,8 +221,8 @@ export default function RegisterPage() {
   const passwordStrength = (pwd: string) => {
     if (!pwd) return { level: 0, text: '', color: '' }
     let score = 0
-    if (pwd.length >= 6) score++
     if (pwd.length >= 8) score++
+    if (pwd.length >= 12) score++
     if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++
     if (/\d/.test(pwd)) score++
     if (/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) score++
@@ -436,7 +470,7 @@ export default function RegisterPage() {
                     value={form.password}
                     onChange={(e) => setForm((s) => ({ ...s, password: e.target.value }))}
                     onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                    placeholder="至少 6 位"
+                    placeholder="至少 8 位，需包含大小写字母和数字"
                     autoComplete="new-password"
                   />
                   {validatePassword(form.password) && touched.password && (

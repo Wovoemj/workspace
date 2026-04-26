@@ -1,8 +1,30 @@
 'use client'
 
+/**
+ * =====================================================
+ * 天气卡片组件 (WeatherCard)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 显示指定城市的实时天气信息
+ * - 根据天气状况显示不同的图标和背景色
+ * - 支持的温度单位：摄氏度
+ * 
+ * 数据来源：
+ * - 后端 API: GET /api/weather?city=城市名
+ * 
+ * 天气图标映射：
+ * - 晴天 → Sun (黄色)
+ * - 多云 → Cloud (灰色)
+ * - 雨天 → CloudRain (蓝色)
+ * - 雪天 → CloudSnow (青色)
+ * - 雷暴 → CloudLightning (紫色)
+ */
+
 import { useEffect, useState } from 'react'
 import { Cloud, CloudRain, CloudSnow, Sun, CloudLightning, Wind, Droplets, Thermometer, Loader2 } from 'lucide-react'
 
+/** 天气数据结构 */
 interface WeatherData {
   temperature: number
   feels_like: number
@@ -67,6 +89,13 @@ const getWeatherBgClass = (condition: string) => {
   return 'from-gray-100 to-slate-50'
 }
 
+/**
+ * 天气卡片主组件
+ * @description 展示城市实时天气信息
+ * @param props - 组件属性
+ * @param props.city - 城市名称
+ * @param props.className - 自定义样式类
+ */
 export function WeatherCard({ city, className = '' }: WeatherCardProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)

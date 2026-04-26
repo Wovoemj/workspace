@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
 """
+============================================
 酒店服务模块
+============================================
 
-提供酒店搜索和详情查询功能。
-目前返回模拟数据，预留对接真实 API 的位置。
+【模块说明】
+- 提供酒店搜索和详情查询功能
+- 采用工厂模式，支持Mock和真实API切换
+- 目前返回模拟数据，预留对接真实API的位置
 
-支持的 API 提供商（待对接）：
+【支持的API提供商（待对接）】
 - 携程酒店 API
-- 飞猪酒店 API
+- 飞猪酒店 API  
 - Booking.com API
+
+【数据结构】
+- Hotel: 酒店基本信息
+- Room: 房型信息
 """
 
 from abc import ABC, abstractmethod
@@ -17,32 +25,78 @@ import random
 
 
 class HotelService(ABC):
-    """酒店服务抽象基类"""
+    """酒店服务抽象基类
+    
+    【设计模式】
+    - 抽象工厂模式：定义统一接口
+    - 便于后续接入真实API时保持接口一致
+    """
     
     @abstractmethod
     def search_hotels(self, city: str, checkin: str, checkout: str,
                       guests: int = 1, rooms: int = 1) -> List[Dict]:
-        """搜索酒店"""
+        """搜索酒店
+        
+        Args:
+            city: 城市名称
+            checkin: 入住日期 (YYYY-MM-DD)
+            checkout: 退房日期 (YYYY-MM-DD)
+            guests: 入住人数
+            rooms: 房间数量
+            
+        Returns:
+            酒店列表
+        """
         pass
     
     @abstractmethod
     def get_hotel_detail(self, hotel_id: str) -> Optional[Dict]:
-        """获取酒店详情"""
+        """获取酒店详情
+        
+        Args:
+            hotel_id: 酒店ID
+            
+        Returns:
+            酒店详情，未找到返回None
+        """
         pass
     
     @abstractmethod
     def get_hotel_rooms(self, hotel_id: str, checkin: str, 
                         checkout: str) -> List[Dict]:
-        """获取酒店房型"""
+        """获取酒店房型列表
+        
+        Args:
+            hotel_id: 酒店ID
+            checkin: 入住日期
+            checkout: 退房日期
+            
+        Returns:
+            房型列表
+        """
         pass
 
 
 class MockHotelService(HotelService):
-    """模拟酒店服务（开发测试用）"""
+    """模拟酒店服务（开发测试用）
+    
+    【功能】
+    - 生成随机但合理的酒店数据
+    - 便于前端开发和测试
+    - 数据结构与真实API保持一致
+    """
     
     def search_hotels(self, city: str, checkin: str, checkout: str,
                       guests: int = 1, rooms: int = 1) -> List[Dict]:
-        """返回模拟酒店数据"""
+        """返回模拟酒店数据
+        
+        【生成规则】
+        - 酒店名称：城市名 + 国际品牌名
+        - 价格：200-1200元随机
+        - 评分：4.0-5.0随机
+        - 星级：4星或5星
+        """
+        # 酒店品牌列表
         hotel_names = [
             f"{city}JW万豪酒店",
             f"{city}香格里拉大酒店",
@@ -56,7 +110,9 @@ class MockHotelService(HotelService):
             f"{city}铂尔曼酒店",
         ]
         
+        # 行政区列表
         districts = ['市中心', '西湖区', '朝阳区', '浦东新区', '天河区', '南山区']
+        # 设施列表
         amenities = ['WiFi', '停车场', '游泳池', '健身房', '餐厅', '会议室', '机场接送']
         
         hotels = []
@@ -111,7 +167,15 @@ class MockHotelService(HotelService):
     
     def get_hotel_rooms(self, hotel_id: str, checkin: str,
                         checkout: str) -> List[Dict]:
-        """返回模拟房型数据"""
+        """返回模拟房型数据
+        
+        【房型类型】
+        - 标准间：25-30㎡，大床/双床
+        - 豪华间：35-40㎡，大床
+        - 行政间：45-50㎡，大床
+        - 套房：60-80㎡，大床，可住3人
+        - 家庭房：50-60㎡，大床+小床
+        """
         room_types = [
             {'name': '标准间', 'bed': '大床/双床', 'max_guests': 2, 'size': '25-30㎡'},
             {'name': '豪华间', 'bed': '大床', 'max_guests': 2, 'size': '35-40㎡'},
@@ -142,7 +206,9 @@ class MockHotelService(HotelService):
         return rooms
 
 
-# 预留：真实 API 服务类（待实现）
+# =============================================
+# 真实API服务类（预留，待实现）
+# =============================================
 # class CtripHotelService(HotelService):
 #     """携程酒店服务"""
 #     def __init__(self, api_key: str):
@@ -154,11 +220,20 @@ class MockHotelService(HotelService):
 
 
 def get_hotel_service() -> HotelService:
-    """获取酒店服务实例"""
+    """获取酒店服务实例
+    
+    【工厂模式】
+    - 目前返回Mock服务
+    - 后续可改为读取配置决定返回哪种服务
+    """
     return MockHotelService()
 
 
+# =============================================
 # 便捷函数
+# =============================================
+# 提供直接调用的简化接口
+
 def search_hotels(city: str, checkin: str, checkout: str,
                   guests: int = 1, rooms: int = 1) -> List[Dict]:
     """搜索酒店（便捷函数）"""

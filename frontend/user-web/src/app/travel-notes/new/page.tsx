@@ -1,3 +1,30 @@
+/**
+ * =====================================================
+ * 创建游记模块 - 游记发布编辑
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 游记标题输入
+ * - 游记内容编辑（多行文本框）
+ * - 封面图片选择
+ * - 目的地关联搜索与选择
+ * - 标签添加与删除
+ * - 发布状态选择（草稿/发布）
+ * - 表单验证与提交
+ * - 登录状态校验（未登录重定向到登录页）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/destinations?q=xxx&limit=10: 搜索目的地
+ * - POST /api/travel-notes: 创建游记（需登录）
+ * 
+ * 【状态管理】
+ * - useState: title, content, destinationId, coverImage, tags, tagInput, status, submitting, destinations, destSearch, showDestDropdown
+ * - useEffect: 登录状态检测
+ */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -122,12 +149,12 @@ export default function NewTravelNotePage() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-sky-50">
       <Navbar />
       <main className="pt-20 pb-16">
         <div className="max-w-3xl mx-auto px-4">
           {/* Back */}
-          <Link href="/travel-notes" className="inline-flex items-center gap-2 text-gray-600 hover:text-sky-600 mb-6">
+          <Link href="/travel-notes" className="inline-flex items-center gap-2 text-sky-600 hover:text-sky-700 mb-6">
             <ArrowLeft className="h-5 w-5" />
             返回攻略
           </Link>

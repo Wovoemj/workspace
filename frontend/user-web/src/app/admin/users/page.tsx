@@ -1,3 +1,34 @@
+/**
+ * =====================================================
+ * 管理后台 - 用户管理模块
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 用户列表展示（分页）
+ * - 用户搜索（用户名/昵称）
+ * - 用户详情查看
+ * - 用户信息编辑（昵称/邮箱/手机号）
+ * - 会员等级调整
+ * - 管理员权限设置
+ * - 删除用户
+ * - 创建新用户（管理员）
+ * - 刷新列表功能
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - AdminGuard: 管理员权限守卫
+ * 
+ * 【API 接口】
+ * - GET /api/admin/users?page=xxx: 获取用户列表
+ * - GET /api/users/${id}: 获取用户详情
+ * - PUT /api/users/${id}: 更新用户信息
+ * - DELETE /api/users/${id}: 删除用户
+ * - POST /api/admin/users: 创建用户（管理员）
+ * 
+ * 【状态管理】
+ * - useState: users, page, total, keyword, editingId, editData
+ * - useCallback: fetchUsers, saveEdit, deleteUser, createUser
+ */
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
@@ -16,7 +47,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
 /* ==================== 类型定义 ==================== */
 
 type AdminUser = {
-  id: string; username: string; nickname: string;
+  id: number; username: string; nickname: string | null;
   email: string | null; phone: string | null;
   avatar_url: string | null; is_admin: boolean;
   membership_level: number; created_at: string | null
@@ -72,10 +103,15 @@ function UserManagementTable() {
       setLoading(true)
       const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })
       if (keyword.trim()) params.set('keyword', keyword.trim())
-      const data = await adminFetch<{ success: boolean; users: AdminUser[]; total: number; page: number }>(
+      const data = await adminFetch<{ success: boolean; users: any[]; total: number; page: number }>(
         `/api/admin/users?${params.toString()}`
       )
-      setUsers(data.users || [])
+      // 转换 avatar 字段为 avatar_url 以匹配前端类型
+      const users = (data.users || []).map((u: any) => ({
+        ...u,
+        avatar_url: u.avatar || null
+      }))
+      setUsers(users)
       setTotal(data.total || 0)
     } catch (e: any) {
       console.error('加载用户失败:', e.message)
@@ -94,7 +130,7 @@ function UserManagementTable() {
   }
 
   /* ---- 内联编辑 ---- */
-  const startEdit = (u: AdminUser) => { setEditingId(u.id); setEditData({ ...u }) }
+  const startEdit = (u: AdminUser) => { setEditingId(String(u.id)); setEditData({ ...u }) }
   const cancelEdit = () => { setEditingId(null); setEditData({}) }
 
   const saveEdit = async () => {
@@ -105,13 +141,13 @@ function UserManagementTable() {
         { method: 'PUT', body: JSON.stringify(editData) }
       )
       // 更新本地数据
-      setUsers(prev => prev.map(u => u.id === editingId ? res.user : u))
+      setUsers(prev => prev.map(u => u.id === Number(editingId) ? res.user : u))
       setEditingId(null); setEditData({})
     } catch (e: any) { alert('❌ 保存失败: ' + e.message) }
   }
 
   /* ---- 删除用户 ---- */
-  const deleteUser = async (id: string, name: string) => {
+  const deleteUser = async (id: number, name: string) => {
     if (!confirm(`确定删除用户「${name}」？此操作不可逆，且会级联删除该用户的评论！`)) return
     try {
       await adminFetch(`/api/admin/users/${id}`, { method: 'DELETE' })
@@ -214,7 +250,7 @@ function UserManagementTable() {
               ) : (
                 users.map((u) => (
                   <tr key={u.id} className="hover:bg-green-50/30 transition-colors group">
-                    {editingId === u.id ? (
+                    {editingId === String(u.id) ? (
                       /* ===== 编辑模式 ===== */
                       <>
                         <td className="px-4 py-2 text-gray-400 font-mono text-xs">{u.id}</td>
@@ -241,12 +277,12 @@ function UserManagementTable() {
                               { l: 1, name: 'LV1 普通会员' },
                               { l: 2, name: 'LV2 铜牌会员' },
                               { l: 3, name: 'LV3 银牌会员' },
-                              { l: 4, name: 'LV4 金牌会员' },
-                              { l: 5, name: 'LV5 白金会员' },
+                              { l: 4, name: 'LV4 玉牌会员' },
+                              { l: 5, name: 'LV5 金牌会员' },
                               { l: 6, name: 'LV6 钻石会员' },
-                              { l: 7, name: 'LV7 大师会员' },
-                              { l: 8, name: 'LV8 超级会员' },
-                              { l: 9, name: 'LV9 尊享会员' },
+                              { l: 7, name: 'LV7 白金会员' },
+                              { l: 8, name: 'LV8 皇冠会员' },
+                              { l: 9, name: 'LV9 黑金会员' },
                               { l: 10, name: 'LV10 至尊VIP' },
                             ].map(item => <option key={item.l} value={item.l}>{item.name}</option>)}
                           </select>
@@ -277,18 +313,24 @@ function UserManagementTable() {
                         <td className="px-4 py-3 text-gray-500 text-xs truncate max-w-[180px]">{u.email || '-'}</td>
                         <td className="px-4 py-3 text-gray-500 text-xs">{u.phone || '-'}</td>
                         <td className="px-3 py-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                            u.membership_level >= 5 ? 'bg-purple-100 text-purple-700' :
-                            u.membership_level >= 3 ? 'bg-blue-100 text-blue-700' :
-                            'bg-gray-100 text-gray-600'
-                          }`}>
-                            LV{u.membership_level ?? 1}
-                          </span>
+                          {u.is_admin ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white">
+                              管理员
+                            </span>
+                          ) : (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                              u.membership_level >= 5 ? 'bg-purple-100 text-purple-700' :
+                              u.membership_level >= 3 ? 'bg-blue-100 text-blue-700' :
+                              'bg-gray-100 text-gray-600'
+                            }`}>
+                              LV{u.membership_level ?? 1}
+                            </span>
+                          )}
                         </td>
                         <td className="px-3 py-3">
                           {u.is_admin
                             ? <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-100 text-red-600 text-[10px] font-bold"><Shield className="h-3 w-3" />管理</span>
-                            : <span className="text-gray-400 text-xs">普通用</span>
+                            : <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-[10px]">普通用户</span>
                           }
                         </td>
                         <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
@@ -420,15 +462,15 @@ function UserManagementTable() {
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
                 >
                   {[
-                                                                                { l: 1, name: 'LV1 · 普通会？', desc: '基础用户权限' },
+                    { l: 1, name: 'LV1 · 普通会员', desc: '基础用户权限' },
                     { l: 2, name: 'LV2 · 铜牌会员', desc: '初级特权' },
                     { l: 3, name: 'LV3 · 银牌会员', desc: '中级特权 + 折扣' },
-                    { l: 4, name: 'LV4 · 金牌会员', desc: '高级特权 + 优先服务' },
-                    { l: 5, name: 'LV5 · 白金会员', desc: '尊贵体验' },
-                    { l: 6, name: 'LV6 · 钻石会员', desc: '专属客服通道' },
-                    { l: 7, name: 'LV7 · 大师会员', desc: '定制化服务' },
-                    { l: 8, name: 'LV8 · 超级会员', desc: '全平台权益解锁' },
-                    { l: 9, name: 'LV9 · 尊享会员', desc: '顶级礼遇' },
+                    { l: 4, name: 'LV4 · 玉牌会员', desc: '进阶特权' },
+                    { l: 5, name: 'LV5 · 金牌会员', desc: '高级特权 + 优先服务' },
+                    { l: 6, name: 'LV6 · 钻石会员', desc: '尊贵体验 + 专属客服' },
+                    { l: 7, name: 'LV7 · 白金会员', desc: '定制化服务' },
+                    { l: 8, name: 'LV8 · 皇冠会员', desc: '全平台权益解锁' },
+                    { l: 9, name: 'LV9 · 黑金会员', desc: '顶级礼遇' },
                     { l: 10, name: 'LV10 · 至尊VIP', desc: '最高级别，全部权益' },
                   ].map(item => (
                     <option key={item.l} value={item.l}>{item.name} · {item.desc}</option>

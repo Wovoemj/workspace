@@ -1,8 +1,21 @@
 'use client'
 
+/**
+ * =====================================================
+ * 折叠面板组件 (TipsAccordion)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 手风琴式折叠面板组件
+ * - 支持单个或多个面板同时展开
+ * - 用于展示实用锦囊、FAQ等内容
+ * - 展开/收起动画效果
+ */
+
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
+/** 锦囊条目类型 */
 interface TipsItem {
   id: string | number
   title: string
@@ -15,6 +28,14 @@ interface TipsAccordionProps {
   defaultOpenId?: string | number | null
 }
 
+/**
+ * 折叠面板组件
+ * @description 手风琴式折叠面板，支持展开/收起操作
+ * @param props - 组件属性
+ * @param props.title - 面板标题（默认：实用锦囊）
+ * @param props.items - 条目列表
+ * @param props.defaultOpenId - 默认展开的条目ID（可选）
+ */
 export default function TipsAccordion({ title = '实用锦囊', items, defaultOpenId = null }: TipsAccordionProps) {
   const [openId, setOpenId] = useState<string | number | null>(defaultOpenId)
 

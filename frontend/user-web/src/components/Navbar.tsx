@@ -1,5 +1,22 @@
 'use client'
 
+/**
+ * =====================================================
+ * 导航栏组件 (Navbar)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 页面顶部导航栏，包含Logo、导航菜单、搜索、用户菜单等
+ * - 支持响应式设计，移动端显示侧边栏菜单
+ * - 集成用户登录状态、购物车数量、通知未读数显示
+ * - 支持管理员模式入口
+ * 
+ * 状态管理：
+ * - 使用 useUIStore 管理侧边栏开关
+ * - 使用 useCartStore 管理购物车商品数量
+ * - 使用 useUserStore 管理用户登录状态
+ */
+
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -18,19 +35,26 @@ import {
   ChevronDown,
   Sparkles,
   BookOpen,
+  TrendingUp,
 } from 'lucide-react'
 import { useUIStore, useCartStore, useUserStore } from '@/store'
 import { GlobalSearch } from './GlobalSearch'
 
+/** 导航栏属性接口 */
 interface NavbarProps {
   className?: string
 }
 
+/**
+ * 根据路径获取移动端导航栏标题
+ * @param pathname - 当前路由路径
+ * @returns 对应的中文标题
+ */
 const mobileTitle = (pathname: string) => {
   const p = pathname || '/'
   if (p === '/' || p === '/home') return '发现旅程'
   if (p.startsWith('/destinations')) return '目的地'
-  if (p.startsWith('/itineraries')) return '行程规划'
+  if (p.startsWith('/travel-notes')) return '旅行攻略'
   if (p.startsWith('/assistant/settings')) return '智能体配置'
   if (p.startsWith('/assistant')) return 'AI 助手'
   if (p.startsWith('/profile')) return '我的'
@@ -39,6 +63,10 @@ const mobileTitle = (pathname: string) => {
   return '智能旅游助手'
 }
 
+/**
+ * 导航栏主组件
+ * @description 页面顶部导航栏，包含Logo、导航菜单、搜索框、用户菜单等
+ */
 export function Navbar({ className = '' }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -48,7 +76,23 @@ export function Navbar({ className = '' }: NavbarProps) {
   const { user, isAuthenticated, logout } = useUserStore()
   const [unreadCount, setUnreadCount] = useState(0)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [hasAdminToken, setHasAdminToken] = useState(false)
   const userMenuRef = useRef<HTMLDivElement | null>(null)
+
+  // 客户端渲染后检查是否有管理员登录（避免Hydration不匹配）
+  useEffect(() => {
+    setHasAdminToken(!!localStorage.getItem('admin_token'))
+  }, [])
+  
+  const isLoggedIn = isAuthenticated || hasAdminToken
+  const isOnlyAdmin = hasAdminToken && !isAuthenticated  // 只有管理员登录，没有普通用户登录
+
+  // 管理员退出函数
+  const handleAdminLogout = () => {
+    localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_user')
+    window.location.href = '/'
+  }
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = items.reduce((sum, item) => sum + item.total_price, 0)
@@ -107,7 +151,7 @@ export function Navbar({ className = '' }: NavbarProps) {
     { href: '/', label: '首页', icon: MapPin },
     { href: '/destinations', label: '目的地', icon: MapPin },
     { href: '/travel-notes', label: '攻略', icon: BookOpen },
-    { href: '/itineraries', label: '行程规划', icon: Calendar },
+    // 行程规划功能已整合到攻略页面，通过 AI 助手完成
     { href: '/about', label: '关于我们', icon: Heart },
   ]
 
@@ -150,8 +194,7 @@ export function Navbar({ className = '' }: NavbarProps) {
                 { item: navItems[0], border: 'border-blue-200', bg: 'bg-blue-50', shadow: 'shadow-blue-200/50', icon: 'text-blue-500' },
                 { item: navItems[1], border: 'border-emerald-200', bg: 'bg-emerald-50', shadow: 'shadow-emerald-200/50', icon: 'text-emerald-500' },
                 { item: navItems[2], border: 'border-violet-200', bg: 'bg-violet-50', shadow: 'shadow-violet-200/50', icon: 'text-violet-500' },
-                { item: navItems[3], border: 'border-amber-200', bg: 'bg-amber-50', shadow: 'shadow-amber-200/50', icon: 'text-amber-500' },
-                { item: navItems[4], border: 'border-rose-200', bg: 'bg-rose-50', shadow: 'shadow-rose-200/50', icon: 'text-rose-500' },
+                { item: navItems[3], border: 'border-rose-200', bg: 'bg-rose-50', shadow: 'shadow-rose-200/50', icon: 'text-rose-500' },
               ].map(({ item, border, bg, shadow, icon }) => (
                 <Link
                   key={item.href}
@@ -208,12 +251,12 @@ export function Navbar({ className = '' }: NavbarProps) {
               </Link>
 
 
-              {!isAuthenticated ? (
+              {!isLoggedIn ? (
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   <Link
                     href="/login"
                     className={`inline-flex items-center justify-center gap-1 rounded-full border-2 px-2.5 py-1.5 text-xs font-semibold shadow-sm transition-all active:scale-[0.98] sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm ${
-                      pathname.startsWith('/login')
+                        pathname.startsWith('/login')
                         ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200/60'
                         : 'border-slate-200 bg-white text-slate-700 hover:border-blue-400 hover:bg-sky-50 hover:text-blue-800'
                     }`}
@@ -224,7 +267,7 @@ export function Navbar({ className = '' }: NavbarProps) {
                   <Link
                     href="/register"
                     className={`inline-flex items-center justify-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold text-white shadow-md transition-all active:scale-[0.98] sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm ${
-                      pathname.startsWith('/register')
+                        pathname.startsWith('/register')
                         ? 'bg-gradient-to-r from-violet-600 to-indigo-600 ring-2 ring-coral-300/90 shadow-violet-600/35'
                         : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 shadow-blue-600/30 hover:brightness-110'
                     }`}
@@ -232,6 +275,98 @@ export function Navbar({ className = '' }: NavbarProps) {
                     <UserPlus className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" strokeWidth={2.25} />
                     <span>注册</span>
                   </Link>
+                </div>
+              ) : isOnlyAdmin ? (
+                // 只有管理员登录，显示管理员信息
+                <div className="flex items-center gap-2">
+                  <span className="hidden sm:inline text-sm font-semibold text-purple-700">
+                    管理员模式
+                  </span>
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      type="button"
+                      onClick={() => setUserMenuOpen((v) => !v)}
+                      className="h-10 w-10 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-600 text-white border-2 border-white shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+                      aria-haspopup="menu"
+                      aria-expanded={userMenuOpen}
+                    >
+                      <span className="text-lg font-bold">A</span>
+                    </button>
+                    {userMenuOpen && (
+                      <div
+                        className="absolute right-0 mt-2 w-56 rounded-2xl border border-border/60 bg-card/95 shadow-lg p-2 z-[60]"
+                        role="menu"
+                      >
+                        <Link
+                          href="/admin"
+                          role="menuitem"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-indigo-50 transition-colors text-indigo-700"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <span className="text-sm font-semibold">返回管理员首页</span>
+                          <ChevronDown className="h-4 w-4 opacity-60 rotate-[-90deg]" />
+                        </Link>
+                        <div className="my-1 border-t border-border/40" />
+                        <Link
+                          href="/admin?tab=province"
+                          role="menuitem"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-card transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <MapPin className="h-4 w-4 text-blue-500" />
+                          <span className="text-sm font-semibold">省份分布 TOP 10</span>
+                        </Link>
+                        <Link
+                          href="/admin?tab=city"
+                          role="menuitem"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-card transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <TrendingUp className="h-4 w-4 text-purple-500" />
+                          <span className="text-sm font-semibold">城市排行 TOP 10</span>
+                        </Link>
+                        <div className="my-1 border-t border-border/40" />
+                        <Link
+                          href="/admin/footprints"
+                          role="menuitem"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-card transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <span className="text-sm font-semibold">足迹管理</span>
+                          <ChevronDown className="h-4 w-4 opacity-60 rotate-[-90deg]" />
+                        </Link>
+                        <Link
+                          href="/admin/comments"
+                          role="menuitem"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-card transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <span className="text-sm font-semibold">评论管理</span>
+                          <ChevronDown className="h-4 w-4 opacity-60 rotate-[-90deg]" />
+                        </Link>
+                        <Link
+                          href="/admin/database"
+                          role="menuitem"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-card transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <span className="text-sm font-semibold">数据库</span>
+                          <ChevronDown className="h-4 w-4 opacity-60 rotate-[-90deg]" />
+                        </Link>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="mt-1 flex w-full items-center justify-between gap-3 px-3 py-2 rounded-xl hover:bg-red-50 hover:text-red-600 transition-colors"
+                          onClick={() => {
+                            handleAdminLogout()
+                            setUserMenuOpen(false)
+                          }}
+                        >
+                          <span className="text-sm font-semibold">退出登录</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <>
@@ -422,7 +557,7 @@ export function Navbar({ className = '' }: NavbarProps) {
                 <Heart className="h-4 w-4" />
                 <span>我的收藏</span>
               </Link>
-              {!isAuthenticated ? (
+              {!isLoggedIn ? (
                 <div className="space-y-2 pt-2">
                   <Link
                     href="/login"
@@ -440,6 +575,34 @@ export function Navbar({ className = '' }: NavbarProps) {
                     <UserPlus className="h-4 w-4" />
                     注册
                   </Link>
+                </div>
+              ) : isOnlyAdmin ? (
+                <div className="space-y-2 pt-2">
+                  <Link
+                    href="/admin/footprints"
+                    onClick={toggleSidebar}
+                    className="flex items-center space-x-3 px-4 py-3 text-purple-700 bg-purple-50 rounded-lg transition-colors"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    <span>足迹管理</span>
+                  </Link>
+                  <Link
+                    href="/admin/comments"
+                    onClick={toggleSidebar}
+                    className="flex items-center space-x-3 px-4 py-3 text-purple-700 bg-purple-50 rounded-lg transition-colors"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    <span>评论管理</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleAdminLogout()
+                      toggleSidebar()
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-red-200 bg-red-50 py-3 text-sm font-semibold text-red-600 hover:bg-red-100"
+                  >
+                    退出登录
+                  </button>
                 </div>
               ) : null}
             </div>

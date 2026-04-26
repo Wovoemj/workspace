@@ -1,8 +1,27 @@
 'use client'
 
+/**
+ * =====================================================
+ * 行程日历组件 (TripCalendar)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 行程日历可视化展示
+ * - 显示行程期间每天的行程安排
+ * - 支持月份切换浏览
+ * - 显示每天的项目数量指示器
+ * - 快速跳转到指定天数
+ * 
+ * 日历特点：
+ * - 行程内的日期高亮显示
+ * - 当天日期有特殊标识
+ * - 支持项目数量气泡显示
+ */
+
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 
+/** 行程中的单个项目类型 */
 type TripItem = {
   id: number
   day_number: number
@@ -17,6 +36,7 @@ type TripItem = {
 
 type Trip = {
   start_date?: string | null
+  end_date?: string | null
 }
 
 interface TripCalendarProps {
@@ -26,6 +46,15 @@ interface TripCalendarProps {
   selectedDay: number
 }
 
+/**
+ * 行程日历组件
+ * @description 行程日期可视化日历组件
+ * @param props - 组件属性
+ * @param props.trip - 行程信息（起止日期）
+ * @param props.items - 行程项目列表
+ * @param props.onDayClick - 日期点击回调
+ * @param props.selectedDay - 当前选中的天数
+ */
 export function TripCalendar({ trip, items, onDayClick, selectedDay }: TripCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(() => {
     if (trip.start_date) {

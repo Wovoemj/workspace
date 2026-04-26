@@ -92,7 +92,7 @@ services:
     networks:
       - travel-network
 
-  # API网关
+  # API网关 (Go)
   gateway:
     build:
       context: ./backend/gateway
@@ -111,6 +111,52 @@ services:
     depends_on:
       - mysql
       - redis
+    networks:
+      - travel-network
+
+  # APISIX API网关
+  apisix:
+    image: apache/apisix:3.9-debian
+    container_name: travel-assistant-apisix
+    restart: always
+    ports:
+      - "8088:9180"  # Admin API
+      - "80:9080"    # HTTP 入口
+    volumes:
+      - ./apisix/apisix.yml:/usr/local/apisix/conf/apisix.yaml:ro
+      - ./apisix/routes.yml:/usr/local/apisix/conf/routes.yaml:ro
+    environment:
+      - APISIX_DEFAULTS_CONF_PATH=/usr/local/apisix/conf
+    depends_on:
+      - apisix-etcd
+    networks:
+      - travel-network
+
+  # APISIX 配置存储 (etcd)
+  apisix-etcd:
+    image: bitnami/etcd:3.5
+    container_name: travel-assistant-apisix-etcd
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+    volumes:
+      - apisix_etcd_data:/bitnami/etcd
+    networks:
+      - travel-network
+
+  # APISIX Dashboard (可选)
+  apisix-dashboard:
+    image: apache/apisix-dashboard:3.0
+    container_name: travel-assistant-apisix-dashboard
+    restart: always
+    ports:
+      - "8089:9000"
+    environment:
+      - ETCD_ENDPOINTS=http://apisix-etcd:2379
+      - CONSOLE_PROXY=http://apisix:9080
+    depends_on:
+      - apisix-etcd
     networks:
       - travel-network
 
@@ -329,6 +375,7 @@ volumes:
   minio_data:
   prometheus_data:
   grafana_data:
+  apisix_etcd_data:
 
 networks:
   travel-network:

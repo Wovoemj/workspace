@@ -1,3 +1,34 @@
+/**
+ * =====================================================
+ * 管理后台 - 订单管理模块
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 订单列表展示（分页）
+ * - 订单搜索（订单号）
+ * - 订单状态筛选（待支付/已支付/已取消/已退款）
+ * - 订单详情查看
+ * - 订单状态更新
+ * - 订单统计数据展示
+ *   - 状态分布
+ *   - 今日/本月订单数与金额
+ *   - 总计统计
+ * - 刷新列表功能
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - AdminGuard: 管理员权限守卫
+ * 
+ * 【API 接口】
+ * - GET /api/orders?page=xxx&status=xxx: 获取订单列表
+ * - GET /api/admin/orders/stats: 获取订单统计数据
+ * - GET /api/orders/${id}: 获取订单详情
+ * - PUT /api/orders/${id}/status: 更新订单状态
+ * 
+ * 【状态管理】
+ * - useState: orders, page, total, keyword, status, loading
+ * - useCallback: fetchOrders, fetchStats, updateOrderStatus
+ */
 'use client'
 
 import { useEffect, useState } from 'react'

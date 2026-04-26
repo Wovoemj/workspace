@@ -1,3 +1,33 @@
+/**
+ * =====================================================
+ * 游记详情模块 - 单篇游记展示
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 游记详情展示（标题、封面、内容、标签）
+ * - 作者信息展示（昵称、头像）
+ * - 目的地关联展示
+ * - 浏览量、点赞数展示
+ * - 点赞/取消点赞功能
+ * - 分享功能
+ * - 编辑游记入口（作者本人）
+ * - 删除游记功能（作者本人）
+ * - 返回游记列表按钮
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * - apiMediaUrl: 头像 URL 处理
+ * 
+ * 【API 接口】
+ * - GET /api/travel-notes/${id}: 获取游记详情
+ * - POST /api/travel-notes/${id}/like: 点赞/取消点赞
+ * - DELETE /api/travel-notes/${id}: 删除游记（需登录，作者本人）
+ * 
+ * 【状态管理】
+ * - useState: note(游记数据), loading, liked(点赞状态), likeCount, deleting
+ * - useCallback: loadNote, toggleLike, deleteNote
+ */
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -6,7 +36,8 @@ import Link from 'next/link'
 import { toast } from 'react-hot-toast'
 import { 
   ArrowLeft, Heart, Share2, Edit, Trash2, 
-  Loader2, MapPin, Calendar, Eye, MessageCircle
+  Loader2, MapPin, Calendar, Eye, MessageCircle,
+  Sparkles
 } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
@@ -137,7 +168,7 @@ export default function TravelNoteDetailPage() {
   
   if (!note) return null
   
-  const isAuthor = isAuthenticated && user?.id === note.user?.id
+  const isAuthor = isAuthenticated && user?.id !== undefined && String(user.id) === String(note.user?.id)
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -165,7 +196,7 @@ export default function TravelNoteDetailPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
             <h1 className="text-3xl font-black text-gray-900 mb-4">{note.title}</h1>
             
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-3">
                 {note.user?.avatar_url && (
                   <img src={apiMediaUrl(note.user.avatar_url)} className="w-10 h-10 rounded-full" alt="" />
@@ -178,6 +209,17 @@ export default function TravelNoteDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {/* 行程规划入口 */}
+              {note.destination && (
+                <Link
+                  href={`/assistant?destination=${encodeURIComponent(note.destination.name)}`}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-semibold shadow-lg hover:from-sky-700 hover:to-indigo-700 transition-all"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  基于此攻略规划行程
+                </Link>
+              )}
               
               <div className="flex items-center gap-2">
                 <button

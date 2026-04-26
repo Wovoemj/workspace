@@ -1,3 +1,29 @@
+/**
+ * =====================================================
+ * 邀请好友模块 - 邀请码与邀请统计
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 邀请码展示与复制
+ * - 邀请链接展示与复制
+ * - 邀请奖励积分展示
+ * - 已邀请人数统计
+ * - 总奖励积分统计
+ * - 已邀请用户列表（用户名、注册时间）
+ * - 登录状态校验
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/users/invite: 获取邀请码和链接
+ * - GET /api/users/invite/stats: 获取邀请统计数据
+ * 
+ * 【状态管理】
+ * - useState: inviteData, stats, loading
+ * - useCallback: loadData
+ */
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'

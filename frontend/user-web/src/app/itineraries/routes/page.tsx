@@ -1,3 +1,28 @@
+/**
+ * =====================================================
+ * 行程路线模块 - AI 推荐路线展示
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - AI 生成的行程路线列表展示
+ * - 路线卡片：标题、目的地、日期范围、状态标签
+ * - 状态分类 Tab：全部 / 待完善 / 规划中 / 进行中 / 已完成
+ * - 旅行风格标签：休闲放松/人文探索/冒险体验/商务出行
+ * - 背景渐变色动态分配
+ * - 查看详情按钮（跳转到 /itineraries/${id}）
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * 
+ * 【API 接口】
+ * - GET /api/itineraries?status=xxx: 获取行程列表（支持状态过滤）
+ * 
+ * 【状态管理】
+ * - useState: trips(行程), activeTab(当前Tab), loading
+ * - useCallback: loadTrips
+ * - useMemo: filteredTrips(根据Tab过滤)
+ */
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'

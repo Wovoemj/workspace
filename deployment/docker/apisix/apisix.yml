@@ -1,0 +1,29 @@
+apisix:
+  node_listen: 9080
+  enable_admin: true
+  admin_key:
+    - name: admin
+      key: edd1c9f034335f136f7ad780378a5e0d
+      role: admin
+
+etcd:
+  host:
+    - http://apisix-etcd:2379
+  prefix: /apisix
+  timeout: 30
+
+plugins:
+  - proxy-rewrite
+  - cors
+  - limit-req
+  - limit-count
+  - limit-conn
+  - prometheus
+  - grpc-transcode
+  - request-id
+  - error-log-logger
+
+plugin_attr:
+  prometheus:
+    export_uri: /apisix/prometheus
+    meter_interval: 15

@@ -1,3 +1,32 @@
+/**
+ * =====================================================
+ * 通知中心模块 - 用户消息通知管理
+ * =====================================================
+ * 
+ * 【功能列表】
+ * - 未读通知计数展示
+ * - 通知列表展示（标题、内容、创建时间）
+ * - 单条标记已读功能
+ * - 全部标记已读功能
+ * - 已读/未读状态区分样式（未读：靛蓝色背景；已读：灰色背景）
+ * - 分页加载（每页 20 条）
+ * - 登录状态校验
+ * 
+ * 【组件依赖】
+ * - Navbar, Footer: 布局组件
+ * - useUserStore: 用户状态（Zustand）
+ * - AppNotification 类型定义
+ * 
+ * 【API 接口】
+ * - GET /api/notifications?user_id=xxx&page=1&per_page=20: 获取通知列表
+ * - PUT /api/notifications/${id}/read: 标记单条通知已读
+ * - PUT /api/notifications/read-all: 标记全部已读
+ * 
+ * 【状态管理】
+ * - useState: notifications(通知列表), loading, error, unreadCount(计算属性)
+ * - useMemo: unreadCount 计算（过滤未读通知数量）
+ * - 依赖: isAuthenticated, user?.id（登录状态变化时重新加载）
+ */
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'

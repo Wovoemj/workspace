@@ -1,4 +1,34 @@
-﻿# 导入JSON处理模块，用于数据序列化
+﻿# ============================================
+# 数据模型定义 - 智能旅游助手
+# ============================================
+#
+# 【模块说明】
+# - 定义项目所有数据库表结构
+# - 使用 SQLAlchemy ORM 进行数据库操作
+# - 每个模型类对应一张数据库表
+#
+# 【数据表清单】
+# 1. Destination - 景点表
+# 2. User - 用户表
+# 3. Trip - 行程表
+# 4. TripItem - 行程项目表
+# 5. UserLike - 点赞表
+# 6. Favorite - 收藏表
+# 7. UserFootprint - 用户足迹表
+# 8. DestinationComment - 景点评论表
+# 9. Notification - 通知表
+# 10. Page - 动态页面表
+# 11. SiteConfig - 网站配置表
+# 12. Menu - 菜单表
+# 13. Order - 订单表
+# 14. OrderItem - 订单明细表
+#
+# 【索引设计】
+# - 所有外键字段都添加了索引
+# - 常用查询字段（name, city, rating等）添加了索引
+# - 定义了复合索引优化多条件查询
+
+# 导入JSON处理模块，用于数据序列化
 import json
 # 导入日期时间处理模块
 from datetime import datetime, time, date
@@ -11,6 +41,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # 导入全局数据库实例
 from extensions import db
 
+
+# =============================================
+# Destination - 景点数据模型
+# =============================================
+#
+# 【功能】
+# - 存储景点基本信息
+# - 支持按城市、省份、评分筛选
+# - 支持地图定位（经纬度）
+#
+# 【索引】
+# - name, city, province, rating, ticket_price, created_at, updated_at 单字段索引
+# - idx_destination_name_city 复合索引
+# - idx_destination_rating_price 复合索引
 
 class Destination(db.Model):
     """景点数据模型 - 包含性能优化索引"""
@@ -72,6 +116,22 @@ class Destination(db.Model):
         }
 
 
+# =============================================
+# User - 用户数据模型
+# =============================================
+#
+# 【功能】
+# - 存储用户基本信息
+# - 支持手机号/邮箱/用户名登录
+# - 支持会员等级和积分系统
+# - 支持邀请码和邀请关系
+#
+# 【认证方式】
+# - 手机号登录
+# - 邮箱登录
+# - 用户名登录
+# - 密码使用 PBKDF2+SHA256 加密存储
+
 class User(db.Model):
     """用户数据模型"""
     __tablename__ = 'users'
@@ -124,6 +184,19 @@ class User(db.Model):
             'last_login': self.last_login.isoformat() if self.last_login else None
         }
 
+
+# =============================================
+# Trip - 行程数据模型
+# =============================================
+#
+# 【功能】
+# - 存储用户创建的旅行行程
+# - 支持多个 TripItem（行程项目）
+# - 行程状态：planning(规划中)/confirmed(已确认)/completed(已完成)/cancelled(已取消)
+#
+# 【关联】
+# - 一对多：User → Trip（一个用户多个行程）
+# - 一对多：Trip → TripItem（一个行程多个项目）
 
 class Trip(db.Model):
     """行程数据模型"""
@@ -231,6 +304,18 @@ class UserLike(db.Model):
         }
 
 
+# =============================================
+# Favorite - 用户收藏数据模型
+# =============================================
+#
+# 【功能】
+# - 记录用户收藏的景点
+# - 便于用户快速访问喜欢的景点
+#
+# 【关联】
+# - 多对一：User（多个收藏属于一个用户）
+# - 多对一：Destination（多个收藏可以针对同一景点）
+
 class Favorite(db.Model):
     """用户收藏数据模型"""
     __tablename__ = 'favorite'
@@ -252,6 +337,15 @@ class Favorite(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
+
+# =============================================
+# UserFootprint - 用户足迹数据模型
+# =============================================
+#
+# 【功能】
+# - 记录用户浏览过的景点
+# - 用于个性化推荐
+# - 记录浏览时间
 
 class UserFootprint(db.Model):
     """用户足迹数据模型"""
@@ -308,6 +402,15 @@ class DestinationComment(db.Model):
             },
         }
 
+
+# =============================================
+# Notification - 通知数据模型
+# =============================================
+#
+# 【功能】
+# - 存储系统通知、订单通知、活动通知等
+# - 支持已读/未读状态
+# - 支持多种通知类型：system(系统)/booking(订单)/payment(支付)/promotion(活动)/service(服务)
 
 class Notification(db.Model):
     """通知数据模型"""
@@ -462,6 +565,19 @@ class Menu(db.Model):
             'menu_type': self.menu_type
         }
 
+
+# =============================================
+# Order - 订单数据模型
+# =============================================
+#
+# 【功能】
+# - 存储用户订单信息
+# - 记录订单状态：pending(待支付)/paid(已支付)/cancelled(已取消)/refunded(已退款)
+# - 支持多种支付方式
+#
+# 【关联】
+# - 一对多：User → Order
+# - 一对多：Order → OrderItem
 
 class Order(db.Model):
     """订单模型 - 存储用户订单信息"""
@@ -658,7 +774,7 @@ class TravelNote(db.Model):
             "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "user": {"id": self.user.id, "nickname": self.user.nickname, "avatar_url": self.user.avatar_url} if self.user else None,
+            "user": {"id": self.user.id, "nickname": self.user.nickname, "avatar_url": self.user.avatar} if self.user else None,
             "destination": {"id": self.destination.id, "name": self.destination.name, "city": self.destination.city} if self.destination else None,
         }
 
@@ -804,4 +920,206 @@ class TicketReply(db.Model):
                 'nickname': getattr(user, 'nickname', '') if user else '',
                 'avatar_url': getattr(user, 'avatar', None) if user else None,
             } if user else None
+        }
+
+
+class AIConversation(db.Model):
+    """AI对话记录模型 - 存储用户与AI助手的完整对话历史"""
+    __tablename__ = 'ai_conversations'
+
+    # 对话记录ID，主键，自增长
+    id = db.Column(db.Integer, primary_key=True)
+    # 关联的用户ID，外键引用users表
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
+    # 会话ID，用于将多条对话关联到同一个会话
+    session_id = db.Column(db.String(100), nullable=False, index=True)
+    # 发言角色：user（用户）/ assistant（AI助手）/ system（系统）
+    role = db.Column(db.String(20), nullable=False)
+    # 对话内容
+    content = db.Column(db.Text, nullable=False)
+    # 意图类型：行程规划、景点咨询、酒店推荐等
+    intent = db.Column(db.String(50), index=True)
+    # 额外元数据，JSON格式存储（使用meta_data避免与SQLAlchemy保留字段冲突）
+    meta_data = db.Column(db.JSON)
+    # 创建时间
+    created_at = db.Column(db.DateTime, default=datetime.now, index=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'session_id': self.session_id,
+            'role': self.role,
+            'content': self.content,
+            'intent': self.intent,
+            'metadata': self.meta_data,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
+class TravelPlan(db.Model):
+    """行程规划模型 - 存储由AI生成的完整行程规划"""
+    __tablename__ = 'travel_plans'
+
+    # 规划ID，主键，自增长
+    id = db.Column(db.Integer, primary_key=True)
+    # 关联的对话ID，外键引用ai_conversations表
+    conversation_id = db.Column(db.Integer, db.ForeignKey('ai_conversations.id'), index=True)
+    # 关联的用户ID，外键引用users表
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    # 会话ID
+    session_id = db.Column(db.String(100), index=True)
+    # 规划名称
+    plan_name = db.Column(db.String(200))
+    # 目的地
+    destination = db.Column(db.String(100), index=True)
+    # 开始日期
+    start_date = db.Column(db.Date)
+    # 结束日期
+    end_date = db.Column(db.Date)
+    # 预算
+    budget = db.Column(db.Float)
+    # 偏好设置，JSON格式
+    preferences = db.Column(db.JSON)
+    # 详细行程，JSON格式存储每日行程安排
+    plan_details = db.Column(db.JSON)
+    # 状态：draft（草稿）/ confirmed（已确认）/ completed（已完成）/ cancelled（已取消）
+    status = db.Column(db.String(20), default='draft', index=True)
+    # 创建时间
+    created_at = db.Column(db.DateTime, default=datetime.now, index=True)
+    # 更新时间
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'conversation_id': self.conversation_id,
+            'user_id': self.user_id,
+            'session_id': self.session_id,
+            'plan_name': self.plan_name,
+            'destination': self.destination,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'budget': self.budget,
+            'preferences': self.preferences,
+            'plan_details': self.plan_details,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
+class PlanItem(db.Model):
+    """行程项目模型 - 存储行程中的具体活动项目"""
+    __tablename__ = 'plan_items'
+
+    # 项目ID，主键，自增长
+    id = db.Column(db.Integer, primary_key=True)
+    # 关联的行程ID，外键引用travel_plans表
+    plan_id = db.Column(db.Integer, db.ForeignKey('travel_plans.id'), nullable=False, index=True)
+    # 关联的景点ID，外键引用destinations表
+    destination_id = db.Column(db.Integer, db.ForeignKey('destinations.id'), index=True)
+    # 第几天的行程
+    day_number = db.Column(db.Integer, nullable=False, index=True)
+    # 排序顺序
+    sort_order = db.Column(db.Integer, default=0)
+    # 时间段：morning/afternoon/evening
+    time_slot = db.Column(db.String(20))
+    # 活动类型：景点/餐厅/交通/酒店
+    activity_type = db.Column(db.String(50))
+    # 标题
+    title = db.Column(db.String(200))
+    # 描述
+    description = db.Column(db.Text)
+    # 地点
+    location = db.Column(db.String(200))
+    # 开始时间
+    start_time = db.Column(db.Time)
+    # 结束时间
+    end_time = db.Column(db.Time)
+    # 持续时间（分钟）
+    duration_minutes = db.Column(db.Integer)
+    # 费用
+    cost = db.Column(db.Float)
+    # 预订信息，JSON格式
+    booking_info = db.Column(db.JSON)
+    # 创建时间
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'plan_id': self.plan_id,
+            'destination_id': self.destination_id,
+            'day_number': self.day_number,
+            'sort_order': self.sort_order,
+            'time_slot': self.time_slot,
+            'activity_type': self.activity_type,
+            'title': self.title,
+            'description': self.description,
+            'location': self.location,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'duration_minutes': self.duration_minutes,
+            'cost': self.cost,
+            'booking_info': self.booking_info
+        }
+
+
+class Comment(db.Model):
+    """评论模型 - 存储用户对景点/目的地的评论"""
+    __tablename__ = 'comments'
+
+    # 评论ID，主键，自增长
+    id = db.Column(db.Integer, primary_key=True)
+    # 关联的用户ID，外键引用users表的id字段，必填
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    # 关联的目的地/景点ID，外键引用destinations表的id字段
+    destination_id = db.Column(db.Integer, db.ForeignKey('destinations.id'), index=True)
+    # 关联的产品ID，外键引用product表的id字段
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), index=True)
+    # 关联的游记ID，外键引用travel_notes表的id字段
+    travel_note_id = db.Column(db.Integer, db.ForeignKey('travel_notes.id'), index=True)
+    # 父评论ID，用于回复功能，外键引用comments表的id字段
+    parent_id = db.Column(db.Integer, db.ForeignKey('comments.id'), index=True)
+    # 评论内容，必填，文本类型
+    content = db.Column(db.Text, nullable=False)
+    # 评分，浮点数，1-5分
+    rating = db.Column(db.Float, default=5.0)
+    # 评论状态，字符串，默认'approved'（已通过）
+    status = db.Column(db.String(20), default='approved', index=True)
+    # 点赞数量，整数，默认0
+    like_count = db.Column(db.Integer, default=0)
+    # 回复数量，整数，默认0
+    reply_count = db.Column(db.Integer, default=0)
+    # 创建时间，默认当前时间
+    created_at = db.Column(db.DateTime, default=datetime.now, index=True)
+    # 更新时间，默认当前时间
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # 关联关系
+    user = db.relationship('User', backref='comments', lazy='joined')
+    destination = db.relationship('Destination', backref='comments', lazy='joined')
+    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy='dynamic')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'destination_id': self.destination_id,
+            'product_id': self.product_id,
+            'travel_note_id': self.travel_note_id,
+            'parent_id': self.parent_id,
+            'content': self.content,
+            'rating': self.rating,
+            'status': self.status,
+            'like_count': self.like_count,
+            'reply_count': self.reply_count,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'user': {
+                'id': self.user.id,
+                'nickname': getattr(self.user, 'nickname', ''),
+                'avatar_url': getattr(self.user, 'avatar', None),
+            } if self.user else None
         }

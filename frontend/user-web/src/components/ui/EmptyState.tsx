@@ -1,8 +1,20 @@
 'use client'
 
+/**
+ * =====================================================
+ * 空状态组件 (EmptyState)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 显示无数据/空列表状态
+ * - 可配置图标、标题、描述文本
+ * - 支持操作按钮（跳转链接或回调函数）
+ */
+
 import Link from 'next/link'
 import { LucideIcon } from 'lucide-react'
 
+/** 空状态组件属性 */
 interface EmptyStateProps {
   icon?: LucideIcon
   title: string
@@ -13,6 +25,10 @@ interface EmptyStateProps {
   className?: string
 }
 
+/**
+ * 空状态组件
+ * @description 无数据时显示的空状态界面
+ */
 export function EmptyState({ 
   icon: Icon, 
   title, 

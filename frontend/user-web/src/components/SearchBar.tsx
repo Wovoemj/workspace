@@ -1,14 +1,36 @@
 'use client'
 
+/**
+ * =====================================================
+ * 搜索栏组件 (SearchBar)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 目的地/景点/酒店搜索输入框
+ * - 支持筛选条件：目的地、日期范围、预算、旅行风格
+ * - 使用防抖处理搜索请求（300ms）
+ * 
+ * 依赖：
+ * - useDebounce: 自定义hook，用于输入防抖
+ */
+
 import { useState, useEffect } from 'react'
 import { Search, MapPin, Calendar, Filter } from 'lucide-react'
 import { useDebounce } from '@/hooks'
 
+/** 搜索栏属性接口 */
 interface SearchBarProps {
   onSearch: (query: string, filters: any) => void
   className?: string
 }
 
+/**
+ * 搜索栏主组件
+ * @description 支持筛选条件的搜索输入框
+ * @param props - 组件属性
+ * @param props.onSearch - 搜索回调函数，参数为搜索词和筛选条件
+ * @param props.className - 自定义样式类
+ */
 export function SearchBar({ onSearch, className = '' }: SearchBarProps) {
   const [query, setQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)

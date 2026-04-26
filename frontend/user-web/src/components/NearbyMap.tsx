@@ -1,5 +1,28 @@
 'use client'
 
+/**
+ * =====================================================
+ * 周边地图组件 (NearbyMap)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 基于高德地图的周边设施展示组件
+ * - 支持动态搜索周边 POI（餐厅、购物、景点等）
+ * - 在地图上标注周边设施位置
+ * - 点击地图标记显示详细信息
+ * 
+ * 数据来源：
+ * - 高德地图 PlaceSearch API（主要）
+ * - 后端 API /api/nearby（fallback）
+ * 
+ * 图标类型：
+ * - tree: 景点/公园（绿色）
+ * - coffee: 咖啡店（紫色）
+ * - shopping: 购物（橙色）
+ * - restaurant: 餐厅（红色）
+ * - store: 商店（蓝色）
+ */
+
 import { useEffect, useRef, useState, useMemo } from 'react'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { MapPin, TreePine, Coffee, ShoppingBag, Utensils, Store } from 'lucide-react'
@@ -72,6 +95,15 @@ function getIconByType(type: string): 'tree' | 'coffee' | 'shopping' | 'park' | 
   return 'store'
 }
 
+/**
+ * 周边地图组件
+ * @description 展示目的地周边设施的地图组件
+ * @param props - 组件属性
+ * @param props.title - 标题（默认：周边联动）
+ * @param props.items - 周边项目列表（可选）
+ * @param props.center - 地图中心坐标 [lng, lat]
+ * @param props.destinationName - 目的地名称（用于标记）
+ */
 export default function NearbyMap({
   title = '周边联动',
   items: propItems,
@@ -120,7 +152,7 @@ export default function NearbyMap({
       extensions: 'base',
     })
 
-    placeSearch.searchNearBy('', centerPos, 3000, (status: string, result: any) => {
+    placeSearch.searchNearBy('', centerPos, 30000, (status: string, result: any) => {
       if (status === 'complete' && result.poiList?.pois?.length > 0) {
         const amapItems: NearbyItem[] = result.poiList.pois.map((poi: any) => {
           const typeInfo = poi.type || ''
@@ -141,12 +173,43 @@ export default function NearbyMap({
         setNearbyItems(amapItems)
         retryCountRef.current = 0
       } else {
-        // 无结果（如偏远地区）或搜索失败，不显示假数据
-        setNearbyItems([])
+        // 高德无结果，尝试从后端获取周边景点作为 fallback
+        fetchBackendFallback(centerPos[1], centerPos[0])
       }
       setLoading(false)
-      setErrorMessage(null)
     })
+  }
+
+  // 从后端获取周边景点作为 fallback
+  const fetchBackendFallback = async (lat: number, lng: number) => {
+    try {
+      // API 需要 location=lng,lat 格式
+      const response = await fetch(`/api/nearby?location=${lng},${lat}&radius=50&limit=15`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.items && data.items.length > 0) {
+          const fallbackItems: NearbyItem[] = data.items.map((dest: any) => ({
+            id: dest.id,
+            name: dest.name,
+            description: dest.city || '景点',
+            address: dest.address || '',
+            distance: dest.distance || '附近',
+            icon: 'tree',
+            position: dest.lng && dest.lat ? [dest.lng, dest.lat] : undefined,
+            type: '景点',
+            data_source: 'fallback',
+          })).filter((item: NearbyItem) => item.position)
+          
+          setNearbyItems(fallbackItems)
+          return
+        }
+      }
+    } catch (e) {
+      console.error('后端 fallback 失败:', e)
+    }
+    // 都失败了才显示空
+    setNearbyItems([])
+    setErrorMessage('暂无周边数据')
   }
 
   // 动态获取周边数据 - 已整合到地图初始化完成回调中

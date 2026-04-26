@@ -1,3 +1,27 @@
+/**
+ * =====================================================
+ * 首页模块 - 小游智能旅行助手
+ * =====================================================
+ * 功能说明：
+ *   - 首页主入口，展示热门目的地和精选产品
+ *   - 提供搜索功能、分类快速入口
+ *   - 可拖动悬浮的 AI 助手入口
+ *
+ * 依赖项：
+ *   - components/Navbar：顶部导航栏
+ *   - components/Footer：底部页脚
+ *   - components/ProductCard：产品卡片组件
+ *   - types/index：TypeScript 类型定义
+ *   - lib/display：显示格式化工具函数
+ *
+ * 数据来源：
+ *   - GET /api/destinations：热门目的地列表
+ *   - GET /api/products：精选产品列表
+ *
+ * 状态管理：
+ *   - 使用 React useState 管理组件状态
+ *   - 5分钟数据缓存机制
+ */
 'use client'
 
 import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, Suspense } from 'react'

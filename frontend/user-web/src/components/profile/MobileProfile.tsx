@@ -1,5 +1,25 @@
 'use client'
 
+/**
+ * =====================================================
+ * 移动端个人中心组件 (MobileProfile)
+ * =====================================================
+ * 
+ * 功能说明：
+ * - 移动端用户个人中心主组件
+ * - 包含用户信息展示、收藏、足迹、订单、优惠券等标签页
+ * - 支持下拉刷新、长按删除足迹等交互
+ * - 首次登录引导完善资料弹窗
+ * - 设置面板（通知、帮助、清除缓存等）
+ * 
+ * 标签页：
+ * - favorite: 我的收藏
+ * - footprint: 旅行足迹
+ * - messages: 站内消息
+ * - orders: 我的订单
+ * - coupons: 优惠券
+ */
+
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
@@ -29,6 +49,7 @@ import {
 } from 'lucide-react'
 import { resolveCoverSrc, onImgErrorUseFallback } from '@/lib/media'
 
+/** 新手引导弹窗 localStorage key */
 const ONBOARDING_KEY = 'profile_complete_profile_prompt_v1'
 
 export type MobileFavoritePreview = {
@@ -636,7 +657,7 @@ function FavoriteTab({
         <Bookmark className="mx-auto h-10 w-10 text-slate-300" />
         <p className="mt-3 text-sm text-slate-600">还没有收藏目的地</p>
         <Link href={emptyHref} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky-600">
-          探索热门目的?
+          探索热门目的地
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
