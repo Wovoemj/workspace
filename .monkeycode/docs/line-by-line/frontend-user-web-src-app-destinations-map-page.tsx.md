@@ -1,0 +1,344 @@
+# `frontend/user-web/src/app/destinations/map/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 目的地地图模块 - 地图交互展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 目的地地图展示（动态加载 Mapbox/Leaflet）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 地图缩放控制` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 地图定位功能` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 目的地标记点展示` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 标记点击显示详情弹窗` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 目的地搜索功能` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 地图/卫星图层切换` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - 动态导入地图组件（避免 SSR）` -> 注释行，用于解释设计意图或使用说明。
+- 18: `*` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* 【地图功能】` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - 缩放控制（ZoomIn/ZoomOut）` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - 定位当前城市` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - 点击标记查看目的地信息` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - 目的地详情弹窗` -> 注释行，用于解释设计意图或使用说明。
+- 24: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 25: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `(空行)` -> 空行，用于提升代码结构可读性。
+- 27: `import { useEffect, useRef, useState, useCallback } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 28: `import { useSearchParams } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 29: `import dynamic from 'next/dynamic'` -> 导入依赖模块，供当前文件使用。
+- 30: `import {` -> 导入依赖模块，供当前文件使用。
+- 31: `MapPin,` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `Search,` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `Navigation,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `Layers,` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `Loader2,` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `X,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `ZoomIn,` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `ZoomOut,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `Locate` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 42: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 43: `(空行)` -> 空行，用于提升代码结构可读性。
+- 44: `type Destination = {` -> 定义类型或类结构，约束数据与行为。
+- 45: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `lng: number` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `lat: number` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `cover_image?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `rating?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `ticket_price?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `}` -> 结束当前语句或代码块。
+- 55: `(空行)` -> 空行，用于提升代码结构可读性。
+- 56: `interface MapInstance {` -> 定义类型或类结构，约束数据与行为。
+- 57: `setCenter: (position: [number, number]) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `setZoom: (level: number) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `add: (marker: any) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `remove: (marker: any) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `getMap?: () => any` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `setFitView?: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `}` -> 结束当前语句或代码块。
+- 64: `(空行)` -> 空行，用于提升代码结构可读性。
+- 65: `export default function DestinationMapPage() {` -> 导出当前声明，供其他模块复用。
+- 66: `const searchParams = useSearchParams()` -> 声明变量或常量，保存运行时数据。
+- 67: `const mapContainerRef = useRef<HTMLDivElement>(null)` -> 声明变量或常量，保存运行时数据。
+- 68: `const mapRef = useRef<any>(null)` -> 声明变量或常量，保存运行时数据。
+- 69: `const markersRef = useRef<any[]>([])` -> 声明变量或常量，保存运行时数据。
+- 70: `const [map, setMap] = useState<MapInstance | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 71: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 72: `const [destinations, setDestinations] = useState<Destination[]>([])` -> 声明变量或常量，保存运行时数据。
+- 73: `const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 74: `const [mapType, setMapType] = useState<'normal' | 'satellite'>('normal')` -> 声明变量或常量，保存运行时数据。
+- 75: `const [searchCity, setSearchCity] = useState(searchParams.get('city') || '')` -> 声明变量或常量，保存运行时数据。
+- 76: `const [userLocation, setUserLocation] = useState<[number, number] | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 77: `(空行)` -> 空行，用于提升代码结构可读性。
+- 78: `// 加载地图` -> 注释行，用于解释设计意图或使用说明。
+- 79: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `if (!mapContainerRef.current) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 81: `(空行)` -> 空行，用于提升代码结构可读性。
+- 82: `// 动态导入 AMapLoader 以避免 SSR 问题` -> 注释行，用于解释设计意图或使用说明。
+- 83: `import('@amap/amap-jsapi-loader').then(({ default: AMapLoader }) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `AMapLoader.load({` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `key: 'd5d03e5e0e8e5e0e8e5e0e8e5e0e8e5e', // 高德地图 Key` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `version: '2.0',` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `plugins: ['AMap.Geolocation', 'AMap.Geocoder']` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `}).then((AMap: any) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `const mapInstance = new AMap.Map(mapContainerRef.current!, {` -> 声明变量或常量，保存运行时数据。
+- 90: `viewMode: '2D',` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `zoom: 4,` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `center: [105, 36], // 中国中心` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `mapStyle: mapType === 'satellite'` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `? 'amap://styles/satellite'` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `: 'amap://styles/normal'` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `(空行)` -> 空行，用于提升代码结构可读性。
+- 98: `mapRef.current = mapInstance` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `setMap(mapInstance as unknown as MapInstance)` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `(空行)` -> 空行，用于提升代码结构可读性。
+- 102: `// 定位用户当前位置` -> 注释行，用于解释设计意图或使用说明。
+- 103: `if (navigator.geolocation) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 104: `navigator.geolocation.getCurrentPosition(` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `(position) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `const { longitude, latitude } = position.coords` -> 声明变量或常量，保存运行时数据。
+- 107: `setUserLocation([longitude, latitude])` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `// 定位到用户附近` -> 注释行，用于解释设计意图或使用说明。
+- 109: `mapInstance.setCenter([longitude, latitude])` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `mapInstance.setZoom(10)` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `console.log('定位失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `}` -> 结束当前语句或代码块。
+- 115: `)` -> 结束当前语句或代码块。
+- 116: `}` -> 结束当前语句或代码块。
+- 117: `}).catch((e: any) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `console.error('地图加载失败:', e)` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `(空行)` -> 空行，用于提升代码结构可读性。
+- 123: `return () => {` -> 返回结果或提前结束当前流程。
+- 124: `mapRef.current?.destroy()` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `}` -> 结束当前语句或代码块。
+- 126: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `(空行)` -> 空行，用于提升代码结构可读性。
+- 128: `// 切换地图类型` -> 注释行，用于解释设计意图或使用说明。
+- 129: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `if (!mapRef.current) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 131: `mapRef.current.setMapStyle(` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `mapType === 'satellite'` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `? 'amap://styles/satellite'` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `: 'amap://styles/normal'` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `)` -> 结束当前语句或代码块。
+- 136: `}, [mapType])` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `(空行)` -> 空行，用于提升代码结构可读性。
+- 138: `// 加载目的地数据` -> 注释行，用于解释设计意图或使用说明。
+- 139: `const loadDestinations = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 140: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 141: `const params = new URLSearchParams()` -> 声明变量或常量，保存运行时数据。
+- 142: `if (searchCity) params.set('city', searchCity)` -> 条件判断分支，根据场景执行不同逻辑。
+- 143: `params.set('per_page', '100')` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `(空行)` -> 空行，用于提升代码结构可读性。
+- 145: `const res = await fetch(\`/api/destinations?${params}\`)` -> 声明变量或常量，保存运行时数据。
+- 146: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 147: `(空行)` -> 空行，用于提升代码结构可读性。
+- 148: `if (data.success && data.destinations) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 149: `setDestinations(data.destinations.filter((d: Destination) => d.lng && d.lat))` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `}` -> 结束当前语句或代码块。
+- 151: `} catch (error) {` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `console.error('加载目的地失败:', error)` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `}` -> 结束当前语句或代码块。
+- 154: `}, [searchCity])` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `(空行)` -> 空行，用于提升代码结构可读性。
+- 156: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 157: `loadDestinations()` -> 执行当前语句，参与该文件整体逻辑。
+- 158: `}, [loadDestinations])` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `(空行)` -> 空行，用于提升代码结构可读性。
+- 160: `// 添加标记点` -> 注释行，用于解释设计意图或使用说明。
+- 161: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `if (!map || destinations.length === 0) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 163: `(空行)` -> 空行，用于提升代码结构可读性。
+- 164: `// 清除旧标记` -> 注释行，用于解释设计意图或使用说明。
+- 165: `markersRef.current.forEach(marker => marker.remove())` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `markersRef.current = []` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `(空行)` -> 空行，用于提升代码结构可读性。
+- 168: `const AMap = (window as any).AMap` -> 声明变量或常量，保存运行时数据。
+- 169: `if (!AMap) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 170: `(空行)` -> 空行，用于提升代码结构可读性。
+- 171: `destinations.forEach(dest => {` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `const marker = new AMap.Marker({` -> 声明变量或常量，保存运行时数据。
+- 173: `position: [dest.lng, dest.lat],` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `title: dest.name,` -> 执行当前语句，参与该文件整体逻辑。
+- 175: `extData: dest,` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `icon: new AMap.Icon({` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `size: new AMap.Size(32, 32),` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `image: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png',` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `imageSize: new AMap.Size(32, 32)` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 182: `(空行)` -> 空行，用于提升代码结构可读性。
+- 183: `marker.on('click', () => {` -> 执行当前语句，参与该文件整体逻辑。
+- 184: `setSelectedDestination(dest)` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `map.setCenter([dest.lng, dest.lat])` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `map.setZoom(14)` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `(空行)` -> 空行，用于提升代码结构可读性。
+- 189: `marker.setMap(map)` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `markersRef.current.push(marker)` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 192: `(空行)` -> 空行，用于提升代码结构可读性。
+- 193: `// 自动调整视野` -> 注释行，用于解释设计意图或使用说明。
+- 194: `if (destinations.length > 1) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 195: `map.setFitView?.()` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `}` -> 结束当前语句或代码块。
+- 197: `}, [map, destinations])` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `(空行)` -> 空行，用于提升代码结构可读性。
+- 199: `// 定位到用户位置` -> 注释行，用于解释设计意图或使用说明。
+- 200: `const handleLocate = () => {` -> 声明变量或常量，保存运行时数据。
+- 201: `if (userLocation && map) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 202: `map.setCenter(userLocation)` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `map.setZoom(12)` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `}` -> 结束当前语句或代码块。
+- 205: `}` -> 结束当前语句或代码块。
+- 206: `(空行)` -> 空行，用于提升代码结构可读性。
+- 207: `// 缩放控制` -> 注释行，用于解释设计意图或使用说明。
+- 208: `const handleZoom = (delta: number) => {` -> 声明变量或常量，保存运行时数据。
+- 209: `if (!mapRef.current) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 210: `const currentZoom = mapRef.current.getZoom()` -> 声明变量或常量，保存运行时数据。
+- 211: `mapRef.current.setZoom(currentZoom + delta)` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `}` -> 结束当前语句或代码块。
+- 213: `(空行)` -> 空行，用于提升代码结构可读性。
+- 214: `return (` -> 返回结果或提前结束当前流程。
+- 215: `<div className="relative h-screen flex flex-col">` -> JSX/HTML 结构行，用于描述页面元素。
+- 216: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `(空行)` -> 空行，用于提升代码结构可读性。
+- 218: `{/* 搜索栏 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `<div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 220: `<div className="flex items-center bg-white rounded-full shadow-lg px-4 py-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 221: `<Search className="h-4 w-4 text-gray-400 mr-2" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 222: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `type="text"` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `placeholder="搜索城市..."` -> 执行当前语句，参与该文件整体逻辑。
+- 225: `value={searchCity}` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `onChange={(e) => setSearchCity(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `onKeyDown={(e) => e.key === 'Enter' && loadDestinations()}` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `className="outline-none text-sm w-40"` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `{searchCity && (` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `<button onClick={() => setSearchCity('')} className="ml-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 232: `<X className="h-3 w-3 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 233: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 234: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `(空行)` -> 空行，用于提升代码结构可读性。
+- 237: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `onClick={() => setMapType(m => m === 'normal' ? 'satellite' : 'normal')}` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `className="bg-white rounded-full shadow-lg p-2 hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `title={mapType === 'normal' ? '切换卫星地图' : '切换普通地图'}` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `<Layers className="h-4 w-4 text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 243: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `(空行)` -> 空行，用于提升代码结构可读性。
+- 246: `{/* 地图容器 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `<div ref={mapContainerRef} className="flex-1 w-full">` -> JSX/HTML 结构行，用于描述页面元素。
+- 248: `{loading && (` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `<div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<div className="text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `<Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 252: `<p className="mt-2 text-gray-500">地图加载中...</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 254: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 255: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `(空行)` -> 空行，用于提升代码结构可读性。
+- 258: `{/* 缩放控件 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 259: `<div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 260: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `onClick={() => handleZoom(1)}` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `className="bg-white rounded-lg shadow-lg p-2 hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 263: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `<ZoomIn className="h-5 w-5 text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 265: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `onClick={() => handleZoom(-1)}` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `className="bg-white rounded-lg shadow-lg p-2 hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `<ZoomOut className="h-5 w-5 text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 271: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 272: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `onClick={handleLocate}` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `disabled={!userLocation}` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `className="bg-white rounded-lg shadow-lg p-2 hover:bg-gray-50 disabled:opacity-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `title="定位到我的位置"` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `<Locate className="h-5 w-5 text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 280: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 281: `(空行)` -> 空行，用于提升代码结构可读性。
+- 282: `{/* 选中景点卡片 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `{selectedDestination && (` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `<div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-white rounded-2xl shadow-xl z-10 overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 285: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `onClick={() => setSelectedDestination(null)}` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `className="absolute top-2 right-2 p-1 bg-gray-100 rounded-full hover:bg-gray-200"` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `<X className="h-4 w-4 text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 290: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `(空行)` -> 空行，用于提升代码结构可读性。
+- 292: `{selectedDestination.cover_image && (` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `<div className="h-32 bg-gray-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 294: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `src={selectedDestination.cover_image}` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `alt={selectedDestination.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `className="w-full h-full object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 300: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `(空行)` -> 空行，用于提升代码结构可读性。
+- 302: `<div className="p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 303: `<h3 className="font-bold text-gray-800">{selectedDestination.name}</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 304: `<p className="text-sm text-gray-500 mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 305: `{selectedDestination.province} · {selectedDestination.city}` -> 执行当前语句，参与该文件整体逻辑。
+- 306: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 307: `(空行)` -> 空行，用于提升代码结构可读性。
+- 308: `<div className="flex items-center justify-between mt-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `<div className="flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `<span className="text-amber-500">★</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 311: `<span className="text-sm font-medium">{selectedDestination.rating?.toFixed(1) || '暂无'}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 312: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 313: `{selectedDestination.ticket_price !== undefined && (` -> 执行当前语句，参与该文件整体逻辑。
+- 314: `<span className="text-sm font-medium text-sky-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 315: `{selectedDestination.ticket_price > 0 ? \`¥${selectedDestination.ticket_price}起\` : '免费'}` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 317: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `(空行)` -> 空行，用于提升代码结构可读性。
+- 320: `<a` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `href={\`/destinations/${selectedDestination.id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `className="mt-3 block w-full text-center bg-gradient-to-r from-sky-500 to-indigo-500 text-white py-2 rounded-lg text-sm font-medium hover:from-sky-600 hover:to-indigo-600"` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 324: `查看详情` -> 执行当前语句，参与该文件整体逻辑。
+- 325: `</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 326: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 327: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 328: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 329: `(空行)` -> 空行，用于提升代码结构可读性。
+- 330: `{/* 底部统计 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 331: `<div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-full shadow-lg px-4 py-2 z-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 332: `<span className="text-sm text-gray-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 333: `共 {destinations.length} 个景点` -> 执行当前语句，参与该文件整体逻辑。
+- 334: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 335: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 336: `(空行)` -> 空行，用于提升代码结构可读性。
+- 337: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 338: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 339: `)` -> 结束当前语句或代码块。
+- 340: `}` -> 结束当前语句或代码块。

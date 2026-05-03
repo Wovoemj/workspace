@@ -1,0 +1,526 @@
+# `frontend/user-web/src/app/contact/page.tsx` 业务语义增强版逐行说明
+
+说明：每行包含“作用”和“原因”，用于把实现细节映射到业务意图。
+
+- 1: `/**`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 2: `* =====================================================`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 3: `* 联系我们页模块 - 客服与留言`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 4: `* =====================================================`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 5: `* 功能说明：`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 6: `*   - 客服热线展示（400-888-9999）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 7: `*   - 在线客服入口`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 8: `*   - 电子邮箱展示`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 9: `*   - 在线留言表单`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 10: `*   - 公司地址与营业时间`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 11: `*   - 社交媒体关注入口`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 12: `*`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 13: `* 依赖项：`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 14: `*   - components/Navbar：顶部导航栏`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 15: `*   - components/Footer：底部页脚`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 16: `*   - lucide-react：图标库`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 17: `*`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 18: `* 页面数据：`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 19: `*   - 客服热线：400-888-9999（7×24小时）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 20: `*   - 邮箱：service@travelai.com`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 21: `*   - 地址：北京市朝阳区建国路88号`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 22: `*/`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 23: `'use client'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 24: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 25: `import Link from 'next/link'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 26: `import {`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 27: `Phone,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 28: `Mail,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 29: `MapPin,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 30: `MessageCircle,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 31: `Clock,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 32: `Send,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 33: `Headphones,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 34: `} from 'lucide-react'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 35: `import { Navbar } from '@/components/Navbar'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 36: `import { Footer } from '@/components/Footer'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 37: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 38: `export default function ContactPage() {`
+  - 作用：导出声明供其他模块复用。
+  - 原因：减少重复实现，提升模块化程度。
+- 39: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 40: `<div className="min-h-screen page-bg">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 41: `<Navbar />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 42: `<main className="pt-16 pb-28 lg:pb-10">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 43: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 44: `<div className="bg-gradient-to-r from-blue-600 to-sky-500 text-white">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 45: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 46: `<div className="flex items-center gap-3 mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 47: `<Headphones className="h-8 w-8" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 48: `<span className="text-xl font-bold">联系我们</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 49: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 50: `<h1 className="text-3xl md:text-4xl font-bold mb-2">客服中心</h1>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 51: `<p className="text-white/80">我们随时为您提供帮助</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 52: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 53: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 54: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 55: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 56: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 57: `<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 58: `<div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-lg transition">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 59: `<div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 60: `<Phone className="h-7 w-7 text-blue-600" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 61: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 62: `<h3 className="font-bold text-slate-900 mb-2">客服热线</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 63: `<p className="text-2xl font-bold text-blue-600 mb-1">400-888-9999</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 64: `<p className="text-sm text-slate-500">7×24 小时服务</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 65: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 66: `<div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-lg transition">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 67: `<div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 68: `<MessageCircle className="h-7 w-7 text-green-600" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 69: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 70: `<h3 className="font-bold text-slate-900 mb-2">在线客服</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 71: `<p className="text-slate-600 mb-1">点击页面右下</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 72: `<p className="text-sm text-slate-500">实时响应</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 73: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 74: `<div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-lg transition">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 75: `<div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 76: `<Mail className="h-7 w-7 text-purple-600" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 77: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 78: `<h3 className="font-bold text-slate-900 mb-2">电子邮箱</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 79: `<p className="text-slate-600 mb-1">service@travelai.com</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 80: `<p className="text-sm text-slate-500">24小时内回</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 81: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 82: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 83: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 84: `<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 85: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 86: `<div className="bg-white rounded-2xl border border-slate-200 p-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 87: `<h2 className="text-xl font-bold text-slate-900 mb-6">在线留言</h2>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 88: `<form className="space-y-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 89: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 90: `<label className="block text-sm font-medium text-slate-700 mb-1">您的姓名</label>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 91: `<input type="text" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" placeholder="请输入姓?" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 92: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 93: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 94: `<label className="block text-sm font-medium text-slate-700 mb-1">联系电话</label>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 95: `<input type="tel" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" placeholder="请输入手机号" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 96: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 97: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 98: `<label className="block text-sm font-medium text-slate-700 mb-1">咨询类型</label>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 99: `<select className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 100: `<option>请选择</option>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 101: `<option>行程规划咨询</option>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 102: `<option>订单问题</option>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 103: `<option>会员服务</option>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 104: `<option>合作洽谈</option>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 105: `<option>其他问题</option>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 106: `</select>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 107: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 108: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 109: `<label className="block text-sm font-medium text-slate-700 mb-1">留言内容</label>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 110: `<textarea rows={4} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none" placeholder="请详细描述您的问?.." />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 111: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 112: `<button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 113: `<Send className="h-4 w-4" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 114: `提交留言`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 115: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 116: `</form>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 117: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 118: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 119: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 120: `<div className="space-y-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 121: `<div className="bg-white rounded-2xl border border-slate-200 p-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 122: `<h2 className="text-xl font-bold text-slate-900 mb-6">公司信息</h2>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 123: `<div className="space-y-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 124: `<div className="flex items-start gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 125: `<MapPin className="h-5 w-5 text-blue-600 mt-0.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 126: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 127: `<h3 className="font-medium text-slate-900">公司地址</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 128: `<p className="text-slate-500 text-sm">北京市朝阳区建国?8号SOHO现代城A?201</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 129: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 130: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 131: `<div className="flex items-start gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 132: `<Phone className="h-5 w-5 text-blue-600 mt-0.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 133: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 134: `<h3 className="font-medium text-slate-900">联系电话</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 135: `<p className="text-slate-500 text-sm">400-888-9999（客服）</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 136: `<p className="text-slate-500 text-sm">010-8888-6666（商务）</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 137: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 138: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 139: `<div className="flex items-start gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 140: `<Mail className="h-5 w-5 text-blue-600 mt-0.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 141: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 142: `<h3 className="font-medium text-slate-900">电子邮箱</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 143: `<p className="text-slate-500 text-sm">service@travelai.com（客服）</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 144: `<p className="text-slate-500 text-sm">business@travelai.com（商务合作）</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 145: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 146: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 147: `<div className="flex items-start gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 148: `<Clock className="h-5 w-5 text-blue-600 mt-0.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 149: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 150: `<h3 className="font-medium text-slate-900">工作时间</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 151: `<p className="text-slate-500 text-sm">客服?×24 小时</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 152: `<p className="text-slate-500 text-sm">商务：周一至周?9:00-18:00</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 153: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 154: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 155: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 156: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 157: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 158: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 159: `<div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-2xl p-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 160: `<h2 className="text-lg font-bold text-slate-900 mb-4">关注我们</h2>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 161: `<div className="flex gap-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 162: `<a href="#" className="w-12 h-12 bg-white rounded-xl flex items-center justify-center hover:shadow-md transition text-2xl">📱</a>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 163: `<a href="#" className="w-12 h-12 bg-white rounded-xl flex items-center justify-center hover:shadow-md transition text-2xl">💬</a>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 164: `<a href="#" className="w-12 h-12 bg-white rounded-xl flex items-center justify-center hover:shadow-md transition text-2xl">📧</a>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 165: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 166: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 167: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 168: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 169: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 170: `</main>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 171: `<Footer />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 172: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 173: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 174: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。

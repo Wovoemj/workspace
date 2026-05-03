@@ -1,0 +1,147 @@
+# `frontend/user-web/src/components/HeroCard.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 英雄卡片组件 (HeroCard)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地详情页顶部大图展示组件` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 显示景点主图、名称、位置、评分` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 底部信息栏：开放时间、门票价格、建议游览时长` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* 设计特点：` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - 大尺寸背景图 + 渐变遮罩` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - 半透明标签展示景点属性` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - 三栏信息布局` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 18: `(空行)` -> 空行，用于提升代码结构可读性。
+- 19: `import { MapPin, Star, Clock, Ticket, Sparkles, Info } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 20: `import { resolveCoverSrc, onImgErrorUseFallback } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 21: `import { formatPriceStart, formatRating, shouldShowRating } from '@/lib/display'` -> 导入依赖模块，供当前文件使用。
+- 22: `(空行)` -> 空行，用于提升代码结构可读性。
+- 23: `/** 英雄卡片属性接口 */` -> 注释行，用于解释设计意图或使用说明。
+- 24: `interface HeroCardProps {` -> 定义类型或类结构，约束数据与行为。
+- 25: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `rating?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `openTime?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `ticketPrice?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `coverImage?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `tags?: string[]` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `}` -> 结束当前语句或代码块。
+- 34: `(空行)` -> 空行，用于提升代码结构可读性。
+- 35: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 36: `* 英雄卡片主组件` -> 注释行，用于解释设计意图或使用说明。
+- 37: `* @description 目的地详情页顶部大卡片，展示景点主图和信息` -> 注释行，用于解释设计意图或使用说明。
+- 38: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 39: `export default function HeroCard({` -> 导出当前声明，供其他模块复用。
+- 40: `name,` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `city,` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `province,` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `rating,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `openTime,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `ticketPrice,` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `coverImage,` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `tags = []` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `}: HeroCardProps) {` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `const priceText = ticketPrice !== undefined && ticketPrice > 0 ? formatPriceStart(ticketPrice) : '免费'` -> 声明变量或常量，保存运行时数据。
+- 50: `const showRating = shouldShowRating(rating)` -> 声明变量或常量，保存运行时数据。
+- 51: `const ratingText = rating !== undefined ? formatRating(rating) : '--'` -> 声明变量或常量，保存运行时数据。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `return (` -> 返回结果或提前结束当前流程。
+- 54: `<div className="relative overflow-hidden rounded-2xl shadow-lg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 55: `{/* 主图区域 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `<div className="relative h-72 md:h-80 bg-gradient-to-br from-primary-800 via-primary-600 to-primary-400">` -> JSX/HTML 结构行，用于描述页面元素。
+- 57: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `src={resolveCoverSrc(coverImage)}` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `alt={\`${name}风景\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `className="w-full h-full object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `onError={onImgErrorUseFallback}` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `(空行)` -> 空行，用于提升代码结构可读性。
+- 64: `{/* 渐变遮罩 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 66: `(空行)` -> 空行，用于提升代码结构可读性。
+- 67: `{/* 顶部标签区 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `<div className="absolute top-4 left-4 right-4 flex justify-between items-start">` -> JSX/HTML 结构行，用于描述页面元素。
+- 69: `<div className="flex flex-wrap gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `{tags.map((tag, idx) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `key={idx}` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-medium border border-white/30"` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `{tag}` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 77: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `{/* 评分 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `{showRating && (` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `<div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md shadow-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 83: `<Star className="w-4 h-4 fill-amber-400 text-amber-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 84: `<span className="font-bold text-gray-900">{ratingText}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 85: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 86: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 88: `(空行)` -> 空行，用于提升代码结构可读性。
+- 89: `{/* 底部信息区 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `<div className="absolute bottom-0 left-0 right-0 p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 91: `<h1 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `{name}` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `<div className="flex items-center gap-2 text-white/90">` -> JSX/HTML 结构行，用于描述页面元素。
+- 95: `<MapPin className="w-4 h-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `<span className="text-sm">{city} · {province}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 98: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `(空行)` -> 空行，用于提升代码结构可读性。
+- 101: `{/* 底部信息栏 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `<div className="bg-white border-t border-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 103: `<div className="grid grid-cols-3 divide-x divide-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `{/* 开放时间 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `<div className="p-4 text-center hover:bg-gray-50 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `<div className="flex items-center justify-center gap-1.5 text-gray-500 mb-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `<Clock className="w-4 h-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `<span className="text-xs">开放时间</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 110: `<p className="text-sm font-semibold text-gray-900">` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `{openTime || '09:00-17:00'}` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `{openTime?.includes('周一闭馆') ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `<p className="text-xs text-orange-500 mt-0.5">周一闭馆</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `<p className="text-xs text-green-500 mt-0.5">正常开放</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 117: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 119: `(空行)` -> 空行，用于提升代码结构可读性。
+- 120: `{/* 门票价格 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `<div className="p-4 text-center bg-primary-50/50 hover:bg-primary-50 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 122: `<div className="flex items-center justify-center gap-1.5 text-primary-600 mb-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `<Ticket className="w-4 h-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 124: `<span className="text-xs">门票价格</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 125: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 126: `<p className="text-lg font-bold text-primary">{priceText}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `<p className="text-xs text-gray-500">实时更新</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `(空行)` -> 空行，用于提升代码结构可读性。
+- 130: `{/* 建议时长 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `<div className="p-4 text-center hover:bg-gray-50 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 132: `<div className="flex items-center justify-center gap-1.5 text-gray-500 mb-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 133: `<Sparkles className="w-4 h-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<span className="text-xs">建议时长</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `<p className="text-sm font-semibold text-gray-900">2-3小时</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 137: `<p className="text-xs text-gray-500">深度游览</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 140: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 141: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 142: `)` -> 结束当前语句或代码块。
+- 143: `}` -> 结束当前语句或代码块。

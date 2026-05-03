@@ -1,0 +1,298 @@
+# `frontend/user-web/src/components/MobileTabs.tsx` 业务语义增强版逐行说明
+
+说明：每行包含“作用”和“原因”，用于把实现细节映射到业务意图。
+
+- 1: `/* eslint-disable react/no-unknown-property */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 2: `'use client'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 3: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 4: `import Link from 'next/link'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 5: `import { usePathname } from 'next/navigation'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 6: `import type { ComponentType } from 'react'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 7: `import { Calendar, Heart, Home, MapPinned, Search, User } from 'lucide-react'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 8: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 9: `type TabKey = 'home' | 'destinations' | 'itineraries' | 'assistant' | 'favorites' | 'profile'`
+  - 作用：定义数据结构或接口。
+  - 原因：先约束数据形态，后续逻辑更稳定可测。
+- 10: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 11: `const getActiveKey = (pathname: string): TabKey => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 12: `const p = pathname || '/'`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 13: `if (p === '/' || p === '/home') return 'home'`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 14: `if (p.startsWith('/destinations')) return 'destinations'`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 15: `if (p.startsWith('/itineraries')) return 'itineraries'`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 16: `if (p.startsWith('/assistant')) return 'assistant'`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 17: `if (p.startsWith('/favorites')) return 'favorites'`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 18: `if (p.startsWith('/profile')) return 'profile'`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 19: `return 'home'`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 20: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 21: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 22: `type TabDef = {`
+  - 作用：定义数据结构或接口。
+  - 原因：先约束数据形态，后续逻辑更稳定可测。
+- 23: `key: TabKey`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 24: `href: string`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 25: `label: string`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 26: `icon: ComponentType<{ className?: string }>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 27: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 28: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 29: `export function MobileTabs() {`
+  - 作用：导出声明供其他模块复用。
+  - 原因：减少重复实现，提升模块化程度。
+- 30: `const pathname = usePathname()`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 31: `const active = getActiveKey(pathname)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 32: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 33: `const beforeHome: TabDef[] = [`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 34: `{ key: 'destinations', href: '/destinations', label: '目的？', icon: MapPinned },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 35: `{ key: 'itineraries', href: '/itineraries', label: '行程', icon: Calendar },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 36: `]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 37: `const afterHome: TabDef[] = [`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 38: `{ key: 'assistant', href: '/assistant', label: 'AI', icon: Search },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 39: `{ key: 'favorites', href: '/favorites', label: '收藏', icon: Heart },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 40: `{ key: 'profile', href: '/profile', label: '我的', icon: User },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 41: `]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 42: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 43: `function renderSideItem(t: TabDef) {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 44: `const Icon = t.icon`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 45: `const isActive = t.key === active`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 46: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 47: `<Link`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 48: `key={t.key}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 49: `href={t.href}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 50: `className={\`flex min-w-0 flex-1 flex-col items-center justify-end gap-0.5 pb-1 max-w-[20vw] ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 51: `isActive ? 'text-blue-600' : 'text-slate-400'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 52: `}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 53: `aria-current={isActive ? 'page' : undefined}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 54: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 55: `<Icon className={\`h-[20px] w-[20px] ${isActive ? 'text-blue-600 drop-shadow-sm stroke-[2.5]' : 'text-slate-400 stroke-2'}\`} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 56: `<span`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 57: `className={\`max-w-full truncate px-0.5 text-[9px] sm:text-[10px] leading-tight ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 58: `isActive ? 'font-bold text-blue-600' : 'font-medium text-slate-500'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 59: `}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 60: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 61: `{t.label}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 62: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 63: `{isActive ? <span className="h-0.5 w-7 rounded-full bg-gradient-to-r from-blue-600 to-sky-500" /> : <span className="h-0.5 w-7" />}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 64: `</Link>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 65: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 66: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 67: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 68: `const homeActive = active === 'home'`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 69: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 70: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 71: `<div className="fixed left-0 right-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom,0px)]">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 72: `<div className="border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur-md">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 73: `<nav className="flex h-[60px] items-end justify-between px-1">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 74: `<div className="flex flex-1">{beforeHome.map(renderSideItem)}</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 75: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 76: `<div className="relative flex w-[64px] sm:w-[72px] shrink-0 flex-col items-center">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 77: `<Link`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 78: `href="/"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 79: `className={\`absolute -top-6 flex h-[48px] w-[48px] sm:h-[52px] sm:w-[52px] items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-blue-600 via-sky-500 to-emerald-500 text-white shadow-lg shadow-blue-600/35 transition-transform active:scale-95 ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 80: `homeActive ? 'ring-2 ring-coral-400 ring-offset-2' : ''`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 81: `}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 82: `aria-current={homeActive ? 'page' : undefined}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 83: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 84: `<Home className="h-6 w-6" strokeWidth={2.5} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 85: `</Link>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 86: `<span`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 87: `className={\`mb-0.5 mt-8 text-[10px] ${homeActive ? 'font-bold text-blue-600' : 'font-medium text-slate-500'}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 88: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 89: `首页`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 90: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 91: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 92: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 93: `<div className="flex flex-1">{afterHome.map(renderSideItem)}</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 94: `</nav>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 95: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 96: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 97: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 98: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。

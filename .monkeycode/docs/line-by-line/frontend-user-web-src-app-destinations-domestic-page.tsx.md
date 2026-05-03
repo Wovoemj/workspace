@@ -1,0 +1,185 @@
+# `frontend/user-web/src/app/destinations/domestic/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 国内目的地模块 - 按区域分类展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 国内目的地列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 区域分类导航：华北/东北/华东/华中/华南/西南/西北` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 各省份目的地筛选` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 目的地卡片展示（名称、城市、评分、价格）` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 目的地卡片点击跳转详情页` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 目的地搜索功能` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - DestinationCard: 目的地卡片组件` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - GET /api/destinations?province=xxx&region=xxx: 按省份/区域筛选` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - GET /api/destinations?q=xxx: 搜索目的地` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* 【区域划分】` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - 华北：北京、天津、河北、山西、内蒙古` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - 东北：辽宁、吉林、黑龙江` -> 注释行，用于解释设计意图或使用说明。
+- 25: `* - 华东：上海、江苏、浙江、安徽、福建、江西、山东` -> 注释行，用于解释设计意图或使用说明。
+- 26: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 27: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `(空行)` -> 空行，用于提升代码结构可读性。
+- 29: `import { useEffect, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 30: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 31: `import {` -> 导入依赖模块，供当前文件使用。
+- 32: `Mountain,` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `Star,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `Loader2,` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `MapPin,` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `ArrowRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 39: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 40: `import { DestinationCard } from '@/components/DestinationCard'` -> 导入依赖模块，供当前文件使用。
+- 41: `(空行)` -> 空行，用于提升代码结构可读性。
+- 42: `type Destination = {` -> 定义类型或类结构，约束数据与行为。
+- 43: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `description: string` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `cover_image: string` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `rating: number` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `ticket_price: number` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `}` -> 结束当前语句或代码块。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `const regions = [` -> 声明变量或常量，保存运行时数据。
+- 54: `{ name: '华北地区', provinces: ['北京', '天津', '河北', '山西', '内蒙古'], emoji: '🏛️' },` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `{ name: '东北地区', provinces: ['辽宁', '吉林', '黑龙江'], emoji: '❄️' },` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `{ name: '华东地区', provinces: ['上海', '江苏', '浙江', '安徽', '福建', '江西', '山东'], emoji: '🌆' },` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `{ name: '华中地区', provinces: ['河南', '湖北', '湖南'], emoji: '🌸' },` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `{ name: '华南地区', provinces: ['广东', '广西', '海南'], emoji: '🌴' },` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `{ name: '西南地区', provinces: ['重庆', '四川', '贵州', '云南', '西藏'], emoji: '🏔️' },` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `{ name: '西北地区', provinces: ['陕西', '甘肃', '青海', '宁夏', '新疆'], emoji: '🐪' },` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `(空行)` -> 空行，用于提升代码结构可读性。
+- 63: `export default function DomesticDestinationsPage() {` -> 导出当前声明，供其他模块复用。
+- 64: `const [destinations, setDestinations] = useState<Destination[]>([])` -> 声明变量或常量，保存运行时数据。
+- 65: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 66: `const [selectedRegion, setSelectedRegion] = useState<string | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 67: `(空行)` -> 空行，用于提升代码结构可读性。
+- 68: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `async function fetchDestinations() {` -> 定义函数或方法，实现具体业务逻辑。
+- 70: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 71: `const res = await fetch('/api/destinations?per_page=50')` -> 声明变量或常量，保存运行时数据。
+- 72: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 73: `if (data.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 74: `setDestinations(data.destinations || [])` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `}` -> 结束当前语句或代码块。
+- 76: `} catch (e) {` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `console.error('加载失败', e)` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `}` -> 结束当前语句或代码块。
+- 81: `}` -> 结束当前语句或代码块。
+- 82: `fetchDestinations()` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `(空行)` -> 空行，用于提升代码结构可读性。
+- 85: `const filteredDestinations = selectedRegion` -> 声明变量或常量，保存运行时数据。
+- 86: `? destinations.filter(d => regions.find(r => r.name === selectedRegion)?.provinces.includes(d.province))` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `: destinations` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `(空行)` -> 空行，用于提升代码结构可读性。
+- 89: `return (` -> 返回结果或提前结束当前流程。
+- 90: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 91: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `<main className="pt-16 pb-28 lg:pb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 93: `(空行)` -> 空行，用于提升代码结构可读性。
+- 94: `<div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 95: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `<div className="flex items-center gap-3 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `<Mountain className="h-8 w-8" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 98: `<span className="text-xl font-bold">国内旅游</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `<h1 className="text-4xl md:text-5xl font-bold mb-4">国内旅游</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `<p className="text-white/90 text-lg max-w-2xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `探索祖国大好河山，从北国雪景到南疆海岛，从东海岸到西部高原，每一次出发都是新的发现` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `<div className="flex flex-wrap gap-3 mt-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `<Link href="/destinations/popular" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">热门推荐</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `<Link href="/destinations/international" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">出境</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `<Link href="/destinations/local" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">周边</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 110: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `(空行)` -> 空行，用于提升代码结构可读性。
+- 112: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `(空行)` -> 空行，用于提升代码结构可读性。
+- 114: `<div className="bg-white rounded-2xl border border-slate-200 p-6 mb-8 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `<h2 className="text-lg font-bold text-slate-900 mb-4">按地区筛</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `<div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 117: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `onClick={() => setSelectedRegion(null)}` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `className={\`px-4 py-3 rounded-xl text-sm font-medium transition-all ${` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `!selectedRegion ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `全部地区` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 125: `{regions.map((region) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `key={region.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `onClick={() => setSelectedRegion(region.name)}` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `className={\`px-3 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `selectedRegion === region.name ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `<span>{region.emoji}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<span className="hidden sm:inline">{region.name}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `(空行)` -> 空行，用于提升代码结构可读性。
+- 140: `(空行)` -> 空行，用于提升代码结构可读性。
+- 141: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `<div className="flex items-center justify-center py-20">` -> JSX/HTML 结构行，用于描述页面元素。
+- 143: `<Loader2 className="h-10 w-10 animate-spin text-emerald-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 144: `<span className="ml-3 text-slate-600">加载?..</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 146: `) : filteredDestinations.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 147: `<div className="text-center py-20">` -> JSX/HTML 结构行，用于描述页面元素。
+- 148: `<MapPin className="h-16 w-16 text-slate-300 mx-auto mb-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 149: `<h3 className="text-xl font-semibold text-slate-700 mb-2">暂无{selectedRegion}目的</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 150: `<p className="text-slate-500 mb-6">该地区目的地正在收录</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 151: `<button onClick={() => setSelectedRegion(null)} className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition">` -> JSX/HTML 结构行，用于描述页面元素。
+- 152: `查看全部目的?` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 155: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 156: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 157: `<div className="flex items-center justify-between mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 158: `<h2 className="text-xl font-bold text-slate-900">` -> JSX/HTML 结构行，用于描述页面元素。
+- 159: `{selectedRegion || '全国'}目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `<span className="text-slate-500 font-normal text-base ml-2">({filteredDestinations.length} 个)</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `{selectedRegion && (` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `<button onClick={() => setSelectedRegion(null)} className="text-sm text-emerald-600 hover:underline flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `清除筛?<ArrowRight className="h-4 w-4 rotate-180" />` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 168: `(空行)` -> 空行，用于提升代码结构可读性。
+- 169: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 170: `{filteredDestinations.map((dest) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `<DestinationCard key={dest.id} destination={dest} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 174: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 175: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 177: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 178: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 179: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `)` -> 结束当前语句或代码块。
+- 181: `}` -> 结束当前语句或代码块。

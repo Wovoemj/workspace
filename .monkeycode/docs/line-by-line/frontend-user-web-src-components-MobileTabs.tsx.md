@@ -1,0 +1,102 @@
+# `frontend/user-web/src/components/MobileTabs.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/* eslint-disable react/no-unknown-property */` -> 注释行，用于解释设计意图或使用说明。
+- 2: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 3: `(空行)` -> 空行，用于提升代码结构可读性。
+- 4: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 5: `import { usePathname } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 6: `import type { ComponentType } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 7: `import { Calendar, Heart, Home, MapPinned, Search, User } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 8: `(空行)` -> 空行，用于提升代码结构可读性。
+- 9: `type TabKey = 'home' | 'destinations' | 'itineraries' | 'assistant' | 'favorites' | 'profile'` -> 定义类型或类结构，约束数据与行为。
+- 10: `(空行)` -> 空行，用于提升代码结构可读性。
+- 11: `const getActiveKey = (pathname: string): TabKey => {` -> 声明变量或常量，保存运行时数据。
+- 12: `const p = pathname || '/'` -> 声明变量或常量，保存运行时数据。
+- 13: `if (p === '/' || p === '/home') return 'home'` -> 条件判断分支，根据场景执行不同逻辑。
+- 14: `if (p.startsWith('/destinations')) return 'destinations'` -> 条件判断分支，根据场景执行不同逻辑。
+- 15: `if (p.startsWith('/itineraries')) return 'itineraries'` -> 条件判断分支，根据场景执行不同逻辑。
+- 16: `if (p.startsWith('/assistant')) return 'assistant'` -> 条件判断分支，根据场景执行不同逻辑。
+- 17: `if (p.startsWith('/favorites')) return 'favorites'` -> 条件判断分支，根据场景执行不同逻辑。
+- 18: `if (p.startsWith('/profile')) return 'profile'` -> 条件判断分支，根据场景执行不同逻辑。
+- 19: `return 'home'` -> 返回结果或提前结束当前流程。
+- 20: `}` -> 结束当前语句或代码块。
+- 21: `(空行)` -> 空行，用于提升代码结构可读性。
+- 22: `type TabDef = {` -> 定义类型或类结构，约束数据与行为。
+- 23: `key: TabKey` -> 执行当前语句，参与该文件整体逻辑。
+- 24: `href: string` -> 执行当前语句，参与该文件整体逻辑。
+- 25: `label: string` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `icon: ComponentType<{ className?: string }>` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `}` -> 结束当前语句或代码块。
+- 28: `(空行)` -> 空行，用于提升代码结构可读性。
+- 29: `export function MobileTabs() {` -> 导出当前声明，供其他模块复用。
+- 30: `const pathname = usePathname()` -> 声明变量或常量，保存运行时数据。
+- 31: `const active = getActiveKey(pathname)` -> 声明变量或常量，保存运行时数据。
+- 32: `(空行)` -> 空行，用于提升代码结构可读性。
+- 33: `const beforeHome: TabDef[] = [` -> 声明变量或常量，保存运行时数据。
+- 34: `{ key: 'destinations', href: '/destinations', label: '目的？', icon: MapPinned },` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `{ key: 'itineraries', href: '/itineraries', label: '行程', icon: Calendar },` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `const afterHome: TabDef[] = [` -> 声明变量或常量，保存运行时数据。
+- 38: `{ key: 'assistant', href: '/assistant', label: 'AI', icon: Search },` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `{ key: 'favorites', href: '/favorites', label: '收藏', icon: Heart },` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `{ key: 'profile', href: '/profile', label: '我的', icon: User },` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `(空行)` -> 空行，用于提升代码结构可读性。
+- 43: `function renderSideItem(t: TabDef) {` -> 定义函数或方法，实现具体业务逻辑。
+- 44: `const Icon = t.icon` -> 声明变量或常量，保存运行时数据。
+- 45: `const isActive = t.key === active` -> 声明变量或常量，保存运行时数据。
+- 46: `return (` -> 返回结果或提前结束当前流程。
+- 47: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `key={t.key}` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `href={t.href}` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `className={\`flex min-w-0 flex-1 flex-col items-center justify-end gap-0.5 pb-1 max-w-[20vw] ${` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `isActive ? 'text-blue-600' : 'text-slate-400'` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `aria-current={isActive ? 'page' : undefined}` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `<Icon className={\`h-[20px] w-[20px] ${isActive ? 'text-blue-600 drop-shadow-sm stroke-[2.5]' : 'text-slate-400 stroke-2'}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 56: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `className={\`max-w-full truncate px-0.5 text-[9px] sm:text-[10px] leading-tight ${` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `isActive ? 'font-bold text-blue-600' : 'font-medium text-slate-500'` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `{t.label}` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 63: `{isActive ? <span className="h-0.5 w-7 rounded-full bg-gradient-to-r from-blue-600 to-sky-500" /> : <span className="h-0.5 w-7" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 65: `)` -> 结束当前语句或代码块。
+- 66: `}` -> 结束当前语句或代码块。
+- 67: `(空行)` -> 空行，用于提升代码结构可读性。
+- 68: `const homeActive = active === 'home'` -> 声明变量或常量，保存运行时数据。
+- 69: `(空行)` -> 空行，用于提升代码结构可读性。
+- 70: `return (` -> 返回结果或提前结束当前流程。
+- 71: `<div className="fixed left-0 right-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom,0px)]">` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `<div className="border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 73: `<nav className="flex h-[60px] items-end justify-between px-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 74: `<div className="flex flex-1">{beforeHome.map(renderSideItem)}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 75: `(空行)` -> 空行，用于提升代码结构可读性。
+- 76: `<div className="relative flex w-[64px] sm:w-[72px] shrink-0 flex-col items-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 77: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `href="/"` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `className={\`absolute -top-6 flex h-[48px] w-[48px] sm:h-[52px] sm:w-[52px] items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-blue-600 via-sky-500 to-emerald-500 text-white shadow-lg shadow-blue-600/35 transition-transform active:scale-95 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `homeActive ? 'ring-2 ring-coral-400 ring-offset-2' : ''` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `aria-current={homeActive ? 'page' : undefined}` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `<Home className="h-6 w-6" strokeWidth={2.5} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 85: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 86: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `className={\`mb-0.5 mt-8 text-[10px] ${homeActive ? 'font-bold text-blue-600' : 'font-medium text-slate-500'}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `首页` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 91: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `(空行)` -> 空行，用于提升代码结构可读性。
+- 93: `<div className="flex flex-1">{afterHome.map(renderSideItem)}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `</nav>` -> JSX/HTML 结构行，用于描述页面元素。
+- 95: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `)` -> 结束当前语句或代码块。
+- 98: `}` -> 结束当前语句或代码块。

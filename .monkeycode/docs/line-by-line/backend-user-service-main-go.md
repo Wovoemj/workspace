@@ -1,0 +1,411 @@
+# `backend/user-service/main.go` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `package user` -> 声明当前文件所属的 Go 包。
+- 2: `import (` -> 开始导入依赖包列表。
+- 3: `"context"` -> 执行当前语句，参与该函数的业务流程。
+- 4: `"database/sql"` -> 执行当前语句，参与该函数的业务流程。
+- 5: `"encoding/json"` -> 执行当前语句，参与该函数的业务流程。
+- 6: `"fmt"` -> 执行当前语句，参与该函数的业务流程。
+- 7: `"net/http"` -> 执行当前语句，参与该函数的业务流程。
+- 8: `"time"` -> 执行当前语句，参与该函数的业务流程。
+- 9: `"github.com/gin-gonic/gin"` -> 执行当前语句，参与该函数的业务流程。
+- 10: `"github.com/sirupsen/logrus"` -> 执行当前语句，参与该函数的业务流程。
+- 11: `"golang.org/x/crypto/bcrypt"` -> 执行当前语句，参与该函数的业务流程。
+- 12: `"gorm.io/gorm"` -> 执行当前语句，参与该函数的业务流程。
+- 13: `)` -> 结束当前代码块或导入块。
+- 14: `type Service struct {` -> 定义类型结构，用于组织数据或行为。
+- 15: `db     *gorm.DB` -> 执行当前语句，参与该函数的业务流程。
+- 16: `logger *logrus.Logger` -> 记录日志，便于运行观测与故障排查。
+- 17: `}` -> 代码块边界，标记作用域开始或结束。
+- 18: `type User struct {` -> 定义类型结构，用于组织数据或行为。
+- 19: `ID            uint      \`json:"id" gorm:"primaryKey"\`` -> 执行当前语句，参与该函数的业务流程。
+- 20: `Username      string    \`json:"username" gorm:"unique"\`` -> 执行当前语句，参与该函数的业务流程。
+- 21: `Phone         string    \`json:"phone" gorm:"unique"\`` -> 执行当前语句，参与该函数的业务流程。
+- 22: `Email         string    \`json:"email"\`` -> 执行当前语句，参与该函数的业务流程。
+- 23: `Nickname      string    \`json:"nickname"\`` -> 执行当前语句，参与该函数的业务流程。
+- 24: `Password      string    \`json:"-"\`` -> 执行当前语句，参与该函数的业务流程。
+- 25: `AvatarURL     string    \`json:"avatar_url"\`` -> 执行当前语句，参与该函数的业务流程。
+- 26: `MembershipLevel int      \`json:"membership_level"\`` -> 执行当前语句，参与该函数的业务流程。
+- 27: `IsAdmin       bool      \`json:"is_admin" gorm:"column:is_admin"\`` -> 执行当前语句，参与该函数的业务流程。
+- 28: `Preferences   UserPreferences \`json:"preferences" gorm:"type:jsonb"\`` -> 执行当前语句，参与该函数的业务流程。
+- 29: `CreatedAt     time.Time \`json:"created_at"\`` -> 执行当前语句，参与该函数的业务流程。
+- 30: `UpdatedAt     time.Time \`json:"updated_at"\`` -> 执行当前语句，参与该函数的业务流程。
+- 31: `}` -> 代码块边界，标记作用域开始或结束。
+- 32: `(空行)` -> 空行，用于提升代码结构可读性。
+- 33: `type UserPreferences struct {` -> 定义类型结构，用于组织数据或行为。
+- 34: `Destinations []string \`json:"destinations"\`` -> 执行当前语句，参与该函数的业务流程。
+- 35: `BudgetRange  BudgetRange \`json:"budget_range"\`` -> 执行当前语句，参与该函数的业务流程。
+- 36: `TravelStyle  string   \`json:"travel_style"\`` -> 执行当前语句，参与该函数的业务流程。
+- 37: `GroupSize    int      \`json:"group_size"\`` -> 执行当前语句，参与该函数的业务流程。
+- 38: `Interests    []string \`json:"interests"\`` -> 执行当前语句，参与该函数的业务流程。
+- 39: `}` -> 代码块边界，标记作用域开始或结束。
+- 40: `(空行)` -> 空行，用于提升代码结构可读性。
+- 41: `type BudgetRange struct {` -> 定义类型结构，用于组织数据或行为。
+- 42: `Min float64 \`json:"min"\`` -> 执行当前语句，参与该函数的业务流程。
+- 43: `Max float64 \`json:"max"\`` -> 执行当前语句，参与该函数的业务流程。
+- 44: `}` -> 代码块边界，标记作用域开始或结束。
+- 45: `(空行)` -> 空行，用于提升代码结构可读性。
+- 46: `type RegisterRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 47: `Phone    string \`json:"phone" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 48: `Password string \`json:"password" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 49: `Nickname string \`json:"nickname"\`` -> 执行当前语句，参与该函数的业务流程。
+- 50: `}` -> 代码块边界，标记作用域开始或结束。
+- 51: `(空行)` -> 空行，用于提升代码结构可读性。
+- 52: `type LoginRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 53: `Phone    string \`json:"phone"\`` -> 执行当前语句，参与该函数的业务流程。
+- 54: `Username string \`json:"username"\`` -> 执行当前语句，参与该函数的业务流程。
+- 55: `Password string \`json:"password" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 56: `}` -> 代码块边界，标记作用域开始或结束。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `type UpdateProfileRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 59: `Nickname  string  \`json:"nickname"\`` -> 执行当前语句，参与该函数的业务流程。
+- 60: `AvatarURL string  \`json:"avatar_url"\`` -> 执行当前语句，参与该函数的业务流程。
+- 61: `Level     *int    \`json:"membership_level"\`` -> 执行当前语句，参与该函数的业务流程。
+- 62: `}` -> 代码块边界，标记作用域开始或结束。
+- 63: `(空行)` -> 空行，用于提升代码结构可读性。
+- 64: `type UpdatePreferencesRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 65: `Destinations []string      \`json:"destinations"\`` -> 执行当前语句，参与该函数的业务流程。
+- 66: `BudgetRange  *BudgetRange \`json:"budget_range"\`` -> 执行当前语句，参与该函数的业务流程。
+- 67: `TravelStyle  *string      \`json:"travel_style"\`` -> 执行当前语句，参与该函数的业务流程。
+- 68: `GroupSize    *int         \`json:"group_size"\`` -> 执行当前语句，参与该函数的业务流程。
+- 69: `Interests    []string     \`json:"interests"\`` -> 执行当前语句，参与该函数的业务流程。
+- 70: `}` -> 代码块边界，标记作用域开始或结束。
+- 71: `(空行)` -> 空行，用于提升代码结构可读性。
+- 72: `type Favorite struct {` -> 定义类型结构，用于组织数据或行为。
+- 73: `ID             uint      \`json:"id" gorm:"primaryKey"\`` -> 执行当前语句，参与该函数的业务流程。
+- 74: `UserID         uint      \`json:"user_id" gorm:"not null;index"\`` -> 执行当前语句，参与该函数的业务流程。
+- 75: `DestinationID  uint      \`json:"destination_id" gorm:"not null"\`` -> 执行当前语句，参与该函数的业务流程。
+- 76: `DestinationName string   \`json:"destination_name"\`` -> 执行当前语句，参与该函数的业务流程。
+- 77: `City           string    \`json:"city"\`` -> 执行当前语句，参与该函数的业务流程。
+- 78: `Province       string    \`json:"province"\`` -> 执行当前语句，参与该函数的业务流程。
+- 79: `CoverImage     string    \`json:"cover_image"\`` -> 执行当前语句，参与该函数的业务流程。
+- 80: `CreatedAt      time.Time \`json:"created_at"\`` -> 执行当前语句，参与该函数的业务流程。
+- 81: `}` -> 代码块边界，标记作用域开始或结束。
+- 82: `(空行)` -> 空行，用于提升代码结构可读性。
+- 83: `type AddFavoriteRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 84: `DestinationID uint   \`json:"destination_id" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 85: `Name          string \`json:"name"\`` -> 执行当前语句，参与该函数的业务流程。
+- 86: `City          string \`json:"city"\`` -> 执行当前语句，参与该函数的业务流程。
+- 87: `Province      string \`json:"province"\`` -> 执行当前语句，参与该函数的业务流程。
+- 88: `CoverImage    string \`json:"cover_image"\`` -> 执行当前语句，参与该函数的业务流程。
+- 89: `}` -> 代码块边界，标记作用域开始或结束。
+- 90: `(空行)` -> 空行，用于提升代码结构可读性。
+- 91: `func NewService(db *gorm.DB, logger *logrus.Logger) *Service {` -> 定义函数或方法，实现具体业务逻辑。
+- 92: `return &Service{` -> 返回函数结果或提前结束当前流程。
+- 93: `db:     db,` -> 执行当前语句，参与该函数的业务流程。
+- 94: `logger: logger,` -> 记录日志，便于运行观测与故障排查。
+- 95: `}` -> 代码块边界，标记作用域开始或结束。
+- 96: `}` -> 代码块边界，标记作用域开始或结束。
+- 97: `(空行)` -> 空行，用于提升代码结构可读性。
+- 98: `func (s *Service) SetupRoutes(router *gin.RouterGroup) {` -> 定义函数或方法，实现具体业务逻辑。
+- 99: `users := router.Group("/users")` -> 注册路由或组织接口分组。
+- 100: `{` -> 代码块边界，标记作用域开始或结束。
+- 101: `users.POST("/register", s.Register)` -> 注册路由或组织接口分组。
+- 102: `users.POST("/login", s.Login)` -> 注册路由或组织接口分组。
+- 103: `users.GET("/profile", s.GetProfile)` -> 注册路由或组织接口分组。
+- 104: `users.PUT("/profile", s.UpdateProfile)` -> 注册路由或组织接口分组。
+- 105: `users.GET("/preferences", s.GetPreferences)` -> 注册路由或组织接口分组。
+- 106: `users.PUT("/preferences", s.UpdatePreferences)` -> 注册路由或组织接口分组。
+- 107: `users.GET("/:id", s.GetUserByID)` -> 注册路由或组织接口分组。
+- 108: `}` -> 代码块边界，标记作用域开始或结束。
+- 109: `(空行)` -> 空行，用于提升代码结构可读性。
+- 110: `// Favorites routes` -> 注释行，用于说明后续逻辑意图。
+- 111: `favorites := router.Group("/favorites")` -> 注册路由或组织接口分组。
+- 112: `{` -> 代码块边界，标记作用域开始或结束。
+- 113: `favorites.GET("", s.GetFavorites)` -> 注册路由或组织接口分组。
+- 114: `favorites.POST("", s.AddFavorite)` -> 注册路由或组织接口分组。
+- 115: `favorites.DELETE("/:id", s.RemoveFavorite)` -> 注册路由或组织接口分组。
+- 116: `}` -> 代码块边界，标记作用域开始或结束。
+- 117: `}` -> 代码块边界，标记作用域开始或结束。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `func (s *Service) Register(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 120: `var req RegisterRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 121: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 122: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 123: `return` -> 返回函数结果或提前结束当前流程。
+- 124: `}` -> 代码块边界，标记作用域开始或结束。
+- 125: `(空行)` -> 空行，用于提升代码结构可读性。
+- 126: `// Check if user already exists` -> 注释行，用于说明后续逻辑意图。
+- 127: `var existingUser User` -> 声明局部变量，为后续逻辑准备数据。
+- 128: `if err := s.db.Where("phone = ?", req.Phone).First(&existingUser).Error; err == nil {` -> 条件判断，根据分支处理不同情况。
+- 129: `c.JSON(http.StatusConflict, gin.H{"error": "Phone already registered"})` -> 向客户端返回 JSON 响应。
+- 130: `return` -> 返回函数结果或提前结束当前流程。
+- 131: `}` -> 代码块边界，标记作用域开始或结束。
+- 132: `(空行)` -> 空行，用于提升代码结构可读性。
+- 133: `// Hash password` -> 注释行，用于说明后续逻辑意图。
+- 134: `hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)` -> 执行当前语句，参与该函数的业务流程。
+- 135: `if err != nil {` -> 条件判断，根据分支处理不同情况。
+- 136: `s.logger.WithError(err).Error("Failed to hash password")` -> 记录日志，便于运行观测与故障排查。
+- 137: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})` -> 向客户端返回 JSON 响应。
+- 138: `return` -> 返回函数结果或提前结束当前流程。
+- 139: `}` -> 代码块边界，标记作用域开始或结束。
+- 140: `(空行)` -> 空行，用于提升代码结构可读性。
+- 141: `// Create user` -> 注释行，用于说明后续逻辑意图。
+- 142: `user := User{` -> 执行当前语句，参与该函数的业务流程。
+- 143: `Phone:         req.Phone,` -> 执行当前语句，参与该函数的业务流程。
+- 144: `Password:      string(hashedPassword),` -> 执行当前语句，参与该函数的业务流程。
+- 145: `Nickname:      req.Nickname,` -> 执行当前语句，参与该函数的业务流程。
+- 146: `MembershipLevel: 1, // Default membership level` -> 执行当前语句，参与该函数的业务流程。
+- 147: `Preferences: UserPreferences{` -> 执行当前语句，参与该函数的业务流程。
+- 148: `TravelStyle: "relaxation",` -> 执行当前语句，参与该函数的业务流程。
+- 149: `GroupSize:   2,` -> 执行当前语句，参与该函数的业务流程。
+- 150: `},` -> 执行当前语句，参与该函数的业务流程。
+- 151: `CreatedAt: time.Now(),` -> 获取当前时间，用于时间字段或时序控制。
+- 152: `UpdatedAt: time.Now(),` -> 获取当前时间，用于时间字段或时序控制。
+- 153: `}` -> 代码块边界，标记作用域开始或结束。
+- 154: `(空行)` -> 空行，用于提升代码结构可读性。
+- 155: `if err := s.db.Create(&user).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 156: `s.logger.WithError(err).Error("Failed to create user")` -> 记录日志，便于运行观测与故障排查。
+- 157: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})` -> 向客户端返回 JSON 响应。
+- 158: `return` -> 返回函数结果或提前结束当前流程。
+- 159: `}` -> 代码块边界，标记作用域开始或结束。
+- 160: `(空行)` -> 空行，用于提升代码结构可读性。
+- 161: `s.logger.WithField("user_id", user.ID).Info("User registered successfully")` -> 记录日志，便于运行观测与故障排查。
+- 162: `c.JSON(http.StatusCreated, gin.H{` -> 向客户端返回 JSON 响应。
+- 163: `"message": "User registered successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 164: `"user":    user,` -> 执行当前语句，参与该函数的业务流程。
+- 165: `})` -> 执行当前语句，参与该函数的业务流程。
+- 166: `}` -> 代码块边界，标记作用域开始或结束。
+- 167: `(空行)` -> 空行，用于提升代码结构可读性。
+- 168: `func (s *Service) Login(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 169: `var req LoginRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 170: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 171: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 172: `return` -> 返回函数结果或提前结束当前流程。
+- 173: `}` -> 代码块边界，标记作用域开始或结束。
+- 174: `(空行)` -> 空行，用于提升代码结构可读性。
+- 175: `// Find user by phone or username` -> 注释行，用于说明后续逻辑意图。
+- 176: `var user User` -> 声明局部变量，为后续逻辑准备数据。
+- 177: `query := s.db.Where("1=1")` -> 执行数据库查询或持久化操作。
+- 178: `if req.Phone != "" {` -> 条件判断，根据分支处理不同情况。
+- 179: `query = query.Where("phone = ?", req.Phone)` -> 执行数据库查询或持久化操作。
+- 180: `} else if req.Username != "" {` -> 执行当前语句，参与该函数的业务流程。
+- 181: `query = query.Where("username = ?", req.Username)` -> 执行数据库查询或持久化操作。
+- 182: `} else {` -> 执行当前语句，参与该函数的业务流程。
+- 183: `c.JSON(http.StatusBadRequest, gin.H{"error": "Phone or username is required"})` -> 向客户端返回 JSON 响应。
+- 184: `return` -> 返回函数结果或提前结束当前流程。
+- 185: `}` -> 代码块边界，标记作用域开始或结束。
+- 186: `if err := query.First(&user).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 187: `c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})` -> 向客户端返回 JSON 响应。
+- 188: `return` -> 返回函数结果或提前结束当前流程。
+- 189: `}` -> 代码块边界，标记作用域开始或结束。
+- 190: `(空行)` -> 空行，用于提升代码结构可读性。
+- 191: `// Check password` -> 注释行，用于说明后续逻辑意图。
+- 192: `if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 193: `c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})` -> 向客户端返回 JSON 响应。
+- 194: `return` -> 返回函数结果或提前结束当前流程。
+- 195: `}` -> 代码块边界，标记作用域开始或结束。
+- 196: `(空行)` -> 空行，用于提升代码结构可读性。
+- 197: `// Generate token (simplified - in production use JWT)` -> 注释行，用于说明后续逻辑意图。
+- 198: `token := fmt.Sprintf("token_%d_%d", user.ID, time.Now().Unix())` -> 获取当前时间，用于时间字段或时序控制。
+- 199: `(空行)` -> 空行，用于提升代码结构可读性。
+- 200: `s.logger.WithField("user_id", user.ID).Info("User logged in successfully")` -> 记录日志，便于运行观测与故障排查。
+- 201: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 202: `"success": true,` -> 执行当前语句，参与该函数的业务流程。
+- 203: `"message": "Login successful",` -> 执行当前语句，参与该函数的业务流程。
+- 204: `"token":   token,` -> 执行当前语句，参与该函数的业务流程。
+- 205: `"user":    user,` -> 执行当前语句，参与该函数的业务流程。
+- 206: `})` -> 执行当前语句，参与该函数的业务流程。
+- 207: `}` -> 代码块边界，标记作用域开始或结束。
+- 208: `(空行)` -> 空行，用于提升代码结构可读性。
+- 209: `func (s *Service) GetProfile(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 210: `// Get user ID from token (simplified)` -> 注释行，用于说明后续逻辑意图。
+- 211: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 212: `(空行)` -> 空行，用于提升代码结构可读性。
+- 213: `var user User` -> 声明局部变量，为后续逻辑准备数据。
+- 214: `if err := s.db.First(&user, userID).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 215: `c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})` -> 向客户端返回 JSON 响应。
+- 216: `return` -> 返回函数结果或提前结束当前流程。
+- 217: `}` -> 代码块边界，标记作用域开始或结束。
+- 218: `(空行)` -> 空行，用于提升代码结构可读性。
+- 219: `c.JSON(http.StatusOK, user)` -> 向客户端返回 JSON 响应。
+- 220: `}` -> 代码块边界，标记作用域开始或结束。
+- 221: `(空行)` -> 空行，用于提升代码结构可读性。
+- 222: `func (s *Service) UpdateProfile(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 223: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 224: `(空行)` -> 空行，用于提升代码结构可读性。
+- 225: `var req UpdateProfileRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 226: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 227: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 228: `return` -> 返回函数结果或提前结束当前流程。
+- 229: `}` -> 代码块边界，标记作用域开始或结束。
+- 230: `(空行)` -> 空行，用于提升代码结构可读性。
+- 231: `var user User` -> 声明局部变量，为后续逻辑准备数据。
+- 232: `if err := s.db.First(&user, userID).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 233: `c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})` -> 向客户端返回 JSON 响应。
+- 234: `return` -> 返回函数结果或提前结束当前流程。
+- 235: `}` -> 代码块边界，标记作用域开始或结束。
+- 236: `(空行)` -> 空行，用于提升代码结构可读性。
+- 237: `// Update fields` -> 注释行，用于说明后续逻辑意图。
+- 238: `if req.Nickname != "" {` -> 条件判断，根据分支处理不同情况。
+- 239: `user.Nickname = req.Nickname` -> 执行当前语句，参与该函数的业务流程。
+- 240: `}` -> 代码块边界，标记作用域开始或结束。
+- 241: `if req.AvatarURL != "" {` -> 条件判断，根据分支处理不同情况。
+- 242: `user.AvatarURL = req.AvatarURL` -> 执行当前语句，参与该函数的业务流程。
+- 243: `}` -> 代码块边界，标记作用域开始或结束。
+- 244: `if req.Level != nil {` -> 条件判断，根据分支处理不同情况。
+- 245: `user.MembershipLevel = *req.Level` -> 执行当前语句，参与该函数的业务流程。
+- 246: `}` -> 代码块边界，标记作用域开始或结束。
+- 247: `(空行)` -> 空行，用于提升代码结构可读性。
+- 248: `user.UpdatedAt = time.Now()` -> 获取当前时间，用于时间字段或时序控制。
+- 249: `(空行)` -> 空行，用于提升代码结构可读性。
+- 250: `if err := s.db.Save(&user).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 251: `s.logger.WithError(err).Error("Failed to update user profile")` -> 记录日志，便于运行观测与故障排查。
+- 252: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})` -> 向客户端返回 JSON 响应。
+- 253: `return` -> 返回函数结果或提前结束当前流程。
+- 254: `}` -> 代码块边界，标记作用域开始或结束。
+- 255: `(空行)` -> 空行，用于提升代码结构可读性。
+- 256: `s.logger.WithField("user_id", user.ID).Info("User profile updated")` -> 记录日志，便于运行观测与故障排查。
+- 257: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 258: `"message": "Profile updated successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 259: `"user":    user,` -> 执行当前语句，参与该函数的业务流程。
+- 260: `})` -> 执行当前语句，参与该函数的业务流程。
+- 261: `}` -> 代码块边界，标记作用域开始或结束。
+- 262: `(空行)` -> 空行，用于提升代码结构可读性。
+- 263: `func (s *Service) GetPreferences(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 264: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 265: `(空行)` -> 空行，用于提升代码结构可读性。
+- 266: `var user User` -> 声明局部变量，为后续逻辑准备数据。
+- 267: `if err := s.db.First(&user, userID).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 268: `c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})` -> 向客户端返回 JSON 响应。
+- 269: `return` -> 返回函数结果或提前结束当前流程。
+- 270: `}` -> 代码块边界，标记作用域开始或结束。
+- 271: `(空行)` -> 空行，用于提升代码结构可读性。
+- 272: `c.JSON(http.StatusOK, user.Preferences)` -> 向客户端返回 JSON 响应。
+- 273: `}` -> 代码块边界，标记作用域开始或结束。
+- 274: `(空行)` -> 空行，用于提升代码结构可读性。
+- 275: `func (s *Service) UpdatePreferences(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 276: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 277: `(空行)` -> 空行，用于提升代码结构可读性。
+- 278: `var req UpdatePreferencesRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 279: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 280: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 281: `return` -> 返回函数结果或提前结束当前流程。
+- 282: `}` -> 代码块边界，标记作用域开始或结束。
+- 283: `(空行)` -> 空行，用于提升代码结构可读性。
+- 284: `var user User` -> 声明局部变量，为后续逻辑准备数据。
+- 285: `if err := s.db.First(&user, userID).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 286: `c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})` -> 向客户端返回 JSON 响应。
+- 287: `return` -> 返回函数结果或提前结束当前流程。
+- 288: `}` -> 代码块边界，标记作用域开始或结束。
+- 289: `(空行)` -> 空行，用于提升代码结构可读性。
+- 290: `// Update preferences` -> 注释行，用于说明后续逻辑意图。
+- 291: `if req.Destinations != nil {` -> 条件判断，根据分支处理不同情况。
+- 292: `user.Preferences.Destinations = req.Destinations` -> 执行当前语句，参与该函数的业务流程。
+- 293: `}` -> 代码块边界，标记作用域开始或结束。
+- 294: `if req.BudgetRange != nil {` -> 条件判断，根据分支处理不同情况。
+- 295: `user.Preferences.BudgetRange = *req.BudgetRange` -> 执行当前语句，参与该函数的业务流程。
+- 296: `}` -> 代码块边界，标记作用域开始或结束。
+- 297: `if req.TravelStyle != nil {` -> 条件判断，根据分支处理不同情况。
+- 298: `user.Preferences.TravelStyle = *req.TravelStyle` -> 执行当前语句，参与该函数的业务流程。
+- 299: `}` -> 代码块边界，标记作用域开始或结束。
+- 300: `if req.GroupSize != nil {` -> 条件判断，根据分支处理不同情况。
+- 301: `user.Preferences.GroupSize = *req.GroupSize` -> 执行当前语句，参与该函数的业务流程。
+- 302: `}` -> 代码块边界，标记作用域开始或结束。
+- 303: `if req.Interests != nil {` -> 条件判断，根据分支处理不同情况。
+- 304: `user.Preferences.Interests = req.Interests` -> 执行当前语句，参与该函数的业务流程。
+- 305: `}` -> 代码块边界，标记作用域开始或结束。
+- 306: `(空行)` -> 空行，用于提升代码结构可读性。
+- 307: `user.UpdatedAt = time.Now()` -> 获取当前时间，用于时间字段或时序控制。
+- 308: `(空行)` -> 空行，用于提升代码结构可读性。
+- 309: `if err := s.db.Save(&user).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 310: `s.logger.WithError(err).Error("Failed to update user preferences")` -> 记录日志，便于运行观测与故障排查。
+- 311: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update preferences"})` -> 向客户端返回 JSON 响应。
+- 312: `return` -> 返回函数结果或提前结束当前流程。
+- 313: `}` -> 代码块边界，标记作用域开始或结束。
+- 314: `(空行)` -> 空行，用于提升代码结构可读性。
+- 315: `s.logger.WithField("user_id", user.ID).Info("User preferences updated")` -> 记录日志，便于运行观测与故障排查。
+- 316: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 317: `"message": "Preferences updated successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 318: `"preferences": user.Preferences,` -> 执行当前语句，参与该函数的业务流程。
+- 319: `})` -> 执行当前语句，参与该函数的业务流程。
+- 320: `}` -> 代码块边界，标记作用域开始或结束。
+- 321: `(空行)` -> 空行，用于提升代码结构可读性。
+- 322: `func (s *Service) GetUserByID(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 323: `id := c.Param("id")` -> 执行当前语句，参与该函数的业务流程。
+- 324: `(空行)` -> 空行，用于提升代码结构可读性。
+- 325: `var user User` -> 声明局部变量，为后续逻辑准备数据。
+- 326: `if err := s.db.First(&user, id).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 327: `c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})` -> 向客户端返回 JSON 响应。
+- 328: `return` -> 返回函数结果或提前结束当前流程。
+- 329: `}` -> 代码块边界，标记作用域开始或结束。
+- 330: `(空行)` -> 空行，用于提升代码结构可读性。
+- 331: `c.JSON(http.StatusOK, user)` -> 向客户端返回 JSON 响应。
+- 332: `}` -> 代码块边界，标记作用域开始或结束。
+- 333: `(空行)` -> 空行，用于提升代码结构可读性。
+- 334: `func (s *Service) GetFavorites(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 335: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 336: `(空行)` -> 空行，用于提升代码结构可读性。
+- 337: `var favorites []Favorite` -> 声明局部变量，为后续逻辑准备数据。
+- 338: `if err := s.db.Where("user_id = ?", userID).Order("created_at DESC").Find(&favorites).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 339: `s.logger.WithError(err).Error("Failed to get favorites")` -> 记录日志，便于运行观测与故障排查。
+- 340: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get favorites"})` -> 向客户端返回 JSON 响应。
+- 341: `return` -> 返回函数结果或提前结束当前流程。
+- 342: `}` -> 代码块边界，标记作用域开始或结束。
+- 343: `(空行)` -> 空行，用于提升代码结构可读性。
+- 344: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 345: `"success":      true,` -> 执行当前语句，参与该函数的业务流程。
+- 346: `"destinations": favorites,` -> 执行当前语句，参与该函数的业务流程。
+- 347: `})` -> 执行当前语句，参与该函数的业务流程。
+- 348: `}` -> 代码块边界，标记作用域开始或结束。
+- 349: `(空行)` -> 空行，用于提升代码结构可读性。
+- 350: `func (s *Service) AddFavorite(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 351: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 352: `(空行)` -> 空行，用于提升代码结构可读性。
+- 353: `var req AddFavoriteRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 354: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 355: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 356: `return` -> 返回函数结果或提前结束当前流程。
+- 357: `}` -> 代码块边界，标记作用域开始或结束。
+- 358: `(空行)` -> 空行，用于提升代码结构可读性。
+- 359: `// Check if already favorited` -> 注释行，用于说明后续逻辑意图。
+- 360: `var existing Favorite` -> 声明局部变量，为后续逻辑准备数据。
+- 361: `if err := s.db.Where("user_id = ? AND destination_id = ?", userID, req.DestinationID).First(&existing).Error; err == nil {` -> 条件判断，根据分支处理不同情况。
+- 362: `c.JSON(http.StatusOK, gin.H{"success": true, "message": "Already favorited"})` -> 向客户端返回 JSON 响应。
+- 363: `return` -> 返回函数结果或提前结束当前流程。
+- 364: `}` -> 代码块边界，标记作用域开始或结束。
+- 365: `(空行)` -> 空行，用于提升代码结构可读性。
+- 366: `favorite := Favorite{` -> 执行当前语句，参与该函数的业务流程。
+- 367: `UserID:          userID,` -> 执行当前语句，参与该函数的业务流程。
+- 368: `DestinationID:   req.DestinationID,` -> 执行当前语句，参与该函数的业务流程。
+- 369: `DestinationName: req.Name,` -> 执行当前语句，参与该函数的业务流程。
+- 370: `City:            req.City,` -> 执行当前语句，参与该函数的业务流程。
+- 371: `Province:        req.Province,` -> 执行当前语句，参与该函数的业务流程。
+- 372: `CoverImage:      req.CoverImage,` -> 执行当前语句，参与该函数的业务流程。
+- 373: `}` -> 代码块边界，标记作用域开始或结束。
+- 374: `(空行)` -> 空行，用于提升代码结构可读性。
+- 375: `if err := s.db.Create(&favorite).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 376: `s.logger.WithError(err).Error("Failed to add favorite")` -> 记录日志，便于运行观测与故障排查。
+- 377: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add favorite"})` -> 向客户端返回 JSON 响应。
+- 378: `return` -> 返回函数结果或提前结束当前流程。
+- 379: `}` -> 代码块边界，标记作用域开始或结束。
+- 380: `(空行)` -> 空行，用于提升代码结构可读性。
+- 381: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 382: `"success": true,` -> 执行当前语句，参与该函数的业务流程。
+- 383: `"message": "Added to favorites",` -> 执行当前语句，参与该函数的业务流程。
+- 384: `})` -> 执行当前语句，参与该函数的业务流程。
+- 385: `}` -> 代码块边界，标记作用域开始或结束。
+- 386: `(空行)` -> 空行，用于提升代码结构可读性。
+- 387: `func (s *Service) RemoveFavorite(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 388: `userID := c.GetUint("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 389: `favoriteID := c.Param("id")` -> 执行当前语句，参与该函数的业务流程。
+- 390: `(空行)` -> 空行，用于提升代码结构可读性。
+- 391: `var favorite Favorite` -> 声明局部变量，为后续逻辑准备数据。
+- 392: `if err := s.db.Where("id = ? AND user_id = ?", favoriteID, userID).First(&favorite).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 393: `c.JSON(http.StatusNotFound, gin.H{"error": "Favorite not found"})` -> 向客户端返回 JSON 响应。
+- 394: `return` -> 返回函数结果或提前结束当前流程。
+- 395: `}` -> 代码块边界，标记作用域开始或结束。
+- 396: `(空行)` -> 空行，用于提升代码结构可读性。
+- 397: `if err := s.db.Delete(&favorite).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 398: `s.logger.WithError(err).Error("Failed to remove favorite")` -> 记录日志，便于运行观测与故障排查。
+- 399: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove favorite"})` -> 向客户端返回 JSON 响应。
+- 400: `return` -> 返回函数结果或提前结束当前流程。
+- 401: `}` -> 代码块边界，标记作用域开始或结束。
+- 402: `(空行)` -> 空行，用于提升代码结构可读性。
+- 403: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 404: `"success": true,` -> 执行当前语句，参与该函数的业务流程。
+- 405: `"message": "Removed from favorites",` -> 执行当前语句，参与该函数的业务流程。
+- 406: `})` -> 执行当前语句，参与该函数的业务流程。
+- 407: `}` -> 代码块边界，标记作用域开始或结束。

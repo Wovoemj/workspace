@@ -1,0 +1,336 @@
+# `frontend/user-web/src/app/footprints/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 足迹模块 - 用户浏览历史记录` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 用户足迹列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 按日期分组展示足迹` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 足迹详情（目的地信息、浏览时间、来源）` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 足迹删除功能（单个/清空全部）` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 目的地快速跳转` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 登录状态校验` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 搜索过滤功能` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - useUserStore: 用户状态（Zustand）` -> 注释行，用于解释设计意图或使用说明。
+- 18: `*` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - GET /api/footprints: 获取用户足迹列表` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - DELETE /api/footprints/${id}: 删除单条足迹` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - DELETE /api/footprints/clear: 清空全部足迹` -> 注释行，用于解释设计意图或使用说明。
+- 23: `*` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 25: `* - useState: footprints(足迹), groupedFootprints(分组), loading, clearing` -> 注释行，用于解释设计意图或使用说明。
+- 26: `* - useCallback: loadFootprints, deleteFootprint, clearAllFootprints` -> 注释行，用于解释设计意图或使用说明。
+- 27: `* - 依赖: isAuthenticated, user` -> 注释行，用于解释设计意图或使用说明。
+- 28: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 29: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `(空行)` -> 空行，用于提升代码结构可读性。
+- 31: `import { useState, useEffect, useCallback } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 32: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 33: `import { useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 34: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 35: `import {` -> 导入依赖模块，供当前文件使用。
+- 36: `MapPin, Clock, Trash2, Loader2, Eye,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `Calendar, ChevronRight, Search, Sparkles` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 40: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 41: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 42: `(空行)` -> 空行，用于提升代码结构可读性。
+- 43: `interface Footprint {` -> 定义类型或类结构，约束数据与行为。
+- 44: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `destination_id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `destination?: {` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `cover_image?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `rating?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `}` -> 结束当前语句或代码块。
+- 54: `visited_at: string` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `view_duration?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `source?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `}` -> 结束当前语句或代码块。
+- 58: `(空行)` -> 空行，用于提升代码结构可读性。
+- 59: `interface FootprintGroup {` -> 定义类型或类结构，约束数据与行为。
+- 60: `date: string` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `footprints: Footprint[]` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `}` -> 结束当前语句或代码块。
+- 63: `(空行)` -> 空行，用于提升代码结构可读性。
+- 64: `export default function FootprintsPage() {` -> 导出当前声明，供其他模块复用。
+- 65: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 66: `const { isAuthenticated, user } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 67: `(空行)` -> 空行，用于提升代码结构可读性。
+- 68: `const [footprints, setFootprints] = useState<Footprint[]>([])` -> 声明变量或常量，保存运行时数据。
+- 69: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 70: `const [clearing, setClearing] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 71: `const [groupedFootprints, setGroupedFootprints] = useState<FootprintGroup[]>([])` -> 声明变量或常量，保存运行时数据。
+- 72: `(空行)` -> 空行，用于提升代码结构可读性。
+- 73: `const loadFootprints = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 74: `if (!isAuthenticated || !user) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 75: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `return` -> 返回结果或提前结束当前流程。
+- 77: `}` -> 结束当前语句或代码块。
+- 78: `(空行)` -> 空行，用于提升代码结构可读性。
+- 79: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 80: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 81: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `return` -> 返回结果或提前结束当前流程。
+- 83: `}` -> 结束当前语句或代码块。
+- 84: `(空行)` -> 空行，用于提升代码结构可读性。
+- 85: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 86: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `const res = await fetch('/api/footprints', {` -> 声明变量或常量，保存运行时数据。
+- 88: `headers: { Authorization: \`Bearer ${token}\` }` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 91: `(空行)` -> 空行，用于提升代码结构可读性。
+- 92: `if (data?.success && Array.isArray(data.footprints)) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 93: `setFootprints(data.footprints)` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `(空行)` -> 空行，用于提升代码结构可读性。
+- 95: `// 按日期分组` -> 注释行，用于解释设计意图或使用说明。
+- 96: `const grouped = groupFootprintsByDate(data.footprints)` -> 声明变量或常量，保存运行时数据。
+- 97: `setGroupedFootprints(grouped)` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `setFootprints([])` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `setGroupedFootprints([])` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `}` -> 结束当前语句或代码块。
+- 102: `} catch (error) {` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `console.error('加载足迹失败:', error)` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `setFootprints([])` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `setGroupedFootprints([])` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `}` -> 结束当前语句或代码块。
+- 109: `}, [isAuthenticated, user])` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `(空行)` -> 空行，用于提升代码结构可读性。
+- 111: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `loadFootprints()` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `}, [loadFootprints])` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `(空行)` -> 空行，用于提升代码结构可读性。
+- 115: `// 按日期分组` -> 注释行，用于解释设计意图或使用说明。
+- 116: `const groupFootprintsByDate = (items: Footprint[]): FootprintGroup[] => {` -> 声明变量或常量，保存运行时数据。
+- 117: `const groups: Record<string, Footprint[]> = {}` -> 声明变量或常量，保存运行时数据。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `items.forEach(item => {` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `const date = item.visited_at` -> 声明变量或常量，保存运行时数据。
+- 121: `? new Date(item.visited_at).toLocaleDateString('zh-CN', {` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `year: 'numeric',` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `month: 'long',` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `day: 'numeric'` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `: '未知日期'` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `(空行)` -> 空行，用于提升代码结构可读性。
+- 128: `if (!groups[date]) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 129: `groups[date] = []` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `}` -> 结束当前语句或代码块。
+- 131: `groups[date].push(item)` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `(空行)` -> 空行，用于提升代码结构可读性。
+- 134: `return Object.entries(groups).map(([date, footprints]) => ({` -> 返回结果或提前结束当前流程。
+- 135: `date,` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `footprints` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `}))` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `}` -> 结束当前语句或代码块。
+- 139: `(空行)` -> 空行，用于提升代码结构可读性。
+- 140: `// 清除所有足迹` -> 注释行，用于解释设计意图或使用说明。
+- 141: `const clearAllFootprints = async () => {` -> 声明变量或常量，保存运行时数据。
+- 142: `if (!confirm('确定要清除所有浏览足迹吗？此操作不可恢复。')) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 143: `(空行)` -> 空行，用于提升代码结构可读性。
+- 144: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 145: `if (!token) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 146: `(空行)` -> 空行，用于提升代码结构可读性。
+- 147: `setClearing(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 149: `// 逐个删除` -> 注释行，用于解释设计意图或使用说明。
+- 150: `for (const fp of footprints) {` -> 循环处理集合或重复执行逻辑。
+- 151: `await fetch(\`/api/footprints/${fp.id}\`, {` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `method: 'DELETE',` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `headers: { Authorization: \`Bearer ${token}\` }` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `}` -> 结束当前语句或代码块。
+- 156: `(空行)` -> 空行，用于提升代码结构可读性。
+- 157: `toast.success('已清除所有足迹')` -> 执行当前语句，参与该文件整体逻辑。
+- 158: `setFootprints([])` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `setGroupedFootprints([])` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `} catch (error) {` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `toast.error('清除足迹失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `setClearing(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `}` -> 结束当前语句或代码块。
+- 165: `}` -> 结束当前语句或代码块。
+- 166: `(空行)` -> 空行，用于提升代码结构可读性。
+- 167: `// 格式化浏览时长` -> 注释行，用于解释设计意图或使用说明。
+- 168: `const formatDuration = (seconds?: number) => {` -> 声明变量或常量，保存运行时数据。
+- 169: `if (!seconds) return '短暂浏览'` -> 条件判断分支，根据场景执行不同逻辑。
+- 170: `if (seconds < 60) return \`${seconds}秒\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 171: `if (seconds < 3600) return \`${Math.floor(seconds / 60)}分钟\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 172: `return \`${Math.floor(seconds / 3600)}小时${Math.floor((seconds % 3600) / 60)}分钟\`` -> 返回结果或提前结束当前流程。
+- 173: `}` -> 结束当前语句或代码块。
+- 174: `(空行)` -> 空行，用于提升代码结构可读性。
+- 175: `// 格式化浏览时间` -> 注释行，用于解释设计意图或使用说明。
+- 176: `const formatVisitTime = (isoDate?: string) => {` -> 声明变量或常量，保存运行时数据。
+- 177: `if (!isoDate) return ''` -> 条件判断分支，根据场景执行不同逻辑。
+- 178: `const date = new Date(isoDate)` -> 声明变量或常量，保存运行时数据。
+- 179: `return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })` -> 返回结果或提前结束当前流程。
+- 180: `}` -> 结束当前语句或代码块。
+- 181: `(空行)` -> 空行，用于提升代码结构可读性。
+- 182: `if (!isAuthenticated) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 183: `return (` -> 返回结果或提前结束当前流程。
+- 184: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 185: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 186: `<main className="pt-24 pb-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `<div className="max-w-4xl mx-auto px-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 188: `<div className="card p-8 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `<MapPin className="h-16 w-16 mx-auto text-gray-300 mb-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `<h2 className="text-xl font-semibold text-gray-900">请先登录</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 191: `<p className="text-gray-600 mt-2">登录后即可查看您的浏览足迹</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `<Link href="/login" className="btn btn-primary mt-4 inline-block">` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `去登录` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 195: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 196: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 197: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `)` -> 结束当前语句或代码块。
+- 201: `}` -> 结束当前语句或代码块。
+- 202: `(空行)` -> 空行，用于提升代码结构可读性。
+- 203: `return (` -> 返回结果或提前结束当前流程。
+- 204: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 205: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 206: `<main className="pt-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 207: `<div className="max-w-4xl mx-auto px-4 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 208: `<div className="card p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 209: `{/* 头部 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `<div className="flex items-start justify-between gap-4 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 211: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 212: `<h1 className="text-2xl font-bold text-gray-900">我的足迹</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 213: `<p className="text-gray-600 mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 214: `共浏览 {footprints.length} 个目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 216: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `{footprints.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `onClick={clearAllFootprints}` -> 执行当前语句，参与该文件整体逻辑。
+- 220: `disabled={clearing}` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `className="btn btn-outline flex items-center gap-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `{clearing ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `<Loader2 className="h-4 w-4 animate-spin" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 225: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `<Trash2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 227: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `清除足迹` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 230: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 232: `(空行)` -> 空行，用于提升代码结构可读性。
+- 233: `{/* 加载状态 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `<div className="flex items-center justify-center py-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `<Loader2 className="h-8 w-8 animate-spin text-blue-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 237: `<span className="ml-2 text-gray-600">加载中...</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 238: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 239: `) : footprints.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `/* 空状态 */` -> 注释行，用于解释设计意图或使用说明。
+- 241: `<div className="mt-8 text-center py-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 242: `<div className="mx-auto w-fit rounded-full bg-blue-50 p-4 text-blue-600 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 243: `<Eye className="h-10 w-10" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `<h3 className="text-lg font-semibold text-gray-900">还没有浏览记录</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 246: `<p className="text-gray-600 mt-2 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 247: `去发现更多精彩目的地吧` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 249: `<div className="flex gap-3 justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<Link href="/destinations" className="btn btn-primary">` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `发现目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `<Link href="/products" className="btn btn-outline">` -> JSX/HTML 结构行，用于描述页面元素。
+- 254: `浏览产品` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 256: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 258: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 259: `/* 足迹列表 - 按日期分组 */` -> 注释行，用于解释设计意图或使用说明。
+- 260: `<div className="mt-6 space-y-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 261: `{groupedFootprints.map((group) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `<div key={group.date}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 263: `{/* 日期标题 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `<div className="flex items-center gap-2 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 265: `<Calendar className="h-4 w-4 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `<span className="text-sm font-medium text-gray-700">{group.date}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 267: `<span className="text-xs text-gray-400">` -> JSX/HTML 结构行，用于描述页面元素。
+- 268: `({group.footprints.length} 个)` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 271: `(空行)` -> 空行，用于提升代码结构可读性。
+- 272: `{/* 足迹卡片 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `<div className="space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 274: `{group.footprints.map((fp) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `key={fp.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `href={\`/destinations/${fp.destination_id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `className="block card p-4 bg-white border border-gray-100 hover:shadow-md transition-shadow"` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `<div className="flex items-center gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 281: `{/* 封面图 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `<div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 283: `{fp.destination?.cover_image ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `src={fp.destination.cover_image}` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `alt={fp.destination.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `className="w-full h-full object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `<div className="w-full h-full flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `<MapPin className="h-8 w-8 text-gray-300" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 292: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 293: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 295: `(空行)` -> 空行，用于提升代码结构可读性。
+- 296: `{/* 信息 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 298: `<h3 className="font-semibold text-gray-900 truncate">` -> JSX/HTML 结构行，用于描述页面元素。
+- 299: `{fp.destination?.name || '未知目的地'}` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 301: `<div className="flex items-center gap-2 mt-1 text-sm text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 302: `<MapPin className="h-3 w-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 303: `<span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 304: `{fp.destination?.province || ''} {fp.destination?.city || ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 306: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 307: `<div className="flex items-center gap-3 mt-2 text-xs text-gray-400">` -> JSX/HTML 结构行，用于描述页面元素。
+- 308: `<span className="flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `<Clock className="h-3 w-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `{formatVisitTime(fp.visited_at)}` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 312: `<span>{formatDuration(fp.view_duration)}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 313: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 314: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 315: `(空行)` -> 空行，用于提升代码结构可读性。
+- 316: `{/* 箭头 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 317: `<ChevronRight className="h-5 w-5 text-gray-300 shrink-0" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 318: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 320: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 322: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 323: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 324: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 325: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 326: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 327: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 328: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 329: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 330: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 331: `)` -> 结束当前语句或代码块。
+- 332: `}` -> 结束当前语句或代码块。

@@ -1,0 +1,118 @@
+# `frontend/user-web/src/components/QuickGlance.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 快速浏览清单组件 (QuickGlance)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地必看清单展示组件` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 网格布局展示多个景点/活动` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 每个条目包含图标、标题和描述` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 支持多种图标类型和渐变色组合` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* 图标类型：` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - star: 星星（默认）` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - gem: 宝石` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - crown: 皇冠` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - award: 奖项` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - eye: 眼睛` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - history: 历史` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 22: `(空行)` -> 空行，用于提升代码结构可读性。
+- 23: `import React from 'react'` -> 导入依赖模块，供当前文件使用。
+- 24: `import { Star, Gem, Crown, Award, Eye, History, Sparkles } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 25: `(空行)` -> 空行，用于提升代码结构可读性。
+- 26: `/** 快速浏览条目类型 */` -> 注释行，用于解释设计意图或使用说明。
+- 27: `interface QuickGlanceItem {` -> 定义类型或类结构，约束数据与行为。
+- 28: `id: string | number` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `title: string` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `description: string` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `icon?: 'star' | 'gem' | 'crown' | 'award' | 'eye' | 'history'` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `}` -> 结束当前语句或代码块。
+- 33: `(空行)` -> 空行，用于提升代码结构可读性。
+- 34: `interface QuickGlanceProps {` -> 定义类型或类结构，约束数据与行为。
+- 35: `title?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `items: QuickGlanceItem[]` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `}` -> 结束当前语句或代码块。
+- 38: `(空行)` -> 空行，用于提升代码结构可读性。
+- 39: `const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {` -> 声明变量或常量，保存运行时数据。
+- 40: `star: Star,` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `gem: Gem,` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `crown: Crown,` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `award: Award,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `eye: Eye,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `history: History,` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `}` -> 结束当前语句或代码块。
+- 47: `(空行)` -> 空行，用于提升代码结构可读性。
+- 48: `// 渐变色组合` -> 注释行，用于解释设计意图或使用说明。
+- 49: `const gradients = [` -> 声明变量或常量，保存运行时数据。
+- 50: `'from-amber-400 to-orange-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `'from-blue-400 to-indigo-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `'from-green-400 to-emerald-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `'from-pink-400 to-rose-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `'from-purple-400 to-violet-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `'from-cyan-400 to-teal-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 59: `* 快速浏览清单组件` -> 注释行，用于解释设计意图或使用说明。
+- 60: `* @description 展示景点必看清单的网格卡片组件` -> 注释行，用于解释设计意图或使用说明。
+- 61: `* @param props - 组件属性` -> 注释行，用于解释设计意图或使用说明。
+- 62: `* @param props.title - 标题（默认：必看清单）` -> 注释行，用于解释设计意图或使用说明。
+- 63: `* @param props.items - 条目列表` -> 注释行，用于解释设计意图或使用说明。
+- 64: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 65: `export default function QuickGlance({ title = '必看清单', items }: QuickGlanceProps) {` -> 导出当前声明，供其他模块复用。
+- 66: `return (` -> 返回结果或提前结束当前流程。
+- 67: `<div className="card overflow-hidden mt-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 68: `{/* 标题栏 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `<div className="bg-gradient-to-r from-primary-600 to-primary-500 px-6 py-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 71: `<Sparkles className="w-5 h-5 text-white" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `<h3 className="text-lg font-bold text-white">{title}</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 73: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 74: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 75: `(空行)` -> 空行，用于提升代码结构可读性。
+- 76: `{/* 内容区域 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `<div className="p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 78: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 79: `{items.map((item, index) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `const Icon = iconMap[item.icon || 'star'] || Star` -> 声明变量或常量，保存运行时数据。
+- 81: `const gradient = gradients[index % gradients.length]` -> 声明变量或常量，保存运行时数据。
+- 82: `(空行)` -> 空行，用于提升代码结构可读性。
+- 83: `return (` -> 返回结果或提前结束当前流程。
+- 84: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `key={item.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `className="group relative bg-white border border-gray-100 rounded-xl p-4 hover:shadow-lg hover:border-primary-200 transition-all duration-300 cursor-pointer"` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `{/* 背景装饰 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `<div className={\`absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl ${gradient} opacity-10 rounded-bl-full transition-opacity group-hover:opacity-20\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 90: `(空行)` -> 空行，用于提升代码结构可读性。
+- 91: `<div className="flex items-start gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `{/* 图标 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `<div className={\`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `{Icon && <Icon className="w-6 h-6 text-white" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `(空行)` -> 空行，用于提升代码结构可读性。
+- 97: `{/* 文字内容 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `<h4 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `{item.title}` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `</h4>` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `<p className="text-sm text-gray-500 mt-1 line-clamp-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 103: `{item.description}` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `)` -> 结束当前语句或代码块。
+- 109: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 112: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `)` -> 结束当前语句或代码块。
+- 114: `}` -> 结束当前语句或代码块。

@@ -1,0 +1,189 @@
+# `frontend/user-web/src/components/SearchBar.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 搜索栏组件 (SearchBar)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地/景点/酒店搜索输入框` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 支持筛选条件：目的地、日期范围、预算、旅行风格` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 使用防抖处理搜索请求（300ms）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* 依赖：` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - useDebounce: 自定义hook，用于输入防抖` -> 注释行，用于解释设计意图或使用说明。
+- 15: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 16: `(空行)` -> 空行，用于提升代码结构可读性。
+- 17: `import { useState, useEffect } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 18: `import { Search, MapPin, Calendar, Filter } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 19: `import { useDebounce } from '@/hooks'` -> 导入依赖模块，供当前文件使用。
+- 20: `(空行)` -> 空行，用于提升代码结构可读性。
+- 21: `/** 搜索栏属性接口 */` -> 注释行，用于解释设计意图或使用说明。
+- 22: `interface SearchBarProps {` -> 定义类型或类结构，约束数据与行为。
+- 23: `onSearch: (query: string, filters: any) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 24: `className?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 25: `}` -> 结束当前语句或代码块。
+- 26: `(空行)` -> 空行，用于提升代码结构可读性。
+- 27: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 28: `* 搜索栏主组件` -> 注释行，用于解释设计意图或使用说明。
+- 29: `* @description 支持筛选条件的搜索输入框` -> 注释行，用于解释设计意图或使用说明。
+- 30: `* @param props - 组件属性` -> 注释行，用于解释设计意图或使用说明。
+- 31: `* @param props.onSearch - 搜索回调函数，参数为搜索词和筛选条件` -> 注释行，用于解释设计意图或使用说明。
+- 32: `* @param props.className - 自定义样式类` -> 注释行，用于解释设计意图或使用说明。
+- 33: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 34: `export function SearchBar({ onSearch, className = '' }: SearchBarProps) {` -> 导出当前声明，供其他模块复用。
+- 35: `const [query, setQuery] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 36: `const [showFilters, setShowFilters] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 37: `const [filters, setFilters] = useState({` -> 声明变量或常量，保存运行时数据。
+- 38: `destination: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `startDate: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `endDate: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `budget: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `travelStyle: ''` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `(空行)` -> 空行，用于提升代码结构可读性。
+- 45: `const debouncedQuery = useDebounce(query, 300)` -> 声明变量或常量，保存运行时数据。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `if (debouncedQuery) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 49: `onSearch(debouncedQuery, filters)` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `}` -> 结束当前语句或代码块。
+- 51: `}, [debouncedQuery, filters, onSearch])` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `const handleFilterChange = (key: string, value: string) => {` -> 声明变量或常量，保存运行时数据。
+- 54: `setFilters(prev => ({ ...prev, [key]: value }))` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `}` -> 结束当前语句或代码块。
+- 56: `(空行)` -> 空行，用于提升代码结构可读性。
+- 57: `const clearFilters = () => {` -> 声明变量或常量，保存运行时数据。
+- 58: `setFilters({` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `destination: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `startDate: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `endDate: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `budget: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `travelStyle: ''` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `setQuery('')` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `}` -> 结束当前语句或代码块。
+- 67: `(空行)` -> 空行，用于提升代码结构可读性。
+- 68: `return (` -> 返回结果或提前结束当前流程。
+- 69: `<div className={\`w-full ${className}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 71: `<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `type="text"` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `placeholder="搜索目的地、景点、酒?.."` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `value={query}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `onChange={(e) => setQuery(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `onClick={() => setShowFilters(!showFilters)}` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `<Filter className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 84: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 85: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 86: `(空行)` -> 空行，用于提升代码结构可读性。
+- 87: `(空行)` -> 空行，用于提升代码结构可读性。
+- 88: `{showFilters && (` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `<div className="mt-4 bg-white p-4 rounded-lg shadow-lg border">` -> JSX/HTML 结构行，用于描述页面元素。
+- 90: `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 91: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `<MapPin className="text-gray-400 h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 93: `<select` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `value={filters.destination}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `onChange={(e) => handleFilterChange('destination', e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `<option value="">目的</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `<option value="beijing">北京</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `<option value="shanghai">上海</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `<option value="guangzhou">广州</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `<option value="shenzhen">深圳</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 103: `<option value="chengdu">成都</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `<option value="hangzhou">杭州</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `<option value="xiamen">厦门</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `<option value="sanya">三亚</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `</select>` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `(空行)` -> 空行，用于提升代码结构可读性。
+- 110: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `<Calendar className="text-gray-400 h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 112: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `type="date"` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `value={filters.startDate}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `onChange={(e) => handleFilterChange('startDate', e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 119: `(空行)` -> 空行，用于提升代码结构可读性。
+- 120: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `<Calendar className="text-gray-400 h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 122: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `type="date"` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `value={filters.endDate}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `onChange={(e) => handleFilterChange('endDate', e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `(空行)` -> 空行，用于提升代码结构可读性。
+- 130: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `<span className="text-gray-400 h-4 w-4">¥</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 132: `<select` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `value={filters.budget}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `onChange={(e) => handleFilterChange('budget', e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `<option value="">预算范围</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `<option value="0-1000">¥1000以下</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `<option value="1000-3000">¥1000-3000</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 140: `<option value="3000-5000">¥3000-5000</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 141: `<option value="5000-10000">¥5000-10000</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 142: `<option value="10000+">¥10000以上</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 143: `</select>` -> JSX/HTML 结构行，用于描述页面元素。
+- 144: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `(空行)` -> 空行，用于提升代码结构可读性。
+- 146: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 147: `<span className="text-gray-400 h-4 w-4">🎯</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 148: `<select` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `value={filters.travelStyle}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `onChange={(e) => handleFilterChange('travelStyle', e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `<option value="">旅行风格</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `<option value="adventure">探险</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 155: `<option value="relaxation">休闲</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 156: `<option value="cultural">文化</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 157: `<option value="business">商务</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 158: `<option value="family">家庭</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 159: `<option value="romantic">浪漫</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `</select>` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `(空行)` -> 空行，用于提升代码结构可读性。
+- 164: `<div className="flex gap-2 mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `onClick={clearFilters}` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `className="flex-1 px-4 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `清除筛?` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 171: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `setShowFilters(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `onSearch(query, filters)` -> 执行当前语句，参与该文件整体逻辑。
+- 175: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `应用筛?` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 181: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `)` -> 结束当前语句或代码块。
+- 185: `}` -> 结束当前语句或代码块。

@@ -1,0 +1,2809 @@
+# `frontend/user-web/src/app/admin/page.tsx` 业务语义增强版逐行说明
+
+说明：每行包含“作用”和“原因”，用于把实现细节映射到业务意图。
+
+- 1: `/**`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 2: `* =====================================================`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 3: `* 管理后台首页模块 - 数据统计与概览`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 4: `* =====================================================`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 5: `*`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 6: `* 【功能列表】`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 7: `* - 平台数据统计展示（目的地/用户/行程/订单数等）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 8: `* - 各省份目的地分布图表`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 9: `* - 热门城市排行`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 10: `* - 行程状态分布`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 11: `* - 订单状态与金额统计`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 12: `* - 会员等级分布`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 13: `* - 最近活动列表（用户/行程/评论/订单）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 14: `* - 目的地管理入口`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 15: `* - 管理员权限校验（AdminGuard）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 16: `*`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 17: `* 【组件依赖】`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 18: `* - Navbar, Footer: 布局组件`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 19: `* - AdminGuard: 管理员权限守卫组件`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 20: `* - 图表库（内联实现）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 21: `*`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 22: `* 【API 接口】`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 23: `* - GET /api/admin/stats: 获取平台统计数据`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 24: `* - GET /api/destinations?limit=1000: 获取目的地列表`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 25: `* - GET /api/users?limit=100: 获取用户列表`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 26: `* - GET /api/orders?limit=100: 获取订单列表`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 27: `* - GET /api/comments?limit=100: 获取评论列表`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 28: `*`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 29: `* 【认证方式】`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 30: `* - admin_token: 存储在 localStorage`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 31: `* - Authorization: Bearer token 请求头`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 32: `*/`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 33: `'use client'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 34: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 35: `import { useEffect, useState, useCallback } from 'react'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 36: `import Link from 'next/link'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 37: `import { Navbar } from '@/components/Navbar'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 38: `import { Footer } from '@/components/Footer'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 39: `import {`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 40: `BarChart3, Loader2, MapPin, Users, Calendar, FileText, MessageSquare,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 41: `ShoppingBag, Footprints, Bell, Settings, Search, ChevronLeft, ChevronRight,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 42: `Edit2, Save, X, TrendingUp, Eye, Trash2, RefreshCw, Database, AlertCircle,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 43: `Upload, ImagePlus`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 44: `} from 'lucide-react'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 45: `import { AdminGuard } from '@/components/AdminGuard'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 46: `import { toast } from 'react-hot-toast'`
+  - 作用：导入依赖。
+  - 原因：显式依赖便于构建、重构和静态分析。
+- 47: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 48: `/** 后端地址 */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 49: `const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 50: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 51: `/* ==================== 类型定义 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 52: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 53: `type Stats = {`
+  - 作用：定义数据结构或接口。
+  - 原因：先约束数据形态，后续逻辑更稳定可测。
+- 54: `destinations: number; users: number; trips: number; pages?: number;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 55: `configs?: number; comments?: number; orders?: number; footprints?: number;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 56: `notifications?: number; menus?: number;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 57: `province_distribution?: { province: string; count: number }[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 58: `city_top?: { city: string; count: number; province?: string }[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 59: `trip_status?: { status: string; count: number }[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 60: `order_status?: { status: string; count: number; amount: number }[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 61: `recent_users?: any[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 62: `recent_trips?: any[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 63: `recent_comments?: any[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 64: `recent_orders?: any[]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 65: `rating_summary?: { avg_rating: number; total_rated: number }`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 66: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 67: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 68: `type Destination = {`
+  - 作用：定义数据结构或接口。
+  - 原因：先约束数据形态，后续逻辑更稳定可测。
+- 69: `id: number; name: string; city: string; province: string;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 70: `description: string; cover_image: string; rating: number;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 71: `ticket_price: number; open_time: string; created_at: string`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 72: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 73: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 74: `type AdminUser = {`
+  - 作用：定义数据结构或接口。
+  - 原因：先约束数据形态，后续逻辑更稳定可测。
+- 75: `id: string; username: string; nickname: string; email: string;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 76: `phone: string; avatar_url: string; is_admin: boolean;`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 77: `membership_level: number; created_at: string`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 78: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 79: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 80: `/* ==================== 工具函数 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 81: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 82: `function adminHeaders() {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 83: `const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 84: `const h: Record<string, string> = { 'Content-Type': 'application/json' }`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 85: `if (token) h['Authorization'] = \`Bearer ${token}\``
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 86: `return h`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 87: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 88: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 89: `async function adminFetch<T>(path: string, options?: RequestInit): Promise<T> {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 90: `const url = \`${API_BASE}${path}\``
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 91: `const res = await fetch(url, {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 92: `...options,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 93: `headers: { ...adminHeaders(), ...(options?.headers as Record<string, string>) },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 94: `})`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 95: `if (!res.ok) {`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 96: `const data = await res.json().catch(() => ({}))`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 97: `throw new Error((data as any)?.error || \`HTTP ${res.status}\`)`
+  - 作用：返回接口响应。
+  - 原因：统一响应格式便于前端消费与错误兜底。
+- 98: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 99: `return res.json()`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 100: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 101: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 102: `/* ==================== 统计卡片 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 103: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 104: `function StatCard({ icon: Icon, label, value, color, subText }: {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 105: `icon: any; label: string; value: number | string; color: string; subText?: string`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 106: `}) {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 107: `const colorMap: Record<string, { bg: string; icon: string; text: string }> = {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 108: `blue:   { bg: 'from-blue-500 to-blue-600', icon: 'text-blue-500', text: 'text-blue-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 109: `green:  { bg: 'from-emerald-500 to-emerald-600', icon: 'text-emerald-500', text: 'text-emerald-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 110: `purple: { bg: 'from-purple-500 to-purple-600', icon: 'text-purple-500', text: 'text-purple-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 111: `orange: { bg: 'from-orange-500 to-orange-600', icon: 'text-orange-500', text: 'text-orange-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 112: `red:    { bg: 'from-red-500 to-red-600', icon: 'text-red-500', text: 'text-red-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 113: `pink:   { bg: 'from-pink-500 to-pink-600', icon: 'text-pink-500', text: 'text-pink-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 114: `cyan:   { bg: 'from-cyan-500 to-cyan-600', icon: 'text-cyan-500', text: 'text-cyan-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 115: `indigo: { bg: 'from-indigo-500 to-indigo-600', icon: 'text-indigo-500', text: 'text-indigo-600' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 116: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 117: `const c = colorMap[color] || colorMap.blue`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 118: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 119: `<div className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 120: `{/* Logo移到右上角 */}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 121: `<div className={\`absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${c.bg} shadow-sm\`}>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 122: `<Icon className="h-5 w-5 text-white" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 123: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 124: `<div className="relative">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 125: `<p className="text-xs font-medium uppercase tracking-wider text-gray-400 pr-12">{label}</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 126: `<p className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900">{value.toLocaleString()}</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 127: `{subText && <p className="mt-1 text-xs text-gray-400">{subText}</p>}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 128: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 129: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 130: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 131: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 132: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 133: `/* ==================== 省份分布条形图组件（可点击展开）==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 134: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 135: `type CityInProvince = { city: string; count: number }`
+  - 作用：定义数据结构或接口。
+  - 原因：先约束数据形态，后续逻辑更稳定可测。
+- 136: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 137: `function ProvinceChart({ data }: { data: { province: string; count: number }[] }) {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 138: `const [expanded, setExpanded] = useState<string | null>(null)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 139: `const [cities, setCities] = useState<CityInProvince[]>([])`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 140: `const [loadingCities, setLoadingCities] = useState(false)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 141: `if (!data.length) return <p className="text-sm text-gray-400">暂无数据</p>`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 142: `const maxCount = Math.max(...data.map(d => d.count), 1)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 143: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 144: `const toggleProvince = async (province: string) => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 145: `if (expanded === province) { setExpanded(null); return }`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 146: `setExpanded(province); setLoadingCities(true)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 147: `try {`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 148: `// 从省份详情API获取该省城市列表`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 149: `const res = await adminFetch<{ success: boolean; data: Array<{ province: string; cities: CityInProvince[] }> }>('/api/admin/geo/provinces')`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 150: `const provData = res.data?.find(p => p.province === province)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 151: `setCities(provData?.cities || [])`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 152: `} catch { setCities([]) } finally { setLoadingCities(false) }`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 153: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 154: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 155: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 156: `<div className="space-y-2.5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 157: `{data.map((item) => {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 158: `const isOpen = expanded === item.province`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 159: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 160: `<div key={item.province}>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 161: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 162: `<div`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 163: `onClick={() => toggleProvince(item.province)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 164: `className={\`group flex items-center gap-3 cursor-pointer rounded-lg px-2 py-1 transition-colors ${isOpen ? 'bg-blue-50' : 'hover:bg-gray-50'}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 165: `title={isOpen ? '收起' : \`查看 ${item.province} 的所有城市\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 166: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 167: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 168: `<svg className={\`w-3 h-3 text-gray-400 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}\`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 169: `<span className="w-14 truncate text-xs font-medium text-gray-600 group-hover:text-blue-600 shrink-0">{item.province}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 170: `<div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 171: `<div`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 172: `className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500 flex items-center justify-end pr-2"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 173: `style={{ width: \`${(item.count / maxCount) * 100}%\` }}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 174: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 175: `<span className="text-[10px] font-semibold text-white drop-shadow">{item.count} 处</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 176: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 177: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 178: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 179: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 180: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 181: `{isOpen && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 182: `<div className="ml-8 mt-1 mb-2 pl-3 border-l-2 border-blue-200 space-y-1 animate-in slide-in-from-left-2 duration-200">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 183: `{loadingCities ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 184: `<div className="py-3 text-center"><Loader2 className="h-4 w-4 animate-spin mx-auto text-blue-400" /></div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 185: `) : cities.length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 186: `<p className="py-2 text-xs text-gray-400">无城市数据</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 187: `) : (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 188: `cities.map(c => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 189: `<CityLinkRow key={c.city} city={c.city} count={c.count} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 190: `))`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 191: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 192: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 193: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 194: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 195: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 196: `})}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 197: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 198: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 199: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 200: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 201: `/* 城市链接行：点击跳转景点列表 */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 202: `function CityLinkRow({ city, count }: { city: string; count: number }) {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 203: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 204: `<Link`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 205: `href={\`/admin/destinations?city=${encodeURIComponent(city)}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 206: `className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-green-50 hover:text-green-700 text-xs text-gray-600 transition-colors group/city"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 207: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 208: `<span className="flex items-center gap-1.5 truncate max-w-[140px]">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 209: `<MapPin className="h-3 w-3 text-green-400 group-hover/city:text-green-500 shrink-0" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 210: `<span className="truncate group-hover/city:font-medium">{city}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 211: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 212: `<span className="shrink-0 tabular-nums text-[11px] text-gray-400 group-hover/city:text-green-600">{count} 处</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 213: `</Link>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 214: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 215: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 216: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 217: `/* 城市排行组件（可点击跳转）*/`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 218: `function CityRanking({ data, onCityClick }: { data: { city: string; count: number; province?: string }[]; onCityClick?: (city: string) => void }) {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 219: `if (!data.length) return <p className="text-sm text-gray-400">暂无数据</p>`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 220: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 221: `<div className="space-y-1.5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 222: `{(data || []).slice(0, 8).map((city, idx) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 223: `<Link key={city.city}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 224: `href={\`/admin/destinations?city=${encodeURIComponent(city.city)}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 225: `className="group/city flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-green-50 transition-colors"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 226: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 227: `<div className="flex items-center gap-2 min-w-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 228: `<span className={\`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold shrink-0 ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 229: `idx < 3 ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white' : 'bg-gray-100 text-gray-500'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 230: `}\`}>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 231: `{idx + 1}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 232: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 233: `<MapPin className="h-3 w-3 text-gray-300 group-hover/city:text-green-400 shrink-0" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 234: `<span className="text-sm text-gray-700 group-hover/city:text-green-700 group-hover/city:font-medium truncate">{city.city}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 235: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 236: `<span className="text-xs font-semibold text-gray-400 group-hover/city:text-green-600 shrink-0 tabular-nums ml-2">{city.count} 处</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 237: `</Link>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 238: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 239: `{(data || []).length === 0 && <p className="text-sm text-gray-400 text-center py-2">暂无数据</p>}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 240: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 241: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 242: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 243: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 244: `/* ==================== 目的地管理表格 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 245: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 246: `function DestinationTable() {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 247: `const [destinations, setDestinations] = useState<Destination[]>([])`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 248: `const [loading, setLoading] = useState(true)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 249: `const [page, setPage] = useState(1)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 250: `const [total, setTotal] = useState(0)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 251: `const [keyword, setKeyword] = useState('')`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 252: `const [editingId, setEditingId] = useState<number | null>(null)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 253: `const [editData, setEditData] = useState<Partial<Destination>>({})`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 254: `const [searchTimer, setSearchTimer] = useState<any>(null)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 255: `/* 图片上传状态 */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 256: `const [uploadingId, setUploadingId] = useState<number | null>(null)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 257: `const perPage = 8`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 258: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 259: `const fetchDestinations = useCallback(async () => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 260: `try {`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 261: `setLoading(true)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 262: `const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 263: `if (keyword.trim()) params.set('keyword', keyword.trim())`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 264: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 265: `// 使用原生fetch添加错误处理`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 266: `const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : ''`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 267: `const url = \`${API_BASE}/api/admin/destinations?${params.toString()}\``
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 268: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 269: `const res = await fetch(url, {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 270: `headers: token ? { 'Authorization': \`Bearer ${token}\` } : {}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 271: `})`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 272: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 273: `if (!res.ok) {`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 274: `throw new Error(\`HTTP ${res.status}\`)`
+  - 作用：返回接口响应。
+  - 原因：统一响应格式便于前端消费与错误兜底。
+- 275: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 276: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 277: `const data = await res.json()`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 278: `console.log('API Response:', data) // 调试日志`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 279: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 280: `setDestinations(data.destinations || [])`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 281: `setTotal(data.total || 0)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 282: `} catch (e: any) {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 283: `console.error('加载目的地失败', e.message)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 284: `toast.error('加载数据失败: ' + e.message)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 285: `} finally {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 286: `setLoading(false)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 287: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 288: `}, [page, keyword])`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 289: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 290: `useEffect(() => { fetchDestinations() }, [fetchDestinations])`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 291: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 292: `const handleSearch = (val: string) => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 293: `setKeyword(val); setPage(1)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 294: `if (searchTimer) clearTimeout(searchTimer)`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 295: `setSearchTimer(setTimeout(() => {}, 300))`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 296: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 297: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 298: `const startEdit = (d: Destination) => { setEditingId(d.id); setEditData({ ...d }) }`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 299: `const cancelEdit = () => { setEditingId(null); setEditData({}) }`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 300: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 301: `const saveEdit = async () => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 302: `if (!editingId) return`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 303: `try {`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 304: `await adminFetch(\`/api/admin/destinations/${editingId}\`, { method: 'PUT', body: JSON.stringify(editData) })`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 305: `setEditingId(null); setEditData({}); fetchDestinations()`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 306: `} catch (e: any) { alert('保存失败: ' + e.message) }`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 307: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 308: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 309: `const deleteDest = async (id: number) => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 310: `if (!confirm('确定要删除这个目的地吗？')) return`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 311: `try { await adminFetch(\`/api/admin/destinations/${id}\`, { method: 'DELETE' }); fetchDestinations() }`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 312: `catch (e: any) { alert('删除失败: ' + e.message) }`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 313: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 314: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 315: `/** 图片上传处理 */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 316: `const handleImageUpload = async (destId: number, e: React.ChangeEvent<HTMLInputElement>) => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 317: `const file = e.target.files?.[0]`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 318: `if (!file) return`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 319: `// 校验类型`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 320: `const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp']`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 321: `if (!allowed.includes(file.type)) { alert('仅支持 JPG/PNG/WebP/GIF/BMP 格式'); return }`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 322: `if (file.size > 10 * 1024 * 1024) { alert('文件大小不能超过 10MB'); return }`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 323: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 324: `setUploadingId(destId)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 325: `try {`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 326: `const formData = new FormData()`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 327: `formData.append('image', file)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 328: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 329: `// 用原生 fetch 上传（multipart 不能用 json headers）`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 330: `const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : ''`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 331: `const res = await fetch(\`${API_BASE}/api/admin/destinations/${destId}/upload-image\`, {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 332: `method: 'POST',`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 333: `headers: token ? { 'Authorization': \`Bearer ${token}\` } : {},`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 334: `body: formData,`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 335: `})`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 336: `const data = await res.json().catch(() => ({ success: false, error: '上传响应解析失败' }))`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 337: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 338: `if (!res.ok || !data.success) throw new Error(data.error || \`HTTP ${res.status}\`)`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 339: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 340: `// 更新本地数据中的 cover_image`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 341: `setDestinations(prev => prev.map(d =>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 342: `d.id === destId ? { ...d, cover_image: data.destination?.cover_image || d.cover_image } : d`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 343: `))`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 344: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 345: `// 显示成功提示`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 346: `alert(\`${data.message || '图片上传成功'}\`)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 347: `} catch (err: any) {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 348: `alert('上传失败: ' + err.message)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 349: `} finally {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 350: `setUploadingId(null)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 351: `// 清空 input 以便重复上传同一文件`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 352: `e.target.value = ''   // e.target.value?`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 353: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 354: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 355: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 356: `/** 构建图片完整URL */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 357: `const imageUrl = (coverImage?: string | null) => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 358: `if (!coverImage) return null`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 359: `if (coverImage.startsWith('http')) return coverImage`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 360: `return \`${API_BASE}/api/media?path=${encodeURIComponent(coverImage)}\``
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 361: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 362: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 363: `const totalPages = Math.ceil(total / perPage)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 364: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 365: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 366: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 367: `<div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 368: `<h3 className="font-bold text-gray-800 flex items-center gap-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 369: `<MapPin className="h-4 w-4 text-blue-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 370: `目的地管理`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 371: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 372: `<div className="flex items-center gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 373: `<div className="relative">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 374: `<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 375: `<input type="text" placeholder="搜索目的地..." value={keyword}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 376: `onChange={(e) => handleSearch(e.target.value)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 377: `className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent w-48" />`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 378: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 379: `<button onClick={fetchDestinations} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors" title="刷新">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 380: `<RefreshCw className="h-4 w-4 text-gray-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 381: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 382: `<span className="text-xs text-gray-400">共 {total} 处</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 383: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 384: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 385: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 386: `<div className="overflow-x-auto">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 387: `<table className="w-full text-sm">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 388: `<thead>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 389: `<tr className="bg-gray-50/80 text-left">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 390: `<th className="px-3 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">ID</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 391: `<th className="px-3 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500 w-20">封面</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 392: `<th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">名称</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 393: `<th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">城市</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 394: `<th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">省份</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 395: `<th className="px-3 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">评分</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 396: `<th className="px-3 py-3 font-semibold text-xs uppercase tracking-wider text-gray-500">票价</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 397: `<th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-50">操作</th>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 398: `</tr>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 399: `</thead>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 400: `<tbody className="divide-y divide-gray-100">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 401: `{loading ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 402: `<tr><td colSpan={8} className="px-4 py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-500" /></td></tr>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 403: `) : destinations.length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 404: `<tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 405: `) : destinations.map((d) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 406: `<tr key={d.id} className="hover:bg-blue-50/30 transition-colors group">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 407: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 408: `<td className="px-3 py-3 text-gray-400 font-mono text-xs whitespace-nowrap">#{d.id}</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 409: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 410: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 411: `<td className="px-3 py-2 whitespace-nowrap">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 412: `<div className="relative group/img w-[52px] h-[38px] rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 413: `{imageUrl(d.cover_image) ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 414: `<>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 415: `<img src={imageUrl(d.cover_image)!} alt={d.name}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 416: `className="w-full h-full object-cover"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 417: `loading="lazy"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 418: `/>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 419: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 420: `<label`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 421: `title="更换封面图"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 422: `className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/img:opacity-100 cursor-pointer transition-opacity"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 423: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 424: `{uploadingId === d.id`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 425: `? <Loader2 className="h-5 w-5 animate-spin text-white" />`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 426: `: <Upload className="h-4 w-4 text-white" />`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 427: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 428: `<input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 429: `className="hidden" capture="user"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 430: `onChange={(e) => handleImageUpload(d.id, e)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 431: `disabled={uploadingId === d.id}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 432: `/>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 433: `</label>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 434: `</>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 435: `) : (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 436: `<label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 437: `{uploadingId === d.id`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 438: `? <Loader2 className="h-4 w-4 animate-spin text-blue-500" />`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 439: `: <><ImagePlus className="h-4 w-4 text-gray-300 mb-0.5" /><span className="text-[9px] text-gray-300">上传</span></>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 440: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 441: `<input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 442: `className="hidden" onChange={(e) => handleImageUpload(d.id, e)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 443: `disabled={uploadingId === d.id}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 444: `/>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 445: `</label>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 446: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 447: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 448: `</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 449: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 450: `{editingId === d.id ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 451: `<>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 452: `<td className="px-4 py-2"><input value={editData.name || ''} onChange={(e) => setEditData({ ...editData, name: e.target.value })} className="w-full px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" /></td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 453: `<td className="px-4 py-2"><input value={editData.city || ''} onChange={(e) => setEditData({ ...editData, city: e.target.value })} className="w-full px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" /></td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 454: `<td className="px-4 py-2"><input value={editData.province || ''} onChange={(e) => setEditData({ ...editData, province: e.target.value })} className="w-full px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" /></td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 455: `<td className="px-3 py-2"><input type="number" step="0.1" min="0" max="5" value={editData.rating ?? ''} onChange={(e) => setEditData({ ...editData, rating: parseFloat(e.target.value) || 0 })} className="w-16 px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" /></td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 456: `<td className="px-3 py-2"><input type="number" min="0" value={editData.ticket_price ?? ''} onChange={(e) => setEditData({ ...editData, ticket_price: parseFloat(e.target.value) || 0 })} className="w-20 px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" /></td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 457: `<td className="px-4 py-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 458: `<div className="flex items-center gap-1">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 459: `<button onClick={saveEdit} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"><Save className="h-3.5 w-3.5" /></button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 460: `<button onClick={cancelEdit} className="p-1.5 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors"><X className="h-3.5 w-3.5" /></button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 461: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 462: `</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 463: `</>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 464: `) : (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 465: `<>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 466: `<td className="px-4 py-3 font-medium text-gray-800">{d.name}</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 467: `<td className="px-4 py-3 text-gray-600">{d.city}</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 468: `<td className="px-4 py-3 text-gray-600">{d.province}</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 469: `<td className="px-3 py-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 470: `<span className={\`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${d.rating >= 4 ? 'bg-green-100 text-green-700' : d.rating >= 3 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}\`}>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 471: `⭐ {d.rating?.toFixed(1) || '-'}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 472: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 473: `</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 474: `<td className="px-3 py-3 text-gray-600">¥{d.ticket_price || 0}</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 475: `<td className="px-4 py-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 476: `<div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 477: `<button onClick={() => startEdit(d)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="编辑"><Edit2 className="h-3.5 w-3.5" /></button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 478: `<button onClick={() => deleteDest(d.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="删除"><Trash2 className="h-3.5 w-3.5" /></button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 479: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 480: `</td>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 481: `</>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 482: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 483: `</tr>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 484: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 485: `</tbody>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 486: `</table>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 487: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 488: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 489: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 490: `{totalPages > 1 && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 491: `<div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 492: `<span className="text-xs text-gray-400">第 {page} / {totalPages} 页</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 493: `<div className="flex items-center gap-1">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 494: `<button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-2.5 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 495: `<ChevronLeft className="h-3.5 w-3.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 496: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 497: `{Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 498: `let p = i + 1`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 499: `if (totalPages > 5 && page > 3) p = page - 2 + i`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 500: `if (p < 1 || p > totalPages) return null`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 501: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 502: `<button key={p} onClick={() => setPage(p)} className={\`w-8 h-8 text-sm rounded-lg transition-colors ${p === page ? 'bg-blue-500 text-white' : 'border border-gray-200 hover:bg-gray-100'}\`}>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 503: `{p}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 504: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 505: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 506: `})}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 507: `<button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-2.5 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 508: `<ChevronRight className="h-3.5 w-3.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 509: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 510: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 511: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 512: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 513: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 514: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 515: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 516: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 517: `/* ==================== 用户快速列表 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 518: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 519: `function UserQuickList() {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 520: `const [users, setUsers] = useState<AdminUser[]>([])`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 521: `const [loading, setLoading] = useState(true)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 522: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 523: `useEffect(() => {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 524: `adminFetch<{ success: boolean; users: AdminUser[] }>('/api/admin/users?limit=10')`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 525: `.then(data => { if (data.success) setUsers(data.users || []) })`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 526: `.catch(() => {})`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 527: `.finally(() => setLoading(false))`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 528: `}, [])`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 529: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 530: `const deleteUser = async (id: string) => {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 531: `if (!confirm('确定删除该用户？此操作不可逆！')) return`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 532: `try {`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 533: `await adminFetch(\`/api/admin/users/${id}\`, { method: 'DELETE' })`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 534: `setUsers(users.filter(u => u.id !== id))`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 535: `} catch (e: any) { alert('删除失败: ' + e.message) }`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 536: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 537: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 538: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 539: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 540: `<div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 541: `<h3 className="font-bold text-gray-800 flex items-center gap-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 542: `<Users className="h-4 w-4 text-green-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 543: `最近注册用户`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 544: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 545: `<Link href="/admin/users" className="text-xs text-blue-500 hover:text-blue-700 font-medium">查看全部 →</Link>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 546: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 547: `<div className="divide-y divide-gray-100 max-h-[360px] overflow-y-auto">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 548: `{loading ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 549: `<div className="px-5 py-8 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-green-500" /></div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 550: `) : users.length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 551: `<div className="px-5 py-8 text-center text-gray-400 text-sm">暂无用户</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 552: `) : (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 553: `users.map(u => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 554: `<div key={u.id} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/60 transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 555: `<div className="flex items-center gap-3 min-w-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 556: `<div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 557: `{(u.nickname || u.username || '?').charAt(0).toUpperCase()}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 558: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 559: `<div className="min-w-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 560: `<div className="flex items-center gap-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 561: `<span className="font-medium text-gray-800 text-sm truncate">{u.nickname || u.username}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 562: `{u.is_admin && <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-[4px] bg-red-100 text-red-600 text-[10px] font-bold">管理</span>}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 563: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 564: `<div className="text-xs text-gray-400 truncate">{u.email || u.phone || '未填写联系方式'}</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 565: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 566: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 567: `<div className="flex items-center gap-2 shrink-0 ml-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 568: `<span className="text-[11px] text-gray-400">{u.created_at ? new Date(u.created_at).toLocaleDateString('zh-CN') : '-'}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 569: `<button onClick={() => deleteUser(u.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="删除用户">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 570: `<Trash2 className="h-3.5 w-3.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 571: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 572: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 573: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 574: `))`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 575: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 576: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 577: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 578: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 579: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 580: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 581: `/* ==================== 最近动态（评论+行程+订单）==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 582: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 583: `function RecentActivity({ stats }: { stats: Stats | null }) {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 584: `const [activeTab, setActiveTab] = useState<'comments' | 'trips' | 'orders'>('comments')`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 585: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 586: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 587: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm overflow-hidden">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 588: `<div className="flex items-center gap-1 px-5 pt-4 pb-0 border-b border-gray-100">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 589: `{[`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 590: `{ key: 'comments' as const, label: '最新评论', icon: MessageSquare, color: 'text-orange-500', dataKey: 'recent_comments' as keyof Stats },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 591: `{ key: 'trips' as const, label: '最近行程', icon: Calendar, color: 'text-purple-500', dataKey: 'recent_trips' as keyof Stats },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 592: `{ key: 'orders' as const, label: '最近订单', icon: ShoppingBag, color: 'text-cyan-500', dataKey: 'recent_orders' as keyof Stats },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 593: `].map(tab => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 594: `<button`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 595: `key={tab.key}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 596: `onClick={() => setActiveTab(tab.key)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 597: `className={\`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-all ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 598: `activeTab === tab.key`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 599: `? \`border-blue-500 ${tab.color}\``
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 600: `: 'border-transparent text-gray-400 hover:text-gray-600'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 601: `}\`}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 602: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 603: `<tab.icon className="h-4 w-4" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 604: `{tab.label}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 605: `</button>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 606: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 607: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 608: `<div className="p-5 min-h-[240px]">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 609: `{activeTab === 'comments' && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 610: `<div className="space-y-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 611: `{(stats?.recent_comments || []).length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 612: `<p className="text-sm text-gray-400 text-center py-6">暂无评论</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 613: `) : (stats?.recent_comments || []).map((c: any, i: number) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 614: `<div key={i} className="flex gap-3 p-3 rounded-xl bg-orange-50/40 hover:bg-orange-50/70 transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 615: `<div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 616: `<MessageSquare className="h-4 w-4 text-orange-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 617: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 618: `<div className="flex-1 min-w-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 619: `<div className="flex items-center gap-2 mb-0.5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 620: `<span className="font-medium text-sm text-gray-800">{c.user?.nickname || \`用户#${c.user_id}\`}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 621: `<span className="text-xs text-gray-400">目标 #{c.destination_id}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 622: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 623: `<p className="text-sm text-gray-600 line-clamp-2">{c.content}</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 624: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 625: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 626: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 627: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 628: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 629: `{activeTab === 'trips' && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 630: `<div className="space-y-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 631: `{(stats?.recent_trips || []).length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 632: `<p className="text-sm text-gray-400 text-center py-6">暂无行程</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 633: `) : (stats?.recent_trips || []).map((t: any, i: number) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 634: `<div key={i} className="flex gap-3 p-3 rounded-xl bg-purple-50/40 hover:bg-purple-50/70 transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 635: `<div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 636: `<Calendar className="h-4 w-4 text-purple-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 637: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 638: `<div className="flex-1 min-w-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 639: `<div className="font-medium text-sm text-gray-800">{t.title}</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 640: `<div className="flex items-center gap-3 mt-1 text-xs text-gray-400">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 641: `<span>{t.start_date || '-'}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 642: `<span>→</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 643: `<span>{t.end_date || '-'}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 644: `<span className={\`px-1.5 py-0.5 rounded text-[10px] font-medium ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 645: `t.status === 'completed' ? 'bg-green-100 text-green-700' :`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 646: `t.status === 'ongoing' ? 'bg-blue-100 text-blue-700' :`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 647: `'bg-gray-100 text-gray-600'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 648: `}\`}>{t.status || 'planning'}</span>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 649: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 650: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 651: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 652: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 653: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 654: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 655: `{activeTab === 'orders' && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 656: `<div className="space-y-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 657: `{(stats?.recent_orders || []).length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 658: `<p className="text-sm text-gray-400 text-center py-6">暂无订单</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 659: `) : (stats?.recent_orders || []).map((o: any, i: number) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 660: `<div key={i} className="flex gap-3 p-3 rounded-xl bg-cyan-50/40 hover:bg-cyan-50/70 transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 661: `<div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center shrink-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 662: `<ShoppingBag className="h-4 w-4 text-cyan-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 663: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 664: `<div className="flex-1 min-w-0">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 665: `<div className="flex items-center justify-between mb-0.5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 666: `<span className="font-mono text-xs text-gray-500">{o.order_no}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 667: `<span className="font-semibold text-sm text-red-500">¥{o.total_amount?.toFixed(2) || '0.00'}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 668: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 669: `<div className="flex items-center gap-2 mt-1">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 670: `<span className={\`px-1.5 py-0.5 rounded text-[10px] font-medium ${`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 671: `o.status === 'paid' || o.status === 'completed' ? 'bg-green-100 text-green-700' :`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 672: `o.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 673: `'bg-gray-100 text-gray-600'`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 674: `}\`}>{o.status || 'unknown'}</span>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 675: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 676: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 677: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 678: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 679: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 680: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 681: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 682: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 683: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 684: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 685: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 686: `/* ==================== 状态分布面板 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 687: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 688: `function StatusPanels({ stats }: { stats: Stats | null }) {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 689: `const statusLabels: Record<string, string> = {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 690: `planning: '规划中', ongoing: '进行中', completed: '已完成', cancelled: '已取消',`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 691: `pending: '待支付', paid: '已支付', shipped: '已发货', refunded: '已退款',`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 692: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 693: `const statusColors: Record<string, string> = {`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 694: `planning: 'bg-blue-100 text-blue-700', ongoing: 'bg-yellow-100 text-yellow-700', completed: 'bg-green-100 text-green-700', cancelled: 'bg-red-100 text-red-700',`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 695: `pending: 'bg-yellow-100 text-yellow-700', paid: 'bg-green-100 text-green-700', shipped: 'bg-blue-100 text-blue-700', refunded: 'bg-gray-100 text-gray-700',`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 696: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 697: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 698: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 699: `<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 700: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 701: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm p-5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 702: `<h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 703: `<TrendingUp className="h-4 w-4 text-purple-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 704: `行程状态分布`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 705: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 706: `{(stats?.trip_status || []).length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 707: `<p className="text-sm text-gray-400 text-center py-4">暂无行程数据</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 708: `) : (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 709: `<div className="space-y-2.5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 710: `{(stats?.trip_status || []).map((s: any) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 711: `<div key={s.status} className="flex items-center justify-between">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 712: `<span className={\`px-2 py-1 rounded-md text-xs font-medium ${statusColors[s.status] || 'bg-gray-100 text-gray-600'}\`}>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 713: `{statusLabels[s.status] || s.status}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 714: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 715: `<div className="flex items-center gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 716: `<div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 717: `<div`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 718: `className="h-full bg-purple-500 rounded-full transition-all duration-500"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 719: `style={{ width: \`${(s.count / Math.max(...(stats?.trip_status || []).map((t: any) => t.count))) * 100}%\` }}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 720: `/>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 721: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 722: `<span className="text-sm font-semibold text-gray-700 w-8 text-right">{s.count}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 723: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 724: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 725: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 726: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 727: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 728: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 729: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 730: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 731: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm p-5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 732: `<h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 733: `<ShoppingBag className="h-4 w-4 text-cyan-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 734: `订单状态分布`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 735: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 736: `{(stats?.order_status || []).length === 0 ? (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 737: `<p className="text-sm text-gray-400 text-center py-4">暂无订单数据</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 738: `) : (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 739: `<div className="space-y-2.5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 740: `{(stats?.order_status || []).map((o: any) => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 741: `<div key={o.status} className="flex items-center justify-between">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 742: `<span className={\`px-2 py-1 rounded-md text-xs font-medium ${statusColors[o.status] || 'bg-gray-100 text-gray-600'}\`}>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 743: `{statusLabels[o.status] || o.status}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 744: `</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 745: `<div className="flex items-center gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 746: `<div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 747: `<div`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 748: `className="h-full bg-cyan-500 rounded-full transition-all duration-500"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 749: `style={{ width: \`${(o.count / Math.max(...(stats?.order_status || []).map((x: any) => x.count), 1)) * 100}%\` }}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 750: `/>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 751: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 752: `<span className="text-sm font-semibold text-gray-700 w-8 text-right">{o.count}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 753: `<span className="text-xs text-red-500 w-14 text-right">¥{o.amount?.toFixed(0) || '0'}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 754: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 755: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 756: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 757: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 758: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 759: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 760: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 761: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 762: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 763: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 764: `/* ==================== 主页面 ==================== */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 765: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 766: `export default function AdminPage() {`
+  - 作用：导出声明供其他模块复用。
+  - 原因：减少重复实现，提升模块化程度。
+- 767: `const [stats, setStats] = useState<Stats | null>(null)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 768: `const [loading, setLoading] = useState(true)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 769: `const [error, setError] = useState<string | null>(null)`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 770: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 771: `useEffect(() => {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 772: `let cancelled = false`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 773: `async function run() {`
+  - 作用：定义函数/方法。
+  - 原因：将复杂流程拆分为可复用单元，降低耦合。
+- 774: `try {`
+  - 作用：异常处理逻辑。
+  - 原因：避免异常直接中断主流程，提高健壮性。
+- 775: `setLoading(true); setError(null)`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 776: `const data = await adminFetch<{ stats: Stats }>('/api/stats')`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 777: `if (!cancelled) setStats(data?.stats ?? null)`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 778: `} catch (e: any) {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 779: `if (!cancelled) setError(e?.message || '加载失败')`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 780: `} finally {`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 781: `if (!cancelled) setLoading(false)`
+  - 作用：条件分支处理。
+  - 原因：提前处理异常路径可减少主流程嵌套。
+- 782: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 783: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 784: `run()`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 785: `return () => { cancelled = true }`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 786: `}, [])`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 787: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 788: `/* 统计卡片配置 */`
+  - 作用：注释说明设计意图或上下文。
+  - 原因：让维护者在不追踪历史的情况下理解作者决策。
+- 789: `const statCards = [`
+  - 作用：声明变量或常量。
+  - 原因：显式命名中间状态，提升可读性和调试性。
+- 790: `{ icon: MapPin, label: '目的地总数', value: stats?.destinations ?? 0, color: 'blue' as const, subText: '旅游景点数据' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 791: `{ icon: Users, label: '注册用户', value: stats?.users ?? 0, color: 'green' as const, subText: '平台用户总数' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 792: `{ icon: Calendar, label: '旅行行程', value: stats?.trips ?? 0, color: 'purple' as const, subText: '用户创建的行程' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 793: `{ icon: MessageSquare, label: '用户评论', value: stats?.comments ?? 0, color: 'orange' as const, subText: '景点评论总数' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 794: `{ icon: ShoppingBag, label: '订单数量', value: stats?.orders ?? 0, color: 'red' as const, subText: '交易订单统计' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 795: `{ icon: Footprints, label: '用户足迹', value: stats?.footprints ?? 0, color: 'pink' as const, subText: '浏览访问记录' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 796: `{ icon: FileText, label: '内容页面', value: stats?.pages ?? 0, color: 'cyan' as const, subText: 'CMS 内容管理' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 797: `{ icon: Bell, label: '通知消息', value: stats?.notifications ?? 0, color: 'indigo' as const, subText: '站内通知' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 798: `]`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 799: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 800: `return (`
+  - 作用：返回结果或视图。
+  - 原因：早返回减少分支深度并提升可读性。
+- 801: `<AdminGuard>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 802: `<div className="min-h-screen page-bg">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 803: `<Navbar />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 804: `<main className="pt-16 pb-12">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 805: `<div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 806: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 807: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 808: `<div className="flex items-end justify-between gap-4 flex-wrap mt-8 mb-8">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 809: `<div className="flex items-center gap-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 810: `<div className="inline-flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 811: `<BarChart3 className="h-6.5 w-6.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 812: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 813: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 814: `<h1 className="text-3xl font-extrabold tracking-tight text-gray-900">管理仪表</h1>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 815: `<p className="text-sm text-gray-500 mt-0.5">实时数据监控 · 内容管理 · 用户运营</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 816: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 817: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 818: `<div className="flex items-center gap-2 text-xs text-gray-400 bg-white/80 backdrop-blur px-3 py-2 rounded-lg border border-gray-200/60">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 819: `<Database className="h-3.5 w-3.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 820: `<span className="font-mono">{API_BASE}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 821: `<div className="relative group">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 822: `<Eye className="h-3.5 w-3.5 cursor-help text-green-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 823: `<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 824: `后端运行正常`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 825: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 826: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 827: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 828: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 829: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 830: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 831: `{loading && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 832: `<div className="flex flex-col items-center justify-center py-24 gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 833: `<Loader2 className="h-10 w-10 animate-spin text-blue-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 834: `<p className="text-gray-500 font-medium">正在加载数据...</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 835: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 836: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 837: `{error && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 838: `<div className="rounded-2xl border border-red-200 bg-red-50/80 px-6 py-5 flex items-start gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 839: `<AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 840: `<div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 841: `<p className="font-medium text-red-700">数据加载失败</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 842: `<p className="text-sm text-red-500 mt-1">{error}</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 843: `<p className="text-xs text-red-400 mt-2">请确认后端服务已在 {API_BASE} 运行</p>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 844: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 845: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 846: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 847: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 848: `{!loading && !error && stats && (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 849: `<>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 850: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 851: `<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4 mb-8">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 852: `{statCards.map(card => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 853: `<StatCard key={card.label} {...card} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 854: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 855: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 856: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 857: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 858: `<div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 859: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 860: `<div className="xl:col-span-1 space-y-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 861: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm p-5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 862: `<h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 863: `<MapPin className="h-4 w-4 text-blue-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 864: `省份分布 TOP 10`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 865: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 866: `<ProvinceChart data={stats.province_distribution || []} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 867: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 868: `<div className="rounded-2xl border border-gray-200/80 bg-white shadow-sm p-5">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 869: `<h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 870: `<TrendingUp className="h-4 w-4 text-indigo-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 871: `城市排行 TOP 10`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 872: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 873: `<CityRanking data={stats.city_top || []} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 874: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 875: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 876: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 877: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 878: `<div className="xl:col-span-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 879: `<DestinationTable />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 880: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 881: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 882: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 883: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 884: `<StatusPanels stats={stats} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 885: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 886: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 887: `<div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 888: `<div className="xl:col-span-2">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 889: `<RecentActivity stats={stats} />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 890: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 891: `<div className="xl:col-span-1">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 892: `<UserQuickList />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 893: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 894: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 895: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 896: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 897: `<div className="mt-8 rounded-2xl border border-gray-200/80 bg-white shadow-sm p-6">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 898: `<h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 899: `<Settings className="h-4 w-4 text-gray-500" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 900: `快捷操作入口`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 901: `</h3>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 902: `<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 903: `{[`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 904: `{ href: '/admin/comments', label: '评论管理', desc: '审核/删除评论' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 905: `{ href: '/admin/users', label: '用户管理', desc: '查看/编辑用户' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 906: `{ href: '/admin/footprints', label: '足迹管理', desc: '浏览记录管理' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 907: `{ href: '/api/docs', label: 'API 文档', desc: '接口说明', external: true },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 908: `{ href: '/api/health', label: '健康检查', desc: '系统状态', external: true },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 909: `{ href: '/destinations', label: '前台目的地', desc: '前端展示' },`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 910: `].map(link => (`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 911: `<a key={link.href}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 912: `href={link.href}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 913: `target={link.external ? '_blank' : undefined}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 914: `rel={link.external ? 'noreferrer' : undefined}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 915: `className="group flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200/80 hover:border-blue-300 hover:bg-blue-50/40 transition-all duration-200"`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 916: `>`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 917: `<div className="h-10 w-10 rounded-xl bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 918: `<Settings className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 919: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 920: `<span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{link.label}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 921: `<span className="text-[11px] text-gray-400">{link.desc}</span>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 922: `</a>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 923: `))}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 924: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 925: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 926: `</>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 927: `)}`
+  - 作用：执行当前语句。
+  - 原因：参与本文件主流程，完成具体业务步骤。
+- 928: `(空行)`
+  - 作用：空行分隔逻辑块。
+  - 原因：减少视觉噪音，便于快速理解结构。
+- 929: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 930: `</main>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 931: `<Footer />`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 932: `</div>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 933: `</AdminGuard>`
+  - 作用：渲染 JSX/HTML 结构。
+  - 原因：声明式视图让状态与界面映射更清晰。
+- 934: `)`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。
+- 935: `}`
+  - 作用：结束当前语句块。
+  - 原因：明确作用域边界，避免逻辑泄漏。

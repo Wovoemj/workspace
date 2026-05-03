@@ -1,0 +1,889 @@
+# `frontend/user-web/src/components/profile/MobileProfile.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 移动端个人中心组件 (MobileProfile)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 移动端用户个人中心主组件` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 包含用户信息展示、收藏、足迹、订单、优惠券等标签页` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 支持下拉刷新、长按删除足迹等交互` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 首次登录引导完善资料弹窗` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 设置面板（通知、帮助、清除缓存等）` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 标签页：` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - favorite: 我的收藏` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - footprint: 旅行足迹` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - messages: 站内消息` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - orders: 我的订单` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - coupons: 优惠券` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 22: `(空行)` -> 空行，用于提升代码结构可读性。
+- 23: `import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 24: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 25: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 26: `import type { User } from '@/types'` -> 导入依赖模块，供当前文件使用。
+- 27: `import type { Order } from '@/types'` -> 导入依赖模块，供当前文件使用。
+- 28: `import {` -> 导入依赖模块，供当前文件使用。
+- 29: `ArrowRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `Bell,` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `Bookmark,` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `ChevronRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `ClipboardList,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `Copy,` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `Footprints,` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `Gift,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `Headphones,` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `HelpCircle,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `Info,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `Loader2,` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `MapPin,` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `Maximize2,` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `Settings,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `Share2,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `Sparkles,` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `Ticket,` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `UserCircle2,` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `X,` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `import { resolveCoverSrc, onImgErrorUseFallback } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 51: `(空行)` -> 空行，用于提升代码结构可读性。
+- 52: `/** 新手引导弹窗 localStorage key */` -> 注释行，用于解释设计意图或使用说明。
+- 53: `const ONBOARDING_KEY = 'profile_complete_profile_prompt_v1'` -> 声明变量或常量，保存运行时数据。
+- 54: `(空行)` -> 空行，用于提升代码结构可读性。
+- 55: `export type MobileFavoritePreview = {` -> 导出当前声明，供其他模块复用。
+- 56: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `cover_image?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `rating?: number | null` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `ticket_price?: number | null` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `}` -> 结束当前语句或代码块。
+- 64: `(空行)` -> 空行，用于提升代码结构可读性。
+- 65: `export type MobileFootprint = {` -> 导出当前声明，供其他模块复用。
+- 66: `id: string` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `destination: {` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `cover_image?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `rating?: number | null` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `}` -> 结束当前语句或代码块。
+- 75: `visitDate: string` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `visitCount: number` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `}` -> 结束当前语句或代码块。
+- 78: `(空行)` -> 空行，用于提升代码结构可读性。
+- 79: `export type MobileTab = 'favorite' | 'footprint' | 'messages' | 'orders' | 'coupons'` -> 导出当前声明，供其他模块复用。
+- 80: `(空行)` -> 空行，用于提升代码结构可读性。
+- 81: `type MobileProfileProps = {` -> 定义类型或类结构，约束数据与行为。
+- 82: `user: User` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `router: { push: (href: string) => void }` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `counts: { trips: number; favorites: number; orders: number }` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `countsLoading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `favoritesLoading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `favoritesAll: MobileFavoritePreview[]` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `footprints: MobileFootprint[]` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `footprintsLoading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `footprintTotal: number` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `ordersAll: Order[]` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `messagesUnread: number` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `reviewCount: number` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `couponCount: number` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `onLogout: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `onRefresh: () => Promise<void>` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `onDeleteFootprint: (footprintId: string) => Promise<void>` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `}` -> 结束当前语句或代码块。
+- 99: `(空行)` -> 空行，用于提升代码结构可读性。
+- 100: `function isGuestNickname(nickname: string | undefined) {` -> 定义函数或方法，实现具体业务逻辑。
+- 101: `const n = (nickname || '').trim()` -> 声明变量或常量，保存运行时数据。
+- 102: `return !n || /^游客\d+$/.test(n)` -> 返回结果或提前结束当前流程。
+- 103: `}` -> 结束当前语句或代码块。
+- 104: `(空行)` -> 空行，用于提升代码结构可读性。
+- 105: `function formatVisitLabel(iso: string) {` -> 定义函数或方法，实现具体业务逻辑。
+- 106: `if (!iso) return '未知'` -> 条件判断分支，根据场景执行不同逻辑。
+- 107: `const d = new Date(iso)` -> 声明变量或常量，保存运行时数据。
+- 108: `if (Number.isNaN(d.getTime())) return '未知'` -> 条件判断分支，根据场景执行不同逻辑。
+- 109: `return \`${d.getFullYear()}年${d.getMonth() + 1}月到访\`` -> 返回结果或提前结束当前流程。
+- 110: `}` -> 结束当前语句或代码块。
+- 111: `(空行)` -> 空行，用于提升代码结构可读性。
+- 112: `function levelFromUser(user: User) {` -> 定义函数或方法，实现具体业务逻辑。
+- 113: `const m = user.membership_level || 1` -> 声明变量或常量，保存运行时数据。
+- 114: `return Math.min(12, Math.max(1, m * 3))` -> 返回结果或提前结束当前流程。
+- 115: `}` -> 结束当前语句或代码块。
+- 116: `(空行)` -> 空行，用于提升代码结构可读性。
+- 117: `export function MobileProfile({` -> 导出当前声明，供其他模块复用。
+- 118: `user,` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `router,` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `counts,` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `countsLoading,` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `favoritesLoading,` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `favoritesAll,` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `footprints,` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `footprintsLoading,` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `footprintTotal,` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `ordersAll,` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `messagesUnread,` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `reviewCount,` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `couponCount,` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `onLogout,` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `onRefresh,` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `onDeleteFootprint,` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `}: MobileProfileProps) {` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `const [tab, setTab] = useState<MobileTab>('favorite')` -> 声明变量或常量，保存运行时数据。
+- 136: `const tabWrapRef = useRef<HTMLDivElement>(null)` -> 声明变量或常量，保存运行时数据。
+- 137: `const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([])` -> 声明变量或常量，保存运行时数据。
+- 138: `const [indicator, setIndicator] = useState({ left: 0, width: 0 })` -> 声明变量或常量，保存运行时数据。
+- 139: `const [settingsOpen, setSettingsOpen] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 140: `const [avatarOpen, setAvatarOpen] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 141: `const [onboardingOpen, setOnboardingOpen] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 142: `const [refreshing, setRefreshing] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 143: `const [ptrDist, setPtrDist] = useState(0)` -> 声明变量或常量，保存运行时数据。
+- 144: `const ptrStart = useRef(0)` -> 声明变量或常量，保存运行时数据。
+- 145: `const scrollRef = useRef<HTMLDivElement>(null)` -> 声明变量或常量，保存运行时数据。
+- 146: `const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 147: `const longPressFp = useRef<MobileFootprint | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 148: `(空行)` -> 空行，用于提升代码结构可读性。
+- 149: `const avatarInitial = user?.nickname?.trim()?.[0] || user?.phone?.trim()?.[0] || '?'` -> 声明变量或常量，保存运行时数据。
+- 150: `const avatarGradients = [` -> 声明变量或常量，保存运行时数据。
+- 151: `'from-sky-500 to-indigo-600',` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `'from-emerald-500 to-teal-600',` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `'from-rose-500 to-orange-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `'from-violet-500 to-fuchsia-600',` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 156: `const avatarIdx = Math.abs((avatarInitial?.charCodeAt(0) || 0) % avatarGradients.length)` -> 声明变量或常量，保存运行时数据。
+- 157: `const coverSrc = (d: { cover_image?: string | null }) => resolveCoverSrc(d?.cover_image)` -> 声明变量或常量，保存运行时数据。
+- 158: `(空行)` -> 空行，用于提升代码结构可读性。
+- 159: `const cityCount = countUniqueCities(footprints)` -> 声明变量或常量，保存运行时数据。
+- 160: `(空行)` -> 空行，用于提升代码结构可读性。
+- 161: `const tabs: Array<{ key: MobileTab; label: string; badge?: number }> = [` -> 声明变量或常量，保存运行时数据。
+- 162: `{ key: 'favorite', label: '收藏', badge: counts.favorites },` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `{ key: 'footprint', label: '足迹', badge: footprintTotal || footprints.length },` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `{ key: 'messages', label: '消息', badge: messagesUnread },` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `{ key: 'orders', label: '订单', badge: counts.orders },` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `{ key: 'coupons', label: '优惠？', badge: couponCount },` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `(空行)` -> 空行，用于提升代码结构可读性。
+- 169: `const tabIndex = tabs.findIndex((t) => t.key === tab)` -> 声明变量或常量，保存运行时数据。
+- 170: `(空行)` -> 空行，用于提升代码结构可读性。
+- 171: `useLayoutEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `const wrap = tabWrapRef.current` -> 声明变量或常量，保存运行时数据。
+- 173: `const btn = tabBtnRefs.current[tabIndex]` -> 声明变量或常量，保存运行时数据。
+- 174: `if (!wrap || !btn) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 175: `const wl = wrap.getBoundingClientRect().left` -> 声明变量或常量，保存运行时数据。
+- 176: `const bl = btn.getBoundingClientRect()` -> 声明变量或常量，保存运行时数据。
+- 177: `setIndicator({ left: bl.left - wl + 8, width: bl.width - 16 })` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `}, [tab, tabIndex])` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `(空行)` -> 空行，用于提升代码结构可读性。
+- 180: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `if (typeof window === 'undefined') return` -> 条件判断分支，根据场景执行不同逻辑。
+- 182: `if (!isGuestNickname(user.nickname)) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 183: `if (localStorage.getItem(ONBOARDING_KEY)) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 184: `const t = window.setTimeout(() => setOnboardingOpen(true), 400)` -> 声明变量或常量，保存运行时数据。
+- 185: `return () => clearTimeout(t)` -> 返回结果或提前结束当前流程。
+- 186: `}, [user.nickname])` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `(空行)` -> 空行，用于提升代码结构可读性。
+- 188: `const dismissOnboarding = () => {` -> 声明变量或常量，保存运行时数据。
+- 189: `localStorage.setItem(ONBOARDING_KEY, '1')` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `setOnboardingOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `}` -> 结束当前语句或代码块。
+- 192: `(空行)` -> 空行，用于提升代码结构可读性。
+- 193: `const runRefresh = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 194: `if (refreshing) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 195: `setRefreshing(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 197: `await onRefresh()` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `toast.success('已更？')` -> 执行当前语句，参与该文件整体逻辑。
+- 199: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 200: `toast.error('刷新失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 201: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 202: `setRefreshing(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `setPtrDist(0)` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `}` -> 结束当前语句或代码块。
+- 205: `}, [onRefresh, refreshing])` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `(空行)` -> 空行，用于提升代码结构可读性。
+- 207: `const onCopyId = () => {` -> 声明变量或常量，保存运行时数据。
+- 208: `const id = String(user.id || '')` -> 声明变量或常量，保存运行时数据。
+- 209: `if (!id) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 210: `void navigator.clipboard.writeText(id).then(` -> 执行当前语句，参与该文件整体逻辑。
+- 211: `() => toast.success('ID 已复？'),` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `() => toast.error('复制失败'),` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `)` -> 结束当前语句或代码块。
+- 214: `}` -> 结束当前语句或代码块。
+- 215: `(空行)` -> 空行，用于提升代码结构可读性。
+- 216: `const onTouchStartPtr = (e: React.TouchEvent) => {` -> 声明变量或常量，保存运行时数据。
+- 217: `const el = scrollRef.current` -> 声明变量或常量，保存运行时数据。
+- 218: `if (!el || el.scrollTop > 0) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 219: `ptrStart.current = e.touches[0].clientY` -> 执行当前语句，参与该文件整体逻辑。
+- 220: `}` -> 结束当前语句或代码块。
+- 221: `(空行)` -> 空行，用于提升代码结构可读性。
+- 222: `const onTouchMovePtr = (e: React.TouchEvent) => {` -> 声明变量或常量，保存运行时数据。
+- 223: `const el = scrollRef.current` -> 声明变量或常量，保存运行时数据。
+- 224: `if (!el || el.scrollTop > 0) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 225: `const dy = e.touches[0].clientY - ptrStart.current` -> 声明变量或常量，保存运行时数据。
+- 226: `if (dy > 0) setPtrDist(Math.min(dy * 0.45, 72))` -> 条件判断分支，根据场景执行不同逻辑。
+- 227: `}` -> 结束当前语句或代码块。
+- 228: `(空行)` -> 空行，用于提升代码结构可读性。
+- 229: `const onTouchEndPtr = () => {` -> 声明变量或常量，保存运行时数据。
+- 230: `if (ptrDist > 48) void runRefresh()` -> 条件判断分支，根据场景执行不同逻辑。
+- 231: `setPtrDist(0)` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `}` -> 结束当前语句或代码块。
+- 233: `(空行)` -> 空行，用于提升代码结构可读性。
+- 234: `const startLongPress = (fp: MobileFootprint) => {` -> 声明变量或常量，保存运行时数据。
+- 235: `longPressFp.current = fp` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `longPressTimer.current = setTimeout(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `const ok = window.confirm(\`删除?{fp.destination.name}」的这条足迹？\`)` -> 声明变量或常量，保存运行时数据。
+- 238: `if (ok) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 239: `void onDeleteFootprint(fp.id).then(` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `() => toast.success('已删？'),` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `() => toast.error('删除失败'),` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `)` -> 结束当前语句或代码块。
+- 243: `}` -> 结束当前语句或代码块。
+- 244: `longPressFp.current = null` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `}, 520)` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `}` -> 结束当前语句或代码块。
+- 247: `(空行)` -> 空行，用于提升代码结构可读性。
+- 248: `const cancelLongPress = () => {` -> 声明变量或常量，保存运行时数据。
+- 249: `if (longPressTimer.current) clearTimeout(longPressTimer.current)` -> 条件判断分支，根据场景执行不同逻辑。
+- 250: `longPressTimer.current = null` -> 执行当前语句，参与该文件整体逻辑。
+- 251: `longPressFp.current = null` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `}` -> 结束当前语句或代码块。
+- 253: `(空行)` -> 空行，用于提升代码结构可读性。
+- 254: `const clearCacheDemo = () => {` -> 声明变量或常量，保存运行时数据。
+- 255: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 256: `const keys = Object.keys(localStorage).filter(` -> 声明变量或常量，保存运行时数据。
+- 257: `(k) => !k.includes('auth_token') && !k.includes('user-storage') && !k.includes('persist'),` -> 执行当前语句，参与该文件整体逻辑。
+- 258: `)` -> 结束当前语句或代码块。
+- 259: `keys.forEach((k) => localStorage.removeItem(k))` -> 执行当前语句，参与该文件整体逻辑。
+- 260: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `// ignore` -> 注释行，用于解释设计意图或使用说明。
+- 262: `}` -> 结束当前语句或代码块。
+- 263: `toast.success('已清理本地缓存（保留登录状态）')` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `}` -> 结束当前语句或代码块。
+- 265: `(空行)` -> 空行，用于提升代码结构可读性。
+- 266: `return (` -> 返回结果或提前结束当前流程。
+- 267: `<div className="pb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 268: `(空行)` -> 空行，用于提升代码结构可读性。
+- 269: `<div className="relative overflow-hidden bg-gradient-to-b from-sky-100/90 via-white to-slate-50 pb-6 pt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `<div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-br from-sky-200/40 via-indigo-100/30 to-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 271: `(空行)` -> 空行，用于提升代码结构可读性。
+- 272: `<div className="relative px-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 273: `<div className="flex items-center justify-between gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 274: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `onClick={() => void runRefresh()}` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-600 active:scale-95 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `aria-label="刷新"` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `{refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 282: `<div className="flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 283: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `onClick={() => setSettingsOpen(true)}` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-white/80 text-slate-700 active:scale-95 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `aria-label="设置"` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `<Settings className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 290: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 292: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 293: `(空行)` -> 空行，用于提升代码结构可读性。
+- 294: `<div className="mt-4 flex gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 295: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `onClick={() => setAvatarOpen(true)}` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `className="relative shrink-0 outline-none"` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `aria-label="查看头像"` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `className={\`h-16 w-16 rounded-2xl bg-gradient-to-br ${avatarGradients[avatarIdx]} text-white flex items-center justify-center text-2xl font-bold shadow-lg ring-4 ring-white/80\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `{avatarInitial}` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 306: `<span className="absolute -bottom-1 -right-1 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-amber-950 shadow">` -> JSX/HTML 结构行，用于描述页面元素。
+- 307: `Lv.{levelFromUser(user)}` -> 执行当前语句，参与该文件整体逻辑。
+- 308: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `(空行)` -> 空行，用于提升代码结构可读性。
+- 311: `<div className="min-w-0 flex-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 312: `<div className="flex flex-wrap items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 313: `<h1 className="text-lg font-bold text-slate-900 truncate">` -> JSX/HTML 结构行，用于描述页面元素。
+- 314: `{user.nickname?.trim() || '旅行者'}` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 316: `<span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">` -> JSX/HTML 结构行，用于描述页面元素。
+- 317: `旅行达人` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `{isGuestNickname(user.nickname) ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 320: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `onClick={() => router.push('/profile/edit')}` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `className="rounded-full bg-sky-600 px-2.5 py-0.5 text-[11px] font-semibold text-white active:scale-95"` -> 执行当前语句，参与该文件整体逻辑。
+- 324: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 325: `去设?` -> 执行当前语句，参与该文件整体逻辑。
+- 326: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 327: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 328: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 329: `(空行)` -> 空行，用于提升代码结构可读性。
+- 330: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 331: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 332: `onClick={() => router.push('/profile/edit')}` -> 执行当前语句，参与该文件整体逻辑。
+- 333: `className="mt-2 flex w-full items-center justify-between rounded-xl border border-slate-200/80 bg-white/70 px-3 py-2 text-left active:bg-white"` -> 执行当前语句，参与该文件整体逻辑。
+- 334: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 335: `<span className="text-sm text-slate-600">编辑资料</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 336: `<ChevronRight className="h-4 w-4 text-slate-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 337: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 338: `(空行)` -> 空行，用于提升代码结构可读性。
+- 339: `<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 340: `<span className="inline-flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 341: `ID {String(user.id).slice(0, 8)}` -> 执行当前语句，参与该文件整体逻辑。
+- 342: `<button type="button" onClick={onCopyId} className="rounded p-0.5 text-sky-600" aria-label="复制 ID">` -> JSX/HTML 结构行，用于描述页面元素。
+- 343: `<Copy className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 344: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 345: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 346: `<span className="text-slate-300">|</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 347: `<span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 348: `{user.phone` -> 执行当前语句，参与该文件整体逻辑。
+- 349: `? user.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')` -> 执行当前语句，参与该文件整体逻辑。
+- 350: `: '未绑定手机'}` -> 执行当前语句，参与该文件整体逻辑。
+- 351: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 352: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 353: `(空行)` -> 空行，用于提升代码结构可读性。
+- 354: `<p className="mt-2 text-xs font-medium text-slate-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 355: `{cityCount} 座城市· {counts.favorites} 条收藏· {reviewCount} 条点评` -> 执行当前语句，参与该文件整体逻辑。
+- 356: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 357: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 358: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 359: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 360: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 361: `(空行)` -> 空行，用于提升代码结构可读性。
+- 362: `(空行)` -> 空行，用于提升代码结构可读性。
+- 363: `<div className="sticky top-16 z-20 border-b border-slate-100 bg-white/95 backdrop-blur-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 364: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 365: `ref={tabWrapRef}` -> 执行当前语句，参与该文件整体逻辑。
+- 366: `className="relative flex gap-0 overflow-x-auto px-2 pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"` -> 执行当前语句，参与该文件整体逻辑。
+- 367: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 368: `{tabs.map((t, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 369: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 370: `key={t.key}` -> 执行当前语句，参与该文件整体逻辑。
+- 371: `ref={(el) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 372: `tabBtnRefs.current[i] = el` -> 执行当前语句，参与该文件整体逻辑。
+- 373: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 374: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 375: `onClick={() => setTab(t.key)}` -> 执行当前语句，参与该文件整体逻辑。
+- 376: `className={\`relative flex min-w-[4.5rem] shrink-0 flex-col items-center px-2 py-3 text-sm font-medium transition-colors ${` -> 执行当前语句，参与该文件整体逻辑。
+- 377: `tab === t.key ? 'text-sky-700' : 'text-slate-500'` -> 执行当前语句，参与该文件整体逻辑。
+- 378: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 379: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 380: `<span className="inline-flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 381: `{t.label}` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `{typeof t.badge === 'number' && t.badge > 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 383: `<span className="min-w-[1.125rem] rounded-full bg-rose-500 px-1 text-center text-[10px] font-bold leading-tight text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 384: `{t.badge > 99 ? '99+' : t.badge}` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 386: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 387: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 388: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 389: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 390: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 391: `className="absolute bottom-0 h-0.5 rounded-full bg-sky-600 transition-all duration-300 ease-out"` -> 执行当前语句，参与该文件整体逻辑。
+- 392: `style={{ left: indicator.left, width: Math.max(indicator.width, 24) }}` -> 执行当前语句，参与该文件整体逻辑。
+- 393: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 394: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 395: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 396: `(空行)` -> 空行，用于提升代码结构可读性。
+- 397: `(空行)` -> 空行，用于提升代码结构可读性。
+- 398: `{ptrDist > 8 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 399: `<div className="flex justify-center py-1 text-xs text-sky-600" style={{ height: ptrDist }}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 400: `{ptrDist > 48 ? '松开刷新' : '下拉刷新'}` -> 执行当前语句，参与该文件整体逻辑。
+- 401: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 402: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 403: `(空行)` -> 空行，用于提升代码结构可读性。
+- 404: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 405: `ref={scrollRef}` -> 执行当前语句，参与该文件整体逻辑。
+- 406: `className="min-h-[50vh] px-4 pt-3"` -> 执行当前语句，参与该文件整体逻辑。
+- 407: `onTouchStart={onTouchStartPtr}` -> 执行当前语句，参与该文件整体逻辑。
+- 408: `onTouchMove={onTouchMovePtr}` -> 执行当前语句，参与该文件整体逻辑。
+- 409: `onTouchEnd={onTouchEndPtr}` -> 执行当前语句，参与该文件整体逻辑。
+- 410: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 411: `{tab === 'favorite' && (` -> 执行当前语句，参与该文件整体逻辑。
+- 412: `<FavoriteTab` -> 执行当前语句，参与该文件整体逻辑。
+- 413: `loading={favoritesLoading}` -> 执行当前语句，参与该文件整体逻辑。
+- 414: `items={favoritesAll}` -> 执行当前语句，参与该文件整体逻辑。
+- 415: `router={router}` -> 执行当前语句，参与该文件整体逻辑。
+- 416: `coverSrc={coverSrc}` -> 执行当前语句，参与该文件整体逻辑。
+- 417: `emptyHref="/destinations"` -> 执行当前语句，参与该文件整体逻辑。
+- 418: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 419: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 420: `{tab === 'footprint' && (` -> 执行当前语句，参与该文件整体逻辑。
+- 421: `<FootprintTab` -> 执行当前语句，参与该文件整体逻辑。
+- 422: `loading={footprintsLoading}` -> 执行当前语句，参与该文件整体逻辑。
+- 423: `footprints={footprints}` -> 执行当前语句，参与该文件整体逻辑。
+- 424: `total={footprintTotal}` -> 执行当前语句，参与该文件整体逻辑。
+- 425: `router={router}` -> 执行当前语句，参与该文件整体逻辑。
+- 426: `coverSrc={coverSrc}` -> 执行当前语句，参与该文件整体逻辑。
+- 427: `onLongPressStart={startLongPress}` -> 执行当前语句，参与该文件整体逻辑。
+- 428: `onLongPressEnd={cancelLongPress}` -> 执行当前语句，参与该文件整体逻辑。
+- 429: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 430: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 431: `{tab === 'messages' && <MessagesTab unread={messagesUnread} router={router} />}` -> 执行当前语句，参与该文件整体逻辑。
+- 432: `{tab === 'orders' && (` -> 执行当前语句，参与该文件整体逻辑。
+- 433: `<OrdersTab loading={countsLoading} orders={ordersAll} router={router} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 434: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 435: `{tab === 'coupons' && <CouponsTab count={couponCount} router={router} />}` -> 执行当前语句，参与该文件整体逻辑。
+- 436: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 437: `(空行)` -> 空行，用于提升代码结构可读性。
+- 438: `(空行)` -> 空行，用于提升代码结构可读性。
+- 439: `<div className="mx-4 mt-6 grid grid-cols-4 gap-2 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 440: `<Quick href="/orders" icon={ClipboardList} label="我的订单" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 441: `<Quick href="/cart" icon={Ticket} label="购物车" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 442: `<Quick href="/help" icon={Headphones} label="帮助反馈" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 443: `<Quick href="/about" icon={Info} label="关于我们" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 444: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 445: `(空行)` -> 空行，用于提升代码结构可读性。
+- 446: `(空行)` -> 空行，用于提升代码结构可读性。
+- 447: `<div className="mx-4 mt-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 448: `<div className="mb-3 flex items-center justify-between">` -> JSX/HTML 结构行，用于描述页面元素。
+- 449: `<h2 className="text-sm font-bold text-slate-900">精选旅行灵</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 450: `<Link href="/destinations" className="text-xs font-medium text-sky-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 451: `更多` -> 执行当前语句，参与该文件整体逻辑。
+- 452: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 453: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 454: `<div className="flex gap-3 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">` -> JSX/HTML 结构行，用于描述页面元素。
+- 455: `{[` -> 执行当前语句，参与该文件整体逻辑。
+- 456: `{ t: '草原星空', s: '锡林郭勒 · 自驾', img: 'scenic_images/__auto__/placeholder.png' },` -> 执行当前语句，参与该文件整体逻辑。
+- 457: `{ t: '森林温泉', s: '兴安?· 慢旅？', img: 'scenic_images/__auto__/placeholder.png' },` -> 执行当前语句，参与该文件整体逻辑。
+- 458: `{ t: '沙漠公路', s: '阿拉?· 出片', img: 'scenic_images/__auto__/placeholder.png' },` -> 执行当前语句，参与该文件整体逻辑。
+- 459: `].map((c) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 460: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 461: `key={c.t}` -> 执行当前语句，参与该文件整体逻辑。
+- 462: `href="/destinations"` -> 执行当前语句，参与该文件整体逻辑。
+- 463: `className="relative w-40 shrink-0 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100"` -> 执行当前语句，参与该文件整体逻辑。
+- 464: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 465: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 466: `src={resolveCoverSrc(c.img)}` -> 执行当前语句，参与该文件整体逻辑。
+- 467: `alt=""` -> 执行当前语句，参与该文件整体逻辑。
+- 468: `className="h-24 w-full object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 469: `onError={onImgErrorUseFallback}` -> 执行当前语句，参与该文件整体逻辑。
+- 470: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 471: `<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 472: `<div className="absolute bottom-2 left-2 right-2 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 473: `<div className="text-xs font-bold">{c.t}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 474: `<div className="text-[10px] opacity-90">{c.s}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 475: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 476: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 477: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 478: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 479: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 480: `(空行)` -> 空行，用于提升代码结构可读性。
+- 481: `(空行)` -> 空行，用于提升代码结构可读性。
+- 482: `{settingsOpen ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 483: `<div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/40" role="dialog">` -> JSX/HTML 结构行，用于描述页面元素。
+- 484: `<button type="button" className="min-h-0 flex-1" aria-label="关闭" onClick={() => setSettingsOpen(false)} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 485: `<div className="rounded-t-3xl bg-white p-4 pb-8 shadow-2xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 486: `<div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-200" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 487: `<div className="flex items-center justify-between">` -> JSX/HTML 结构行，用于描述页面元素。
+- 488: `<h3 className="text-base font-bold text-slate-900">设置</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 489: `<button type="button" onClick={() => setSettingsOpen(false)} className="p-2 text-slate-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 490: `<X className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 491: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 492: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 493: `<div className="mt-2 divide-y divide-slate-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 494: `<SettingsRow` -> 执行当前语句，参与该文件整体逻辑。
+- 495: `icon={Bell}` -> 执行当前语句，参与该文件整体逻辑。
+- 496: `label="通知与消息"` -> 执行当前语句，参与该文件整体逻辑。
+- 497: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 498: `setSettingsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 499: `router.push('/notifications')` -> 执行当前语句，参与该文件整体逻辑。
+- 500: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 501: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 502: `<SettingsRow` -> 执行当前语句，参与该文件整体逻辑。
+- 503: `icon={HelpCircle}` -> 执行当前语句，参与该文件整体逻辑。
+- 504: `label="帮助与常见问题"` -> 执行当前语句，参与该文件整体逻辑。
+- 505: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 506: `setSettingsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 507: `router.push('/help')` -> 执行当前语句，参与该文件整体逻辑。
+- 508: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 509: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 510: `<SettingsRow` -> 执行当前语句，参与该文件整体逻辑。
+- 511: `icon={Share2}` -> 执行当前语句，参与该文件整体逻辑。
+- 512: `label="邀请好友"` -> 执行当前语句，参与该文件整体逻辑。
+- 513: `onClick={() => toast('邀请活动即将上线')}` -> 执行当前语句，参与该文件整体逻辑。
+- 514: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 515: `<SettingsRow icon={Sparkles} label="清除缓存" onClick={clearCacheDemo} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 516: `<SettingsRow` -> 执行当前语句，参与该文件整体逻辑。
+- 517: `icon={Info}` -> 执行当前语句，参与该文件整体逻辑。
+- 518: `label="隐私政策"` -> 执行当前语句，参与该文件整体逻辑。
+- 519: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 520: `setSettingsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 521: `router.push('/help')` -> 执行当前语句，参与该文件整体逻辑。
+- 522: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 523: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 524: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 525: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 526: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 527: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 528: `setSettingsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 529: `onLogout()` -> 执行当前语句，参与该文件整体逻辑。
+- 530: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 531: `className="mt-4 w-full rounded-2xl border border-rose-200 bg-rose-50 py-3 text-sm font-semibold text-rose-700"` -> 执行当前语句，参与该文件整体逻辑。
+- 532: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 533: `退出登录` -> 执行当前语句，参与该文件整体逻辑。
+- 534: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 535: `<p className="mt-4 text-center text-[11px] text-slate-400">智旅助手 · v2.0</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 536: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 537: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 538: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 539: `(空行)` -> 空行，用于提升代码结构可读性。
+- 540: `(空行)` -> 空行，用于提升代码结构可读性。
+- 541: `{avatarOpen ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 542: `<div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 p-6" role="dialog">` -> JSX/HTML 结构行，用于描述页面元素。
+- 543: `<button type="button" className="absolute inset-0" aria-label="关闭" onClick={() => setAvatarOpen(false)} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 544: `<div className="relative z-10 flex flex-col items-center gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 545: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 546: `className={\`flex h-40 w-40 items-center justify-center rounded-3xl bg-gradient-to-br ${avatarGradients[avatarIdx]} text-6xl font-bold text-white shadow-2xl\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 547: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 548: `{avatarInitial}` -> 执行当前语句，参与该文件整体逻辑。
+- 549: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 550: `<p className="text-sm text-white/90">点击背景关闭</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 551: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 552: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 553: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 554: `(空行)` -> 空行，用于提升代码结构可读性。
+- 555: `(空行)` -> 空行，用于提升代码结构可读性。
+- 556: `{onboardingOpen ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 557: `<div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-6" role="dialog">` -> JSX/HTML 结构行，用于描述页面元素。
+- 558: `<div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 559: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 560: `<UserCircle2 className="h-10 w-10 shrink-0 text-sky-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 561: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 562: `<h3 className="text-lg font-bold text-slate-900">设置你的昵称与头像</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 563: `<p className="mt-1 text-sm text-slate-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 564: `完善资料可解锁更多个性化推荐；完成资料还可领取专属优惠券（演示）哦` -> 执行当前语句，参与该文件整体逻辑。
+- 565: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 566: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 567: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 568: `<div className="mt-5 flex gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 569: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 570: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 571: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 572: `dismissOnboarding()` -> 执行当前语句，参与该文件整体逻辑。
+- 573: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 574: `className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700"` -> 执行当前语句，参与该文件整体逻辑。
+- 575: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 576: `稍后再说` -> 执行当前语句，参与该文件整体逻辑。
+- 577: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 578: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 579: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 580: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 581: `dismissOnboarding()` -> 执行当前语句，参与该文件整体逻辑。
+- 582: `router.push('/profile/edit')` -> 执行当前语句，参与该文件整体逻辑。
+- 583: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 584: `className="flex-1 rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white"` -> 执行当前语句，参与该文件整体逻辑。
+- 585: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 586: `去完成` -> 执行当前语句，参与该文件整体逻辑。
+- 587: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 588: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 589: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 590: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 591: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 592: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 593: `)` -> 结束当前语句或代码块。
+- 594: `}` -> 结束当前语句或代码块。
+- 595: `(空行)` -> 空行，用于提升代码结构可读性。
+- 596: `function countUniqueCities(footprints: MobileFootprint[]) {` -> 定义函数或方法，实现具体业务逻辑。
+- 597: `const s = new Set<string>()` -> 声明变量或常量，保存运行时数据。
+- 598: `for (const f of footprints) {` -> 循环处理集合或重复执行逻辑。
+- 599: `const c = (f.destination.city || '').trim()` -> 声明变量或常量，保存运行时数据。
+- 600: `if (c) s.add(c)` -> 条件判断分支，根据场景执行不同逻辑。
+- 601: `}` -> 结束当前语句或代码块。
+- 602: `return s.size` -> 返回结果或提前结束当前流程。
+- 603: `}` -> 结束当前语句或代码块。
+- 604: `(空行)` -> 空行，用于提升代码结构可读性。
+- 605: `function Quick({ href, icon: Icon, label }: { href: string; icon: typeof MapPin; label: string }) {` -> 定义函数或方法，实现具体业务逻辑。
+- 606: `return (` -> 返回结果或提前结束当前流程。
+- 607: `<Link href={href} className="flex flex-col items-center gap-1 rounded-xl py-2 text-center active:bg-slate-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 608: `<Icon className="h-5 w-5 text-sky-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 609: `<span className="text-[11px] font-medium text-slate-700">{label}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 610: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 611: `)` -> 结束当前语句或代码块。
+- 612: `}` -> 结束当前语句或代码块。
+- 613: `(空行)` -> 空行，用于提升代码结构可读性。
+- 614: `function SettingsRow({` -> 定义函数或方法，实现具体业务逻辑。
+- 615: `icon: Icon,` -> 执行当前语句，参与该文件整体逻辑。
+- 616: `label,` -> 执行当前语句，参与该文件整体逻辑。
+- 617: `onClick,` -> 执行当前语句，参与该文件整体逻辑。
+- 618: `}: {` -> 执行当前语句，参与该文件整体逻辑。
+- 619: `icon: typeof Settings` -> 执行当前语句，参与该文件整体逻辑。
+- 620: `label: string` -> 执行当前语句，参与该文件整体逻辑。
+- 621: `onClick: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 622: `}) {` -> 执行当前语句，参与该文件整体逻辑。
+- 623: `return (` -> 返回结果或提前结束当前流程。
+- 624: `<button type="button" onClick={onClick} className="flex w-full items-center gap-3 py-3.5 text-left active:bg-slate-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 625: `<Icon className="h-5 w-5 text-slate-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 626: `<span className="flex-1 text-sm text-slate-800">{label}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 627: `<ChevronRight className="h-4 w-4 text-slate-300" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 628: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 629: `)` -> 结束当前语句或代码块。
+- 630: `}` -> 结束当前语句或代码块。
+- 631: `(空行)` -> 空行，用于提升代码结构可读性。
+- 632: `function FavoriteTab({` -> 定义函数或方法，实现具体业务逻辑。
+- 633: `loading,` -> 执行当前语句，参与该文件整体逻辑。
+- 634: `items,` -> 执行当前语句，参与该文件整体逻辑。
+- 635: `router,` -> 执行当前语句，参与该文件整体逻辑。
+- 636: `coverSrc,` -> 执行当前语句，参与该文件整体逻辑。
+- 637: `emptyHref,` -> 执行当前语句，参与该文件整体逻辑。
+- 638: `}: {` -> 执行当前语句，参与该文件整体逻辑。
+- 639: `loading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 640: `items: MobileFavoritePreview[]` -> 执行当前语句，参与该文件整体逻辑。
+- 641: `router: { push: (href: string) => void }` -> 执行当前语句，参与该文件整体逻辑。
+- 642: `coverSrc: (d: { cover_image?: string | null }) => string` -> 执行当前语句，参与该文件整体逻辑。
+- 643: `emptyHref: string` -> 执行当前语句，参与该文件整体逻辑。
+- 644: `}) {` -> 执行当前语句，参与该文件整体逻辑。
+- 645: `if (loading) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 646: `return (` -> 返回结果或提前结束当前流程。
+- 647: `<div className="grid grid-cols-2 gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 648: `{Array.from({ length: 4 }).map((_, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 649: `<div key={i} className="h-36 animate-pulse rounded-2xl bg-slate-200" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 650: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 651: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 652: `)` -> 结束当前语句或代码块。
+- 653: `}` -> 结束当前语句或代码块。
+- 654: `if (!items.length) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 655: `return (` -> 返回结果或提前结束当前流程。
+- 656: `<div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 657: `<Bookmark className="mx-auto h-10 w-10 text-slate-300" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 658: `<p className="mt-3 text-sm text-slate-600">还没有收藏目的地</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 659: `<Link href={emptyHref} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 660: `探索热门目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 661: `<ArrowRight className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 662: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 663: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 664: `)` -> 结束当前语句或代码块。
+- 665: `}` -> 结束当前语句或代码块。
+- 666: `return (` -> 返回结果或提前结束当前流程。
+- 667: `<div className="grid grid-cols-2 gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 668: `{items.map((f) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 669: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 670: `key={f.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 671: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 672: `onClick={() => router.push(\`/destinations/${f.id}\`)}` -> 执行当前语句，参与该文件整体逻辑。
+- 673: `className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white text-left shadow-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 674: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 675: `<div className="relative aspect-[4/3] w-full">` -> JSX/HTML 结构行，用于描述页面元素。
+- 676: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 677: `src={coverSrc(f)}` -> 执行当前语句，参与该文件整体逻辑。
+- 678: `alt={f.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 679: `className="absolute inset-0 h-full w-full object-cover transition duration-300 group-active:scale-105"` -> 执行当前语句，参与该文件整体逻辑。
+- 680: `onError={onImgErrorUseFallback}` -> 执行当前语句，参与该文件整体逻辑。
+- 681: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 682: `<div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 683: `<div className="absolute bottom-2 left-2 right-2 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 684: `<div className="text-xs font-bold line-clamp-1">{f.name}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 685: `<div className="text-[10px] opacity-90 line-clamp-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 686: `{f.city} · {f.province}` -> 执行当前语句，参与该文件整体逻辑。
+- 687: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 688: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 689: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 690: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 691: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 692: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 693: `)` -> 结束当前语句或代码块。
+- 694: `}` -> 结束当前语句或代码块。
+- 695: `(空行)` -> 空行，用于提升代码结构可读性。
+- 696: `function FootprintTab({` -> 定义函数或方法，实现具体业务逻辑。
+- 697: `loading,` -> 执行当前语句，参与该文件整体逻辑。
+- 698: `footprints,` -> 执行当前语句，参与该文件整体逻辑。
+- 699: `total,` -> 执行当前语句，参与该文件整体逻辑。
+- 700: `router,` -> 执行当前语句，参与该文件整体逻辑。
+- 701: `coverSrc,` -> 执行当前语句，参与该文件整体逻辑。
+- 702: `onLongPressStart,` -> 执行当前语句，参与该文件整体逻辑。
+- 703: `onLongPressEnd,` -> 执行当前语句，参与该文件整体逻辑。
+- 704: `}: {` -> 执行当前语句，参与该文件整体逻辑。
+- 705: `loading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 706: `footprints: MobileFootprint[]` -> 执行当前语句，参与该文件整体逻辑。
+- 707: `total: number` -> 执行当前语句，参与该文件整体逻辑。
+- 708: `router: { push: (href: string) => void }` -> 执行当前语句，参与该文件整体逻辑。
+- 709: `coverSrc: (d: { cover_image?: string | null }) => string` -> 执行当前语句，参与该文件整体逻辑。
+- 710: `onLongPressStart: (fp: MobileFootprint) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 711: `onLongPressEnd: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 712: `}) {` -> 执行当前语句，参与该文件整体逻辑。
+- 713: `if (loading) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 714: `return (` -> 返回结果或提前结束当前流程。
+- 715: `<div className="space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 716: `{Array.from({ length: 4 }).map((_, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 717: `<div key={i} className="flex gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 718: `<div className="h-20 w-28 shrink-0 animate-pulse rounded-xl bg-slate-200" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 719: `<div className="flex-1 space-y-2 py-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 720: `<div className="h-4 w-[75%] animate-pulse rounded bg-slate-200" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 721: `<div className="h-3 w-1/2 animate-pulse rounded bg-slate-200" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 722: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 723: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 724: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 725: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 726: `)` -> 结束当前语句或代码块。
+- 727: `}` -> 结束当前语句或代码块。
+- 728: `if (!footprints.length) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 729: `return (` -> 返回结果或提前结束当前流程。
+- 730: `<div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 731: `<Footprints className="mx-auto h-10 w-10 text-slate-300" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 732: `<p className="mt-3 text-sm text-slate-600">还没去过任何地方</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 733: `<Link href="/destinations" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 734: `探索热门目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 735: `<ArrowRight className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 736: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 737: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 738: `)` -> 结束当前语句或代码块。
+- 739: `}` -> 结束当前语句或代码块。
+- 740: `return (` -> 返回结果或提前结束当前流程。
+- 741: `<div className="space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 742: `{footprints.map((p) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 743: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 744: `key={p.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 745: `className="flex gap-3 overflow-hidden rounded-2xl border border-slate-100 bg-white p-2 shadow-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 746: `onTouchStart={() => onLongPressStart(p)}` -> 执行当前语句，参与该文件整体逻辑。
+- 747: `onTouchEnd={onLongPressEnd}` -> 执行当前语句，参与该文件整体逻辑。
+- 748: `onTouchCancel={onLongPressEnd}` -> 执行当前语句，参与该文件整体逻辑。
+- 749: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 750: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 751: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 752: `onClick={() => router.push(\`/destinations/${p.destination.id}\`)}` -> 执行当前语句，参与该文件整体逻辑。
+- 753: `className="flex min-w-0 flex-1 gap-3 text-left"` -> 执行当前语句，参与该文件整体逻辑。
+- 754: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 755: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 756: `src={coverSrc(p.destination)}` -> 执行当前语句，参与该文件整体逻辑。
+- 757: `alt={p.destination.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 758: `className="h-20 w-28 shrink-0 rounded-xl object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 759: `onError={onImgErrorUseFallback}` -> 执行当前语句，参与该文件整体逻辑。
+- 760: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 761: `<div className="min-w-0 flex-1 py-0.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 762: `<div className="font-semibold text-slate-900 line-clamp-1">{p.destination.name}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 763: `<div className="mt-0.5 text-xs text-slate-500 line-clamp-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 764: `{p.destination.city} · {p.destination.province}` -> 执行当前语句，参与该文件整体逻辑。
+- 765: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 766: `<div className="mt-1 text-[11px] text-slate-400">{formatVisitLabel(p.visitDate)}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 767: `<div className="mt-1 text-[11px] font-medium text-sky-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 768: `去过 {p.visitCount} 次` -> 执行当前语句，参与该文件整体逻辑。
+- 769: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 770: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 771: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 772: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 773: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 774: `{total > footprints.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 775: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 776: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 777: `onClick={() =>` -> 执行当前语句，参与该文件整体逻辑。
+- 778: `toast(\`共${total} 条足迹，当前展示最${footprints.length} 条\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 779: `}` -> 结束当前语句或代码块。
+- 780: `className="flex w-full items-center justify-center gap-1 rounded-xl border border-slate-200 py-3 text-sm font-medium text-slate-700 active:bg-slate-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 781: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 782: `查看全部足迹（{total}）` -> 执行当前语句，参与该文件整体逻辑。
+- 783: `<Maximize2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 784: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 785: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 786: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 787: `)` -> 结束当前语句或代码块。
+- 788: `}` -> 结束当前语句或代码块。
+- 789: `(空行)` -> 空行，用于提升代码结构可读性。
+- 790: `function MessagesTab({ unread, router }: { unread: number; router: { push: (href: string) => void } }) {` -> 定义函数或方法，实现具体业务逻辑。
+- 791: `return (` -> 返回结果或提前结束当前流程。
+- 792: `<div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 793: `<div className="flex items-center justify-between">` -> JSX/HTML 结构行，用于描述页面元素。
+- 794: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 795: `<div className="text-sm font-semibold text-slate-900">站内消息</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 796: `<div className="mt-1 text-xs text-slate-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 797: `{unread > 0 ? \`未读 ${unread} 条\` : '暂无未读'}` -> 执行当前语句，参与该文件整体逻辑。
+- 798: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 799: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 800: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 801: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 802: `onClick={() => router.push('/notifications')}` -> 执行当前语句，参与该文件整体逻辑。
+- 803: `className="rounded-full bg-sky-600 px-4 py-2 text-xs font-semibold text-white"` -> 执行当前语句，参与该文件整体逻辑。
+- 804: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 805: `查看全部` -> 执行当前语句，参与该文件整体逻辑。
+- 806: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 807: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 808: `<p className="mt-4 text-xs text-slate-500">订单提醒、系统公告与活动通知会出现在这里</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 809: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 810: `)` -> 结束当前语句或代码块。
+- 811: `}` -> 结束当前语句或代码块。
+- 812: `(空行)` -> 空行，用于提升代码结构可读性。
+- 813: `function OrdersTab({` -> 定义函数或方法，实现具体业务逻辑。
+- 814: `loading,` -> 执行当前语句，参与该文件整体逻辑。
+- 815: `orders,` -> 执行当前语句，参与该文件整体逻辑。
+- 816: `router,` -> 执行当前语句，参与该文件整体逻辑。
+- 817: `}: {` -> 执行当前语句，参与该文件整体逻辑。
+- 818: `loading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 819: `orders: Order[]` -> 执行当前语句，参与该文件整体逻辑。
+- 820: `router: { push: (href: string) => void }` -> 执行当前语句，参与该文件整体逻辑。
+- 821: `}) {` -> 执行当前语句，参与该文件整体逻辑。
+- 822: `if (loading) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 823: `return <div className="py-8 text-center text-sm text-slate-500">加载订单</div>` -> 返回结果或提前结束当前流程。
+- 824: `}` -> 结束当前语句或代码块。
+- 825: `if (!orders.length) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 826: `return (` -> 返回结果或提前结束当前流程。
+- 827: `<div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 828: `<p className="text-sm text-slate-600">暂无订单</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 829: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 830: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 831: `onClick={() => router.push('/cart')}` -> 执行当前语句，参与该文件整体逻辑。
+- 832: `className="mt-4 text-sm font-semibold text-sky-600"` -> 执行当前语句，参与该文件整体逻辑。
+- 833: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 834: `去下单` -> 执行当前语句，参与该文件整体逻辑。
+- 835: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 836: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 837: `)` -> 结束当前语句或代码块。
+- 838: `}` -> 结束当前语句或代码块。
+- 839: `return (` -> 返回结果或提前结束当前流程。
+- 840: `<div className="space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 841: `{orders.map((o: any) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 842: `<div key={String(o.id)} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 843: `<div className="text-xs text-slate-500">订单号：{o.order_no || '无'}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 844: `<div className="mt-1 text-sm font-semibold text-slate-900">¥{Number(o.total_amount || 0).toLocaleString()}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 845: `<div className="mt-1 text-xs text-slate-600">{o.status || '未知'}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 846: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 847: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 848: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 849: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 850: `onClick={() => router.push('/orders')}` -> 执行当前语句，参与该文件整体逻辑。
+- 851: `className="w-full rounded-xl border border-slate-200 py-3 text-sm font-medium text-slate-800"` -> 执行当前语句，参与该文件整体逻辑。
+- 852: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 853: `订单中心` -> 执行当前语句，参与该文件整体逻辑。
+- 854: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 855: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 856: `)` -> 结束当前语句或代码块。
+- 857: `}` -> 结束当前语句或代码块。
+- 858: `(空行)` -> 空行，用于提升代码结构可读性。
+- 859: `function CouponsTab({ count, router }: { count: number; router: { push: (href: string) => void } }) {` -> 定义函数或方法，实现具体业务逻辑。
+- 860: `return (` -> 返回结果或提前结束当前流程。
+- 861: `<div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 862: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 863: `<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 864: `<Gift className="h-6 w-6" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 865: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 866: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 867: `<div className="text-sm font-bold text-slate-900">我的优惠</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 868: `<div className="mt-0.5 text-xs text-slate-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 869: `{count > 0 ? \`可用 ${count} 张\` : '暂无可用优惠券'}` -> 执行当前语句，参与该文件整体逻辑。
+- 870: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 871: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 872: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 873: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 874: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 875: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 876: `toast('领券中心即将上线')` -> 执行当前语句，参与该文件整体逻辑。
+- 877: `router.push('/destinations')` -> 执行当前语句，参与该文件整体逻辑。
+- 878: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 879: `className="mt-4 w-full rounded-xl bg-sky-600 py-3 text-sm font-semibold text-white active:scale-[0.99]"` -> 执行当前语句，参与该文件整体逻辑。
+- 880: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 881: `去领取 / 看看目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 882: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 883: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 884: `)` -> 结束当前语句或代码块。
+- 885: `}` -> 结束当前语句或代码块。

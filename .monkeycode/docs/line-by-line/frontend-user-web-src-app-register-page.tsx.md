@@ -1,0 +1,576 @@
+# `frontend/user-web/src/app/register/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 注册页模块 - 新用户账号创建` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 6: `*   - 用户注册表单（用户名、昵称、邮箱、手机号、密码）` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*   - 实时校验与重复检测` -> 注释行，用于解释设计意图或使用说明。
+- 8: `*   - 密码强度指示器` -> 注释行，用于解释设计意图或使用说明。
+- 9: `*   - 注册成功后自动登录` -> 注释行，用于解释设计意图或使用说明。
+- 10: `*` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* 依赖项：` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*   - components/Navbar：顶部导航栏` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*   - components/Footer：底部页脚` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*   - store/index：Zustand 用户状态管理` -> 注释行，用于解释设计意图或使用说明。
+- 15: `*   - lib/validation：表单验证工具` -> 注释行，用于解释设计意图或使用说明。
+- 16: `*   - react-hot-toast：消息提示` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 数据来源：` -> 注释行，用于解释设计意图或使用说明。
+- 19: `*   - POST /api/users/register：用户注册接口` -> 注释行，用于解释设计意图或使用说明。
+- 20: `*   - POST /api/users/check：用户名/邮箱/手机号重复检测` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* 验证规则：` -> 注释行，用于解释设计意图或使用说明。
+- 23: `*   - 用户名：3位以上，字母数字下划线` -> 注释行，用于解释设计意图或使用说明。
+- 24: `*   - 昵称：2位以上` -> 注释行，用于解释设计意图或使用说明。
+- 25: `*   - 邮箱：标准格式（必填）` -> 注释行，用于解释设计意图或使用说明。
+- 26: `*   - 手机号：11位数字（选填）` -> 注释行，用于解释设计意图或使用说明。
+- 27: `*   - 密码：8位以上，大小写字母+数字` -> 注释行，用于解释设计意图或使用说明。
+- 28: `*` -> 注释行，用于解释设计意图或使用说明。
+- 29: `* 密码强度检测：` -> 注释行，用于解释设计意图或使用说明。
+- 30: `*   - 弱（1级）：基础长度` -> 注释行，用于解释设计意图或使用说明。
+- 31: `*   - 中等（2级）：较好长度或字符组合` -> 注释行，用于解释设计意图或使用说明。
+- 32: `*   - 强（3级）：12位+混合字符+特殊符号` -> 注释行，用于解释设计意图或使用说明。
+- 33: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 34: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `(空行)` -> 空行，用于提升代码结构可读性。
+- 36: `import type { FormEvent } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 37: `import { useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 38: `import { useRouter, useSearchParams } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 39: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 40: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 41: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 42: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 43: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 44: `import { Mail, User as UserIcon, Lock, Sparkles, ArrowRight, Phone, CheckCircle2, XCircle } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 45: `import { isValidEmail, isValidPhone } from '@/lib/validation'` -> 导入依赖模块，供当前文件使用。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `// 独立的 InputField 组件 - 移到组件外部避免重渲染问题` -> 注释行，用于解释设计意图或使用说明。
+- 48: `function InputField({` -> 定义函数或方法，实现具体业务逻辑。
+- 49: `label,` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `fieldKey,` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `icon: Icon,` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `type = 'text',` -> 定义类型或类结构，约束数据与行为。
+- 53: `value,` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `onChange,` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `onBlur,` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `placeholder,` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `autoComplete,` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `error,` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `required = false,` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `optional = false,` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `}: {` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `label: string` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `fieldKey: string` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `icon: any` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `type?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `value: string` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `onChange: (v: string) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `onBlur?: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `placeholder: string` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `autoComplete?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `error?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `touched?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `required?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `optional?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `}) {` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `const hasError = error && value && value.length > 0` -> 声明变量或常量，保存运行时数据。
+- 77: `const hasSuccess = !error && value.trim() && value.length >= (fieldKey === 'username' ? 3 : fieldKey === 'nickname' ? 2 : 1)` -> 声明变量或常量，保存运行时数据。
+- 78: `const showIcon = hasError || hasSuccess` -> 声明变量或常量，保存运行时数据。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `return (` -> 返回结果或提前结束当前流程。
+- 81: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 82: `<label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-gray-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 83: `<Icon className="h-4 w-4 text-indigo-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 84: `{label}` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `{required && <span className="text-red-500">*</span>}` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `{optional && <span className="text-xs text-gray-400 font-normal">(选填)</span>}` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 88: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 89: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `type={type}` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `className={\`h-12 w-full rounded-xl border-2 bg-white text-gray-900 text-base transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `hasError` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `? 'border-red-300 focus:border-red-400 focus:ring-red-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `: hasSuccess` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `? 'border-green-300 focus:border-green-400 focus:ring-green-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `: 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `style={{ paddingLeft: '2.5rem', paddingRight: showIcon ? '2.5rem' : '1rem' }}` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `value={value}` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `onChange={(e) => onChange(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `onBlur={onBlur}` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `placeholder={placeholder}` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `autoComplete={autoComplete}` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `<Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `{hasError && (` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `<XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `{hasSuccess && !hasError && (` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `<CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `{hasError && error && (` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `<p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `<XCircle className="h-3 w-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `{error}` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 118: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 120: `)` -> 结束当前语句或代码块。
+- 121: `}` -> 结束当前语句或代码块。
+- 122: `(空行)` -> 空行，用于提升代码结构可读性。
+- 123: `export default function RegisterPage() {` -> 导出当前声明，供其他模块复用。
+- 124: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 125: `const searchParams = useSearchParams()` -> 声明变量或常量，保存运行时数据。
+- 126: `const { login, isAuthenticated } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 127: `const returnUrl = searchParams.get('returnUrl') || '/'` -> 声明变量或常量，保存运行时数据。
+- 128: `(空行)` -> 空行，用于提升代码结构可读性。
+- 129: `const [form, setForm] = useState({` -> 声明变量或常量，保存运行时数据。
+- 130: `username: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `nickname: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `phone: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `email: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `password: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `password2: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `const [loading, setLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 138: `const [checking, setChecking] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 139: `(空行)` -> 空行，用于提升代码结构可读性。
+- 140: `// 实时校验状态` -> 注释行，用于解释设计意图或使用说明。
+- 141: `const [touched, setTouched] = useState<Record<string, boolean>>({` -> 声明变量或常量，保存运行时数据。
+- 142: `username: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 143: `nickname: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `phone: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 145: `email: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `password: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 147: `password2: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `(空行)` -> 空行，用于提升代码结构可读性。
+- 150: `// 已存在错误状态` -> 注释行，用于解释设计意图或使用说明。
+- 151: `const [existsError, setExistsError] = useState<Record<string, string>>({})` -> 声明变量或常量，保存运行时数据。
+- 152: `(空行)` -> 空行，用于提升代码结构可读性。
+- 153: `// 检查用户名/邮箱/手机号是否已存在` -> 注释行，用于解释设计意图或使用说明。
+- 154: `const checkExists = async (field: string, value: string) => {` -> 声明变量或常量，保存运行时数据。
+- 155: `if (!value.trim()) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 156: `if (field === 'username' && !/^[a-zA-Z0-9_]+$/.test(value)) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 157: `if (field === 'email' && !isValidEmail(value)) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 158: `if (field === 'phone' && value && !isValidPhone(value)) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 159: `(空行)` -> 空行，用于提升代码结构可读性。
+- 160: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 161: `const res = await fetch(\`/api/users/check\`, {` -> 声明变量或常量，保存运行时数据。
+- 162: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `headers: { 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `body: JSON.stringify({ [field]: value }),` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 167: `if (data.success && data.exists && data.exists[field]) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 168: `const fieldNames: Record<string, string> = {` -> 声明变量或常量，保存运行时数据。
+- 169: `username: '用户名',` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `email: '邮箱',` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `phone: '手机号'` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `}` -> 结束当前语句或代码块。
+- 173: `setExistsError(prev => ({ ...prev, [field]: \`该${fieldNames[field]}已被注册\` }))` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 175: `setExistsError(prev => {` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `const newErrors = { ...prev }` -> 声明变量或常量，保存运行时数据。
+- 177: `delete newErrors[field]` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `return newErrors` -> 返回结果或提前结束当前流程。
+- 179: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `}` -> 结束当前语句或代码块。
+- 181: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 182: `// 忽略检查错误` -> 注释行，用于解释设计意图或使用说明。
+- 183: `}` -> 结束当前语句或代码块。
+- 184: `}` -> 结束当前语句或代码块。
+- 185: `(空行)` -> 空行，用于提升代码结构可读性。
+- 186: `// 校验函数 - 使用 useMemo 避免每次渲染重新创建` -> 注释行，用于解释设计意图或使用说明。
+- 187: `const validateUsername = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 188: `if (!v.trim()) return '请输入用户名'` -> 条件判断分支，根据场景执行不同逻辑。
+- 189: `if (v.length < 3) return '用户名至少3位'` -> 条件判断分支，根据场景执行不同逻辑。
+- 190: `if (!/^[a-zA-Z0-9_]+$/.test(v)) return '用户名只能包含字母、数字、下划线'` -> 条件判断分支，根据场景执行不同逻辑。
+- 191: `return null` -> 返回结果或提前结束当前流程。
+- 192: `}` -> 结束当前语句或代码块。
+- 193: `const validateNickname = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 194: `if (!v.trim()) return '请输入昵称'` -> 条件判断分支，根据场景执行不同逻辑。
+- 195: `if (v.length < 2) return '昵称至少2位'` -> 条件判断分支，根据场景执行不同逻辑。
+- 196: `return null` -> 返回结果或提前结束当前流程。
+- 197: `}` -> 结束当前语句或代码块。
+- 198: `const validatePhone = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 199: `if (!v.trim()) return null` -> 条件判断分支，根据场景执行不同逻辑。
+- 200: `if (!isValidPhone(v)) return '手机号格式不正确'` -> 条件判断分支，根据场景执行不同逻辑。
+- 201: `return null` -> 返回结果或提前结束当前流程。
+- 202: `}` -> 结束当前语句或代码块。
+- 203: `const validateEmail = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 204: `if (!v.trim()) return '请输入邮箱'` -> 条件判断分支，根据场景执行不同逻辑。
+- 205: `if (!isValidEmail(v)) return '邮箱格式不正确'` -> 条件判断分支，根据场景执行不同逻辑。
+- 206: `return null` -> 返回结果或提前结束当前流程。
+- 207: `}` -> 结束当前语句或代码块。
+- 208: `const validatePassword = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 209: `if (!v) return '请输入密码'` -> 条件判断分支，根据场景执行不同逻辑。
+- 210: `if (v.length < 8) return '密码至少8位'` -> 条件判断分支，根据场景执行不同逻辑。
+- 211: `if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(v)) return '密码需包含大小写字母和数字'` -> 条件判断分支，根据场景执行不同逻辑。
+- 212: `return null` -> 返回结果或提前结束当前流程。
+- 213: `}` -> 结束当前语句或代码块。
+- 214: `const validatePassword2 = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 215: `if (!v) return '请确认密码'` -> 条件判断分支，根据场景执行不同逻辑。
+- 216: `if (v !== form.password) return '两次密码不一致'` -> 条件判断分支，根据场景执行不同逻辑。
+- 217: `return null` -> 返回结果或提前结束当前流程。
+- 218: `}` -> 结束当前语句或代码块。
+- 219: `(空行)` -> 空行，用于提升代码结构可读性。
+- 220: `// 密码强度检测` -> 注释行，用于解释设计意图或使用说明。
+- 221: `const passwordStrength = (pwd: string) => {` -> 声明变量或常量，保存运行时数据。
+- 222: `if (!pwd) return { level: 0, text: '', color: '' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 223: `let score = 0` -> 声明变量或常量，保存运行时数据。
+- 224: `if (pwd.length >= 8) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 225: `if (pwd.length >= 12) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 226: `if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 227: `if (/\d/.test(pwd)) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 228: `if (/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 229: `(空行)` -> 空行，用于提升代码结构可读性。
+- 230: `if (score <= 2) return { level: 1, text: '弱', color: 'bg-red-500' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 231: `if (score <= 3) return { level: 2, text: '中等', color: 'bg-yellow-500' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 232: `return { level: 3, text: '强', color: 'bg-green-500' }` -> 返回结果或提前结束当前流程。
+- 233: `}` -> 结束当前语句或代码块。
+- 234: `(空行)` -> 空行，用于提升代码结构可读性。
+- 235: `const strength = passwordStrength(form.password)` -> 声明变量或常量，保存运行时数据。
+- 236: `(空行)` -> 空行，用于提升代码结构可读性。
+- 237: `const onSubmit = async (e: FormEvent) => {` -> 声明变量或常量，保存运行时数据。
+- 238: `e.preventDefault()` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `(空行)` -> 空行，用于提升代码结构可读性。
+- 240: `const errors: string[] = []` -> 声明变量或常量，保存运行时数据。
+- 241: `const vUsername = validateUsername(form.username)` -> 声明变量或常量，保存运行时数据。
+- 242: `const vNickname = validateNickname(form.nickname)` -> 声明变量或常量，保存运行时数据。
+- 243: `const vPhone = validatePhone(form.phone)` -> 声明变量或常量，保存运行时数据。
+- 244: `const vEmail = validateEmail(form.email)` -> 声明变量或常量，保存运行时数据。
+- 245: `const vPassword = validatePassword(form.password)` -> 声明变量或常量，保存运行时数据。
+- 246: `const vPassword2 = validatePassword2(form.password2)` -> 声明变量或常量，保存运行时数据。
+- 247: `(空行)` -> 空行，用于提升代码结构可读性。
+- 248: `if (vUsername) errors.push(vUsername)` -> 条件判断分支，根据场景执行不同逻辑。
+- 249: `if (vNickname) errors.push(vNickname)` -> 条件判断分支，根据场景执行不同逻辑。
+- 250: `if (vPhone) errors.push(vPhone)` -> 条件判断分支，根据场景执行不同逻辑。
+- 251: `if (vEmail) errors.push(vEmail)` -> 条件判断分支，根据场景执行不同逻辑。
+- 252: `if (vPassword) errors.push(vPassword)` -> 条件判断分支，根据场景执行不同逻辑。
+- 253: `if (vPassword2) errors.push(vPassword2)` -> 条件判断分支，根据场景执行不同逻辑。
+- 254: `(空行)` -> 空行，用于提升代码结构可读性。
+- 255: `if (errors.length > 0) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 256: `toast.error(errors[0])` -> 执行当前语句，参与该文件整体逻辑。
+- 257: `return` -> 返回结果或提前结束当前流程。
+- 258: `}` -> 结束当前语句或代码块。
+- 259: `(空行)` -> 空行，用于提升代码结构可读性。
+- 260: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 261: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `const res = await fetch(\`/api/users/register\`, {` -> 声明变量或常量，保存运行时数据。
+- 263: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `headers: { 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `body: JSON.stringify({` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `username: form.username.trim(),` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `nickname: form.nickname.trim(),` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `phone: form.phone.trim() || undefined,` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `email: form.email.trim().toLowerCase(),` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `password: form.password,` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `}),` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 274: `(空行)` -> 空行，用于提升代码结构可读性。
+- 275: `if (res.status === 409) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 276: `if (data?.error?.includes('用户名')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 277: `toast.error('用户名已被注册，请换一个吧～')` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `} else if (data?.error?.includes('邮箱')) {` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `toast.error('邮箱已被注册，请换一个或直接登录～')` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `} else if (data?.error?.includes('手机')) {` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `toast.error('手机号已被注册，请换一个～')` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `toast.error('账号已存在，请直接登录或换一个用户名～')` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `}` -> 结束当前语句或代码块。
+- 285: `return` -> 返回结果或提前结束当前流程。
+- 286: `}` -> 结束当前语句或代码块。
+- 287: `(空行)` -> 空行，用于提升代码结构可读性。
+- 288: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 289: `const errText = data?.error || \`注册失败 (${res.status})\`` -> 声明变量或常量，保存运行时数据。
+- 290: `throw new Error(errText)` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `}` -> 结束当前语句或代码块。
+- 292: `if (!data?.token || !data?.user) throw new Error('注册返回数据不完整')` -> 条件判断分支，根据场景执行不同逻辑。
+- 293: `(空行)` -> 空行，用于提升代码结构可读性。
+- 294: `localStorage.setItem('auth_token', data.token)` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `login(data.user)` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `toast.success('🎉 注册成功，欢迎加入！')` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `router.push(returnUrl)` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `} catch (err: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `const msg = err?.message || ''` -> 声明变量或常量，保存运行时数据。
+- 300: `if (msg.includes('用户名') || msg.includes('username')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 301: `toast.error('用户名已被注册，请换一个～')` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `} else if (msg.includes('邮箱') || msg.includes('email')) {` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `toast.error('邮箱已被注册，请换一个或直接登录～')` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `toast.error(msg || '注册失败，请稍后重试')` -> 执行当前语句，参与该文件整体逻辑。
+- 306: `}` -> 结束当前语句或代码块。
+- 307: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 308: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 309: `}` -> 结束当前语句或代码块。
+- 310: `}` -> 结束当前语句或代码块。
+- 311: `(空行)` -> 空行，用于提升代码结构可读性。
+- 312: `return (` -> 返回结果或提前结束当前流程。
+- 313: `<div className="relative min-h-screen">` -> JSX/HTML 结构行，用于描述页面元素。
+- 314: `{/* 装饰圆形 - 增强视觉效果 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `<div className="pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-gradient-to-br from-pink-300 to-purple-400 opacity-20 blur-3xl animate-float" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 316: `<div className="pointer-events-none absolute -right-24 bottom-40 h-96 w-96 rounded-full bg-gradient-to-br from-cyan-300 to-blue-400 opacity-20 blur-3xl animate-float-reverse" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 317: `<div className="pointer-events-none absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-gradient-to-br from-indigo-300 to-violet-400 opacity-15 blur-3xl" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 318: `(空行)` -> 空行，用于提升代码结构可读性。
+- 319: `<div className="relative z-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 320: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 321: `<main className="pt-24 pb-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 322: `<div className="mx-auto max-w-md px-4 sm:px-6 lg:px-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 323: `<div className="mb-8 text-center sm:mb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 324: `<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-200/60 bg-white/80 px-5 py-2 text-sm font-semibold text-indigo-700 shadow-lg backdrop-blur-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 325: `<Sparkles className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 326: `加入智能旅游助手` -> 执行当前语句，参与该文件整体逻辑。
+- 327: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 328: `<h1 className="bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-900 bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 329: `创建账号` -> 执行当前语句，参与该文件整体逻辑。
+- 330: `</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 331: `<p className="mt-3 text-base text-gray-600">完善信息即可开始探索世界的精彩</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 332: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 333: `(空行)` -> 空行，用于提升代码结构可读性。
+- 334: `<div className="rounded-3xl border border-white/60 bg-white/95 p-8 shadow-2xl backdrop-blur-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 335: `<div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 336: `<span className="text-sm font-medium text-gray-500">已有账号</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 337: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 338: `href={returnUrl !== '/' ? \`/login?returnUrl=${encodeURIComponent(returnUrl)}\` : '/login'}` -> 执行当前语句，参与该文件整体逻辑。
+- 339: `className="group inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-800"` -> 执行当前语句，参与该文件整体逻辑。
+- 340: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 341: `去登录` -> 执行当前语句，参与该文件整体逻辑。
+- 342: `<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 343: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 344: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 345: `(空行)` -> 空行，用于提升代码结构可读性。
+- 346: `{isAuthenticated && (` -> 执行当前语句，参与该文件整体逻辑。
+- 347: `<div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">` -> JSX/HTML 结构行，用于描述页面元素。
+- 348: `你已登录，可直接返回{' '}` -> 执行当前语句，参与该文件整体逻辑。
+- 349: `<Link href="/" className="font-semibold underline underline-offset-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 350: `首页` -> 执行当前语句，参与该文件整体逻辑。
+- 351: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 352: `?` -> 执行当前语句，参与该文件整体逻辑。
+- 353: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 354: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 355: `(空行)` -> 空行，用于提升代码结构可读性。
+- 356: `<form className="mt-6 space-y-5" onSubmit={onSubmit}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 357: `{/* 用户名 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 358: `<InputField` -> 执行当前语句，参与该文件整体逻辑。
+- 359: `label="用户名"` -> 执行当前语句，参与该文件整体逻辑。
+- 360: `fieldKey="username"` -> 执行当前语句，参与该文件整体逻辑。
+- 361: `icon={UserIcon}` -> 执行当前语句，参与该文件整体逻辑。
+- 362: `value={form.username}` -> 执行当前语句，参与该文件整体逻辑。
+- 363: `onChange={(v) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 364: `setForm((s) => ({ ...s, username: v }))` -> 执行当前语句，参与该文件整体逻辑。
+- 365: `if (existsError.username) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 366: `setExistsError(prev => {` -> 执行当前语句，参与该文件整体逻辑。
+- 367: `const newErrors = { ...prev }` -> 声明变量或常量，保存运行时数据。
+- 368: `delete newErrors.username` -> 执行当前语句，参与该文件整体逻辑。
+- 369: `return newErrors` -> 返回结果或提前结束当前流程。
+- 370: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 371: `}` -> 结束当前语句或代码块。
+- 372: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 373: `onBlur={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 374: `setTouched((t) => ({ ...t, username: true }))` -> 执行当前语句，参与该文件整体逻辑。
+- 375: `checkExists('username', form.username)` -> 执行当前语句，参与该文件整体逻辑。
+- 376: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 377: `placeholder="用于登录，建议字母+数字"` -> 执行当前语句，参与该文件整体逻辑。
+- 378: `autoComplete="username"` -> 执行当前语句，参与该文件整体逻辑。
+- 379: `error={existsError.username || validateUsername(form.username)}` -> 执行当前语句，参与该文件整体逻辑。
+- 380: `required` -> 执行当前语句，参与该文件整体逻辑。
+- 381: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `(空行)` -> 空行，用于提升代码结构可读性。
+- 383: `{/* 昵称 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 384: `<InputField` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `label="昵称"` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `fieldKey="nickname"` -> 执行当前语句，参与该文件整体逻辑。
+- 387: `icon={UserIcon}` -> 执行当前语句，参与该文件整体逻辑。
+- 388: `value={form.nickname}` -> 执行当前语句，参与该文件整体逻辑。
+- 389: `onChange={(v) => setForm((s) => ({ ...s, nickname: v }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 390: `onBlur={() => setTouched((t) => ({ ...t, nickname: true }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 391: `placeholder="大家看到的名字"` -> 执行当前语句，参与该文件整体逻辑。
+- 392: `autoComplete="nickname"` -> 执行当前语句，参与该文件整体逻辑。
+- 393: `error={validateNickname(form.nickname)}` -> 执行当前语句，参与该文件整体逻辑。
+- 394: `required` -> 执行当前语句，参与该文件整体逻辑。
+- 395: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 396: `(空行)` -> 空行，用于提升代码结构可读性。
+- 397: `{/* 手机号 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 398: `<InputField` -> 执行当前语句，参与该文件整体逻辑。
+- 399: `label="手机号"` -> 执行当前语句，参与该文件整体逻辑。
+- 400: `fieldKey="phone"` -> 执行当前语句，参与该文件整体逻辑。
+- 401: `icon={Phone}` -> 执行当前语句，参与该文件整体逻辑。
+- 402: `type="tel"` -> 执行当前语句，参与该文件整体逻辑。
+- 403: `value={form.phone}` -> 执行当前语句，参与该文件整体逻辑。
+- 404: `onChange={(v) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 405: `setForm((s) => ({ ...s, phone: v }))` -> 执行当前语句，参与该文件整体逻辑。
+- 406: `if (existsError.phone) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 407: `setExistsError(prev => {` -> 执行当前语句，参与该文件整体逻辑。
+- 408: `const newErrors = { ...prev }` -> 声明变量或常量，保存运行时数据。
+- 409: `delete newErrors.phone` -> 执行当前语句，参与该文件整体逻辑。
+- 410: `return newErrors` -> 返回结果或提前结束当前流程。
+- 411: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 412: `}` -> 结束当前语句或代码块。
+- 413: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 414: `onBlur={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 415: `setTouched((t) => ({ ...t, phone: true }))` -> 执行当前语句，参与该文件整体逻辑。
+- 416: `checkExists('phone', form.phone)` -> 执行当前语句，参与该文件整体逻辑。
+- 417: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 418: `placeholder="选填，便于接收行程通知"` -> 执行当前语句，参与该文件整体逻辑。
+- 419: `autoComplete="tel"` -> 执行当前语句，参与该文件整体逻辑。
+- 420: `error={existsError.phone || validatePhone(form.phone)}` -> 执行当前语句，参与该文件整体逻辑。
+- 421: `optional` -> 执行当前语句，参与该文件整体逻辑。
+- 422: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 423: `(空行)` -> 空行，用于提升代码结构可读性。
+- 424: `{/* 邮箱 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 425: `<InputField` -> 执行当前语句，参与该文件整体逻辑。
+- 426: `label="邮箱"` -> 执行当前语句，参与该文件整体逻辑。
+- 427: `fieldKey="email"` -> 执行当前语句，参与该文件整体逻辑。
+- 428: `icon={Mail}` -> 执行当前语句，参与该文件整体逻辑。
+- 429: `type="email"` -> 执行当前语句，参与该文件整体逻辑。
+- 430: `value={form.email}` -> 执行当前语句，参与该文件整体逻辑。
+- 431: `onChange={(v) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 432: `setForm((s) => ({ ...s, email: v }))` -> 执行当前语句，参与该文件整体逻辑。
+- 433: `if (existsError.email) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 434: `setExistsError(prev => {` -> 执行当前语句，参与该文件整体逻辑。
+- 435: `const newErrors = { ...prev }` -> 声明变量或常量，保存运行时数据。
+- 436: `delete newErrors.email` -> 执行当前语句，参与该文件整体逻辑。
+- 437: `return newErrors` -> 返回结果或提前结束当前流程。
+- 438: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 439: `}` -> 结束当前语句或代码块。
+- 440: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 441: `onBlur={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 442: `setTouched((t) => ({ ...t, email: true }))` -> 执行当前语句，参与该文件整体逻辑。
+- 443: `checkExists('email', form.email)` -> 执行当前语句，参与该文件整体逻辑。
+- 444: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 445: `placeholder="name@example.com"` -> 执行当前语句，参与该文件整体逻辑。
+- 446: `autoComplete="email"` -> 执行当前语句，参与该文件整体逻辑。
+- 447: `error={existsError.email || validateEmail(form.email)}` -> 执行当前语句，参与该文件整体逻辑。
+- 448: `required` -> 执行当前语句，参与该文件整体逻辑。
+- 449: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 450: `(空行)` -> 空行，用于提升代码结构可读性。
+- 451: `{/* 密码 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 452: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 453: `<label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-gray-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 454: `<Lock className="h-4 w-4 text-indigo-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 455: `密码<span className="text-red-500">*</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 456: `{form.password && (` -> 执行当前语句，参与该文件整体逻辑。
+- 457: `<span className={\`ml-auto text-xs font-medium px-2 py-0.5 rounded-full text-white ${strength.color}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 458: `{strength.text}` -> 执行当前语句，参与该文件整体逻辑。
+- 459: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 460: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 461: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 462: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 463: `type="password"` -> 执行当前语句，参与该文件整体逻辑。
+- 464: `className={\`h-12 w-full rounded-xl border-2 bg-white text-gray-900 text-base transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 465: `validatePassword(form.password) && touched.password` -> 执行当前语句，参与该文件整体逻辑。
+- 466: `? 'border-red-300 focus:border-red-400 focus:ring-red-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 467: `: 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 468: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 469: `style={{ paddingLeft: '1rem', paddingRight: '1rem' }}` -> 执行当前语句，参与该文件整体逻辑。
+- 470: `value={form.password}` -> 执行当前语句，参与该文件整体逻辑。
+- 471: `onChange={(e) => setForm((s) => ({ ...s, password: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 472: `onBlur={() => setTouched((t) => ({ ...t, password: true }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 473: `placeholder="至少 8 位，需包含大小写字母和数字"` -> 执行当前语句，参与该文件整体逻辑。
+- 474: `autoComplete="new-password"` -> 执行当前语句，参与该文件整体逻辑。
+- 475: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 476: `{validatePassword(form.password) && touched.password && (` -> 执行当前语句，参与该文件整体逻辑。
+- 477: `<p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 478: `<XCircle className="h-3 w-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 479: `{validatePassword(form.password)}` -> 执行当前语句，参与该文件整体逻辑。
+- 480: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 481: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 482: `{form.password && (` -> 执行当前语句，参与该文件整体逻辑。
+- 483: `<div className="mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 484: `<div className="flex gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 485: `{[1, 2, 3].map((level) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 486: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 487: `key={level}` -> 执行当前语句，参与该文件整体逻辑。
+- 488: `className={\`h-1.5 flex-1 rounded-full transition-all ${` -> 执行当前语句，参与该文件整体逻辑。
+- 489: `level <= strength.level ? strength.color : 'bg-gray-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 490: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 491: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 492: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 493: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 494: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 495: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 496: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 497: `(空行)` -> 空行，用于提升代码结构可读性。
+- 498: `{/* 确认密码 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 499: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 500: `<label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-gray-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 501: `<Lock className="h-4 w-4 text-indigo-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 502: `确认密码<span className="text-red-500">*</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 503: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 504: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 505: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 506: `type="password"` -> 执行当前语句，参与该文件整体逻辑。
+- 507: `className={\`h-12 w-full rounded-xl border-2 bg-white text-gray-900 text-base transition-all duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 508: `validatePassword2(form.password2) && touched.password2` -> 执行当前语句，参与该文件整体逻辑。
+- 509: `? 'border-red-300 focus:border-red-400 focus:ring-red-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 510: `: !validatePassword2(form.password2) && form.password2` -> 执行当前语句，参与该文件整体逻辑。
+- 511: `? 'border-green-300 focus:border-green-400 focus:ring-green-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 512: `: 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 513: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 514: `style={{ paddingLeft: '1rem', paddingRight: '2.5rem' }}` -> 执行当前语句，参与该文件整体逻辑。
+- 515: `value={form.password2}` -> 执行当前语句，参与该文件整体逻辑。
+- 516: `onChange={(e) => setForm((s) => ({ ...s, password2: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 517: `onBlur={() => setTouched((t) => ({ ...t, password2: true }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 518: `placeholder="再次输入密码"` -> 执行当前语句，参与该文件整体逻辑。
+- 519: `autoComplete="new-password"` -> 执行当前语句，参与该文件整体逻辑。
+- 520: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 521: `{form.password2 && !validatePassword2(form.password2) && (` -> 执行当前语句，参与该文件整体逻辑。
+- 522: `<CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 523: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 524: `{form.password2 && validatePassword2(form.password2) && touched.password2 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 525: `<XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 526: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 527: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 528: `{validatePassword2(form.password2) && touched.password2 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 529: `<p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 530: `<XCircle className="h-3 w-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 531: `{validatePassword2(form.password2)}` -> 执行当前语句，参与该文件整体逻辑。
+- 532: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 533: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 534: `{form.password2 && !validatePassword2(form.password2) && (` -> 执行当前语句，参与该文件整体逻辑。
+- 535: `<p className="mt-1.5 flex items-center gap-1 text-xs text-green-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 536: `<CheckCircle2 className="h-3 w-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 537: `两次密码一致` -> 执行当前语句，参与该文件整体逻辑。
+- 538: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 539: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 540: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 541: `(空行)` -> 空行，用于提升代码结构可读性。
+- 542: `{/* 提示信息 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 543: `<div className="rounded-xl bg-indigo-50 border border-indigo-100 p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 544: `<p className="text-sm text-indigo-700 leading-relaxed">` -> JSX/HTML 结构行，用于描述页面元素。
+- 545: `<span className="font-semibold">💡 温馨提示：</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 546: `<br /><span className="text-red-500">*</span> 为必填项 · 密码建议包含大小写字母和特殊字符` -> 执行当前语句，参与该文件整体逻辑。
+- 547: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 548: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 549: `(空行)` -> 空行，用于提升代码结构可读性。
+- 550: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 551: `type="submit"` -> 执行当前语句，参与该文件整体逻辑。
+- 552: `disabled={loading}` -> 执行当前语句，参与该文件整体逻辑。
+- 553: `className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"` -> 执行当前语句，参与该文件整体逻辑。
+- 554: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 555: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 556: `<span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 557: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 558: `{loading ? '注册中...' : '注册并登录'}` -> 执行当前语句，参与该文件整体逻辑。
+- 559: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 560: `(空行)` -> 空行，用于提升代码结构可读性。
+- 561: `<p className="text-center text-xs text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 562: `注册即表示同意服务条款，登录态使用JWT（token 存储于 localStorage）` -> 执行当前语句，参与该文件整体逻辑。
+- 563: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 564: `</form>` -> JSX/HTML 结构行，用于描述页面元素。
+- 565: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 566: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 567: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 568: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 569: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 570: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 571: `)` -> 结束当前语句或代码块。
+- 572: `}` -> 结束当前语句或代码块。

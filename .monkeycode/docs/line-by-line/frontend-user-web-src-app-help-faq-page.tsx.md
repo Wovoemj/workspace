@@ -1,0 +1,136 @@
+# `frontend/user-web/src/app/help/faq/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 常见问题 FAQ 模块 - 帮助文档展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - FAQ 列表展示（静态数据）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 问题折叠/展开功能` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 问题搜索过滤` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 返回帮助中心链接` -> 注释行，用于解释设计意图或使用说明。
+- 11: `*` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 【FAQ 内容】` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - 账户注册与登录` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - 密码找回` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - AI 行程规划使用` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - 行程修改` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - 联系客服` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - 会员等级制度` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - 订单取消与退款` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - 门票购买` -> 注释行，用于解释设计意图或使用说明。
+- 24: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 25: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `(空行)` -> 空行，用于提升代码结构可读性。
+- 27: `import { useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 28: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 29: `import {` -> 导入依赖模块，供当前文件使用。
+- 30: `Book,` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `ChevronDown,` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `ChevronUp,` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `Search,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 36: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 37: `(空行)` -> 空行，用于提升代码结构可读性。
+- 38: `const faqs = [` -> 声明变量或常量，保存运行时数据。
+- 39: `{ q: '如何注册账号？', a: '点击页面右上角的"注册"按钮，填写手机号、验证码和密码即可完成注册。也可以使用第三方账号（微信、QQ）快速登录' },` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `{ q: '忘记密码怎么办？', a: '在登录页面点击"忘记密码"，输入注册手机号，通过验证码重置密码' },` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `{ q: '如何使用AI行程规划？', a: '登录后进入"AI助手"页面，描述您的旅行需求（目的地、时间、人数等），AI将自动为您生成专属行程规划' },` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `{ q: '行程规划可以修改吗？', a: '当然可以！AI生成的行程只是建议，您可以自由调整每一天的安排，添加或删除景点' },` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `{ q: '如何联系客服？', a: '您可以通过以下方式联系我们：1. 拨打客服热线 400-888-9999；2. 点击页面右下角在线客服；3. 发送邮件至 service@travelai.com' },` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `{ q: '会员等级有哪些？', a: '会员分为10个等级（LV1-LV10）：普通会员→铜牌会员→银牌会员→玉牌会员→金牌会员→钻石会员→白金会员→皇冠会员→黑金会员→至尊VIP。通过积分升级，等级越高享受的权益越多，包括专属折扣、优先客服、免费增值服务等。新用户注册即送100积分！' },` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `{ q: '订单如何取消和退款？', a: '在"我的订单"中找到对应订单，点击"取消"即可。退款将在1-7个工作日内原路返回支付账户。特殊商品退款规则可能不同' },` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `{ q: '景点门票如何购买？', a: '在景点详情页面选择日期和数量，点击"预订"即可完成购买。购票成功后，凭电子票或身份证即可入园' },` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `(空行)` -> 空行，用于提升代码结构可读性。
+- 49: `export default function FAQPage() {` -> 导出当前声明，供其他模块复用。
+- 50: `const [openIndex, setOpenIndex] = useState<number | null>(0)` -> 声明变量或常量，保存运行时数据。
+- 51: `const [searchTerm, setSearchTerm] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `const filteredFaqs = searchTerm` -> 声明变量或常量，保存运行时数据。
+- 54: `? faqs.filter(f => f.q.includes(searchTerm) || f.a.includes(searchTerm))` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `: faqs` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `(空行)` -> 空行，用于提升代码结构可读性。
+- 57: `return (` -> 返回结果或提前结束当前流程。
+- 58: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 59: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 60: `<main className="pt-16 pb-28 lg:pb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 61: `(空行)` -> 空行，用于提升代码结构可读性。
+- 62: `<div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 63: `<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 64: `<div className="flex items-center gap-3 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 65: `<Book className="h-8 w-8" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 66: `<span className="text-xl font-bold">常见问题</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 67: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 68: `<h1 className="text-3xl md:text-4xl font-bold mb-2">FAQ</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 69: `<p className="text-white/80">快速找到您想了解的问题答案</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 71: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `(空行)` -> 空行，用于提升代码结构可读性。
+- 73: `<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 74: `(空行)` -> 空行，用于提升代码结构可读性。
+- 75: `<div className="bg-white rounded-xl border border-slate-200 p-3 mb-8 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 76: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 77: `<Search className="h-5 w-5 text-slate-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 78: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `type="text"` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `placeholder="搜索问题..."` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `value={searchTerm}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `onChange={(e) => setSearchTerm(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `className="flex-1 outline-none text-slate-700"` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 86: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 87: `(空行)` -> 空行，用于提升代码结构可读性。
+- 88: `(空行)` -> 空行，用于提升代码结构可读性。
+- 89: `<div className="space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 90: `{filteredFaqs.map((faq, index) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `<div key={index} className="bg-white rounded-xl border border-slate-200 overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `onClick={() => setOpenIndex(openIndex === index ? null : index)}` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `<span className="font-medium text-slate-900 pr-4">{faq.q}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `{openIndex === index ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `<ChevronUp className="h-5 w-5 text-slate-400 shrink-0" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `<ChevronDown className="h-5 w-5 text-slate-400 shrink-0" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 103: `{openIndex === index && (` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `<div className="px-5 pb-5 text-slate-600 leading-relaxed border-t border-slate-100 pt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `{faq.a}` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `(空行)` -> 空行，用于提升代码结构可读性。
+- 112: `{filteredFaqs.length === 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `<div className="text-center py-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 114: `<p className="text-slate-500 mb-4">没有找到相关问题</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `<Link href="/contact" className="text-blue-600 hover:underline">联系客服获取帮助</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 117: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `(空行)` -> 空行，用于提升代码结构可读性。
+- 120: `<div className="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `<h3 className="font-bold text-slate-900 mb-2">没有找到答案</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 122: `<p className="text-slate-500 mb-4">我们的客服团队随时为您解</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `<Link href="/contact" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition">` -> JSX/HTML 结构行，用于描述页面元素。
+- 124: `联系我们` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 126: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 130: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `)` -> 结束当前语句或代码块。
+- 132: `}` -> 结束当前语句或代码块。

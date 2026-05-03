@@ -1,0 +1,178 @@
+# `frontend/user-web/src/app/contact/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 联系我们页模块 - 客服与留言` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 6: `*   - 客服热线展示（400-888-9999）` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*   - 在线客服入口` -> 注释行，用于解释设计意图或使用说明。
+- 8: `*   - 电子邮箱展示` -> 注释行，用于解释设计意图或使用说明。
+- 9: `*   - 在线留言表单` -> 注释行，用于解释设计意图或使用说明。
+- 10: `*   - 公司地址与营业时间` -> 注释行，用于解释设计意图或使用说明。
+- 11: `*   - 社交媒体关注入口` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* 依赖项：` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*   - components/Navbar：顶部导航栏` -> 注释行，用于解释设计意图或使用说明。
+- 15: `*   - components/Footer：底部页脚` -> 注释行，用于解释设计意图或使用说明。
+- 16: `*   - lucide-react：图标库` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 页面数据：` -> 注释行，用于解释设计意图或使用说明。
+- 19: `*   - 客服热线：400-888-9999（7×24小时）` -> 注释行，用于解释设计意图或使用说明。
+- 20: `*   - 邮箱：service@travelai.com` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*   - 地址：北京市朝阳区建国路88号` -> 注释行，用于解释设计意图或使用说明。
+- 22: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 23: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 24: `(空行)` -> 空行，用于提升代码结构可读性。
+- 25: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 26: `import {` -> 导入依赖模块，供当前文件使用。
+- 27: `Phone,` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `Mail,` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `MapPin,` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `MessageCircle,` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `Clock,` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `Send,` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `Headphones,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 36: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 37: `(空行)` -> 空行，用于提升代码结构可读性。
+- 38: `export default function ContactPage() {` -> 导出当前声明，供其他模块复用。
+- 39: `return (` -> 返回结果或提前结束当前流程。
+- 40: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 41: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 42: `<main className="pt-16 pb-28 lg:pb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 43: `(空行)` -> 空行，用于提升代码结构可读性。
+- 44: `<div className="bg-gradient-to-r from-blue-600 to-sky-500 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 45: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 46: `<div className="flex items-center gap-3 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 47: `<Headphones className="h-8 w-8" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 48: `<span className="text-xl font-bold">联系我们</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 49: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 50: `<h1 className="text-3xl md:text-4xl font-bold mb-2">客服中心</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 51: `<p className="text-white/80">我们随时为您提供帮助</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 52: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 53: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 54: `(空行)` -> 空行，用于提升代码结构可读性。
+- 55: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 56: `(空行)` -> 空行，用于提升代码结构可读性。
+- 57: `<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 58: `<div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-lg transition">` -> JSX/HTML 结构行，用于描述页面元素。
+- 59: `<div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 60: `<Phone className="h-7 w-7 text-blue-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 61: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 62: `<h3 className="font-bold text-slate-900 mb-2">客服热线</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 63: `<p className="text-2xl font-bold text-blue-600 mb-1">400-888-9999</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 64: `<p className="text-sm text-slate-500">7×24 小时服务</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 65: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 66: `<div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-lg transition">` -> JSX/HTML 结构行，用于描述页面元素。
+- 67: `<div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 68: `<MessageCircle className="h-7 w-7 text-green-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 69: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `<h3 className="font-bold text-slate-900 mb-2">在线客服</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 71: `<p className="text-slate-600 mb-1">点击页面右下</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `<p className="text-sm text-slate-500">实时响应</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 73: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 74: `<div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-lg transition">` -> JSX/HTML 结构行，用于描述页面元素。
+- 75: `<div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 76: `<Mail className="h-7 w-7 text-purple-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 77: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 78: `<h3 className="font-bold text-slate-900 mb-2">电子邮箱</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 79: `<p className="text-slate-600 mb-1">service@travelai.com</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 80: `<p className="text-sm text-slate-500">24小时内回</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 81: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 82: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 83: `(空行)` -> 空行，用于提升代码结构可读性。
+- 84: `<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 85: `(空行)` -> 空行，用于提升代码结构可读性。
+- 86: `<div className="bg-white rounded-2xl border border-slate-200 p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 87: `<h2 className="text-xl font-bold text-slate-900 mb-6">在线留言</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 88: `<form className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 89: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 90: `<label className="block text-sm font-medium text-slate-700 mb-1">您的姓名</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 91: `<input type="text" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" placeholder="请输入姓?" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 93: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `<label className="block text-sm font-medium text-slate-700 mb-1">联系电话</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 95: `<input type="tel" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" placeholder="请输入手机号" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 98: `<label className="block text-sm font-medium text-slate-700 mb-1">咨询类型</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `<select className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300">` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `<option>请选择</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `<option>行程规划咨询</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `<option>订单问题</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 103: `<option>会员服务</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `<option>合作洽谈</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `<option>其他问题</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `</select>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `<label className="block text-sm font-medium text-slate-700 mb-1">留言内容</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 110: `<textarea rows={4} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none" placeholder="请详细描述您的问?.." />` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 112: `<button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `<Send className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 114: `提交留言` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `</form>` -> JSX/HTML 结构行，用于描述页面元素。
+- 117: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `(空行)` -> 空行，用于提升代码结构可读性。
+- 120: `<div className="space-y-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `<div className="bg-white rounded-2xl border border-slate-200 p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 122: `<h2 className="text-xl font-bold text-slate-900 mb-6">公司信息</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `<div className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 124: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 125: `<MapPin className="h-5 w-5 text-blue-600 mt-0.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 126: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `<h3 className="font-medium text-slate-900">公司地址</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `<p className="text-slate-500 text-sm">北京市朝阳区建国?8号SOHO现代城A?201</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 130: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 132: `<Phone className="h-5 w-5 text-blue-600 mt-0.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 133: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<h3 className="font-medium text-slate-900">联系电话</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `<p className="text-slate-500 text-sm">400-888-9999（客服）</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `<p className="text-slate-500 text-sm">010-8888-6666（商务）</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 137: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 140: `<Mail className="h-5 w-5 text-blue-600 mt-0.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 141: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 142: `<h3 className="font-medium text-slate-900">电子邮箱</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 143: `<p className="text-slate-500 text-sm">service@travelai.com（客服）</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 144: `<p className="text-slate-500 text-sm">business@travelai.com（商务合作）</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 146: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 147: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 148: `<Clock className="h-5 w-5 text-blue-600 mt-0.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 149: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 150: `<h3 className="font-medium text-slate-900">工作时间</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 151: `<p className="text-slate-500 text-sm">客服?×24 小时</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 152: `<p className="text-slate-500 text-sm">商务：周一至周?9:00-18:00</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 153: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 155: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 156: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 157: `(空行)` -> 空行，用于提升代码结构可读性。
+- 158: `(空行)` -> 空行，用于提升代码结构可读性。
+- 159: `<div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-2xl p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `<h2 className="text-lg font-bold text-slate-900 mb-4">关注我们</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `<div className="flex gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `<a href="#" className="w-12 h-12 bg-white rounded-xl flex items-center justify-center hover:shadow-md transition text-2xl">📱</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `<a href="#" className="w-12 h-12 bg-white rounded-xl flex items-center justify-center hover:shadow-md transition text-2xl">💬</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `<a href="#" className="w-12 h-12 bg-white rounded-xl flex items-center justify-center hover:shadow-md transition text-2xl">📧</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 167: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 168: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 169: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 170: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 171: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 173: `)` -> 结束当前语句或代码块。
+- 174: `}` -> 结束当前语句或代码块。

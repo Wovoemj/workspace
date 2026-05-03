@@ -1,0 +1,571 @@
+# `backend/ai-service/moonshot_service.go` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `package main` -> 声明当前文件所属包或模块命名空间。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `import (` -> 导入依赖模块，供当前文件使用。
+- 4: `"bytes"` -> 执行当前语句，参与该文件整体逻辑。
+- 5: `"context"` -> 执行当前语句，参与该文件整体逻辑。
+- 6: `"encoding/json"` -> 执行当前语句，参与该文件整体逻辑。
+- 7: `"fmt"` -> 执行当前语句，参与该文件整体逻辑。
+- 8: `"io"` -> 执行当前语句，参与该文件整体逻辑。
+- 9: `"net/http"` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `"strings"` -> 执行当前语句，参与该文件整体逻辑。
+- 11: `"time"` -> 执行当前语句，参与该文件整体逻辑。
+- 12: `(空行)` -> 空行，用于提升代码结构可读性。
+- 13: `"github.com/gin-gonic/gin"` -> 执行当前语句，参与该文件整体逻辑。
+- 14: `"github.com/redis/go-redis/v9"` -> 执行当前语句，参与该文件整体逻辑。
+- 15: `"github.com/sirupsen/logrus"` -> 执行当前语句，参与该文件整体逻辑。
+- 16: `)` -> 结束当前语句或代码块。
+- 17: `(空行)` -> 空行，用于提升代码结构可读性。
+- 18: `// ============== AI 模型配置 ==============` -> 注释行，用于解释设计意图或使用说明。
+- 19: `(空行)` -> 空行，用于提升代码结构可读性。
+- 20: `const (` -> 声明变量或常量，保存运行时数据。
+- 21: `// 默认使用 MiMo` -> 注释行，用于解释设计意图或使用说明。
+- 22: `DefaultAIProvider = "mimo" // "mimo" 或 "kimi"` -> 执行当前语句，参与该文件整体逻辑。
+- 23: `)` -> 结束当前语句或代码块。
+- 24: `(空行)` -> 空行，用于提升代码结构可读性。
+- 25: `var AIProviders = map[string]struct {` -> 声明变量或常量，保存运行时数据。
+- 26: `BaseURL string` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `Model   string` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `}{` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `"mimo": {` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `BaseURL: "https://token-plan-cn.xiaomimimo.com/v1",` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `Model:   "MiMo-V2.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `"kimi": {` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `BaseURL: "https://api.moonshot.cn/v1",` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `Model:   "kimi-k2.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `}` -> 结束当前语句或代码块。
+- 38: `(空行)` -> 空行，用于提升代码结构可读性。
+- 39: `// AIModelOverride 环境变量覆盖模型名` -> 注释行，用于解释设计意图或使用说明。
+- 40: `var AIModelOverride = ""` -> 声明变量或常量，保存运行时数据。
+- 41: `(空行)` -> 空行，用于提升代码结构可读性。
+- 42: `// Moonshot 请求结构` -> 注释行，用于解释设计意图或使用说明。
+- 43: `type MoonshotMessage struct {` -> 定义类型或类结构，约束数据与行为。
+- 44: `Role    string \`json:"role"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `Content string \`json:"content"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `}` -> 结束当前语句或代码块。
+- 47: `(空行)` -> 空行，用于提升代码结构可读性。
+- 48: `type MoonshotRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 49: `Model       string            \`json:"model"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `Messages    []MoonshotMessage \`json:"messages"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `Temperature float64           \`json:"temperature"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `MaxTokens   int               \`json:"max_tokens"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `Stream      bool              \`json:"stream"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `}` -> 结束当前语句或代码块。
+- 55: `(空行)` -> 空行，用于提升代码结构可读性。
+- 56: `type MoonshotResponse struct {` -> 定义类型或类结构，约束数据与行为。
+- 57: `ID      string \`json:"id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `Choices []struct {` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `Message struct {` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `Role    string \`json:"role"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `Content string \`json:"content"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `} \`json:"message"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `} \`json:"choices"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `Usage struct {` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `PromptTokens     int \`json:"prompt_tokens"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `CompletionTokens int \`json:"completion_tokens"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `TotalTokens      int \`json:"total_tokens"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `} \`json:"usage"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `}` -> 结束当前语句或代码块。
+- 70: `(空行)` -> 空行，用于提升代码结构可读性。
+- 71: `// ============== 服务结构 ==============` -> 注释行，用于解释设计意图或使用说明。
+- 72: `(空行)` -> 空行，用于提升代码结构可读性。
+- 73: `type Service struct {` -> 定义类型或类结构，约束数据与行为。
+- 74: `logger      *logrus.Logger` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `redis       *redis.Client` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `aiProvider  string` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `aiAPI       string` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `}` -> 结束当前语句或代码块。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `type Conversation struct {` -> 定义类型或类结构，约束数据与行为。
+- 81: `ID        string    \`json:"id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `UserID    string    \`json:"user_id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `SessionID string    \`json:"session_id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `Role      string    \`json:"role"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `Content   string    \`json:"content"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `Intent    string    \`json:"intent"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `CreatedAt time.Time \`json:"created_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `}` -> 结束当前语句或代码块。
+- 89: `(空行)` -> 空行，用于提升代码结构可读性。
+- 90: `type MessageRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 91: `Message   string \`json:"message" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `SessionID string \`json:"session_id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `SystemPrompt string \`json:"system_prompt"\` // 自定义系统提示词` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `}` -> 结束当前语句或代码块。
+- 95: `(空行)` -> 空行，用于提升代码结构可读性。
+- 96: `type IntentResponse struct {` -> 定义类型或类结构，约束数据与行为。
+- 97: `Intent     string  \`json:"intent"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `Confidence float64 \`json:"confidence"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `}` -> 结束当前语句或代码块。
+- 100: `(空行)` -> 空行，用于提升代码结构可读性。
+- 101: `type ItineraryRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 102: `Destination string                 \`json:"destination" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `Days        int                    \`json:"days" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `Preferences map[string]interface{} \`json:"preferences"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `}` -> 结束当前语句或代码块。
+- 106: `(空行)` -> 空行，用于提升代码结构可读性。
+- 107: `type ItineraryResponse struct {` -> 定义类型或类结构，约束数据与行为。
+- 108: `ID        string         \`json:"id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `Title     string         \`json:"title"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `Days      []ItineraryDay \`json:"days"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `Budget    float64        \`json:"budget"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `Tags      []string       \`json:"tags"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `CreatedAt time.Time      \`json:"created_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `}` -> 结束当前语句或代码块。
+- 115: `(空行)` -> 空行，用于提升代码结构可读性。
+- 116: `type ItineraryDay struct {` -> 定义类型或类结构，约束数据与行为。
+- 117: `Day        int        \`json:"day"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `Date       string     \`json:"date"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `Activities []Activity \`json:"activities"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `Meals      []Meal     \`json:"meals"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `}` -> 结束当前语句或代码块。
+- 122: `(空行)` -> 空行，用于提升代码结构可读性。
+- 123: `type Activity struct {` -> 定义类型或类结构，约束数据与行为。
+- 124: `ID          string  \`json:"id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `Name        string  \`json:"name"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `Type        string  \`json:"type"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `Location    string  \`json:"location"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `StartTime   string  \`json:"start_time"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `EndTime     string  \`json:"end_time"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `Description string  \`json:"description"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `Cost        float64 \`json:"cost"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `}` -> 结束当前语句或代码块。
+- 133: `(空行)` -> 空行，用于提升代码结构可读性。
+- 134: `type Meal struct {` -> 定义类型或类结构，约束数据与行为。
+- 135: `Type     string  \`json:"type"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `Name     string  \`json:"name"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `Location string  \`json:"location"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `Cost     float64 \`json:"cost"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `Cuisine  string  \`json:"cuisine"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `}` -> 结束当前语句或代码块。
+- 141: `(空行)` -> 空行，用于提升代码结构可读性。
+- 142: `type RecommendationRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 143: `UserID  string                 \`json:"user_id" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `Context map[string]interface{} \`json:"context"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 145: `}` -> 结束当前语句或代码块。
+- 146: `(空行)` -> 空行，用于提升代码结构可读性。
+- 147: `type Recommendation struct {` -> 定义类型或类结构，约束数据与行为。
+- 148: `ID        string                 \`json:"id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `UserID    string                 \`json:"user_id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `Type      string                 \`json:"type"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `TargetID  string                 \`json:"target_id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `Score     float64                \`json:"score"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `Reason    string                 \`json:"reason"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `CreatedAt time.Time              \`json:"created_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `}` -> 结束当前语句或代码块。
+- 156: `(空行)` -> 空行，用于提升代码结构可读性。
+- 157: `// ============== 构造函数 ==============` -> 注释行，用于解释设计意图或使用说明。
+- 158: `(空行)` -> 空行，用于提升代码结构可读性。
+- 159: `func NewService(logger *logrus.Logger, redis *redis.Client, aiProvider, aiAPI string) *Service {` -> 定义函数或方法，实现具体业务逻辑。
+- 160: `if _, ok := AIProviders[aiProvider]; !ok {` -> 条件判断分支，根据场景执行不同逻辑。
+- 161: `aiProvider = DefaultAIProvider` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `}` -> 结束当前语句或代码块。
+- 163: `return &Service{` -> 返回结果或提前结束当前流程。
+- 164: `logger:     logger,` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `redis:      redis,` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `aiProvider: aiProvider,` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `aiAPI:      aiAPI,` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `}` -> 结束当前语句或代码块。
+- 169: `}` -> 结束当前语句或代码块。
+- 170: `(空行)` -> 空行，用于提升代码结构可读性。
+- 171: `// GetModelName 获取当前模型名（支持环境变量覆盖）` -> 注释行，用于解释设计意图或使用说明。
+- 172: `func (s *Service) GetModelName() string {` -> 定义函数或方法，实现具体业务逻辑。
+- 173: `if AIModelOverride != "" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 174: `return AIModelOverride` -> 返回结果或提前结束当前流程。
+- 175: `}` -> 结束当前语句或代码块。
+- 176: `return AIProviders[s.aiProvider].Model` -> 返回结果或提前结束当前流程。
+- 177: `}` -> 结束当前语句或代码块。
+- 178: `(空行)` -> 空行，用于提升代码结构可读性。
+- 179: `// GetBaseURL 获取当前 BaseURL` -> 注释行，用于解释设计意图或使用说明。
+- 180: `func (s *Service) GetBaseURL() string {` -> 定义函数或方法，实现具体业务逻辑。
+- 181: `return AIProviders[s.aiProvider].BaseURL` -> 返回结果或提前结束当前流程。
+- 182: `}` -> 结束当前语句或代码块。
+- 183: `(空行)` -> 空行，用于提升代码结构可读性。
+- 184: `// ============== 路由设置 ==============` -> 注释行，用于解释设计意图或使用说明。
+- 185: `(空行)` -> 空行，用于提升代码结构可读性。
+- 186: `func (s *Service) SetupRoutes(router *gin.RouterGroup) {` -> 定义函数或方法，实现具体业务逻辑。
+- 187: `ai := router.Group("/ai")` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `ai.POST("/chat", s.SendMessage)` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `ai.GET("/chat/:session_id/history", s.GetChatHistory)` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `ai.POST("/intent", s.DetectIntent)` -> 执行当前语句，参与该文件整体逻辑。
+- 192: `ai.POST("/itinerary/generate", s.GenerateItinerary)` -> 执行当前语句，参与该文件整体逻辑。
+- 193: `ai.POST("/recommendations", s.GetRecommendations)` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `ai.POST("/knowledge/search", s.SearchKnowledge)` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `ai.POST("/knowledge/update", s.UpdateKnowledge)` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `(空行)` -> 空行，用于提升代码结构可读性。
+- 197: `// 流式对话端点` -> 注释行，用于解释设计意图或使用说明。
+- 198: `ai.POST("/chat/stream", s.SendMessageStream)` -> 执行当前语句，参与该文件整体逻辑。
+- 199: `}` -> 结束当前语句或代码块。
+- 200: `}` -> 结束当前语句或代码块。
+- 201: `(空行)` -> 空行，用于提升代码结构可读性。
+- 202: `// ============== 核心对话功能 ==============` -> 注释行，用于解释设计意图或使用说明。
+- 203: `(空行)` -> 空行，用于提升代码结构可读性。
+- 204: `func (s *Service) SendMessage(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 205: `var req MessageRequest` -> 声明变量或常量，保存运行时数据。
+- 206: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 207: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 208: `return` -> 返回结果或提前结束当前流程。
+- 209: `}` -> 结束当前语句或代码块。
+- 210: `(空行)` -> 空行，用于提升代码结构可读性。
+- 211: `sessionID := req.SessionID` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `if sessionID == "" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 213: `sessionID = fmt.Sprintf("session_%d", time.Now().Unix())` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `}` -> 结束当前语句或代码块。
+- 215: `(空行)` -> 空行，用于提升代码结构可读性。
+- 216: `// 获取对话历史` -> 注释行，用于解释设计意图或使用说明。
+- 217: `history, _ := s.getConversationHistory(sessionID)` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `(空行)` -> 空行，用于提升代码结构可读性。
+- 219: `// 构建消息列表` -> 注释行，用于解释设计意图或使用说明。
+- 220: `messages := s.buildMessages(req.Message, req.SystemPrompt, history)` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `(空行)` -> 空行，用于提升代码结构可读性。
+- 222: `// 调用 Moonshot AI` -> 注释行，用于解释设计意图或使用说明。
+- 223: `response, err := s.callMoonshot(messages)` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 225: `s.logger.WithError(err).Error("Moonshot API 调用失败")` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("AI服务调用失败: %v", err)})` -> 构造并返回接口响应数据。
+- 227: `return` -> 返回结果或提前结束当前流程。
+- 228: `}` -> 结束当前语句或代码块。
+- 229: `(空行)` -> 空行，用于提升代码结构可读性。
+- 230: `// 保存对话` -> 注释行，用于解释设计意图或使用说明。
+- 231: `s.saveConversation(Conversation{` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `ID:        fmt.Sprintf("msg_%d", time.Now().Unix()),` -> 执行当前语句，参与该文件整体逻辑。
+- 233: `SessionID: sessionID,` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `Role:      "user",` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `Content:   req.Message,` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `CreatedAt: time.Now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `s.saveConversation(Conversation{` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `ID:        fmt.Sprintf("msg_%d", time.Now().Unix()+1),` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `SessionID: sessionID,` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `Role:      "assistant",` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `Content:   response,` -> 执行当前语句，参与该文件整体逻辑。
+- 243: `CreatedAt: time.Now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 244: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `(空行)` -> 空行，用于提升代码结构可读性。
+- 246: `c.JSON(http.StatusOK, gin.H{` -> 构造并返回接口响应数据。
+- 247: `"message":    response,` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `"session_id": sessionID,` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 250: `}` -> 结束当前语句或代码块。
+- 251: `(空行)` -> 空行，用于提升代码结构可读性。
+- 252: `// 流式对话` -> 注释行，用于解释设计意图或使用说明。
+- 253: `func (s *Service) SendMessageStream(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 254: `var req MessageRequest` -> 声明变量或常量，保存运行时数据。
+- 255: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 256: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 257: `return` -> 返回结果或提前结束当前流程。
+- 258: `}` -> 结束当前语句或代码块。
+- 259: `(空行)` -> 空行，用于提升代码结构可读性。
+- 260: `sessionID := req.SessionID` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `if sessionID == "" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 262: `sessionID = fmt.Sprintf("session_%d", time.Now().Unix())` -> 执行当前语句，参与该文件整体逻辑。
+- 263: `}` -> 结束当前语句或代码块。
+- 264: `(空行)` -> 空行，用于提升代码结构可读性。
+- 265: `// 获取对话历史` -> 注释行，用于解释设计意图或使用说明。
+- 266: `history, _ := s.getConversationHistory(sessionID)` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `messages := s.buildMessages(req.Message, req.SystemPrompt, history)` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `(空行)` -> 空行，用于提升代码结构可读性。
+- 269: `// 设置 SSE` -> 注释行，用于解释设计意图或使用说明。
+- 270: `c.Header("Content-Type", "text/event-stream")` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `c.Header("Cache-Control", "no-cache")` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `c.Header("Connection", "keep-alive")` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `c.Header("Transfer-Encoding", "chunked")` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `(空行)` -> 空行，用于提升代码结构可读性。
+- 275: `// 流式调用` -> 注释行，用于解释设计意图或使用说明。
+- 276: `err := s.callMoonshotStream(c, messages, sessionID)` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 278: `s.logger.WithError(err).Error("流式调用失败")` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `}` -> 结束当前语句或代码块。
+- 280: `}` -> 结束当前语句或代码块。
+- 281: `(空行)` -> 空行，用于提升代码结构可读性。
+- 282: `// ============== Moonshot AI 调用 ==============` -> 注释行，用于解释设计意图或使用说明。
+- 283: `(空行)` -> 空行，用于提升代码结构可读性。
+- 284: `func (s *Service) buildMessages(userMessage, systemPrompt string, history []Conversation) []MoonshotMessage {` -> 定义函数或方法，实现具体业务逻辑。
+- 285: `var messages []MoonshotMessage` -> 声明变量或常量，保存运行时数据。
+- 286: `(空行)` -> 空行，用于提升代码结构可读性。
+- 287: `// 系统提示词 - 这是让AI变"聪明"的关键！` -> 注释行，用于解释设计意图或使用说明。
+- 288: `systemContent := systemPrompt` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `if systemContent == "" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 290: `systemContent = \`你是「智旅助手」，一个专业、友好的旅行规划AI助手。` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `(空行)` -> 空行，用于提升代码结构可读性。
+- 292: `【核心能力】` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `1. 行程规划：根据用户偏好定制最佳路线` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `2. 景点推荐：结合季节、预算、人数给出最优建议` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `3. 预算估算：提供透明、合理的费用预估` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `4. 实时问答：解答各类旅行相关问题` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `(空行)` -> 空行，用于提升代码结构可读性。
+- 298: `【回答风格】` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `- 语言简洁有条理，善用emoji增加趣味` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `- 不确定时主动说明，不要瞎编` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `- 涉及价格/政策时提醒以官方为准` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `- 根据上下文保持对话连贯性` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `(空行)` -> 空行，用于提升代码结构可读性。
+- 304: `【知识库】` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `如果有相关文档参考，优先基于文档回答；文档未覆盖的再用通用知识。\`` -> 执行当前语句，参与该文件整体逻辑。
+- 306: `}` -> 结束当前语句或代码块。
+- 307: `(空行)` -> 空行，用于提升代码结构可读性。
+- 308: `messages = append(messages, MoonshotMessage{` -> 执行当前语句，参与该文件整体逻辑。
+- 309: `Role:    "system",` -> 执行当前语句，参与该文件整体逻辑。
+- 310: `Content: systemContent,` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 312: `(空行)` -> 空行，用于提升代码结构可读性。
+- 313: `// 添加历史对话（限制最近10条，避免超出token限制）` -> 注释行，用于解释设计意图或使用说明。
+- 314: `startIdx := 0` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `if len(history) > 20 {` -> 条件判断分支，根据场景执行不同逻辑。
+- 316: `startIdx = len(history) - 20` -> 执行当前语句，参与该文件整体逻辑。
+- 317: `}` -> 结束当前语句或代码块。
+- 318: `for _, h := range history[startIdx:] {` -> 循环处理集合或重复执行逻辑。
+- 319: `messages = append(messages, MoonshotMessage{` -> 执行当前语句，参与该文件整体逻辑。
+- 320: `Role:    h.Role,` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `Content: h.Content,` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `}` -> 结束当前语句或代码块。
+- 324: `(空行)` -> 空行，用于提升代码结构可读性。
+- 325: `// 添加当前用户消息` -> 注释行，用于解释设计意图或使用说明。
+- 326: `messages = append(messages, MoonshotMessage{` -> 执行当前语句，参与该文件整体逻辑。
+- 327: `Role:    "user",` -> 执行当前语句，参与该文件整体逻辑。
+- 328: `Content: userMessage,` -> 执行当前语句，参与该文件整体逻辑。
+- 329: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 330: `(空行)` -> 空行，用于提升代码结构可读性。
+- 331: `return messages` -> 返回结果或提前结束当前流程。
+- 332: `}` -> 结束当前语句或代码块。
+- 333: `(空行)` -> 空行，用于提升代码结构可读性。
+- 334: `func (s *Service) callMoonshot(messages []MoonshotMessage) (string, error) {` -> 定义函数或方法，实现具体业务逻辑。
+- 335: `reqBody := MoonshotRequest{` -> 执行当前语句，参与该文件整体逻辑。
+- 336: `Model:       s.GetModelName(),` -> 执行当前语句，参与该文件整体逻辑。
+- 337: `Messages:    messages,` -> 执行当前语句，参与该文件整体逻辑。
+- 338: `Temperature: 0.7, // 适度创意但不胡编` -> 执行当前语句，参与该文件整体逻辑。
+- 339: `MaxTokens:   2000,` -> 执行当前语句，参与该文件整体逻辑。
+- 340: `Stream:      false,` -> 执行当前语句，参与该文件整体逻辑。
+- 341: `}` -> 结束当前语句或代码块。
+- 342: `(空行)` -> 空行，用于提升代码结构可读性。
+- 343: `jsonData, err := json.Marshal(reqBody)` -> 执行当前语句，参与该文件整体逻辑。
+- 344: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 345: `return "", err` -> 返回结果或提前结束当前流程。
+- 346: `}` -> 结束当前语句或代码块。
+- 347: `(空行)` -> 空行，用于提升代码结构可读性。
+- 348: `req, err := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", s.GetBaseURL()), bytes.NewBuffer(jsonData))` -> 执行当前语句，参与该文件整体逻辑。
+- 349: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 350: `return "", err` -> 返回结果或提前结束当前流程。
+- 351: `}` -> 结束当前语句或代码块。
+- 352: `(空行)` -> 空行，用于提升代码结构可读性。
+- 353: `req.Header.Set("Content-Type", "application/json")` -> 执行当前语句，参与该文件整体逻辑。
+- 354: `req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.aiAPI))` -> 执行当前语句，参与该文件整体逻辑。
+- 355: `(空行)` -> 空行，用于提升代码结构可读性。
+- 356: `client := &http.Client{Timeout: 60 * time.Second}` -> 执行当前语句，参与该文件整体逻辑。
+- 357: `resp, err := client.Do(req)` -> 执行当前语句，参与该文件整体逻辑。
+- 358: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 359: `return "", err` -> 返回结果或提前结束当前流程。
+- 360: `}` -> 结束当前语句或代码块。
+- 361: `defer resp.Body.Close()` -> 执行当前语句，参与该文件整体逻辑。
+- 362: `(空行)` -> 空行，用于提升代码结构可读性。
+- 363: `if resp.StatusCode != http.StatusOK {` -> 条件判断分支，根据场景执行不同逻辑。
+- 364: `body, _ := io.ReadAll(resp.Body)` -> 执行当前语句，参与该文件整体逻辑。
+- 365: `return "", fmt.Errorf("API返回错误: %s", string(body))` -> 返回结果或提前结束当前流程。
+- 366: `}` -> 结束当前语句或代码块。
+- 367: `(空行)` -> 空行，用于提升代码结构可读性。
+- 368: `var moonshotResp MoonshotResponse` -> 声明变量或常量，保存运行时数据。
+- 369: `if err := json.NewDecoder(resp.Body).Decode(&moonshotResp); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 370: `return "", err` -> 返回结果或提前结束当前流程。
+- 371: `}` -> 结束当前语句或代码块。
+- 372: `(空行)` -> 空行，用于提升代码结构可读性。
+- 373: `if len(moonshotResp.Choices) == 0 {` -> 条件判断分支，根据场景执行不同逻辑。
+- 374: `return "", fmt.Errorf("API返回空响应")` -> 返回结果或提前结束当前流程。
+- 375: `}` -> 结束当前语句或代码块。
+- 376: `(空行)` -> 空行，用于提升代码结构可读性。
+- 377: `return moonshotResp.Choices[0].Message.Content, nil` -> 返回结果或提前结束当前流程。
+- 378: `}` -> 结束当前语句或代码块。
+- 379: `(空行)` -> 空行，用于提升代码结构可读性。
+- 380: `func (s *Service) callMoonshotStream(c *gin.Context, messages []MoonshotMessage, sessionID string) error {` -> 定义函数或方法，实现具体业务逻辑。
+- 381: `reqBody := MoonshotRequest{` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `Model:       s.GetModelName(),` -> 执行当前语句，参与该文件整体逻辑。
+- 383: `Messages:    messages,` -> 执行当前语句，参与该文件整体逻辑。
+- 384: `Temperature: 0.7,` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `MaxTokens:   2000,` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `Stream:      true,` -> 执行当前语句，参与该文件整体逻辑。
+- 387: `}` -> 结束当前语句或代码块。
+- 388: `(空行)` -> 空行，用于提升代码结构可读性。
+- 389: `jsonData, err := json.Marshal(reqBody)` -> 执行当前语句，参与该文件整体逻辑。
+- 390: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 391: `return err` -> 返回结果或提前结束当前流程。
+- 392: `}` -> 结束当前语句或代码块。
+- 393: `(空行)` -> 空行，用于提升代码结构可读性。
+- 394: `req, err := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", s.GetBaseURL()), bytes.NewBuffer(jsonData))` -> 执行当前语句，参与该文件整体逻辑。
+- 395: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 396: `return err` -> 返回结果或提前结束当前流程。
+- 397: `}` -> 结束当前语句或代码块。
+- 398: `(空行)` -> 空行，用于提升代码结构可读性。
+- 399: `req.Header.Set("Content-Type", "application/json")` -> 执行当前语句，参与该文件整体逻辑。
+- 400: `req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.aiAPI))` -> 执行当前语句，参与该文件整体逻辑。
+- 401: `(空行)` -> 空行，用于提升代码结构可读性。
+- 402: `client := &http.Client{Timeout: 120 * time.Second}` -> 执行当前语句，参与该文件整体逻辑。
+- 403: `resp, err := client.Do(req)` -> 执行当前语句，参与该文件整体逻辑。
+- 404: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 405: `return err` -> 返回结果或提前结束当前流程。
+- 406: `}` -> 结束当前语句或代码块。
+- 407: `defer resp.Body.Close()` -> 执行当前语句，参与该文件整体逻辑。
+- 408: `(空行)` -> 空行，用于提升代码结构可读性。
+- 409: `if resp.StatusCode != http.StatusOK {` -> 条件判断分支，根据场景执行不同逻辑。
+- 410: `return fmt.Errorf("API返回错误: %d", resp.StatusCode)` -> 返回结果或提前结束当前流程。
+- 411: `}` -> 结束当前语句或代码块。
+- 412: `(空行)` -> 空行，用于提升代码结构可读性。
+- 413: `// 保存完整响应` -> 注释行，用于解释设计意图或使用说明。
+- 414: `fullContent := ""` -> 执行当前语句，参与该文件整体逻辑。
+- 415: `(空行)` -> 空行，用于提升代码结构可读性。
+- 416: `// 设置flush` -> 注释行，用于解释设计意图或使用说明。
+- 417: `flusher, ok := c.Writer.(http.Flusher)` -> 执行当前语句，参与该文件整体逻辑。
+- 418: `if !ok {` -> 条件判断分支，根据场景执行不同逻辑。
+- 419: `return fmt.Errorf("不支持流式响应")` -> 返回结果或提前结束当前流程。
+- 420: `}` -> 结束当前语句或代码块。
+- 421: `(空行)` -> 空行，用于提升代码结构可读性。
+- 422: `reader := resp.Body` -> 执行当前语句，参与该文件整体逻辑。
+- 423: `buffer := make([]byte, 1024)` -> 执行当前语句，参与该文件整体逻辑。
+- 424: `(空行)` -> 空行，用于提升代码结构可读性。
+- 425: `for {` -> 循环处理集合或重复执行逻辑。
+- 426: `n, err := reader.Read(buffer)` -> 执行当前语句，参与该文件整体逻辑。
+- 427: `if n > 0 {` -> 条件判断分支，根据场景执行不同逻辑。
+- 428: `chunk := string(buffer[:n])` -> 执行当前语句，参与该文件整体逻辑。
+- 429: `(空行)` -> 空行，用于提升代码结构可读性。
+- 430: `// SSE格式` -> 注释行，用于解释设计意图或使用说明。
+- 431: `fmt.Fprintf(c.Writer, "data: %s\n\n", chunk)` -> 执行当前语句，参与该文件整体逻辑。
+- 432: `flusher.Flush()` -> 执行当前语句，参与该文件整体逻辑。
+- 433: `(空行)` -> 空行，用于提升代码结构可读性。
+- 434: `fullContent += chunk` -> 执行当前语句，参与该文件整体逻辑。
+- 435: `}` -> 结束当前语句或代码块。
+- 436: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 437: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 438: `}` -> 结束当前语句或代码块。
+- 439: `}` -> 结束当前语句或代码块。
+- 440: `(空行)` -> 空行，用于提升代码结构可读性。
+- 441: `// 保存对话` -> 注释行，用于解释设计意图或使用说明。
+- 442: `s.saveConversation(Conversation{` -> 执行当前语句，参与该文件整体逻辑。
+- 443: `ID:        fmt.Sprintf("msg_%d", time.Now().Unix()),` -> 执行当前语句，参与该文件整体逻辑。
+- 444: `SessionID: sessionID,` -> 执行当前语句，参与该文件整体逻辑。
+- 445: `Role:      "user",` -> 执行当前语句，参与该文件整体逻辑。
+- 446: `Content:   messages[len(messages)-1].Content,` -> 执行当前语句，参与该文件整体逻辑。
+- 447: `CreatedAt: time.Now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 448: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 449: `(空行)` -> 空行，用于提升代码结构可读性。
+- 450: `return nil` -> 返回结果或提前结束当前流程。
+- 451: `}` -> 结束当前语句或代码块。
+- 452: `(空行)` -> 空行，用于提升代码结构可读性。
+- 453: `// ============== 其他功能（保留原有实现） ==============` -> 注释行，用于解释设计意图或使用说明。
+- 454: `(空行)` -> 空行，用于提升代码结构可读性。
+- 455: `func (s *Service) GetChatHistory(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 456: `sessionID := c.Param("session_id")` -> 执行当前语句，参与该文件整体逻辑。
+- 457: `messages, err := s.getConversationHistory(sessionID)` -> 执行当前语句，参与该文件整体逻辑。
+- 458: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 459: `c.JSON(http.StatusInternalServerError, gin.H{"error": "获取历史记录失败"})` -> 构造并返回接口响应数据。
+- 460: `return` -> 返回结果或提前结束当前流程。
+- 461: `}` -> 结束当前语句或代码块。
+- 462: `c.JSON(http.StatusOK, gin.H{"session_id": sessionID, "messages": messages})` -> 构造并返回接口响应数据。
+- 463: `}` -> 结束当前语句或代码块。
+- 464: `(空行)` -> 空行，用于提升代码结构可读性。
+- 465: `func (s *Service) DetectIntent(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 466: `var req MessageRequest` -> 声明变量或常量，保存运行时数据。
+- 467: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 468: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 469: `return` -> 返回结果或提前结束当前流程。
+- 470: `}` -> 结束当前语句或代码块。
+- 471: `intent, _ := s.DetectIntentInternal(req.Message)` -> 执行当前语句，参与该文件整体逻辑。
+- 472: `c.JSON(http.StatusOK, intent)` -> 构造并返回接口响应数据。
+- 473: `}` -> 结束当前语句或代码块。
+- 474: `(空行)` -> 空行，用于提升代码结构可读性。
+- 475: `func (s *Service) DetectIntentInternal(message string) (*IntentResponse, error) {` -> 定义函数或方法，实现具体业务逻辑。
+- 476: `intent := "general"` -> 执行当前语句，参与该文件整体逻辑。
+- 477: `confidence := 0.85` -> 执行当前语句，参与该文件整体逻辑。
+- 478: `lowerMessage := strings.ToLower(message)` -> 执行当前语句，参与该文件整体逻辑。
+- 479: `(空行)` -> 空行，用于提升代码结构可读性。
+- 480: `if strings.Contains(lowerMessage, "行程") || strings.Contains(lowerMessage, "规划") || strings.Contains(lowerMessage, "几天") {` -> 条件判断分支，根据场景执行不同逻辑。
+- 481: `intent = "itinerary_planning"` -> 执行当前语句，参与该文件整体逻辑。
+- 482: `confidence = 0.9` -> 执行当前语句，参与该文件整体逻辑。
+- 483: `} else if strings.Contains(lowerMessage, "推荐") || strings.Contains(lowerMessage, "建议") || strings.Contains(lowerMessage, "好玩") {` -> 执行当前语句，参与该文件整体逻辑。
+- 484: `intent = "recommendation"` -> 执行当前语句，参与该文件整体逻辑。
+- 485: `confidence = 0.88` -> 执行当前语句，参与该文件整体逻辑。
+- 486: `} else if strings.Contains(lowerMessage, "价格") || strings.Contains(lowerMessage, "费用") || strings.Contains(lowerMessage, "多少钱") {` -> 执行当前语句，参与该文件整体逻辑。
+- 487: `intent = "pricing"` -> 执行当前语句，参与该文件整体逻辑。
+- 488: `confidence = 0.92` -> 执行当前语句，参与该文件整体逻辑。
+- 489: `} else if strings.Contains(lowerMessage, "预订") || strings.Contains(lowerMessage, "订票") || strings.Contains(lowerMessage, "买票") {` -> 执行当前语句，参与该文件整体逻辑。
+- 490: `intent = "booking"` -> 执行当前语句，参与该文件整体逻辑。
+- 491: `confidence = 0.95` -> 执行当前语句，参与该文件整体逻辑。
+- 492: `}` -> 结束当前语句或代码块。
+- 493: `(空行)` -> 空行，用于提升代码结构可读性。
+- 494: `return &IntentResponse{Intent: intent, Confidence: confidence}, nil` -> 返回结果或提前结束当前流程。
+- 495: `}` -> 结束当前语句或代码块。
+- 496: `(空行)` -> 空行，用于提升代码结构可读性。
+- 497: `func (s *Service) GenerateItinerary(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 498: `var req ItineraryRequest` -> 声明变量或常量，保存运行时数据。
+- 499: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 500: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 501: `return` -> 返回结果或提前结束当前流程。
+- 502: `}` -> 结束当前语句或代码块。
+- 503: `itinerary, _ := s.generateItineraryInternal(req)` -> 执行当前语句，参与该文件整体逻辑。
+- 504: `c.JSON(http.StatusOK, gin.H{"message": "生成成功", "itinerary": itinerary})` -> 构造并返回接口响应数据。
+- 505: `}` -> 结束当前语句或代码块。
+- 506: `(空行)` -> 空行，用于提升代码结构可读性。
+- 507: `func (s *Service) generateItineraryInternal(req ItineraryRequest) (*ItineraryResponse, error) {` -> 定义函数或方法，实现具体业务逻辑。
+- 508: `title := fmt.Sprintf("%s %d日游", req.Destination, req.Days)` -> 执行当前语句，参与该文件整体逻辑。
+- 509: `days := make([]ItineraryDay, req.Days)` -> 执行当前语句，参与该文件整体逻辑。
+- 510: `(空行)` -> 空行，用于提升代码结构可读性。
+- 511: `for i := 0; i < req.Days; i++ {` -> 循环处理集合或重复执行逻辑。
+- 512: `days[i] = ItineraryDay{` -> 执行当前语句，参与该文件整体逻辑。
+- 513: `Day:        i + 1,` -> 执行当前语句，参与该文件整体逻辑。
+- 514: `Date:       time.Now().AddDate(0, 0, i).Format("2006-01-02"),` -> 执行当前语句，参与该文件整体逻辑。
+- 515: `Activities: []Activity{},` -> 执行当前语句，参与该文件整体逻辑。
+- 516: `Meals:      []Meal{},` -> 执行当前语句，参与该文件整体逻辑。
+- 517: `}` -> 结束当前语句或代码块。
+- 518: `}` -> 结束当前语句或代码块。
+- 519: `(空行)` -> 空行，用于提升代码结构可读性。
+- 520: `return &ItineraryResponse{` -> 返回结果或提前结束当前流程。
+- 521: `ID:        fmt.Sprintf("itinerary_%d", time.Now().Unix()),` -> 执行当前语句，参与该文件整体逻辑。
+- 522: `Title:     title,` -> 执行当前语句，参与该文件整体逻辑。
+- 523: `Days:      days,` -> 执行当前语句，参与该文件整体逻辑。
+- 524: `Budget:    float64(req.Days * 500),` -> 执行当前语句，参与该文件整体逻辑。
+- 525: `Tags:      []string{req.Destination},` -> 执行当前语句，参与该文件整体逻辑。
+- 526: `CreatedAt: time.Now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 527: `}, nil` -> 执行当前语句，参与该文件整体逻辑。
+- 528: `}` -> 结束当前语句或代码块。
+- 529: `(空行)` -> 空行，用于提升代码结构可读性。
+- 530: `func (s *Service) GetRecommendations(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 531: `var req RecommendationRequest` -> 声明变量或常量，保存运行时数据。
+- 532: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 533: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 534: `return` -> 返回结果或提前结束当前流程。
+- 535: `}` -> 结束当前语句或代码块。
+- 536: `c.JSON(http.StatusOK, gin.H{"recommendations": []Recommendation{}, "user_id": req.UserID})` -> 构造并返回接口响应数据。
+- 537: `}` -> 结束当前语句或代码块。
+- 538: `(空行)` -> 空行，用于提升代码结构可读性。
+- 539: `func (s *Service) SearchKnowledge(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 540: `c.JSON(http.StatusOK, gin.H{"results": []map[string]interface{}{}, "query": ""})` -> 构造并返回接口响应数据。
+- 541: `}` -> 结束当前语句或代码块。
+- 542: `(空行)` -> 空行，用于提升代码结构可读性。
+- 543: `func (s *Service) UpdateKnowledge(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 544: `c.JSON(http.StatusOK, gin.H{"message": "更新成功"})` -> 构造并返回接口响应数据。
+- 545: `}` -> 结束当前语句或代码块。
+- 546: `(空行)` -> 空行，用于提升代码结构可读性。
+- 547: `func (s *Service) saveConversation(conv Conversation) error {` -> 定义函数或方法，实现具体业务逻辑。
+- 548: `key := fmt.Sprintf("chat:%s", conv.SessionID)` -> 执行当前语句，参与该文件整体逻辑。
+- 549: `data, _ := json.Marshal(conv)` -> 执行当前语句，参与该文件整体逻辑。
+- 550: `return s.redis.RPush(context.Background(), key, data).Err()` -> 返回结果或提前结束当前流程。
+- 551: `}` -> 结束当前语句或代码块。
+- 552: `(空行)` -> 空行，用于提升代码结构可读性。
+- 553: `func (s *Service) getConversationHistory(sessionID string) ([]Conversation, error) {` -> 定义函数或方法，实现具体业务逻辑。
+- 554: `key := fmt.Sprintf("chat:%s", sessionID)` -> 执行当前语句，参与该文件整体逻辑。
+- 555: `results, err := s.redis.LRange(context.Background(), key, 0, -1).Result()` -> 执行当前语句，参与该文件整体逻辑。
+- 556: `if err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 557: `return nil, err` -> 返回结果或提前结束当前流程。
+- 558: `}` -> 结束当前语句或代码块。
+- 559: `var messages []Conversation` -> 声明变量或常量，保存运行时数据。
+- 560: `for _, result := range results {` -> 循环处理集合或重复执行逻辑。
+- 561: `var conv Conversation` -> 声明变量或常量，保存运行时数据。
+- 562: `if err := json.Unmarshal([]byte(result), &conv); err == nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 563: `messages = append(messages, conv)` -> 执行当前语句，参与该文件整体逻辑。
+- 564: `}` -> 结束当前语句或代码块。
+- 565: `}` -> 结束当前语句或代码块。
+- 566: `return messages, nil` -> 返回结果或提前结束当前流程。
+- 567: `}` -> 结束当前语句或代码块。

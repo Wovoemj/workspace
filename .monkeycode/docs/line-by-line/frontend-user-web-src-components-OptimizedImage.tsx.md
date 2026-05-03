@@ -1,0 +1,311 @@
+# `frontend/user-web/src/components/OptimizedImage.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 优化图片组件 (OptimizedImage)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 图片加载优化组件` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 支持响应式图片 srcset` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 支持 WebP 格式自动转换` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 支持多种占位符效果（blur、shimmer、empty）` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 自动回退机制（加载失败时显示占位图）` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 优化特性：` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - 懒加载（默认）/ 优先加载（可选）` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - 渐进式显示（骨架屏 → 模糊图 → 清晰图）` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - 自动生成多尺寸 srcset` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - WebP 格式支持检测` -> 注释行，用于解释设计意图或使用说明。
+- 20: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 21: `(空行)` -> 空行，用于提升代码结构可读性。
+- 22: `import { useState, useMemo, useCallback } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 23: `import { cn } from '@/lib/utils'` -> 导入依赖模块，供当前文件使用。
+- 24: `(空行)` -> 空行，用于提升代码结构可读性。
+- 25: `/** 优化图片组件属性 */` -> 注释行，用于解释设计意图或使用说明。
+- 26: `interface OptimizedImageProps {` -> 定义类型或类结构，约束数据与行为。
+- 27: `src: string` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `alt: string` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `className?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `wrapperClassName?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `width?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `height?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `aspectRatio?: 'square' | 'video' | 'wide' | 'standard'` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `priority?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `quality?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `placeholder?: 'blur' | 'empty' | 'shimmer'` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `fallbackSrc?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `onLoad?: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `onError?: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `}` -> 结束当前语句或代码块。
+- 41: `(空行)` -> 空行，用于提升代码结构可读性。
+- 42: `// 图片尺寸断点` -> 注释行，用于解释设计意图或使用说明。
+- 43: `const SIZE_BREAKPOINTS = [320, 640, 960, 1280, 1920]` -> 声明变量或常量，保存运行时数据。
+- 44: `(空行)` -> 空行，用于提升代码结构可读性。
+- 45: `// 生成响应式图片 srcset` -> 注释行，用于解释设计意图或使用说明。
+- 46: `function generateSrcSet(baseSrc: string, width: number): string {` -> 定义函数或方法，实现具体业务逻辑。
+- 47: `if (!baseSrc || baseSrc.startsWith('data:') || baseSrc.startsWith('blob:')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 48: `return ''` -> 返回结果或提前结束当前流程。
+- 49: `}` -> 结束当前语句或代码块。
+- 50: `(空行)` -> 空行，用于提升代码结构可读性。
+- 51: `// 如果是相对路径或本地路径，不生成 srcset` -> 注释行，用于解释设计意图或使用说明。
+- 52: `if (!baseSrc.startsWith('http') && !baseSrc.startsWith('//')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 53: `return ''` -> 返回结果或提前结束当前流程。
+- 54: `}` -> 结束当前语句或代码块。
+- 55: `(空行)` -> 空行，用于提升代码结构可读性。
+- 56: `const widths = SIZE_BREAKPOINTS.filter(w => w <= width * 2)` -> 声明变量或常量，保存运行时数据。
+- 57: `return widths` -> 返回结果或提前结束当前流程。
+- 58: `.map(w => {` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `// 假设图片服务支持 w 参数调整宽度` -> 注释行，用于解释设计意图或使用说明。
+- 60: `const url = new URL(baseSrc, typeof window !== 'undefined' ? window.location.href : 'http://localhost')` -> 声明变量或常量，保存运行时数据。
+- 61: `url.searchParams.set('w', String(w))` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `return \`${url.toString()} ${w}w\`` -> 返回结果或提前结束当前流程。
+- 63: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `.join(', ')` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `}` -> 结束当前语句或代码块。
+- 66: `(空行)` -> 空行，用于提升代码结构可读性。
+- 67: `// 检查浏览器是否支持 WebP` -> 注释行，用于解释设计意图或使用说明。
+- 68: `function supportsWebP(): boolean {` -> 定义函数或方法，实现具体业务逻辑。
+- 69: `if (typeof window === 'undefined') return true` -> 条件判断分支，根据场景执行不同逻辑。
+- 70: `const canvas = document.createElement('canvas')` -> 声明变量或常量，保存运行时数据。
+- 71: `if (canvas.getContext && canvas.getContext('2d')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 72: `return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0` -> 返回结果或提前结束当前流程。
+- 73: `}` -> 结束当前语句或代码块。
+- 74: `return false` -> 返回结果或提前结束当前流程。
+- 75: `}` -> 结束当前语句或代码块。
+- 76: `(空行)` -> 空行，用于提升代码结构可读性。
+- 77: `// 尝试转换为 WebP URL（如果图片服务支持）` -> 注释行，用于解释设计意图或使用说明。
+- 78: `function getWebPUrl(src: string): string {` -> 定义函数或方法，实现具体业务逻辑。
+- 79: `if (!src || !supportsWebP()) return src` -> 条件判断分支，根据场景执行不同逻辑。
+- 80: `(空行)` -> 空行，用于提升代码结构可读性。
+- 81: `// 如果是 CDN 图片，尝试添加 format=webp 参数` -> 注释行，用于解释设计意图或使用说明。
+- 82: `if (src.includes('cdn.') || src.includes('img.') || src.includes('image.')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 83: `const url = new URL(src, typeof window !== 'undefined' ? window.location.href : 'http://localhost')` -> 声明变量或常量，保存运行时数据。
+- 84: `url.searchParams.set('format', 'webp')` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `return url.toString()` -> 返回结果或提前结束当前流程。
+- 86: `}` -> 结束当前语句或代码块。
+- 87: `(空行)` -> 空行，用于提升代码结构可读性。
+- 88: `return src` -> 返回结果或提前结束当前流程。
+- 89: `}` -> 结束当前语句或代码块。
+- 90: `(空行)` -> 空行，用于提升代码结构可读性。
+- 91: `// 获取低质量占位图 URL` -> 注释行，用于解释设计意图或使用说明。
+- 92: `function getLQIPUrl(src: string): string {` -> 定义函数或方法，实现具体业务逻辑。
+- 93: `if (!src || src.startsWith('data:')) return ''` -> 条件判断分支，根据场景执行不同逻辑。
+- 94: `(空行)` -> 空行，用于提升代码结构可读性。
+- 95: `if (!src.startsWith('http') && !src.startsWith('//')) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 96: `return ''` -> 返回结果或提前结束当前流程。
+- 97: `}` -> 结束当前语句或代码块。
+- 98: `(空行)` -> 空行，用于提升代码结构可读性。
+- 99: `const url = new URL(src, typeof window !== 'undefined' ? window.location.href : 'http://localhost')` -> 声明变量或常量，保存运行时数据。
+- 100: `url.searchParams.set('w', '20')` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `url.searchParams.set('q', '10')` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `url.searchParams.set('blur', '10')` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `return url.toString()` -> 返回结果或提前结束当前流程。
+- 104: `}` -> 结束当前语句或代码块。
+- 105: `(空行)` -> 空行，用于提升代码结构可读性。
+- 106: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 107: `* 优化图片主组件` -> 注释行，用于解释设计意图或使用说明。
+- 108: `* @description 带响应式、懒加载、WebP 支持的优化图片组件` -> 注释行，用于解释设计意图或使用说明。
+- 109: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 110: `export function OptimizedImage({` -> 导出当前声明，供其他模块复用。
+- 111: `src,` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `alt,` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `className,` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `wrapperClassName,` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `width,` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `height,` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `aspectRatio = 'standard',` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `priority = false,` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `quality = 80,` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `placeholder = 'shimmer',` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `fallbackSrc = '/images/placeholder.jpg',` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `onLoad,` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `onError,` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `}: OptimizedImageProps) {` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `const [isLoaded, setIsLoaded] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 126: `const [hasError, setHasError] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 127: `const [currentSrc, setCurrentSrc] = useState(src)` -> 声明变量或常量，保存运行时数据。
+- 128: `(空行)` -> 空行，用于提升代码结构可读性。
+- 129: `// 计算宽高比类名` -> 注释行，用于解释设计意图或使用说明。
+- 130: `const aspectRatioClass = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 131: `switch (aspectRatio) {` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `case 'square':` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `return 'aspect-square'` -> 返回结果或提前结束当前流程。
+- 134: `case 'video':` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `return 'aspect-video'` -> 返回结果或提前结束当前流程。
+- 136: `case 'wide':` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `return 'aspect-[21/9]'` -> 返回结果或提前结束当前流程。
+- 138: `case 'standard':` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `default:` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `return 'aspect-[4/3]'` -> 返回结果或提前结束当前流程。
+- 141: `}` -> 结束当前语句或代码块。
+- 142: `}, [aspectRatio])` -> 执行当前语句，参与该文件整体逻辑。
+- 143: `(空行)` -> 空行，用于提升代码结构可读性。
+- 144: `// 生成响应式图片配置` -> 注释行，用于解释设计意图或使用说明。
+- 145: `const { optimizedSrc, srcSet, sizes } = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 146: `const optimized = hasError ? fallbackSrc : getWebPUrl(currentSrc)` -> 声明变量或常量，保存运行时数据。
+- 147: `const set = generateSrcSet(optimized, width || 800)` -> 声明变量或常量，保存运行时数据。
+- 148: `const sizesAttr = width` -> 声明变量或常量，保存运行时数据。
+- 149: `? \`${width}px\`` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `(空行)` -> 空行，用于提升代码结构可读性。
+- 152: `return { optimizedSrc: optimized, srcSet: set, sizes: sizesAttr }` -> 返回结果或提前结束当前流程。
+- 153: `}, [currentSrc, hasError, fallbackSrc, width])` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `(空行)` -> 空行，用于提升代码结构可读性。
+- 155: `// 占位图` -> 注释行，用于解释设计意图或使用说明。
+- 156: `const placeholderUrl = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 157: `if (placeholder === 'empty') return null` -> 条件判断分支，根据场景执行不同逻辑。
+- 158: `if (placeholder === 'blur') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 159: `return getLQIPUrl(src)` -> 返回结果或提前结束当前流程。
+- 160: `}` -> 结束当前语句或代码块。
+- 161: `return null` -> 返回结果或提前结束当前流程。
+- 162: `}, [src, placeholder])` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `(空行)` -> 空行，用于提升代码结构可读性。
+- 164: `const handleLoad = useCallback(() => {` -> 声明变量或常量，保存运行时数据。
+- 165: `setIsLoaded(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `onLoad?.()` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `}, [onLoad])` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `(空行)` -> 空行，用于提升代码结构可读性。
+- 169: `const handleError = useCallback(() => {` -> 声明变量或常量，保存运行时数据。
+- 170: `if (!hasError && currentSrc !== fallbackSrc) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 171: `setHasError(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `setCurrentSrc(fallbackSrc)` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `setIsLoaded(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `}` -> 结束当前语句或代码块。
+- 175: `onError?.()` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `}, [hasError, currentSrc, fallbackSrc, onError])` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `(空行)` -> 空行，用于提升代码结构可读性。
+- 178: `return (` -> 返回结果或提前结束当前流程。
+- 179: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `className={cn(` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `'relative overflow-hidden bg-muted',` -> 执行当前语句，参与该文件整体逻辑。
+- 182: `aspectRatioClass,` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `wrapperClassName` -> 执行当前语句，参与该文件整体逻辑。
+- 184: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `{/* 加载骨架/占位 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `{!isLoaded && placeholder !== 'empty' && (` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `className={cn(` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `'absolute inset-0 transition-opacity duration-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `placeholder === 'shimmer' ? 'animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%] animate-shimmer' : 'bg-muted'` -> 执行当前语句，参与该文件整体逻辑。
+- 192: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 193: `style={{` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `backgroundImage: placeholderUrl ? \`url(${placeholderUrl})\` : undefined,` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `backgroundSize: 'cover',` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `backgroundPosition: 'center',` -> 执行当前语句，参与该文件整体逻辑。
+- 197: `filter: placeholder === 'blur' ? 'blur(20px)' : undefined,` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 199: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 200: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 201: `(空行)` -> 空行，用于提升代码结构可读性。
+- 202: `{/* 实际图片 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `src={optimizedSrc}` -> 执行当前语句，参与该文件整体逻辑。
+- 205: `srcSet={srcSet || undefined}` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `sizes={sizes}` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `alt={alt}` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `width={width}` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `height={height}` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `loading={priority ? 'eager' : 'lazy'}` -> 执行当前语句，参与该文件整体逻辑。
+- 211: `decoding={priority ? 'sync' : 'async'}` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `className={cn(` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `'w-full h-full object-cover transition-opacity duration-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `isLoaded ? 'opacity-100' : 'opacity-0',` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `className` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 217: `onLoad={handleLoad}` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `onError={handleError}` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 220: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 221: `)` -> 结束当前语句或代码块。
+- 222: `}` -> 结束当前语句或代码块。
+- 223: `(空行)` -> 空行，用于提升代码结构可读性。
+- 224: `// 简化的图片卡片组件` -> 注释行，用于解释设计意图或使用说明。
+- 225: `interface ImageCardProps {` -> 定义类型或类结构，约束数据与行为。
+- 226: `src: string` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `alt: string` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `aspectRatio?: 'square' | 'video' | 'wide' | 'standard'` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `className?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `overlay?: React.ReactNode` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `priority?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `}` -> 结束当前语句或代码块。
+- 233: `(空行)` -> 空行，用于提升代码结构可读性。
+- 234: `export function ImageCard({` -> 导出当前声明，供其他模块复用。
+- 235: `src,` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `alt,` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `aspectRatio = 'standard',` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `className,` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `overlay,` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `priority = false,` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `}: ImageCardProps) {` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `return (` -> 返回结果或提前结束当前流程。
+- 243: `<div className={cn('relative overflow-hidden rounded-xl', className)}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `<OptimizedImage` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `src={src}` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `alt={alt}` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `aspectRatio={aspectRatio}` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `priority={priority}` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `className="hover:scale-105 transition-transform duration-500"` -> 执行当前语句，参与该文件整体逻辑。
+- 250: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 251: `{overlay && (` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `<div className="absolute inset-0 flex flex-col justify-end">` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `{overlay}` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 255: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `)` -> 结束当前语句或代码块。
+- 258: `}` -> 结束当前语句或代码块。
+- 259: `(空行)` -> 空行，用于提升代码结构可读性。
+- 260: `// 瀑布流图片项` -> 注释行，用于解释设计意图或使用说明。
+- 261: `interface MasonryImageProps {` -> 定义类型或类结构，约束数据与行为。
+- 262: `src: string` -> 执行当前语句，参与该文件整体逻辑。
+- 263: `alt: string` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `height?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `className?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `onClick?: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `}` -> 结束当前语句或代码块。
+- 268: `(空行)` -> 空行，用于提升代码结构可读性。
+- 269: `export function MasonryImage({` -> 导出当前声明，供其他模块复用。
+- 270: `src,` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `alt,` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `height = 300,` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `className,` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `onClick,` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `}: MasonryImageProps) {` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `const [isLoaded, setIsLoaded] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 277: `(空行)` -> 空行，用于提升代码结构可读性。
+- 278: `return (` -> 返回结果或提前结束当前流程。
+- 279: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `className={cn(` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `'relative overflow-hidden rounded-lg bg-muted cursor-pointer',` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `className` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `style={{ height }}` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `onClick={onClick}` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `{!isLoaded && (` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `<div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 289: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `src={src}` -> 执行当前语句，参与该文件整体逻辑。
+- 292: `alt={alt}` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `loading="lazy"` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `className={cn(` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `'w-full h-full object-cover transition-all duration-500 hover:scale-105',` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `isLoaded ? 'opacity-100' : 'opacity-0'` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `onLoad={() => setIsLoaded(true)}` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `onError={(e) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `const target = e.target as HTMLImageElement` -> 声明变量或常量，保存运行时数据。
+- 301: `target.src = '/images/placeholder.jpg'` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `setIsLoaded(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 306: `)` -> 结束当前语句或代码块。
+- 307: `}` -> 结束当前语句或代码块。

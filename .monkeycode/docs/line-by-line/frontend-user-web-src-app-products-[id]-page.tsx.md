@@ -1,0 +1,1373 @@
+# `frontend/user-web/src/app/products/[id]/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 产品详情页模块 - 旅游产品详细信息展示与预订` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 产品图库 Gallery 轮播展示` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 四类标签徽章（机票✈️、酒店🏨、门票🎫、当地体验🎭）` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 产品描述、标签、位置信息展示` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 四 Tab 切换：概述 / 行程安排 / 用户评价 / 问答` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 行程安排（根据产品类型动态生成：航班/酒店/门票/体验）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 用户评价：星级评分、文字、图片上传、评论列表` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 问答模块：提问、官方回复、Q&A 列表` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - 日期选择器 + 分时预约时段选择` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - 数量选择器（含库存上限）` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - 价格实时计算（单价 × 数量）` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - 立即预订（创建订单跳转）` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - 收藏功能（仅支持目的地收藏）` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - 相关推荐产品（同城/高评分）` -> 注释行，用于解释设计意图或使用说明。
+- 20: `*` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - ProductCard: 产品卡片组件` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - useUserStore: 用户状态（Zustand）` -> 注释行，用于解释设计意图或使用说明。
+- 25: `*` -> 注释行，用于解释设计意图或使用说明。
+- 26: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 27: `* - GET /api/products/${id}: 获取产品详情` -> 注释行，用于解释设计意图或使用说明。
+- 28: `* - GET /api/products/${id}/reviews: 获取产品评论列表` -> 注释行，用于解释设计意图或使用说明。
+- 29: `* - POST /api/products/${id}/reviews: 提交用户评论（需登录）` -> 注释行，用于解释设计意图或使用说明。
+- 30: `* - GET /api/products/${id}/qa: 获取产品问答列表` -> 注释行，用于解释设计意图或使用说明。
+- 31: `* - POST /api/products/${id}/qa: 提交问题（需登录）` -> 注释行，用于解释设计意图或使用说明。
+- 32: `* - GET /api/tickets/products/${id}/inventory: 获取时间段库存` -> 注释行，用于解释设计意图或使用说明。
+- 33: `* - GET /api/products?status=active&sort=rating&destination=xxx: 获取相关推荐` -> 注释行，用于解释设计意图或使用说明。
+- 34: `* - GET /api/favorites: 获取收藏列表` -> 注释行，用于解释设计意图或使用说明。
+- 35: `* - POST /api/favorites: 添加/取消收藏（需登录）` -> 注释行，用于解释设计意图或使用说明。
+- 36: `* - POST /api/orders: 创建订单（需登录，模拟支付）` -> 注释行，用于解释设计意图或使用说明。
+- 37: `*` -> 注释行，用于解释设计意图或使用说明。
+- 38: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 39: `* - useState: product(产品数据), reviews(评论), questions(问答), galleryIndex` -> 注释行，用于解释设计意图或使用说明。
+- 40: `* - Tab 状态: overview | itinerary | reviews | qa` -> 注释行，用于解释设计意图或使用说明。
+- 41: `* - 预订状态: selectedDate, selectedTimeSlot, quantity, timeSlots` -> 注释行，用于解释设计意图或使用说明。
+- 42: `* - 收藏状态: isFavorited, favoritesLoading` -> 注释行，用于解释设计意图或使用说明。
+- 43: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 44: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `(空行)` -> 空行，用于提升代码结构可读性。
+- 46: `import { useEffect, useMemo, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 47: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 48: `import { useParams, useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 49: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 50: `import {` -> 导入依赖模块，供当前文件使用。
+- 51: `CalendarDays,` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `ChevronLeft,` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `ChevronRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `Heart,` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `Image as ImageIcon,` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `Loader2,` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `MessageCircle,` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `Minus,` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `Plus,` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `Star,` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `User,` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `import type { Product } from '@/types'` -> 导入依赖模块，供当前文件使用。
+- 64: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 65: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 66: `import { ProductCard } from '@/components/ProductCard'` -> 导入依赖模块，供当前文件使用。
+- 67: `import { formatRating, shouldShowRating } from '@/lib/display'` -> 导入依赖模块，供当前文件使用。
+- 68: `import { onImgErrorUseFallback, resolveCoverSrc } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 69: `(空行)` -> 空行，用于提升代码结构可读性。
+- 70: `type ProductReview = {` -> 定义类型或类结构，约束数据与行为。
+- 71: `id?: string | number` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `user?: { nickname?: string; avatar_url?: string | null }` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `user_id?: string | number` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `rating: number` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `content: string` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `images?: string[]` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `created_at?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `}` -> 结束当前语句或代码块。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `function formatPrice(price: number) {` -> 定义函数或方法，实现具体业务逻辑。
+- 81: `return \`¥${Number(price || 0).toLocaleString()}\`` -> 返回结果或提前结束当前流程。
+- 82: `}` -> 结束当前语句或代码块。
+- 83: `(空行)` -> 空行，用于提升代码结构可读性。
+- 84: `function formatDateZh(iso: string | undefined) {` -> 定义函数或方法，实现具体业务逻辑。
+- 85: `if (!iso) return ''` -> 条件判断分支，根据场景执行不同逻辑。
+- 86: `const d = new Date(iso)` -> 声明变量或常量，保存运行时数据。
+- 87: `if (Number.isNaN(d.getTime())) return ''` -> 条件判断分支，根据场景执行不同逻辑。
+- 88: `return d.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })` -> 返回结果或提前结束当前流程。
+- 89: `}` -> 结束当前语句或代码块。
+- 90: `(空行)` -> 空行，用于提升代码结构可读性。
+- 91: `function safeMediaSrc(img?: string | null) {` -> 定义函数或方法，实现具体业务逻辑。
+- 92: `return resolveCoverSrc(img || null)` -> 返回结果或提前结束当前流程。
+- 93: `}` -> 结束当前语句或代码块。
+- 94: `(空行)` -> 空行，用于提升代码结构可读性。
+- 95: `function StarsPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {` -> 定义函数或方法，实现具体业务逻辑。
+- 96: `const stars = [1, 2, 3, 4, 5]` -> 声明变量或常量，保存运行时数据。
+- 97: `return (` -> 返回结果或提前结束当前流程。
+- 98: `<div className="flex items-center gap-1" role="radiogroup" aria-label="评分">` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `{stars.map((s) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `const active = s <= value` -> 声明变量或常量，保存运行时数据。
+- 101: `return (` -> 返回结果或提前结束当前流程。
+- 102: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `key={s}` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `className="p-1 rounded-md transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `onClick={() => onChange(s)}` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `aria-checked={active}` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `role="radio"` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `<Star className={\`h-5 w-5 ${active ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 112: `)` -> 结束当前语句或代码块。
+- 113: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `)` -> 结束当前语句或代码块。
+- 116: `}` -> 结束当前语句或代码块。
+- 117: `(空行)` -> 空行，用于提升代码结构可读性。
+- 118: `export default function ProductDetailPage({ params }: { params: { id: string } }) {` -> 导出当前声明，供其他模块复用。
+- 119: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 120: `(空行)` -> 空行，用于提升代码结构可读性。
+- 121: `const productId = params?.id` -> 声明变量或常量，保存运行时数据。
+- 122: `const [product, setProduct] = useState<Product | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 123: `const [loadingProduct, setLoadingProduct] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 124: `const [productError, setProductError] = useState<string | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 125: `(空行)` -> 空行，用于提升代码结构可读性。
+- 126: `const [galleryIndex, setGalleryIndex] = useState(0)` -> 声明变量或常量，保存运行时数据。
+- 127: `(空行)` -> 空行，用于提升代码结构可读性。
+- 128: `const [tab, setTab] = useState<'overview' | 'itinerary' | 'reviews' | 'qa'>('overview')` -> 声明变量或常量，保存运行时数据。
+- 129: `(空行)` -> 空行，用于提升代码结构可读性。
+- 130: `const [reviews, setReviews] = useState<ProductReview[]>([])` -> 声明变量或常量，保存运行时数据。
+- 131: `const [loadingReviews, setLoadingReviews] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 132: `(空行)` -> 空行，用于提升代码结构可读性。
+- 133: `const [reviewFormRating, setReviewFormRating] = useState(5)` -> 声明变量或常量，保存运行时数据。
+- 134: `const [reviewFormContent, setReviewFormContent] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 135: `const [reviewFormImages, setReviewFormImages] = useState<string[]>([])` -> 声明变量或常量，保存运行时数据。
+- 136: `const [submittingReview, setSubmittingReview] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 137: `(空行)` -> 空行，用于提升代码结构可读性。
+- 138: `(空行)` -> 空行，用于提升代码结构可读性。
+- 139: `const [questions, setQuestions] = useState<any[]>([])` -> 声明变量或常量，保存运行时数据。
+- 140: `const [loadingQuestions, setLoadingQuestions] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 141: `const [questionFormContent, setQuestionFormContent] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 142: `const [submittingQuestion, setSubmittingQuestion] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 143: `(空行)` -> 空行，用于提升代码结构可读性。
+- 144: `const [selectedDate, setSelectedDate] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 145: `const [selectedTimeSlot, setSelectedTimeSlot] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 146: `const [timeSlots, setTimeSlots] = useState<{time: string; available: number}[]>([])` -> 声明变量或常量，保存运行时数据。
+- 147: `const [loadingTimeSlots, setLoadingTimeSlots] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 148: `const [quantity, setQuantity] = useState(1)` -> 声明变量或常量，保存运行时数据。
+- 149: `(空行)` -> 空行，用于提升代码结构可读性。
+- 150: `const [favoritesLoading, setFavoritesLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 151: `const [isFavorited, setIsFavorited] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 152: `(空行)` -> 空行，用于提升代码结构可读性。
+- 153: `const [ordersSubmitting, setOrdersSubmitting] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 154: `const [related, setRelated] = useState<Product[]>([])` -> 声明变量或常量，保存运行时数据。
+- 155: `const [loadingRelated, setLoadingRelated] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 156: `(空行)` -> 空行，用于提升代码结构可读性。
+- 157: `const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';` -> 声明变量或常量，保存运行时数据。
+- 158: `(空行)` -> 空行，用于提升代码结构可读性。
+- 159: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `// 默认日期：今天` -> 注释行，用于解释设计意图或使用说明。
+- 161: `const now = new Date()` -> 声明变量或常量，保存运行时数据。
+- 162: `const pad = (n: number) => String(n).padStart(2, '0')` -> 声明变量或常量，保存运行时数据。
+- 163: `const iso = \`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}\`` -> 声明变量或常量，保存运行时数据。
+- 164: `setSelectedDate(iso)` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `(空行)` -> 空行，用于提升代码结构可读性。
+- 167: `// 获取时间段库存（当选择日期且产品需要分时预约时）` -> 注释行，用于解释设计意图或使用说明。
+- 168: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `if (!product || !selectedDate) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 170: `// 检查产品是否需要分时预约（通过metadata或特定字段）` -> 注释行，用于解释设计意图或使用说明。
+- 171: `const needTimeSlot = product.metadata?.opening_hours?.includes('时段') ||` -> 声明变量或常量，保存运行时数据。
+- 172: `product.metadata?.time_slots !== undefined` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `(空行)` -> 空行，用于提升代码结构可读性。
+- 174: `if (!needTimeSlot) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 175: `(空行)` -> 空行，用于提升代码结构可读性。
+- 176: `let cancelled = false` -> 声明变量或常量，保存运行时数据。
+- 177: `async function fetchTimeSlots() {` -> 定义函数或方法，实现具体业务逻辑。
+- 178: `if (!product) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 179: `setLoadingTimeSlots(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 181: `// 使用新的库存API` -> 注释行，用于解释设计意图或使用说明。
+- 182: `const res = await fetch(\`${API_BASE_URL}/api/tickets/products/${product.id}/inventory?date=${selectedDate}\`)` -> 声明变量或常量，保存运行时数据。
+- 183: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 184: `if (!cancelled && data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 185: `setTimeSlots(data.inventory?.time_slots || [])` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `}` -> 结束当前语句或代码块。
+- 187: `} catch (e) {` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `console.error('获取时间段失败:', e)` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `if (!cancelled) setLoadingTimeSlots(false)` -> 条件判断分支，根据场景执行不同逻辑。
+- 191: `}` -> 结束当前语句或代码块。
+- 192: `}` -> 结束当前语句或代码块。
+- 193: `fetchTimeSlots()` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `return () => { cancelled = true }` -> 返回结果或提前结束当前流程。
+- 195: `}, [product, selectedDate, API_BASE_URL])` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `(空行)` -> 空行，用于提升代码结构可读性。
+- 197: `const galleryImages = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 198: `if (!product) return []` -> 条件判断分支，根据场景执行不同逻辑。
+- 199: `const imgs = product.images?.length ? product.images : []` -> 声明变量或常量，保存运行时数据。
+- 200: `if (imgs.length) return imgs` -> 条件判断分支，根据场景执行不同逻辑。
+- 201: `// 没有 images 时回退到 cover_image` -> 注释行，用于解释设计意图或使用说明。
+- 202: `if (product.cover_image) return [product.cover_image]` -> 条件判断分支，根据场景执行不同逻辑。
+- 203: `return [undefined as unknown as string]` -> 返回结果或提前结束当前流程。
+- 204: `}, [product])` -> 执行当前语句，参与该文件整体逻辑。
+- 205: `(空行)` -> 空行，用于提升代码结构可读性。
+- 206: `const unitPrice = product?.price ?? 0` -> 声明变量或常量，保存运行时数据。
+- 207: `const totalPrice = unitPrice * quantity` -> 声明变量或常量，保存运行时数据。
+- 208: `(空行)` -> 空行，用于提升代码结构可读性。
+- 209: `// 拉取产品详情` -> 注释行，用于解释设计意图或使用说明。
+- 210: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 211: `if (!productId) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 212: `let cancelled = false` -> 声明变量或常量，保存运行时数据。
+- 213: `async function run() {` -> 定义函数或方法，实现具体业务逻辑。
+- 214: `setLoadingProduct(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `setProductError(null)` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 217: `const res = await fetch(\`${API_BASE_URL}/api/products/${productId}?_t=${Date.now()}\`, { cache: 'no-store' })` -> 声明变量或常量，保存运行时数据。
+- 218: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 219: `const p = (data?.product ?? data?.products ?? data) as Product` -> 声明变量或常量，保存运行时数据。
+- 220: `if (!cancelled) setProduct(p || null)` -> 条件判断分支，根据场景执行不同逻辑。
+- 221: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `if (!cancelled) setProductError(e?.message || '加载失败')` -> 条件判断分支，根据场景执行不同逻辑。
+- 223: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `if (!cancelled) setLoadingProduct(false)` -> 条件判断分支，根据场景执行不同逻辑。
+- 225: `}` -> 结束当前语句或代码块。
+- 226: `}` -> 结束当前语句或代码块。
+- 227: `run()` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `return () => {` -> 返回结果或提前结束当前流程。
+- 229: `cancelled = true` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `}` -> 结束当前语句或代码块。
+- 231: `}, [API_BASE_URL, productId])` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `(空行)` -> 空行，用于提升代码结构可读性。
+- 233: `// 拉取评论` -> 注释行，用于解释设计意图或使用说明。
+- 234: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `if (!productId) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 236: `let cancelled = false` -> 声明变量或常量，保存运行时数据。
+- 237: `async function run() {` -> 定义函数或方法，实现具体业务逻辑。
+- 238: `setLoadingReviews(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 240: `const res = await fetch(\`${API_BASE_URL}/api/products/${productId}/reviews\`, { cache: 'no-store' })` -> 声明变量或常量，保存运行时数据。
+- 241: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 242: `// API 返回结构: { success, result: { reviews } }` -> 注释行，用于解释设计意图或使用说明。
+- 243: `const list = (data?.result?.reviews ?? data?.reviews ?? data?.items ?? data?.data ?? []) as ProductReview[]` -> 声明变量或常量，保存运行时数据。
+- 244: `if (!cancelled) setReviews(Array.isArray(list) ? list : [])` -> 条件判断分支，根据场景执行不同逻辑。
+- 245: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `if (!cancelled) setReviews([])` -> 条件判断分支，根据场景执行不同逻辑。
+- 247: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `if (!cancelled) setLoadingReviews(false)` -> 条件判断分支，根据场景执行不同逻辑。
+- 249: `}` -> 结束当前语句或代码块。
+- 250: `}` -> 结束当前语句或代码块。
+- 251: `run()` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `return () => {` -> 返回结果或提前结束当前流程。
+- 253: `cancelled = true` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `}` -> 结束当前语句或代码块。
+- 255: `}, [API_BASE_URL, productId])` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `(空行)` -> 空行，用于提升代码结构可读性。
+- 257: `// 拉取问答` -> 注释行，用于解释设计意图或使用说明。
+- 258: `const loadQuestions = async () => {` -> 声明变量或常量，保存运行时数据。
+- 259: `if (!productId) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 260: `setLoadingQuestions(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 262: `const res = await fetch(\`${API_BASE_URL}/api/products/${productId}/qa\`, { cache: 'no-store' })` -> 声明变量或常量，保存运行时数据。
+- 263: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 264: `const list = (data?.qa ?? data?.items ?? data?.data ?? []) as any[]` -> 声明变量或常量，保存运行时数据。
+- 265: `setQuestions(Array.isArray(list) ? list : [])` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `setQuestions([])` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `setLoadingQuestions(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `}` -> 结束当前语句或代码块。
+- 271: `}` -> 结束当前语句或代码块。
+- 272: `(空行)` -> 空行，用于提升代码结构可读性。
+- 273: `// 拉取相关推荐` -> 注释行，用于解释设计意图或使用说明。
+- 274: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `if (!product || !product.location?.city) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 276: `let cancelled = false` -> 声明变量或常量，保存运行时数据。
+- 277: `async function run() {` -> 定义函数或方法，实现具体业务逻辑。
+- 278: `setLoadingRelated(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 280: `const res = await fetch(` -> 声明变量或常量，保存运行时数据。
+- 281: `\`${API_BASE_URL}/api/products?status=active&sort=rating&limit=6&destination=${encodeURIComponent(` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `product?.location?.city || '',` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `)}\`,` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `{ cache: 'no-store' },` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `)` -> 结束当前语句或代码块。
+- 286: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 287: `const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]` -> 声明变量或常量，保存运行时数据。
+- 288: `const filtered = Array.isArray(list)` -> 声明变量或常量，保存运行时数据。
+- 289: `? list.filter((p) => String(p.id) !== String(product?.id || '')).slice(0, 6)` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `: []` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `if (!cancelled) setRelated(filtered)` -> 条件判断分支，根据场景执行不同逻辑。
+- 292: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `if (!cancelled) setRelated([])` -> 条件判断分支，根据场景执行不同逻辑。
+- 294: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `if (!cancelled) setLoadingRelated(false)` -> 条件判断分支，根据场景执行不同逻辑。
+- 296: `}` -> 结束当前语句或代码块。
+- 297: `}` -> 结束当前语句或代码块。
+- 298: `run()` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `return () => {` -> 返回结果或提前结束当前流程。
+- 300: `cancelled = true` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `}` -> 结束当前语句或代码块。
+- 302: `}, [API_BASE_URL, product])` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `(空行)` -> 空行，用于提升代码结构可读性。
+- 304: `const loadFavorites = async (pid: string) => {` -> 声明变量或常量，保存运行时数据。
+- 305: `const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null` -> 声明变量或常量，保存运行时数据。
+- 306: `if (!token) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 307: `const idNum = Number.parseInt(pid, 10)` -> 声明变量或常量，保存运行时数据。
+- 308: `if (Number.isNaN(idNum)) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 309: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 310: `setFavoritesLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `const res = await fetch(\`${API_BASE_URL}/api/favorites\`, { headers: { Authorization: \`Bearer ${token}\` } })` -> 声明变量或常量，保存运行时数据。
+- 312: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 313: `const favs = data?.destinations ?? []` -> 声明变量或常量，保存运行时数据。
+- 314: `setIsFavorited(favs.some((d: any) => Number(d?.id) === idNum))` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `// ignore` -> 注释行，用于解释设计意图或使用说明。
+- 317: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `setFavoritesLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 319: `}` -> 结束当前语句或代码块。
+- 320: `}` -> 结束当前语句或代码块。
+- 321: `(空行)` -> 空行，用于提升代码结构可读性。
+- 322: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `if (!productId) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 324: `loadFavorites(productId)` -> 执行当前语句，参与该文件整体逻辑。
+- 325: `// eslint-disable-next-line react-hooks/exhaustive-deps` -> 注释行，用于解释设计意图或使用说明。
+- 326: `}, [productId])` -> 执行当前语句，参与该文件整体逻辑。
+- 327: `(空行)` -> 空行，用于提升代码结构可读性。
+- 328: `const onToggleFavorite = async () => {` -> 声明变量或常量，保存运行时数据。
+- 329: `if (!productId) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 330: `const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null` -> 声明变量或常量，保存运行时数据。
+- 331: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 332: `toast.error('请先登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 333: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 334: `return` -> 返回结果或提前结束当前流程。
+- 335: `}` -> 结束当前语句或代码块。
+- 336: `const idNum = Number.parseInt(productId, 10)` -> 声明变量或常量，保存运行时数据。
+- 337: `if (Number.isNaN(idNum)) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 338: `toast.error('当前收藏接口仅支持数字ID（目的地收藏）。')` -> 执行当前语句，参与该文件整体逻辑。
+- 339: `return` -> 返回结果或提前结束当前流程。
+- 340: `}` -> 结束当前语句或代码块。
+- 341: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 342: `setFavoritesLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 343: `const res = await fetch(\`${API_BASE_URL}/api/favorites\`, {` -> 声明变量或常量，保存运行时数据。
+- 344: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 345: `headers: { Authorization: \`Bearer ${token}\`, 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 346: `body: JSON.stringify({ destination_id: idNum }),` -> 执行当前语句，参与该文件整体逻辑。
+- 347: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 348: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 349: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 350: `throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 351: `}` -> 结束当前语句或代码块。
+- 352: `setIsFavorited(Boolean(data?.favorite))` -> 执行当前语句，参与该文件整体逻辑。
+- 353: `toast.success(data?.favorite ? '已加入收藏' : '已取消收藏')` -> 执行当前语句，参与该文件整体逻辑。
+- 354: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 355: `toast.error(e?.message || '收藏失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 356: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 357: `setFavoritesLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 358: `}` -> 结束当前语句或代码块。
+- 359: `}` -> 结束当前语句或代码块。
+- 360: `(空行)` -> 空行，用于提升代码结构可读性。
+- 361: `const onSubmitQuestion = async () => {` -> 声明变量或常量，保存运行时数据。
+- 362: `if (!product || !questionFormContent.trim()) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 363: `(空行)` -> 空行，用于提升代码结构可读性。
+- 364: `const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null` -> 声明变量或常量，保存运行时数据。
+- 365: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 366: `toast.error('请先登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 367: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 368: `return` -> 返回结果或提前结束当前流程。
+- 369: `}` -> 结束当前语句或代码块。
+- 370: `(空行)` -> 空行，用于提升代码结构可读性。
+- 371: `const content = questionFormContent.trim()` -> 声明变量或常量，保存运行时数据。
+- 372: `if (!content) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 373: `toast.error('问题内容不能为空')` -> 执行当前语句，参与该文件整体逻辑。
+- 374: `return` -> 返回结果或提前结束当前流程。
+- 375: `}` -> 结束当前语句或代码块。
+- 376: `(空行)` -> 空行，用于提升代码结构可读性。
+- 377: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 378: `setSubmittingQuestion(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 379: `const res = await fetch(\`${API_BASE_URL}/api/products/${product.id}/qa\`, {` -> 声明变量或常量，保存运行时数据。
+- 380: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 381: `headers: {` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `Authorization: \`Bearer ${token}\`,` -> 执行当前语句，参与该文件整体逻辑。
+- 383: `'Content-Type': 'application/json'` -> 执行当前语句，参与该文件整体逻辑。
+- 384: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `body: JSON.stringify({ question: content }),` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 387: `(空行)` -> 空行，用于提升代码结构可读性。
+- 388: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 389: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 390: `throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 391: `}` -> 结束当前语句或代码块。
+- 392: `(空行)` -> 空行，用于提升代码结构可读性。
+- 393: `// 清空表单` -> 注释行，用于解释设计意图或使用说明。
+- 394: `setQuestionFormContent('')` -> 执行当前语句，参与该文件整体逻辑。
+- 395: `toast.success('问题提交成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 396: `(空行)` -> 空行，用于提升代码结构可读性。
+- 397: `// 刷新问答列表` -> 注释行，用于解释设计意图或使用说明。
+- 398: `await loadQuestions()` -> 执行当前语句，参与该文件整体逻辑。
+- 399: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 400: `toast.error(e?.message || '提交问题失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 401: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 402: `setSubmittingQuestion(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 403: `}` -> 结束当前语句或代码块。
+- 404: `}` -> 结束当前语句或代码块。
+- 405: `(空行)` -> 空行，用于提升代码结构可读性。
+- 406: `const onCheckout = async () => {` -> 声明变量或常量，保存运行时数据。
+- 407: `if (!product) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 408: `const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null` -> 声明变量或常量，保存运行时数据。
+- 409: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 410: `toast.error('请先登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 411: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 412: `return` -> 返回结果或提前结束当前流程。
+- 413: `}` -> 结束当前语句或代码块。
+- 414: `if (!selectedDate) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 415: `toast.error('请选择日期')` -> 执行当前语句，参与该文件整体逻辑。
+- 416: `return` -> 返回结果或提前结束当前流程。
+- 417: `}` -> 结束当前语句或代码块。
+- 418: `// 如果需要分时预约但未选择时段` -> 注释行，用于解释设计意图或使用说明。
+- 419: `if (timeSlots.length > 0 && !selectedTimeSlot) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 420: `toast.error('请选择预约时段')` -> 执行当前语句，参与该文件整体逻辑。
+- 421: `return` -> 返回结果或提前结束当前流程。
+- 422: `}` -> 结束当前语句或代码块。
+- 423: `if (product.inventory === 0) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 424: `toast.error('该产品已售罄')` -> 执行当前语句，参与该文件整体逻辑。
+- 425: `return` -> 返回结果或提前结束当前流程。
+- 426: `}` -> 结束当前语句或代码块。
+- 427: `(空行)` -> 空行，用于提升代码结构可读性。
+- 428: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 429: `setOrdersSubmitting(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 430: `(空行)` -> 空行，用于提升代码结构可读性。
+- 431: `const bookingDetails: Record<string, unknown> = {` -> 声明变量或常量，保存运行时数据。
+- 432: `date: selectedDate,` -> 执行当前语句，参与该文件整体逻辑。
+- 433: `}` -> 结束当前语句或代码块。
+- 434: `if (selectedTimeSlot) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 435: `bookingDetails.time_slot = selectedTimeSlot` -> 执行当前语句，参与该文件整体逻辑。
+- 436: `}` -> 结束当前语句或代码块。
+- 437: `(空行)` -> 空行，用于提升代码结构可读性。
+- 438: `const orderPayload = {` -> 声明变量或常量，保存运行时数据。
+- 439: `order_no: \`TA-${Date.now()}\`,` -> 执行当前语句，参与该文件整体逻辑。
+- 440: `total_amount: totalPrice,` -> 执行当前语句，参与该文件整体逻辑。
+- 441: `payment_method: 'alipay',` -> 执行当前语句，参与该文件整体逻辑。
+- 442: `status: 'pending',` -> 执行当前语句，参与该文件整体逻辑。
+- 443: `items: [` -> 执行当前语句，参与该文件整体逻辑。
+- 444: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 445: `product_id: String(product.id),` -> 执行当前语句，参与该文件整体逻辑。
+- 446: `product_name: product.name,` -> 执行当前语句，参与该文件整体逻辑。
+- 447: `product_type: product.type,` -> 执行当前语句，参与该文件整体逻辑。
+- 448: `quantity,` -> 执行当前语句，参与该文件整体逻辑。
+- 449: `unit_price: unitPrice,` -> 执行当前语句，参与该文件整体逻辑。
+- 450: `total_price: totalPrice,` -> 执行当前语句，参与该文件整体逻辑。
+- 451: `booking_details: bookingDetails,` -> 执行当前语句，参与该文件整体逻辑。
+- 452: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 453: `],` -> 执行当前语句，参与该文件整体逻辑。
+- 454: `}` -> 结束当前语句或代码块。
+- 455: `(空行)` -> 空行，用于提升代码结构可读性。
+- 456: `const res = await fetch(\`${API_BASE_URL}/api/orders\`, {` -> 声明变量或常量，保存运行时数据。
+- 457: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 458: `headers: { Authorization: \`Bearer ${token}\`, 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 459: `body: JSON.stringify(orderPayload),` -> 执行当前语句，参与该文件整体逻辑。
+- 460: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 461: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 462: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 463: `throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 464: `}` -> 结束当前语句或代码块。
+- 465: `toast.success('订单提交成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 466: `router.push('/orders')` -> 执行当前语句，参与该文件整体逻辑。
+- 467: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 468: `toast.error(e?.message || '提交订单失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 469: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 470: `setOrdersSubmitting(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 471: `}` -> 结束当前语句或代码块。
+- 472: `}` -> 结束当前语句或代码块。
+- 473: `(空行)` -> 空行，用于提升代码结构可读性。
+- 474: `const onSubmitReview = async () => {` -> 声明变量或常量，保存运行时数据。
+- 475: `if (!product) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 476: `const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null` -> 声明变量或常量，保存运行时数据。
+- 477: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 478: `toast.error('请先登录后再评价')` -> 执行当前语句，参与该文件整体逻辑。
+- 479: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 480: `return` -> 返回结果或提前结束当前流程。
+- 481: `}` -> 结束当前语句或代码块。
+- 482: `const content = reviewFormContent.trim()` -> 声明变量或常量，保存运行时数据。
+- 483: `if (!content) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 484: `toast.error('请填写评价内容')` -> 执行当前语句，参与该文件整体逻辑。
+- 485: `return` -> 返回结果或提前结束当前流程。
+- 486: `}` -> 结束当前语句或代码块。
+- 487: `if (reviewFormRating < 1 || reviewFormRating > 5) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 488: `toast.error('请选择星级')` -> 执行当前语句，参与该文件整体逻辑。
+- 489: `return` -> 返回结果或提前结束当前流程。
+- 490: `}` -> 结束当前语句或代码块。
+- 491: `(空行)` -> 空行，用于提升代码结构可读性。
+- 492: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 493: `setSubmittingReview(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 494: `const payload = {` -> 声明变量或常量，保存运行时数据。
+- 495: `rating: reviewFormRating,` -> 执行当前语句，参与该文件整体逻辑。
+- 496: `content,` -> 执行当前语句，参与该文件整体逻辑。
+- 497: `images: reviewFormImages,` -> 执行当前语句，参与该文件整体逻辑。
+- 498: `}` -> 结束当前语句或代码块。
+- 499: `const res = await fetch(\`${API_BASE_URL}/api/products/${product.id}/reviews\`, {` -> 声明变量或常量，保存运行时数据。
+- 500: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 501: `headers: { Authorization: \`Bearer ${token}\`, 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 502: `body: JSON.stringify(payload),` -> 执行当前语句，参与该文件整体逻辑。
+- 503: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 504: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 505: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 506: `throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 507: `}` -> 结束当前语句或代码块。
+- 508: `toast.success('评价发布成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 509: `setReviewFormContent('')` -> 执行当前语句，参与该文件整体逻辑。
+- 510: `setReviewFormImages([])` -> 执行当前语句，参与该文件整体逻辑。
+- 511: `setReviewFormRating(5)` -> 执行当前语句，参与该文件整体逻辑。
+- 512: `(空行)` -> 空行，用于提升代码结构可读性。
+- 513: `// 刷新评论` -> 注释行，用于解释设计意图或使用说明。
+- 514: `const refresh = await fetch(\`${API_BASE_URL}/api/products/${product.id}/reviews\`, { cache: 'no-store' })` -> 声明变量或常量，保存运行时数据。
+- 515: `const refreshData = await refresh.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 516: `const list = (refreshData?.reviews ?? refreshData?.items ?? refreshData?.data ?? []) as ProductReview[]` -> 声明变量或常量，保存运行时数据。
+- 517: `setReviews(Array.isArray(list) ? list : [])` -> 执行当前语句，参与该文件整体逻辑。
+- 518: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 519: `toast.error(e?.message || '发布评价失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 520: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 521: `setSubmittingReview(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 522: `}` -> 结束当前语句或代码块。
+- 523: `}` -> 结束当前语句或代码块。
+- 524: `(空行)` -> 空行，用于提升代码结构可读性。
+- 525: `const onPickReviewImages = async (files: FileList | null) => {` -> 声明变量或常量，保存运行时数据。
+- 526: `if (!files || files.length === 0) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 527: `const max = 3` -> 声明变量或常量，保存运行时数据。
+- 528: `const slice = Array.from(files).slice(0, max)` -> 声明变量或常量，保存运行时数据。
+- 529: `const list: string[] = []` -> 声明变量或常量，保存运行时数据。
+- 530: `for (const f of slice) {` -> 循环处理集合或重复执行逻辑。
+- 531: `const asDataUrl = await new Promise<string>((resolve, reject) => {` -> 声明变量或常量，保存运行时数据。
+- 532: `const reader = new FileReader()` -> 声明变量或常量，保存运行时数据。
+- 533: `reader.onload = () => resolve(String(reader.result))` -> 执行当前语句，参与该文件整体逻辑。
+- 534: `reader.onerror = reject` -> 执行当前语句，参与该文件整体逻辑。
+- 535: `reader.readAsDataURL(f)` -> 执行当前语句，参与该文件整体逻辑。
+- 536: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 537: `list.push(asDataUrl)` -> 执行当前语句，参与该文件整体逻辑。
+- 538: `}` -> 结束当前语句或代码块。
+- 539: `setReviewFormImages(list)` -> 执行当前语句，参与该文件整体逻辑。
+- 540: `}` -> 结束当前语句或代码块。
+- 541: `(空行)` -> 空行，用于提升代码结构可读性。
+- 542: `const typeBadge = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 543: `const m: Record<Product['type'], { label: string; icon: JSX.Element }> = {` -> 声明变量或常量，保存运行时数据。
+- 544: `flight: { label: '机票', icon: <span className="text-base">✈️</span> },` -> 执行当前语句，参与该文件整体逻辑。
+- 545: `hotel: { label: '酒店', icon: <span className="text-base">🏨</span> },` -> 执行当前语句，参与该文件整体逻辑。
+- 546: `ticket: { label: '门票', icon: <span className="text-base">🎫</span> },` -> 执行当前语句，参与该文件整体逻辑。
+- 547: `experience: { label: '当地体验', icon: <span className="text-base">🎭</span> },` -> 执行当前语句，参与该文件整体逻辑。
+- 548: `}` -> 结束当前语句或代码块。
+- 549: `return m[product?.type as Product['type']] ?? { label: '产品', icon: <span className="text-base">📍</span> }` -> 返回结果或提前结束当前流程。
+- 550: `}, [product?.type])` -> 执行当前语句，参与该文件整体逻辑。
+- 551: `(空行)` -> 空行，用于提升代码结构可读性。
+- 552: `const maxQty = product?.inventory && product.inventory > 0 ? product.inventory : 1` -> 声明变量或常量，保存运行时数据。
+- 553: `(空行)` -> 空行，用于提升代码结构可读性。
+- 554: `return (` -> 返回结果或提前结束当前流程。
+- 555: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 556: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 557: `<main className="pt-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 558: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 559: `{loadingProduct ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 560: `<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 561: `<div className="lg:col-span-2 rounded-3xl bg-card/70 border border-border/60 animate-pulse h-[420px]" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 562: `<div className="lg:col-span-1 rounded-3xl bg-card/70 border border-border/60 animate-pulse h-[420px]" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 563: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 564: `) : productError ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 565: `<div className="card p-6 border-red-200 bg-red-50 text-red-700 rounded-2xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 566: `<div className="font-semibold text-lg">加载失败</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 567: `<div className="text-sm opacity-90 mt-2">{productError}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 568: `<div className="mt-4 flex gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 569: `<button className="btn btn-outline" onClick={() => window.location.reload()} type="button">` -> JSX/HTML 结构行，用于描述页面元素。
+- 570: `重试` -> 执行当前语句，参与该文件整体逻辑。
+- 571: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 572: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 573: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 574: `) : product ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 575: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 576: `{/* 返回按钮 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 577: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 578: `onClick={() => router.back()}` -> 执行当前语句，参与该文件整体逻辑。
+- 579: `className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 580: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 581: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 582: `<ChevronLeft className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 583: `返回` -> 执行当前语句，参与该文件整体逻辑。
+- 584: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 585: `<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 586: `{/* Left / Main */}` -> 执行当前语句，参与该文件整体逻辑。
+- 587: `<div className="lg:col-span-2 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 588: `{/* Gallery */}` -> 执行当前语句，参与该文件整体逻辑。
+- 589: `<section className="rounded-3xl bg-card/70 border border-border/60 shadow-sm overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 590: `<div className="p-4 sm:p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 591: `<div className="flex items-start justify-between gap-4 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 592: `<div className="flex items-center gap-3 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 593: `<div className="h-11 w-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 594: `{typeBadge.icon}` -> 执行当前语句，参与该文件整体逻辑。
+- 595: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 596: `<div className="min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 597: `<h1 className="text-xl sm:text-2xl font-extrabold truncate">{product.name}</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 598: `<div className="mt-1 flex items-center gap-3 text-muted-foreground text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 599: `{shouldShowRating(product.rating) ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 600: `<div className="inline-flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 601: `<Star className="h-4 w-4 text-amber-500 fill-amber-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 602: `<span className="font-semibold text-foreground">{formatRating(product.rating)}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 603: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 604: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 605: `{Number(product.review_count ?? 0) > 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 606: `<span>({Number(product.review_count ?? 0).toLocaleString()} 条评论)</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 607: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 608: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 609: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 610: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 611: `(空行)` -> 空行，用于提升代码结构可读性。
+- 612: `<div className="text-right">` -> JSX/HTML 结构行，用于描述页面元素。
+- 613: `<div className="text-2xl sm:text-3xl font-extrabold text-primary">` -> JSX/HTML 结构行，用于描述页面元素。
+- 614: `{formatPrice(product.price)}起` -> 执行当前语句，参与该文件整体逻辑。
+- 615: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 616: `{product.original_price && product.original_price > product.price ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 617: `<div className="text-sm text-muted-foreground line-through">` -> JSX/HTML 结构行，用于描述页面元素。
+- 618: `{formatPrice(product.original_price)}` -> 执行当前语句，参与该文件整体逻辑。
+- 619: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 620: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 621: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 622: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 623: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 624: `(空行)` -> 空行，用于提升代码结构可读性。
+- 625: `<div className="px-4 sm:px-5 pb-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 626: `<div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-muted-foreground/10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 627: `{/* eslint-disable-next-line @next/next/no-img-element */}` -> 执行当前语句，参与该文件整体逻辑。
+- 628: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 629: `src={safeMediaSrc(galleryImages[galleryIndex])}` -> 执行当前语句，参与该文件整体逻辑。
+- 630: `alt={product.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 631: `className="absolute inset-0 h-full w-full object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 632: `onError={onImgErrorUseFallback}` -> 执行当前语句，参与该文件整体逻辑。
+- 633: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 634: `<div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 635: `(空行)` -> 空行，用于提升代码结构可读性。
+- 636: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 637: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 638: `className="absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 hover:bg-black/55 text-white flex items-center justify-center"` -> 执行当前语句，参与该文件整体逻辑。
+- 639: `aria-label="上一张"` -> 执行当前语句，参与该文件整体逻辑。
+- 640: `onClick={() => setGalleryIndex((i) => Math.max(0, i - 1))}` -> 执行当前语句，参与该文件整体逻辑。
+- 641: `disabled={galleryIndex <= 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 642: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 643: `<ChevronLeft className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 644: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 645: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 646: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 647: `className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 hover:bg-black/55 text-white flex items-center justify-center"` -> 执行当前语句，参与该文件整体逻辑。
+- 648: `aria-label="下一张"` -> 执行当前语句，参与该文件整体逻辑。
+- 649: `onClick={() => setGalleryIndex((i) => Math.min(galleryImages.length - 1, i + 1))}` -> 执行当前语句，参与该文件整体逻辑。
+- 650: `disabled={galleryIndex >= galleryImages.length - 1}` -> 执行当前语句，参与该文件整体逻辑。
+- 651: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 652: `<ChevronRight className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 653: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 654: `(空行)` -> 空行，用于提升代码结构可读性。
+- 655: `<div className="absolute left-4 bottom-4 flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 656: `<span className="inline-flex items-center gap-1 rounded-full bg-white/15 border border-white/20 text-white/95 backdrop-blur px-3 py-1.5 text-xs font-semibold">` -> JSX/HTML 结构行，用于描述页面元素。
+- 657: `<ImageIcon className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 658: `{galleryIndex + 1}/{galleryImages.length}` -> 执行当前语句，参与该文件整体逻辑。
+- 659: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 660: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 661: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 662: `(空行)` -> 空行，用于提升代码结构可读性。
+- 663: `{galleryImages.length > 1 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 664: `<div className="mt-4 flex gap-3 overflow-x-auto pb-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 665: `{galleryImages.map((img, idx) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 666: `const active = idx === galleryIndex` -> 声明变量或常量，保存运行时数据。
+- 667: `return (` -> 返回结果或提前结束当前流程。
+- 668: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 669: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 670: `key={\`${idx}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 671: `className={\`shrink-0 rounded-xl overflow-hidden border transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 672: `active ? 'border-primary shadow-[0_0_0_3px_rgba(37,99,235,0.15)]' : 'border-border/70 hover:border-primary/40'` -> 执行当前语句，参与该文件整体逻辑。
+- 673: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 674: `onClick={() => setGalleryIndex(idx)}` -> 执行当前语句，参与该文件整体逻辑。
+- 675: `aria-label={\`查看第 ${idx + 1} 张图片\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 676: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 677: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 678: `src={safeMediaSrc(img)}` -> 执行当前语句，参与该文件整体逻辑。
+- 679: `alt={\`${product.name} ${idx + 1}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 680: `className={\`h-16 w-20 object-cover ${active ? 'opacity-100' : 'opacity-80'}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 681: `onError={onImgErrorUseFallback}` -> 执行当前语句，参与该文件整体逻辑。
+- 682: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 683: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 684: `)` -> 结束当前语句或代码块。
+- 685: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 686: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 687: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 688: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 689: `</section>` -> JSX/HTML 结构行，用于描述页面元素。
+- 690: `(空行)` -> 空行，用于提升代码结构可读性。
+- 691: `{/* Tabs */}` -> 执行当前语句，参与该文件整体逻辑。
+- 692: `<section className="mt-7 rounded-3xl border border-border/60 bg-card/70 backdrop-blur shadow-sm overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 693: `<div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border/60">` -> JSX/HTML 结构行，用于描述页面元素。
+- 694: `<div className="flex flex-wrap gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 695: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 696: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 697: `onClick={() => setTab('overview')}` -> 执行当前语句，参与该文件整体逻辑。
+- 698: `className={\`px-4 py-2 rounded-2xl text-sm font-semibold transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 699: `tab === 'overview' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-foreground hover:bg-card/60 border border-border/60'` -> 执行当前语句，参与该文件整体逻辑。
+- 700: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 701: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 702: `概述` -> 执行当前语句，参与该文件整体逻辑。
+- 703: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 704: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 705: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 706: `onClick={() => setTab('itinerary')}` -> 执行当前语句，参与该文件整体逻辑。
+- 707: `className={\`px-4 py-2 rounded-2xl text-sm font-semibold transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 708: `tab === 'itinerary' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-foreground hover:bg-card/60 border border-border/60'` -> 执行当前语句，参与该文件整体逻辑。
+- 709: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 710: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 711: `行程安排` -> 执行当前语句，参与该文件整体逻辑。
+- 712: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 713: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 714: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 715: `onClick={() => setTab('reviews')}` -> 执行当前语句，参与该文件整体逻辑。
+- 716: `className={\`px-4 py-2 rounded-2xl text-sm font-semibold transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 717: `tab === 'reviews' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-foreground hover:bg-card/60 border border-border/60'` -> 执行当前语句，参与该文件整体逻辑。
+- 718: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 719: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 720: `用户评价` -> 执行当前语句，参与该文件整体逻辑。
+- 721: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 722: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 723: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 724: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 725: `setTab('qa')` -> 执行当前语句，参与该文件整体逻辑。
+- 726: `loadQuestions()` -> 执行当前语句，参与该文件整体逻辑。
+- 727: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 728: `className={\`px-4 py-2 rounded-2xl text-sm font-semibold transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 729: `tab === 'qa' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-foreground hover:bg-card/60 border border-border/60'` -> 执行当前语句，参与该文件整体逻辑。
+- 730: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 731: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 732: `问答` -> 执行当前语句，参与该文件整体逻辑。
+- 733: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 734: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 735: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 736: `(空行)` -> 空行，用于提升代码结构可读性。
+- 737: `<div className="p-4 sm:p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 738: `{tab === 'overview' ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 739: `<div className="space-y-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 740: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 741: `<h2 className="text-lg font-extrabold">产品描述</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 742: `<p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 743: `{product.description || '暂无描述'}` -> 执行当前语句，参与该文件整体逻辑。
+- 744: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 745: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 746: `(空行)` -> 空行，用于提升代码结构可读性。
+- 747: `{product.tags?.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 748: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 749: `<h2 className="text-lg font-extrabold">标签</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 750: `<div className="mt-3 flex flex-wrap gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 751: `{product.tags.map((t) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 752: `<span key={t} className="px-3 py-1 rounded-full bg-primary/10 border border-primary/15 text-primary text-xs font-semibold">` -> JSX/HTML 结构行，用于描述页面元素。
+- 753: `{t}` -> 执行当前语句，参与该文件整体逻辑。
+- 754: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 755: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 756: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 757: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 758: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 759: `(空行)` -> 空行，用于提升代码结构可读性。
+- 760: `<div className="rounded-2xl border border-border/60 bg-card/50 p-4 sm:p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 761: `<div className="flex items-start justify-between gap-4 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 762: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 763: `<h2 className="text-lg font-extrabold">位置信息</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 764: `<p className="text-sm text-muted-foreground mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 765: `{product.location?.city ? \`${product.location.city} · \` : ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 766: `{product.location?.country || '地区未知'}` -> 执行当前语句，参与该文件整体逻辑。
+- 767: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 768: `{product.location?.address ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 769: `<p className="text-xs text-muted-foreground mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 770: `{product.location.address}` -> 执行当前语句，参与该文件整体逻辑。
+- 771: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 772: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 773: `{product.location?.coordinates ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 774: `<p className="text-xs text-muted-foreground mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 775: `坐标：{product.location.coordinates.lat.toFixed(4)}, {product.location.coordinates.lng.toFixed(4)}` -> 执行当前语句，参与该文件整体逻辑。
+- 776: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 777: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 778: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 779: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 780: `href={\`/destinations?city=${encodeURIComponent(product.location?.city || '')}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 781: `className="btn btn-outline rounded-xl px-4 py-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 782: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 783: `查看同城更多` -> 执行当前语句，参与该文件整体逻辑。
+- 784: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 785: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 786: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 787: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 788: `) : tab === 'itinerary' ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 789: `<div className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 790: `<h2 className="text-lg font-extrabold">行程安排</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 791: `{(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 792: `const items: { title: string; desc?: string }[] = []` -> 声明变量或常量，保存运行时数据。
+- 793: `const meta = product.metadata || ({} as any)` -> 声明变量或常量，保存运行时数据。
+- 794: `const dest = product.destination` -> 声明变量或常量，保存运行时数据。
+- 795: `switch (product.type) {` -> 执行当前语句，参与该文件整体逻辑。
+- 796: `case 'flight':` -> 执行当前语句，参与该文件整体逻辑。
+- 797: `items.push(` -> 执行当前语句，参与该文件整体逻辑。
+- 798: `{ title: '航班信息', desc: product.name || meta.airline || '航班' },` -> 执行当前语句，参与该文件整体逻辑。
+- 799: `{ title: '详情', desc: product.description || meta.flight_number || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 800: `...(meta.departure_time ? [{ title: '出发', desc: \`${meta.departure_time} · ${meta.departure_airport || '-'}\` }] : []),` -> 执行当前语句，参与该文件整体逻辑。
+- 801: `...(meta.arrival_time ? [{ title: '到达', desc: \`${meta.arrival_time} · ${meta.arrival_airport || '-'}\` }] : []),` -> 执行当前语句，参与该文件整体逻辑。
+- 802: `...(meta.duration ? [{ title: '飞行时长', desc: meta.duration }] : []),` -> 执行当前语句，参与该文件整体逻辑。
+- 803: `)` -> 结束当前语句或代码块。
+- 804: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 805: `case 'hotel':` -> 执行当前语句，参与该文件整体逻辑。
+- 806: `items.push(` -> 执行当前语句，参与该文件整体逻辑。
+- 807: `{ title: '酒店名称', desc: product.name || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 808: `{ title: '入住/离店', desc: \`${meta.check_in_time || '14:00'} / ${meta.check_out_time || '12:00'}\` },` -> 执行当前语句，参与该文件整体逻辑。
+- 809: `{ title: '房型介绍', desc: product.description || meta.room_type || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 810: `...(meta.amenities?.slice(0, 3).map((a: string) => ({ title: '亮点服务', desc: a })) || []),` -> 执行当前语句，参与该文件整体逻辑。
+- 811: `)` -> 结束当前语句或代码块。
+- 812: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 813: `case 'ticket':` -> 执行当前语句，参与该文件整体逻辑。
+- 814: `items.push(` -> 执行当前语句，参与该文件整体逻辑。
+- 815: `{ title: '景点', desc: dest?.name || product.name || meta.attraction_name || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 816: `{ title: '开放时间', desc: dest?.open_time || meta.opening_hours || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 817: `{ title: '所在城市', desc: dest?.city || product.location?.city || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 818: `...(dest?.ticket_price ? [{ title: '官方票价', desc: \`¥${dest.ticket_price}\` }] : []),` -> 执行当前语句，参与该文件整体逻辑。
+- 819: `...(meta.valid_days ? [{ title: '有效天数', desc: \`${meta.valid_days} 天\` }] : []),` -> 执行当前语句，参与该文件整体逻辑。
+- 820: `)` -> 结束当前语句或代码块。
+- 821: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 822: `case 'experience':` -> 执行当前语句，参与该文件整体逻辑。
+- 823: `items.push(` -> 执行当前语句，参与该文件整体逻辑。
+- 824: `{ title: '体验项目', desc: product.name || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 825: `...(meta.experience_duration ? [{ title: '体验时长', desc: meta.experience_duration }] : []),` -> 执行当前语句，参与该文件整体逻辑。
+- 826: `{ title: '难度', desc: meta.difficulty || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 827: `{ title: '项目介绍', desc: product.description || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 828: `...(meta.includes?.slice(0, 5).map((x: string) => ({ title: '包含内容', desc: x })) || []),` -> 执行当前语句，参与该文件整体逻辑。
+- 829: `)` -> 结束当前语句或代码块。
+- 830: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 831: `default:` -> 执行当前语句，参与该文件整体逻辑。
+- 832: `items.push(` -> 执行当前语句，参与该文件整体逻辑。
+- 833: `{ title: '项目', desc: product.name || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 834: `{ title: '详情', desc: product.description || '—' },` -> 执行当前语句，参与该文件整体逻辑。
+- 835: `)` -> 结束当前语句或代码块。
+- 836: `}` -> 结束当前语句或代码块。
+- 837: `const unique = Array.from(new Map(items.map((i) => [i.title, i])).values())` -> 声明变量或常量，保存运行时数据。
+- 838: `return (` -> 返回结果或提前结束当前流程。
+- 839: `<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 840: `{unique.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 841: `unique.map((it) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 842: `<div key={it.title} className="rounded-2xl border border-border/60 bg-card/50 p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 843: `<div className="font-extrabold text-foreground">{it.title}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 844: `<div className="text-sm text-muted-foreground mt-2 leading-relaxed">{it.desc || '—'}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 845: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 846: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 847: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 848: `<div className="text-sm text-muted-foreground p-4 border border-dashed rounded-2xl">暂无行程安排信息</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 849: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 850: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 851: `)` -> 结束当前语句或代码块。
+- 852: `})()}` -> 执行当前语句，参与该文件整体逻辑。
+- 853: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 854: `) : tab === 'reviews' ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 855: `<div className="space-y-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 856: `{/* Write review */}` -> 执行当前语句，参与该文件整体逻辑。
+- 857: `<div className="rounded-2xl border border-border/60 bg-card/50 p-4 sm:p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 858: `<div className="flex items-start justify-between gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 859: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 860: `<h2 className="text-lg font-extrabold">写评价</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 861: `<p className="text-sm text-muted-foreground mt-1">星级 + 文字 +（可选）图片</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 862: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 863: `<div className="text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 864: `当前星级：<span className="font-semibold text-foreground">{reviewFormRating} / 5</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 865: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 866: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 867: `(空行)` -> 空行，用于提升代码结构可读性。
+- 868: `<div className="mt-4 flex items-center gap-4 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 869: `<StarsPicker value={reviewFormRating} onChange={setReviewFormRating} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 870: `<div className="text-xs text-muted-foreground">提示：真实、具体的文字更有帮助</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 871: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 872: `(空行)` -> 空行，用于提升代码结构可读性。
+- 873: `<div className="mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 874: `<textarea` -> 执行当前语句，参与该文件整体逻辑。
+- 875: `value={reviewFormContent}` -> 执行当前语句，参与该文件整体逻辑。
+- 876: `onChange={(e) => setReviewFormContent(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 877: `placeholder="告诉大家你的真实体验吧：交通、服务、体验感、性价比……"` -> 执行当前语句，参与该文件整体逻辑。
+- 878: `className="w-full min-h-[110px] rounded-2xl border border-border/60 bg-transparent p-4 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"` -> 执行当前语句，参与该文件整体逻辑。
+- 879: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 880: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 881: `(空行)` -> 空行，用于提升代码结构可读性。
+- 882: `<div className="mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 883: `<div className="text-sm font-semibold">图片（最多 3 张）</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 884: `<div className="mt-2 flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 885: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 886: `type="file"` -> 执行当前语句，参与该文件整体逻辑。
+- 887: `accept="image/*"` -> 执行当前语句，参与该文件整体逻辑。
+- 888: `multiple` -> 执行当前语句，参与该文件整体逻辑。
+- 889: `onChange={(e) => onPickReviewImages(e.target.files)}` -> 执行当前语句，参与该文件整体逻辑。
+- 890: `className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-full file:border file:border-border/60 file:bg-card/50 file:px-4 file:py-2 file:text-foreground"` -> 执行当前语句，参与该文件整体逻辑。
+- 891: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 892: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 893: `{reviewFormImages.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 894: `<div className="mt-3 flex gap-3 overflow-x-auto pb-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 895: `{reviewFormImages.map((img, idx) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 896: `<div key={idx} className="rounded-xl overflow-hidden border border-border/60">` -> JSX/HTML 结构行，用于描述页面元素。
+- 897: `{/* eslint-disable-next-line @next/next/no-img-element */}` -> 执行当前语句，参与该文件整体逻辑。
+- 898: `<img src={img} alt={\`review-${idx}\`} className="h-16 w-16 object-cover" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 899: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 900: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 901: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 902: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 903: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 904: `(空行)` -> 空行，用于提升代码结构可读性。
+- 905: `<div className="mt-5 flex gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 906: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 907: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 908: `onClick={onSubmitReview}` -> 执行当前语句，参与该文件整体逻辑。
+- 909: `disabled={submittingReview}` -> 执行当前语句，参与该文件整体逻辑。
+- 910: `className="travel-btn-gradient px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"` -> 执行当前语句，参与该文件整体逻辑。
+- 911: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 912: `{submittingReview ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 913: `<span className="inline-flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 914: `<Loader2 className="h-4 w-4 animate-spin" /> 发布中…` -> 执行当前语句，参与该文件整体逻辑。
+- 915: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 916: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 917: `'发布评价'` -> 执行当前语句，参与该文件整体逻辑。
+- 918: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 919: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 920: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 921: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 922: `disabled={submittingReview}` -> 执行当前语句，参与该文件整体逻辑。
+- 923: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 924: `setReviewFormRating(5)` -> 执行当前语句，参与该文件整体逻辑。
+- 925: `setReviewFormContent('')` -> 执行当前语句，参与该文件整体逻辑。
+- 926: `setReviewFormImages([])` -> 执行当前语句，参与该文件整体逻辑。
+- 927: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 928: `className="btn btn-outline rounded-2xl px-4 py-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 929: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 930: `清空` -> 执行当前语句，参与该文件整体逻辑。
+- 931: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 932: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 933: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 934: `(空行)` -> 空行，用于提升代码结构可读性。
+- 935: `{/* Reviews list */}` -> 执行当前语句，参与该文件整体逻辑。
+- 936: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 937: `<div className="flex items-center justify-between gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 938: `<h2 className="text-lg font-extrabold">用户评价</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 939: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 940: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 941: `className="btn btn-outline rounded-xl px-4 py-2 inline-flex items-center gap-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 942: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 943: `setTab('reviews')` -> 执行当前语句，参与该文件整体逻辑。
+- 944: `// 轻刷新：重新触发 useEffect` -> 注释行，用于解释设计意图或使用说明。
+- 945: `if (productId) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 946: `// eslint-disable-next-line @typescript-eslint/no-floating-promises` -> 注释行，用于解释设计意图或使用说明。
+- 947: `fetch(\`${API_BASE_URL}/api/products/${productId}/reviews\`, { cache: 'no-store' })` -> 执行当前语句，参与该文件整体逻辑。
+- 948: `.then((r) => r.json().catch(() => ({})))` -> 执行当前语句，参与该文件整体逻辑。
+- 949: `.then((data) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 950: `// API 返回结构: { success, result: { reviews } }` -> 注释行，用于解释设计意图或使用说明。
+- 951: `const list = (data?.result?.reviews ?? data?.reviews ?? data?.items ?? data?.data ?? []) as ProductReview[]` -> 声明变量或常量，保存运行时数据。
+- 952: `setReviews(Array.isArray(list) ? list : [])` -> 执行当前语句，参与该文件整体逻辑。
+- 953: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 954: `.catch(() => toast.error('刷新失败'))` -> 执行当前语句，参与该文件整体逻辑。
+- 955: `}` -> 结束当前语句或代码块。
+- 956: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 957: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 958: `刷新` -> 执行当前语句，参与该文件整体逻辑。
+- 959: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 960: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 961: `<p className="text-sm text-muted-foreground mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 962: `{loadingReviews ? '加载中…' : \`共 ${reviews.length} 条\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 963: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 964: `(空行)` -> 空行，用于提升代码结构可读性。
+- 965: `<div className="mt-4 space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 966: `{loadingReviews ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 967: `Array.from({ length: 4 }).map((_, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 968: `<div key={i} className="rounded-2xl border border-border/60 bg-card/50 p-4 animate-pulse">` -> JSX/HTML 结构行，用于描述页面元素。
+- 969: `<div className="h-4 bg-muted-foreground/10 rounded w-2/5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 970: `<div className="mt-2 h-3 bg-muted-foreground/10 rounded w-3/5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 971: `<div className="mt-3 h-4 bg-muted-foreground/10 rounded w-full" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 972: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 973: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 974: `) : reviews.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 975: `reviews.map((r, idx) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 976: `<div key={r.id ?? idx} className="rounded-2xl border border-border/60 bg-card/50 p-4 sm:p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 977: `<div className="flex items-start justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 978: `<div className="flex items-center gap-3 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 979: `{r.user?.avatar_url ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 980: `// eslint-disable-next-line @next/next/no-img-element` -> 注释行，用于解释设计意图或使用说明。
+- 981: `<img src={safeMediaSrc(r.user.avatar_url)} alt={r.user?.nickname || 'user'} className="h-10 w-10 rounded-full object-cover" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 982: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 983: `<div className="h-10 w-10 rounded-full bg-primary/10 border border-border/60 flex items-center justify-center text-primary">` -> JSX/HTML 结构行，用于描述页面元素。
+- 984: `<User className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 985: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 986: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 987: `<div className="min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 988: `<div className="font-extrabold truncate">{r.user?.nickname || '匿名用户'}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 989: `<div className="text-xs text-muted-foreground mt-0.5">{formatDateZh(r.created_at)}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 990: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 991: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 992: `{shouldShowRating(r.rating) ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 993: `<div className="inline-flex items-center gap-1 text-sm text-amber-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 994: `<Star className="h-4 w-4 fill-amber-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 995: `<span className="font-semibold">{formatRating(r.rating)}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 996: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 997: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 998: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 999: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1000: `<div className="mt-3 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1001: `{r.content || ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 1002: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1003: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1004: `{Array.isArray(r.images) && r.images.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1005: `<div className="mt-3 flex gap-3 overflow-x-auto pb-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1006: `{r.images.slice(0, 6).map((img, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 1007: `<div key={i} className="rounded-xl overflow-hidden border border-border/60">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1008: `{/* eslint-disable-next-line @next/next/no-img-element */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1009: `<img src={safeMediaSrc(img)} alt="review-img" className="h-16 w-16 object-cover" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1010: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1011: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 1012: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1013: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 1014: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1015: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 1016: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 1017: `<div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1018: `暂无用户评价` -> 执行当前语句，参与该文件整体逻辑。
+- 1019: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1020: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1021: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1022: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1023: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1024: `) : tab === 'qa' ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1025: `<div className="space-y-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1026: `{/* 提问表单 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1027: `<div className="rounded-2xl border border-border/60 bg-card/50 p-4 sm:p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1028: `<div className="flex items-start justify-between gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1029: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1030: `<h2 className="text-lg font-extrabold">提问</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1031: `<p className="text-sm text-muted-foreground mt-1">关于这个产品的任何疑问都可以问</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1032: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1033: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1034: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1035: `<div className="mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1036: `<textarea` -> 执行当前语句，参与该文件整体逻辑。
+- 1037: `value={questionFormContent}` -> 执行当前语句，参与该文件整体逻辑。
+- 1038: `onChange={(e) => setQuestionFormContent(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1039: `placeholder="例如：这个门票包含哪些项目？需要提前预约吗？"` -> 执行当前语句，参与该文件整体逻辑。
+- 1040: `className="w-full min-h-[100px] rounded-2xl border border-border/60 bg-transparent p-4 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"` -> 执行当前语句，参与该文件整体逻辑。
+- 1041: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 1042: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1043: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1044: `<div className="mt-4 flex gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1045: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1046: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1047: `onClick={onSubmitQuestion}` -> 执行当前语句，参与该文件整体逻辑。
+- 1048: `disabled={submittingQuestion || !questionFormContent.trim()}` -> 执行当前语句，参与该文件整体逻辑。
+- 1049: `className="travel-btn-gradient px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"` -> 执行当前语句，参与该文件整体逻辑。
+- 1050: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1051: `{submittingQuestion ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1052: `<span className="inline-flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1053: `<Loader2 className="h-4 w-4 animate-spin" /> 提交中…` -> 执行当前语句，参与该文件整体逻辑。
+- 1054: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1055: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 1056: `'提交问题'` -> 执行当前语句，参与该文件整体逻辑。
+- 1057: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1058: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1059: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1060: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1061: `disabled={submittingQuestion}` -> 执行当前语句，参与该文件整体逻辑。
+- 1062: `onClick={() => setQuestionFormContent('')}` -> 执行当前语句，参与该文件整体逻辑。
+- 1063: `className="btn btn-outline rounded-2xl px-4 py-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 1064: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1065: `清空` -> 执行当前语句，参与该文件整体逻辑。
+- 1066: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1067: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1068: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1069: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1070: `{/* 问答列表 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1071: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1072: `<div className="flex items-center justify-between gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1073: `<h2 className="text-lg font-extrabold">问答列表</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1074: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1075: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1076: `className="btn btn-outline rounded-xl px-4 py-2 inline-flex items-center gap-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 1077: `onClick={loadQuestions}` -> 执行当前语句，参与该文件整体逻辑。
+- 1078: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1079: `刷新` -> 执行当前语句，参与该文件整体逻辑。
+- 1080: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1081: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1082: `<p className="text-sm text-muted-foreground mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1083: `{loadingQuestions ? '加载中…' : \`共 ${questions.length} 条问答\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 1084: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1085: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1086: `<div className="mt-4 space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1087: `{loadingQuestions ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1088: `Array.from({ length: 3 }).map((_, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 1089: `<div key={i} className="rounded-2xl border border-border/60 bg-card/50 p-4 animate-pulse">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1090: `<div className="h-4 bg-muted-foreground/10 rounded w-2/5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1091: `<div className="mt-2 h-3 bg-muted-foreground/10 rounded w-3/5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1092: `<div className="mt-3 h-4 bg-muted-foreground/10 rounded w-full" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1093: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1094: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 1095: `) : questions.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1096: `questions.map((q: any, idx: number) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 1097: `<div key={q.id ?? idx} className="rounded-2xl border border-border/60 bg-card/50 p-4 sm:p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1098: `{/* 问题部分 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1099: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1100: `<div className="h-8 w-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1101: `<span className="text-xs font-bold">Q</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1102: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1103: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1104: `<div className="flex items-center gap-2 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1105: `<span className="font-semibold text-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1106: `{q.author?.nickname || '匿名用户'}` -> 执行当前语句，参与该文件整体逻辑。
+- 1107: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1108: `<span className="text-xs text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1109: `{formatDateZh(q.created_at)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1110: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1111: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1112: `<div className="mt-1 text-sm text-foreground leading-relaxed">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1113: `{q.question}` -> 执行当前语句，参与该文件整体逻辑。
+- 1114: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1115: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1116: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1117: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1118: `{/* 回答部分 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1119: `{q.answer ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1120: `<div className="mt-4 pl-11">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1121: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1122: `<div className="h-8 w-8 rounded-full bg-green-100 border border-green-200 flex items-center justify-center text-green-600 shrink-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1123: `<span className="text-xs font-bold">A</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1124: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1125: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1126: `<div className="flex items-center gap-2 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1127: `<span className="font-semibold text-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1128: `{q.responder?.nickname || '官方回复'}` -> 执行当前语句，参与该文件整体逻辑。
+- 1129: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1130: `<span className="text-xs text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1131: `{formatDateZh(q.answered_at)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1132: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1133: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1134: `<div className="mt-1 text-sm text-muted-foreground leading-relaxed">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1135: `{q.answer}` -> 执行当前语句，参与该文件整体逻辑。
+- 1136: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1137: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1138: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1139: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1140: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 1141: `<div className="mt-4 pl-11">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1142: `<div className="flex items-center gap-2 text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1143: `<Loader2 className="h-4 w-4 animate-spin" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1144: `<span>等待回复中...</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1145: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1146: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1147: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1148: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1149: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 1150: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 1151: `<div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 text-sm text-muted-foreground text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1152: `<div className="mx-auto w-fit rounded-full bg-blue-100 p-3 text-blue-600 mb-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1153: `<MessageCircle className="h-6 w-6" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1154: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1155: `<div className="font-medium">暂无问答</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1156: `<div className="mt-1">成为第一个提问的人吧！</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1157: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1158: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1159: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1160: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1161: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1162: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 1163: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1164: `</section>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1165: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1166: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1167: `{/* Right floating booking sidebar */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1168: `<aside className="lg:col-span-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1169: `<div className="lg:sticky lg:top-[88px]">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1170: `<div className="rounded-3xl border border-border/60 bg-card/70 backdrop-blur shadow-sm p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1171: `<div className="flex items-center justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1172: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1173: `<div className="text-lg font-extrabold">预订</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1174: `<div className="text-sm text-muted-foreground mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1175: `{product.inventory === 0 ? '已售罄' : product.type === 'hotel' ? '选择入住日期' : '选择出行日期'}` -> 执行当前语句，参与该文件整体逻辑。
+- 1176: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1177: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1178: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1179: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1180: `onClick={onToggleFavorite}` -> 执行当前语句，参与该文件整体逻辑。
+- 1181: `disabled={favoritesLoading}` -> 执行当前语句，参与该文件整体逻辑。
+- 1182: `className={\`h-11 w-11 rounded-2xl border inline-flex items-center justify-center transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 1183: `isFavorited ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-transparent border-border/70 text-foreground hover:bg-card/60'` -> 执行当前语句，参与该文件整体逻辑。
+- 1184: `} disabled:opacity-60\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 1185: `aria-label="加入收藏"` -> 执行当前语句，参与该文件整体逻辑。
+- 1186: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1187: `<Heart className={\`h-5 w-5 ${isFavorited ? 'fill-rose-500 text-rose-500' : ''}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1188: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1189: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1190: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1191: `<div className="mt-5 space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1192: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1193: `<div className="text-sm font-semibold mb-2">选择日期</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1194: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1195: `<CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1196: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 1197: `type="date"` -> 执行当前语句，参与该文件整体逻辑。
+- 1198: `value={selectedDate}` -> 执行当前语句，参与该文件整体逻辑。
+- 1199: `onChange={(e) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 1200: `setSelectedDate(e.target.value)` -> 执行当前语句，参与该文件整体逻辑。
+- 1201: `setSelectedTimeSlot('')` -> 执行当前语句，参与该文件整体逻辑。
+- 1202: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 1203: `className="input pl-10"` -> 执行当前语句，参与该文件整体逻辑。
+- 1204: `disabled={product.inventory === 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 1205: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 1206: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1207: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1208: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1209: `{/* 分时预约 - 时间段选择 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1210: `{loadingTimeSlots ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1211: `<div className="rounded-2xl border border-border/60 bg-card/50 p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1212: `<div className="text-sm font-semibold mb-3">选择时段</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1213: `<div className="flex items-center gap-2 text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1214: `<Loader2 className="h-4 w-4 animate-spin" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1215: `加载可用时段...` -> 执行当前语句，参与该文件整体逻辑。
+- 1216: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1217: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1218: `) : timeSlots.length > 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1219: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1220: `<div className="text-sm font-semibold mb-2">选择时段</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1221: `<div className="grid grid-cols-2 gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1222: `{timeSlots.map((slot) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 1223: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1224: `key={slot.time}` -> 执行当前语句，参与该文件整体逻辑。
+- 1225: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1226: `onClick={() => setSelectedTimeSlot(slot.time)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1227: `disabled={slot.available <= 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 1228: `className={\`rounded-xl border px-3 py-2 text-sm transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 1229: `selectedTimeSlot === slot.time` -> 执行当前语句，参与该文件整体逻辑。
+- 1230: `? 'border-primary bg-primary/10 text-primary'` -> 执行当前语句，参与该文件整体逻辑。
+- 1231: `: slot.available <= 0` -> 执行当前语句，参与该文件整体逻辑。
+- 1232: `? 'border-border/40 bg-muted/50 text-muted-foreground cursor-not-allowed'` -> 执行当前语句，参与该文件整体逻辑。
+- 1233: `: 'border-border/60 bg-card/50 hover:bg-card hover:border-primary/30'` -> 执行当前语句，参与该文件整体逻辑。
+- 1234: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 1235: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1236: `<div className="font-medium">{slot.time}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1237: `<div className={\`text-xs mt-0.5 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 1238: `slot.available <= 10 ? 'text-orange-500' : 'text-muted-foreground'` -> 执行当前语句，参与该文件整体逻辑。
+- 1239: `}\`}>` -> 执行当前语句，参与该文件整体逻辑。
+- 1240: `{slot.available <= 0 ? '已售罄' : \`剩余 ${slot.available} 张\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 1241: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1242: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1243: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 1244: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1245: `{selectedTimeSlot && (` -> 执行当前语句，参与该文件整体逻辑。
+- 1246: `<p className="text-xs text-muted-foreground mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1247: `已选择: {selectedTimeSlot}` -> 执行当前语句，参与该文件整体逻辑。
+- 1248: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1249: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1250: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1251: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 1252: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1253: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1254: `<div className="text-sm font-semibold mb-2">数量</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1255: `<div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-card/50 px-3 py-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1256: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1257: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1258: `className="h-10 w-10 rounded-xl border border-border/60 bg-card/50 hover:bg-card transition flex items-center justify-center disabled:opacity-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 1259: `disabled={quantity <= 1 || product.inventory === 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 1260: `onClick={() => setQuantity((q) => Math.max(1, q - 1))}` -> 执行当前语句，参与该文件整体逻辑。
+- 1261: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1262: `<Minus className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1263: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1264: `<div className="text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1265: `<div className="text-sm text-muted-foreground">购买数量</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1266: `<div className="text-xl font-extrabold tabular-nums">{quantity}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1267: `<div className="text-xs text-muted-foreground mt-0.5">库存上限：{maxQty}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1268: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1269: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1270: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1271: `className="h-10 w-10 rounded-xl border border-border/60 bg-card/50 hover:bg-card transition flex items-center justify-center disabled:opacity-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 1272: `disabled={quantity >= maxQty || product.inventory === 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 1273: `onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}` -> 执行当前语句，参与该文件整体逻辑。
+- 1274: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1275: `<Plus className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1276: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1277: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1278: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1279: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1280: `<div className="rounded-2xl border border-border/60 bg-card/50 p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1281: `<div className="flex items-center justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1282: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1283: `<div className="text-sm text-muted-foreground">单价</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1284: `<div className="font-extrabold text-foreground mt-1">{formatPrice(unitPrice)}起</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1285: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1286: `<div className="text-right">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1287: `<div className="text-sm text-muted-foreground">合计</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1288: `<div className="text-2xl font-extrabold text-primary mt-1 tabular-nums">{formatPrice(totalPrice)}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1289: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1290: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1291: `<div className="mt-2 text-xs text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1292: `价格为预估（以订单创建为准）。你可在评价里补充出行体验。` -> 执行当前语句，参与该文件整体逻辑。
+- 1293: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1294: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1295: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1296: `<div className="flex gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1297: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 1298: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 1299: `onClick={onCheckout}` -> 执行当前语句，参与该文件整体逻辑。
+- 1300: `disabled={ordersSubmitting || product.inventory === 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 1301: `className="travel-btn-gradient px-5 py-3 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl w-full"` -> 执行当前语句，参与该文件整体逻辑。
+- 1302: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 1303: `{ordersSubmitting ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1304: `<span className="inline-flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1305: `<Loader2 className="h-4 w-4 animate-spin" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1306: `提交中…` -> 执行当前语句，参与该文件整体逻辑。
+- 1307: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1308: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 1309: `'立即预订'` -> 执行当前语句，参与该文件整体逻辑。
+- 1310: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1311: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1312: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1313: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1314: `<div className="text-xs text-muted-foreground leading-relaxed">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1315: `点击“立即预订”将调用 \`POST /api/orders\` 创建订单（不包含真实支付）。` -> 执行当前语句，参与该文件整体逻辑。
+- 1316: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1317: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1318: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1319: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1320: `</aside>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1321: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1322: `{/* Bottom: related products */}` -> 执行当前语句，参与该文件整体逻辑。
+- 1323: `<div className="lg:col-span-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1324: `<section className="mt-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1325: `<div className="flex items-end justify-between gap-4 mb-5 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1326: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1327: `<h2 className="text-xl md:text-2xl font-extrabold">相关推荐产品</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1328: `<p className="text-sm text-muted-foreground mt-1">同城/高评分产品推荐给你</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1329: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1330: `<Link href="/destinations" className="btn btn-outline rounded-xl px-4 py-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1331: `去看看更多` -> 执行当前语句，参与该文件整体逻辑。
+- 1332: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1333: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1334: `(空行)` -> 空行，用于提升代码结构可读性。
+- 1335: `{loadingRelated ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1336: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1337: `{Array.from({ length: 6 }).map((_, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 1338: `<div key={i} className="rounded-2xl bg-card border border-border/60 overflow-hidden animate-pulse">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1339: `<div className="aspect-[4/3] bg-muted-foreground/10" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1340: `<div className="p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1341: `<div className="h-4 bg-muted-foreground/10 rounded w-2/3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1342: `<div className="mt-2 h-3 bg-muted-foreground/10 rounded w-1/2" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1343: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1344: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1345: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 1346: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1347: `) : related.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 1348: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1349: `{related.map((p) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 1350: `<ProductCard key={p.id} product={p} onClick={() => router.push(\`/products/${p.id}\`)} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1351: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 1352: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1353: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 1354: `<div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 1355: `暂无相关推荐` -> 执行当前语句，参与该文件整体逻辑。
+- 1356: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1357: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 1358: `</section>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1359: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1360: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1361: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1362: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 1363: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1364: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1365: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 1366: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 1367: `)` -> 结束当前语句或代码块。
+- 1368: `}` -> 结束当前语句或代码块。
+- 1369: `(空行)` -> 空行，用于提升代码结构可读性。

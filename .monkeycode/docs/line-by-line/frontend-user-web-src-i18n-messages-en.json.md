@@ -1,0 +1,93 @@
+# `frontend/user-web/src/i18n/messages/en.json` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `"common": {` -> 执行当前语句，参与该文件整体逻辑。
+- 3: `"home": "Home",` -> 执行当前语句，参与该文件整体逻辑。
+- 4: `"destinations": "Destinations",` -> 执行当前语句，参与该文件整体逻辑。
+- 5: `"products": "Products",` -> 执行当前语句，参与该文件整体逻辑。
+- 6: `"assistant": "AI Assistant",` -> 执行当前语句，参与该文件整体逻辑。
+- 7: `"itineraries": "Trips",` -> 执行当前语句，参与该文件整体逻辑。
+- 8: `"travelNotes": "Guides",` -> 执行当前语句，参与该文件整体逻辑。
+- 9: `"support": "Support",` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `"login": "Login",` -> 执行当前语句，参与该文件整体逻辑。
+- 11: `"register": "Register",` -> 执行当前语句，参与该文件整体逻辑。
+- 12: `"logout": "Logout",` -> 执行当前语句，参与该文件整体逻辑。
+- 13: `"search": "Search",` -> 执行当前语句，参与该文件整体逻辑。
+- 14: `"searchPlaceholder": "Search destinations or products...",` -> 执行当前语句，参与该文件整体逻辑。
+- 15: `"myProfile": "Profile",` -> 执行当前语句，参与该文件整体逻辑。
+- 16: `"favorites": "Favorites",` -> 执行当前语句，参与该文件整体逻辑。
+- 17: `"orders": "Orders",` -> 执行当前语句，参与该文件整体逻辑。
+- 18: `"coupons": "Coupons",` -> 执行当前语句，参与该文件整体逻辑。
+- 19: `"loading": "Loading...",` -> 执行当前语句，参与该文件整体逻辑。
+- 20: `"error": "Error",` -> 执行当前语句，参与该文件整体逻辑。
+- 21: `"retry": "Retry",` -> 执行当前语句，参与该文件整体逻辑。
+- 22: `"cancel": "Cancel",` -> 执行当前语句，参与该文件整体逻辑。
+- 23: `"confirm": "Confirm",` -> 执行当前语句，参与该文件整体逻辑。
+- 24: `"save": "Save",` -> 执行当前语句，参与该文件整体逻辑。
+- 25: `"delete": "Delete",` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `"edit": "Edit",` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `"share": "Share",` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `"back": "Back"` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `"nav": {` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `"home": "Home",` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `"destinations": "Destinations",` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `"products": "Products",` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `"assistant": "AI Assistant",` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `"itineraries": "My Trips",` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `"travelNotes": "Guides",` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `"support": "Support",` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `"coupons": "Coupons",` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `"profile": "Profile"` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `"footer": {` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `"about": "About Us",` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `"contact": "Contact Us",` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `"privacy": "Privacy Policy",` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `"terms": "Terms of Service",` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `"copyright": "All Rights Reserved"` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `"auth": {` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `"login": "Login",` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `"register": "Register",` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `"email": "Email",` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `"password": "Password",` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `"confirmPassword": "Confirm Password",` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `"username": "Username",` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `"nickname": "Nickname",` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `"forgotPassword": "Forgot Password?",` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `"noAccount": "No account?",` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `"hasAccount": "Have an account?",` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `"loginSuccess": "Login successful",` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `"registerSuccess": "Registration successful"` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `"destination": {` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `"ticketPrice": "Ticket",` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `"openTime": "Open Time",` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `"rating": "Rating",` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `"location": "Location",` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `"description": "Description",` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `"mapView": "View on Map",` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `"addFavorite": "Add to Favorites",` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `"removeFavorite": "Remove from Favorites"` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `"trip": {` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `"create": "Create Trip",` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `"edit": "Edit Trip",` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `"delete": "Delete Trip",` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `"share": "Share Trip",` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `"day": "Day {day}",` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `"noTrips": "No trips yet",` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `"createFirst": "Start planning your first trip!"` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `"coupon": {` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `"claim": "Claim Now",` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `"claimed": "Claimed",` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `"use": "Use Now",` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `"expired": "Expired",` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `"available": "Available",` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `"my": "My Coupons"` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `}` -> 结束当前语句或代码块。
+- 89: `}` -> 结束当前语句或代码块。

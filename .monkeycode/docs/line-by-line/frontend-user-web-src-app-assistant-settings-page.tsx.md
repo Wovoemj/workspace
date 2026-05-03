@@ -1,0 +1,795 @@
+# `frontend/user-web/src/app/assistant/settings/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* AI 助手设置模块 - AI Agent 配置管理` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - AI 模型选择（多模型支持）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 工具配置（天气查询/地图搜索/网络搜索/翻译等）` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 知识库文件管理：` -> 注释行，用于解释设计意图或使用说明。
+- 10: `*   - 上传文档（txt/md/pdf）` -> 注释行，用于解释设计意图或使用说明。
+- 11: `*   - 删除文档` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*   - 文档列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 系统提示词配置` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - API 配置管理` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - 设置保存与重置` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - 统计信息展示（对话数/用户数/Token 使用）` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - aiAgentSettings: AI 设置管理工具` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* 【本地存储】` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - ai_agent_settings_v1: 存储 AI 配置` -> 注释行，用于解释设计意图或使用说明。
+- 24: `*` -> 注释行，用于解释设计意图或使用说明。
+- 25: `* 【配置项】` -> 注释行，用于解释设计意图或使用说明。
+- 26: `* - MODEL_OPTIONS: 可选模型列表` -> 注释行，用于解释设计意图或使用说明。
+- 27: `* - DEFAULT_SETTINGS: 默认设置` -> 注释行，用于解释设计意图或使用说明。
+- 28: `* - KbFile: 知识库文件类型` -> 注释行，用于解释设计意图或使用说明。
+- 29: `* - WebToolKey: 网络工具配置类型` -> 注释行，用于解释设计意图或使用说明。
+- 30: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 31: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `(空行)` -> 空行，用于提升代码结构可读性。
+- 33: `import { useCallback, useEffect, useMemo, useRef, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 34: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 35: `import {` -> 导入依赖模块，供当前文件使用。
+- 36: `BookOpen,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `Bot,` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `ChevronRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `Copy,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `ExternalLink,` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `Globe,` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `Info,` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `Loader2,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `Maximize2,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `Mic2,` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `Minimize2,` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `Newspaper,` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `Save,` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `Search,` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `Settings2,` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `Sparkles,` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `Trash2,` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `Upload,` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `UserCircle2,` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `CloudSun,` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 58: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 59: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 60: `import {` -> 导入依赖模块，供当前文件使用。
+- 61: `DEFAULT_SETTINGS,` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `incrementStats,` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `loadAiAgentSettings,` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `MODEL_OPTIONS,` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `saveAiAgentSettings,` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `type AiAgentSettingsState,` -> 定义类型或类结构，约束数据与行为。
+- 67: `type KbFile,` -> 定义类型或类结构，约束数据与行为。
+- 68: `type WebToolKey,` -> 定义类型或类结构，约束数据与行为。
+- 69: `} from '@/lib/aiAgentSettings'` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `(空行)` -> 空行，用于提升代码结构可读性。
+- 71: `function uid() {` -> 定义函数或方法，实现具体业务逻辑。
+- 72: `return \`${Date.now()}-${Math.random().toString(16).slice(2)}\`` -> 返回结果或提前结束当前流程。
+- 73: `}` -> 结束当前语句或代码块。
+- 74: `(空行)` -> 空行，用于提升代码结构可读性。
+- 75: `/** 内联删除确认按钮：首次点击进入「确认？」状态，再次点击执行删除，移开鼠标则重置 */` -> 注释行，用于解释设计意图或使用说明。
+- 76: `function DeleteConfirmButton({ onConfirm, label = '删除' }: { onConfirm: () => void; label?: string }) {` -> 定义函数或方法，实现具体业务逻辑。
+- 77: `const [confirming, setConfirming] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 78: `return confirming ? (` -> 返回结果或提前结束当前流程。
+- 79: `<span className="inline-flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 80: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `className="px-2 py-1 rounded-lg text-xs font-semibold bg-red-500 text-white hover:bg-red-600 active:scale-95 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `onClick={() => { onConfirm(); setConfirming(false) }}` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `确认删除` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 87: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `className="px-2 py-1 rounded-lg text-xs font-semibold bg-muted text-muted-foreground hover:bg-muted/80 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `onClick={() => setConfirming(false)}` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `取消` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 95: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition active:scale-95"` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `onClick={() => setConfirming(true)}` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `aria-label={label}` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `title={label}` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `<Trash2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `)` -> 结束当前语句或代码块。
+- 106: `}` -> 结束当前语句或代码块。
+- 107: `(空行)` -> 空行，用于提升代码结构可读性。
+- 108: `function fmtBytes(n: number) {` -> 定义函数或方法，实现具体业务逻辑。
+- 109: `if (n < 1024) return \`${n} B\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 110: `if (n < 1024 * 1024) return \`${(n / 1024).toFixed(1)} KB\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 111: `return \`${(n / (1024 * 1024)).toFixed(1)} MB\`` -> 返回结果或提前结束当前流程。
+- 112: `}` -> 结束当前语句或代码块。
+- 113: `(空行)` -> 空行，用于提升代码结构可读性。
+- 114: `const WEB_TOOL_META: Record<` -> 声明变量或常量，保存运行时数据。
+- 115: `WebToolKey,` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `{ label: string; desc: string; icon: typeof Search }` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `> = {` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `brave: {` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `label: 'Brave 搜索',` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `desc: '网页检索与摘要，适合事实核对与资料查找',` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `icon: Search,` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `news: {` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `label: '联网新闻',` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `desc: '抓取近期新闻标题与摘要（演示：由助手侧工具启用后生效）',` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `icon: Newspaper,` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `weather: {` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `label: '实时天气',` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `desc: '按城市查询当前天气概况（演示：需后端工具接入）',` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `icon: CloudSun,` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `}` -> 结束当前语句或代码块。
+- 134: `(空行)` -> 空行，用于提升代码结构可读性。
+- 135: `export default function AssistantSettingsPage() {` -> 导出当前声明，供其他模块复用。
+- 136: `const [settings, setSettings] = useState<AiAgentSettingsState>(DEFAULT_SETTINGS)` -> 声明变量或常量，保存运行时数据。
+- 137: `const [hydrated, setHydrated] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 138: `const [saving, setSaving] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 139: `(空行)` -> 空行，用于提升代码结构可读性。
+- 140: `const [dhLoading, setDhLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 141: `const [vcLoading, setVcLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 142: `(空行)` -> 空行，用于提升代码结构可读性。
+- 143: `const [previewTab, setPreviewTab] = useState<'model' | 'kb'>('kb')` -> 声明变量或常量，保存运行时数据。
+- 144: `const [previewExpanded, setPreviewExpanded] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 145: `const [previewInput, setPreviewInput] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 146: `const [previewSending, setPreviewSending] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 147: `const [previewMsgs, setPreviewMsgs] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([])` -> 声明变量或常量，保存运行时数据。
+- 148: `const previewEndRef = useRef<HTMLDivElement | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 149: `const fileRef = useRef<HTMLInputElement | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 150: `(空行)` -> 空行，用于提升代码结构可读性。
+- 151: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `setSettings(loadAiAgentSettings())` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `setHydrated(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `(空行)` -> 空行，用于提升代码结构可读性。
+- 156: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 157: `if (!hydrated) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 158: `setPreviewMsgs([` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `{ role: 'assistant', content: settings.welcomeMessage || DEFAULT_SETTINGS.welcomeMessage },` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `])` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `}, [hydrated, settings.welcomeMessage])` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `(空行)` -> 空行，用于提升代码结构可读性。
+- 163: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `previewEndRef.current?.scrollIntoView({ behavior: 'smooth' })` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `}, [previewMsgs.length, previewExpanded])` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `(空行)` -> 空行，用于提升代码结构可读性。
+- 167: `const persist = useCallback((next: AiAgentSettingsState) => {` -> 声明变量或常量，保存运行时数据。
+- 168: `setSettings(next)` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `saveAiAgentSettings(next)` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `(空行)` -> 空行，用于提升代码结构可读性。
+- 172: `const onSave = () => {` -> 声明变量或常量，保存运行时数据。
+- 173: `setSaving(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 175: `saveAiAgentSettings(settings)` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `toast.success('配置已保存到本机')` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `setTimeout(() => setSaving(false), 280)` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `}` -> 结束当前语句或代码块。
+- 180: `}` -> 结束当前语句或代码块。
+- 181: `(空行)` -> 空行，用于提升代码结构可读性。
+- 182: `const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {` -> 声明变量或常量，保存运行时数据。
+- 183: `const f = e.target.files?.[0]` -> 声明变量或常量，保存运行时数据。
+- 184: `e.target.value = ''   // e.target.value?` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `if (!f) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 186: `const id = uid()` -> 声明变量或常量，保存运行时数据。
+- 187: `const row: KbFile = {` -> 声明变量或常量，保存运行时数据。
+- 188: `id,` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `name: f.name,` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `size: f.size,` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `status: 'processing',` -> 执行当前语句，参与该文件整体逻辑。
+- 192: `uploadedAt: Date.now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 193: `}` -> 结束当前语句或代码块。
+- 194: `persist({ ...settings, kbFiles: [...settings.kbFiles, row] })` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `toast.success('已加入处理队列')` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `window.setTimeout(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 197: `const next = loadAiAgentSettings()` -> 声明变量或常量，保存运行时数据。
+- 198: `const kbFiles = next.kbFiles.map((k) =>` -> 声明变量或常量，保存运行时数据。
+- 199: `k.id === id` -> 执行当前语句，参与该文件整体逻辑。
+- 200: `? { ...k, status: (Math.random() > 0.08 ? 'ready' : 'failed') as KbFile['status'] }` -> 执行当前语句，参与该文件整体逻辑。
+- 201: `: k,` -> 执行当前语句，参与该文件整体逻辑。
+- 202: `)` -> 结束当前语句或代码块。
+- 203: `persist({ ...next, kbFiles })` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `const done = kbFiles.find((k) => k.id === id)` -> 声明变量或常量，保存运行时数据。
+- 205: `if (done?.status === 'ready') toast.success(\`文档「${done.name}」已就绪\`)` -> 条件判断分支，根据场景执行不同逻辑。
+- 206: `if (done?.status === 'failed') toast.error(\`${done?.name}」处理失败，可删除后重试\`)` -> 条件判断分支，根据场景执行不同逻辑。
+- 207: `}, 1400)` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `}` -> 结束当前语句或代码块。
+- 209: `(空行)` -> 空行，用于提升代码结构可读性。
+- 210: `const removeKb = (id: string) => {` -> 声明变量或常量，保存运行时数据。
+- 211: `persist({ ...settings, kbFiles: settings.kbFiles.filter((k) => k.id !== id) })` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `toast.success('已移除')` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `}` -> 结束当前语句或代码块。
+- 214: `(空行)` -> 空行，用于提升代码结构可读性。
+- 215: `const openExternal = (kind: 'dh' | 'vc') => {` -> 声明变量或常量，保存运行时数据。
+- 216: `if (kind === 'dh') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 217: `setDhLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `window.setTimeout(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `setDhLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 220: `persist({ ...settings, digitalHumanConfigured: true })` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `toast.success('已标记数字人工作台（演示）')` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `}, 900)` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `return` -> 返回结果或提前结束当前流程。
+- 224: `}` -> 结束当前语句或代码块。
+- 225: `setVcLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `window.setTimeout(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `setVcLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `persist({ ...settings, voiceCloneName: settings.voiceCloneName || '默认音色 · 旅行女声' })` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `toast.success('已打开音色克隆（演示）')` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `}, 900)` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `}` -> 结束当前语句或代码块。
+- 232: `(空行)` -> 空行，用于提升代码结构可读性。
+- 233: `const exportJson = async () => {` -> 声明变量或常量，保存运行时数据。
+- 234: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 235: `await navigator.clipboard.writeText(JSON.stringify(settings, null, 2))` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `toast.success('配置 JSON 已复制')` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `toast.error('复制失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `}` -> 结束当前语句或代码块。
+- 240: `}` -> 结束当前语句或代码块。
+- 241: `(空行)` -> 空行，用于提升代码结构可读性。
+- 242: `const sendPreview = async () => {` -> 声明变量或常量，保存运行时数据。
+- 243: `const text = previewInput.trim()` -> 声明变量或常量，保存运行时数据。
+- 244: `if (!text || previewSending) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 245: `setPreviewSending(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `setPreviewInput('')` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `(空行)` -> 空行，用于提升代码结构可读性。
+- 248: `const sys =` -> 声明变量或常量，保存运行时数据。
+- 249: `previewTab === 'kb'` -> 执行当前语句，参与该文件整体逻辑。
+- 250: `? \`${settings.systemPrompt}\n\n【知识库模式】优先根据已上传文档作答；文档未覆盖时请明确说明并给出通用建议。\`` -> 执行当前语句，参与该文件整体逻辑。
+- 251: `: settings.systemPrompt` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `(空行)` -> 空行，用于提升代码结构可读性。
+- 253: `const messages = [` -> 声明变量或常量，保存运行时数据。
+- 254: `{ role: 'system' as const, content: sys },` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `...previewMsgs.map((m) => ({ role: m.role, content: m.content })),` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `{ role: 'user' as const, content: text },` -> 执行当前语句，参与该文件整体逻辑。
+- 257: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 258: `(空行)` -> 空行，用于提升代码结构可读性。
+- 259: `const nextUser = [...previewMsgs, { role: 'user' as const, content: text }]` -> 声明变量或常量，保存运行时数据。
+- 260: `setPreviewMsgs(nextUser)` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `(空行)` -> 空行，用于提升代码结构可读性。
+- 262: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 263: `const res = await fetch('/api/chat', {` -> 声明变量或常量，保存运行时数据。
+- 264: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `headers: { 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `body: JSON.stringify({` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `messages: messages.map(({ role, content }) => ({ role, content })),` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `temperature: 0.6,` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `max_tokens: 900,` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `}),` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 273: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 274: `const errText = data?.error || \`HTTP ${res.status}\`` -> 声明变量或常量，保存运行时数据。
+- 275: `throw new Error(errText)` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `}` -> 结束当前语句或代码块。
+- 277: `const reply = String(data?.reply || '(无内容)')` -> 声明变量或常量，保存运行时数据。
+- 278: `setPreviewMsgs((m) => [...m, { role: 'assistant', content: reply }])` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `const approx = Math.ceil((text.length + reply.length) / 4)` -> 声明变量或常量，保存运行时数据。
+- 280: `setSettings((prev) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `const n = incrementStats(prev, approx)` -> 声明变量或常量，保存运行时数据。
+- 282: `saveAiAgentSettings(n)` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `return n` -> 返回结果或提前结束当前流程。
+- 284: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `const reply = \`预览调用失败?{e?.message || '未知错误'}。你可先保存配置，并检查后?/api/chat 与模型密钥。\`` -> 声明变量或常量，保存运行时数据。
+- 287: `setPreviewMsgs((m) => [...m, { role: 'assistant', content: reply }])` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `setPreviewSending(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `}` -> 结束当前语句或代码块。
+- 291: `}` -> 结束当前语句或代码块。
+- 292: `(空行)` -> 空行，用于提升代码结构可读性。
+- 293: `const clearPreview = () => {` -> 声明变量或常量，保存运行时数据。
+- 294: `setPreviewMsgs([{ role: 'assistant', content: settings.welcomeMessage || DEFAULT_SETTINGS.welcomeMessage }])` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `}` -> 结束当前语句或代码块。
+- 296: `(空行)` -> 空行，用于提升代码结构可读性。
+- 297: `const kbBadge = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 298: `const n = settings.kbFiles.length` -> 声明变量或常量，保存运行时数据。
+- 299: `const ready = settings.kbFiles.filter((k) => k.status === 'ready').length` -> 声明变量或常量，保存运行时数据。
+- 300: `if (!n) return { text: '未上传', tone: 'bg-slate-100 text-slate-600 border-slate-200' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 301: `if (ready === n) return { text: '已就绪', tone: 'bg-emerald-50 text-emerald-800 border-emerald-200' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 302: `return { text: '处理中', tone: 'bg-amber-50 text-amber-900 border-amber-200' }` -> 返回结果或提前结束当前流程。
+- 303: `}, [settings.kbFiles])` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `(空行)` -> 空行，用于提升代码结构可读性。
+- 305: `if (!hydrated) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 306: `return (` -> 返回结果或提前结束当前流程。
+- 307: `<div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-sky-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 308: `<Loader2 className="h-8 w-8 animate-spin text-primary" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `)` -> 结束当前语句或代码块。
+- 311: `}` -> 结束当前语句或代码块。
+- 312: `(空行)` -> 空行，用于提升代码结构可读性。
+- 313: `return (` -> 返回结果或提前结束当前流程。
+- 314: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 315: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 316: `(空行)` -> 空行，用于提升代码结构可读性。
+- 317: `<main className="pt-16 pb-20">` -> JSX/HTML 结构行，用于描述页面元素。
+- 318: `<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `(空行)` -> 空行，用于提升代码结构可读性。
+- 320: `<nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 321: `<Link href="/assistant" className="hover:text-primary transition-colors font-medium">AI 助手</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 322: `<ChevronRight className="h-3.5 w-3.5 opacity-50" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 323: `<span className="text-foreground font-semibold">智能体配置中</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 324: `</nav>` -> JSX/HTML 结构行，用于描述页面元素。
+- 325: `(空行)` -> 空行，用于提升代码结构可读性。
+- 326: `(空行)` -> 空行，用于提升代码结构可读性。
+- 327: `<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 328: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 329: `<div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">` -> JSX/HTML 结构行，用于描述页面元素。
+- 330: `<Settings2 className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 331: `智能体配置中` -> 执行当前语句，参与该文件整体逻辑。
+- 332: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 333: `<h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">智能体配置</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 334: `<p className="mt-2 text-sm text-muted-foreground max-w-2xl leading-relaxed">` -> JSX/HTML 结构行，用于描述页面元素。
+- 335: `集中管理知识库、桌面扩展能力与联网工具开关；下方预览区用于快速调试对话。配置默认保存在浏览器本地，可导?JSON 备份?` -> 执行当前语句，参与该文件整体逻辑。
+- 336: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 337: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 338: `<div className="flex flex-wrap gap-2 shrink-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 339: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 340: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 341: `onClick={exportJson}` -> 执行当前语句，参与该文件整体逻辑。
+- 342: `className="btn btn-outline inline-flex items-center gap-2 active:scale-[0.98] transition hover:border-primary/50"` -> 执行当前语句，参与该文件整体逻辑。
+- 343: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 344: `<Copy className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 345: `导出配置` -> 执行当前语句，参与该文件整体逻辑。
+- 346: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 347: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 348: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 349: `onClick={onSave}` -> 执行当前语句，参与该文件整体逻辑。
+- 350: `disabled={saving}` -> 执行当前语句，参与该文件整体逻辑。
+- 351: `className="travel-btn-gradient inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold disabled:opacity-60 active:scale-[0.98] transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 352: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 353: `{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 354: `{saving ? '保存中...' : '保存并应用'}` -> 执行当前语句，参与该文件整体逻辑。
+- 355: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 356: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 357: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 358: `(空行)` -> 空行，用于提升代码结构可读性。
+- 359: `(空行)` -> 空行，用于提升代码结构可读性。
+- 360: `<section className="rounded-3xl border border-border/70 bg-card/80 backdrop-blur shadow-sm p-6 mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 361: `<div className="flex items-center justify-between gap-3 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 362: `<h2 className="text-lg font-bold text-foreground flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 363: `<Sparkles className="h-5 w-5 text-violet-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 364: `人设与模?` -> 执行当前语句，参与该文件整体逻辑。
+- 365: `</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 366: `{settings.systemPrompt.trim() ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 367: `<span className="inline-flex items-center gap-1 text-[12px] font-bold px-2.5 py-1 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 368: `?已配?System Prompt` -> 执行当前语句，参与该文件整体逻辑。
+- 369: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 370: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 371: `<span className="inline-flex items-center gap-1 text-[12px] font-bold px-2.5 py-1 rounded-full border bg-amber-50 text-amber-700 border-amber-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 372: `⚠️ 未配?System Prompt` -> 执行当前语句，参与该文件整体逻辑。
+- 373: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 374: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 375: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 376: `<p className="text-sm text-muted-foreground mt-1">系统提示词、欢迎语与底层模型（展示用选项可与后端实际可用模型对齐）</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 377: `<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 378: `<div className="md:col-span-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 379: `<label className="text-sm font-semibold text-foreground">系统提示词（System Prompt）</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 380: `<textarea` -> 执行当前语句，参与该文件整体逻辑。
+- 381: `className="input mt-1.5 min-h-[100px] w-full resize-y"` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `value={settings.systemPrompt}` -> 执行当前语句，参与该文件整体逻辑。
+- 383: `onChange={(e) => setSettings((s) => ({ ...s, systemPrompt: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 384: `placeholder="定义助手人设、语气与边界"` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 387: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 388: `<label className="text-sm font-semibold text-foreground">欢迎</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 389: `<textarea` -> 执行当前语句，参与该文件整体逻辑。
+- 390: `className="input mt-1.5 min-h-[72px] w-full"` -> 执行当前语句，参与该文件整体逻辑。
+- 391: `value={settings.welcomeMessage}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 392: `onChange={(e) => setSettings((s) => ({ ...s, welcomeMessage: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 393: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 394: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 395: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 396: `<label className="text-sm font-semibold text-foreground">对话模型</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 397: `<select` -> 执行当前语句，参与该文件整体逻辑。
+- 398: `className="input mt-1.5 w-full"` -> 执行当前语句，参与该文件整体逻辑。
+- 399: `value={settings.modelId}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 400: `onChange={(e) => setSettings((s) => ({ ...s, modelId: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 401: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 402: `{MODEL_OPTIONS.map((m) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 403: `<option key={m.id} value={m.id}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 404: `{m.label}` -> 执行当前语句，参与该文件整体逻辑。
+- 405: `</option>` -> JSX/HTML 结构行，用于描述页面元素。
+- 406: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 407: `</select>` -> JSX/HTML 结构行，用于描述页面元素。
+- 408: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 409: `<div className="md:col-span-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 410: `<label className="text-sm font-semibold text-foreground">敏感词/ 输出过滤（每行一条，可选）</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 411: `<textarea` -> 执行当前语句，参与该文件整体逻辑。
+- 412: `className="input mt-1.5 min-h-[80px] w-full font-mono text-xs"` -> 执行当前语句，参与该文件整体逻辑。
+- 413: `value={settings.filterRules}` -> 执行当前语句，参与该文件整体逻辑。
+- 414: `onChange={(e) => setSettings((s) => ({ ...s, filterRules: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 415: `placeholder="例如：竞品名A&#10;内部代号"` -> 执行当前语句，参与该文件整体逻辑。
+- 416: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 417: `<p className="text-xs text-muted-foreground mt-1">当前为前端记录；真正拦截需在服务端审核链路实现</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 418: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 419: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 420: `</section>` -> JSX/HTML 结构行，用于描述页面元素。
+- 421: `(空行)` -> 空行，用于提升代码结构可读性。
+- 422: `(空行)` -> 空行，用于提升代码结构可读性。
+- 423: `<div className="mb-3 flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 424: `<h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">工具能力</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 425: `<span className="h-px flex-1 bg-border/80" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 426: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 427: `(空行)` -> 空行，用于提升代码结构可读性。
+- 428: `<div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 429: `(空行)` -> 空行，用于提升代码结构可读性。
+- 430: `<div className="rounded-3xl border border-border/70 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">` -> JSX/HTML 结构行，用于描述页面元素。
+- 431: `<div className="flex items-start justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 432: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 433: `<div className="h-12 w-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center ring-1 ring-amber-200/80">` -> JSX/HTML 结构行，用于描述页面元素。
+- 434: `<BookOpen className="h-6 w-6" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 435: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 436: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 437: `<h3 className="font-bold text-foreground">知识</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 438: `<p className="text-xs text-muted-foreground mt-0.5 max-w-[240px]">` -> JSX/HTML 结构行，用于描述页面元素。
+- 439: `上传文档，让助手基于你的资料回答问题?` -> 执行当前语句，参与该文件整体逻辑。
+- 440: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 441: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 442: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 443: `<span className={\`text-[11px] font-bold px-2 py-0.5 rounded-full border ${kbBadge.tone}\`}>{kbBadge.text}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 444: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 445: `(空行)` -> 空行，用于提升代码结构可读性。
+- 446: `<p className="text-xs text-muted-foreground mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 447: `支持格式：<span className="font-medium text-foreground">PDF、Word（.doc/.docx）、TXT、Markdown</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 448: `（演示：任意文件会进入模拟解析队列）` -> 执行当前语句，参与该文件整体逻辑。
+- 449: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 450: `(空行)` -> 空行，用于提升代码结构可读性。
+- 451: `<input ref={fileRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.txt,.md" onChange={onUpload} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 452: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 453: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 454: `onClick={() => fileRef.current?.click()}` -> 执行当前语句，参与该文件整体逻辑。
+- 455: `className="mt-3 w-full btn btn-outline inline-flex items-center justify-center gap-2 py-2.5 hover:bg-primary/5 hover:border-primary/40 active:scale-[0.99] transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 456: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 457: `<Upload className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 458: `上传文件` -> 执行当前语句，参与该文件整体逻辑。
+- 459: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 460: `(空行)` -> 空行，用于提升代码结构可读性。
+- 461: `<div className="mt-4 space-y-2 max-h-48 overflow-y-auto">` -> JSX/HTML 结构行，用于描述页面元素。
+- 462: `{settings.kbFiles.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 463: `<div className="text-sm text-muted-foreground py-6 text-center border border-dashed rounded-2xl">暂无文件</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 464: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 465: `settings.kbFiles.map((f) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 466: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 467: `key={f.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 468: `className="flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3 py-2 text-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 469: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 470: `<div className="min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 471: `<div className="font-medium truncate">{f.name}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 472: `<div className="text-xs text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 473: `{fmtBytes(f.size)} ·{' '}` -> 执行当前语句，参与该文件整体逻辑。
+- 474: `{f.status === 'processing' ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 475: `<span className="text-amber-600">处理</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 476: `) : f.status === 'ready' ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 477: `<span className="text-emerald-600">就绪</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 478: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 479: `<span className="text-red-600">失败</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 480: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 481: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 482: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 483: `<DeleteConfirmButton onConfirm={() => removeKb(f.id)} label="删除文件" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 484: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 485: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 486: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 487: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 488: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 489: `(空行)` -> 空行，用于提升代码结构可读性。
+- 490: `(空行)` -> 空行，用于提升代码结构可读性。
+- 491: `<div className="rounded-3xl border border-border/70 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">` -> JSX/HTML 结构行，用于描述页面元素。
+- 492: `<div className="flex items-start justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 493: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 494: `<div className="h-12 w-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center ring-1 ring-violet-200/80">` -> JSX/HTML 结构行，用于描述页面元素。
+- 495: `<UserCircle2 className="h-6 w-6" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 496: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 497: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 498: `<h3 className="font-bold text-foreground">数字</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 499: `<p className="text-xs text-muted-foreground mt-0.5">桌面数字人工作台，用于形象与动作配置</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 500: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 501: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 502: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 503: `className={\`text-[11px] font-bold px-2 py-0.5 rounded-full border ${` -> 执行当前语句，参与该文件整体逻辑。
+- 504: `settings.digitalHumanConfigured` -> 执行当前语句，参与该文件整体逻辑。
+- 505: `? 'bg-emerald-50 text-emerald-800 border-emerald-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 506: `: 'bg-slate-100 text-slate-600 border-slate-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 507: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 508: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 509: `{settings.digitalHumanConfigured ? '已配置' : '未配置'}` -> 执行当前语句，参与该文件整体逻辑。
+- 510: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 511: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 512: `<p className="text-xs text-muted-foreground mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 513: `<span className="font-medium text-foreground">什么是数字人？</span> 将助手以虚拟形象呈现，适合接待与讲解场景` -> 执行当前语句，参与该文件整体逻辑。
+- 514: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 515: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 516: `title="在桌面客户端完成摄像头与形象绑定"` -> 执行当前语句，参与该文件整体逻辑。
+- 517: `className="ml-1 text-primary font-semibold hover:underline"` -> 执行当前语句，参与该文件整体逻辑。
+- 518: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 519: `了解更多` -> 执行当前语句，参与该文件整体逻辑。
+- 520: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 521: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 522: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 523: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 524: `disabled={dhLoading}` -> 执行当前语句，参与该文件整体逻辑。
+- 525: `onClick={() => openExternal('dh')}` -> 执行当前语句，参与该文件整体逻辑。
+- 526: `className="mt-3 w-full travel-btn-gradient inline-flex items-center justify-center gap-2 py-2.5 active:scale-[0.99] transition disabled:opacity-70"` -> 执行当前语句，参与该文件整体逻辑。
+- 527: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 528: `{dhLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 529: `{dhLoading ? '正在打开...' : '进入桌面数字人工作台'}` -> 执行当前语句，参与该文件整体逻辑。
+- 530: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 531: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 532: `(空行)` -> 空行，用于提升代码结构可读性。
+- 533: `(空行)` -> 空行，用于提升代码结构可读性。
+- 534: `<div className="rounded-3xl border border-border/70 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">` -> JSX/HTML 结构行，用于描述页面元素。
+- 535: `<div className="flex items-start justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 536: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 537: `<div className="h-12 w-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center ring-1 ring-rose-200/80">` -> JSX/HTML 结构行，用于描述页面元素。
+- 538: `<Mic2 className="h-6 w-6" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 539: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 540: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 541: `<h3 className="font-bold text-foreground">音色克隆</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 542: `<p className="text-xs text-muted-foreground mt-0.5">录制样本生成专属朗读音色</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 543: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 544: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 545: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 546: `className={\`text-[11px] font-bold px-2 py-0.5 rounded-full border ${` -> 执行当前语句，参与该文件整体逻辑。
+- 547: `settings.voiceCloneName ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 548: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 549: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 550: `{settings.voiceCloneName ? '已克隆' : '未配置'}` -> 执行当前语句，参与该文件整体逻辑。
+- 551: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 552: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 553: `<div className="mt-4 rounded-xl border border-border/50 bg-muted/30 px-3 py-2 text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 554: `<span className="text-muted-foreground">当前默认音色</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 555: `<span className="font-medium">{settings.voiceCloneName || '未设置（使用系统默认）'}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 556: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 557: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 558: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 559: `disabled={vcLoading}` -> 执行当前语句，参与该文件整体逻辑。
+- 560: `onClick={() => openExternal('vc')}` -> 执行当前语句，参与该文件整体逻辑。
+- 561: `className="mt-3 w-full btn btn-outline inline-flex items-center justify-center gap-2 py-2.5 hover:bg-rose-50/50 hover:border-rose-300/50 active:scale-[0.99] transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 562: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 563: `{vcLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 564: `{vcLoading ? '正在打开...' : '进入桌面音色克隆工作台'}` -> 执行当前语句，参与该文件整体逻辑。
+- 565: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 566: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 567: `(空行)` -> 空行，用于提升代码结构可读性。
+- 568: `(空行)` -> 空行，用于提升代码结构可读性。
+- 569: `<div className="rounded-3xl border border-border/70 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">` -> JSX/HTML 结构行，用于描述页面元素。
+- 570: `<div className="flex items-center gap-3 mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 571: `<div className="h-12 w-12 rounded-2xl bg-cyan-100 text-cyan-800 flex items-center justify-center ring-1 ring-cyan-200/80">` -> JSX/HTML 结构行，用于描述页面元素。
+- 572: `<Globe className="h-6 w-6" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 573: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 574: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 575: `<h3 className="font-bold text-foreground">联网搜索</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 576: `<p className="text-xs text-muted-foreground">控制助手可调用哪些联网工具</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 577: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 578: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 579: `<div className="mt-4 space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 580: `{(Object.keys(WEB_TOOL_META) as WebToolKey[]).map((key) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 581: `const meta = WEB_TOOL_META[key]` -> 声明变量或常量，保存运行时数据。
+- 582: `const Icon = meta.icon` -> 声明变量或常量，保存运行时数据。
+- 583: `const on = settings.webTools[key]` -> 声明变量或常量，保存运行时数据。
+- 584: `return (` -> 返回结果或提前结束当前流程。
+- 585: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 586: `key={key}` -> 执行当前语句，参与该文件整体逻辑。
+- 587: `className={\`flex items-center justify-between gap-3 rounded-2xl border px-3 py-2.5 transition-colors ${` -> 执行当前语句，参与该文件整体逻辑。
+- 588: `on ? 'border-cyan-200/80 bg-cyan-50/50' : 'border-border/60 bg-background/40'` -> 执行当前语句，参与该文件整体逻辑。
+- 589: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 590: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 591: `<div className="flex items-center gap-2 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 592: `<Icon className={\`h-4 w-4 shrink-0 ${on ? 'text-cyan-600' : 'text-muted-foreground'}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 593: `<div className="min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 594: `<div className="text-sm font-semibold flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 595: `{meta.label}` -> 执行当前语句，参与该文件整体逻辑。
+- 596: `<span title={meta.desc} className="inline-flex text-muted-foreground hover:text-foreground cursor-help">` -> JSX/HTML 结构行，用于描述页面元素。
+- 597: `<Info className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 598: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 599: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 600: `<div className={\`text-[11px] mt-0.5 font-medium ${on ? 'text-cyan-600' : 'text-muted-foreground/60'}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 601: `{on ? '🟢 已启用' : '⚪ 已关闭'}` -> 执行当前语句，参与该文件整体逻辑。
+- 602: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 603: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 604: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 605: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 606: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 607: `role="switch"` -> 执行当前语句，参与该文件整体逻辑。
+- 608: `aria-checked={on}` -> 执行当前语句，参与该文件整体逻辑。
+- 609: `onClick={() =>` -> 执行当前语句，参与该文件整体逻辑。
+- 610: `setSettings((s) => ({` -> 执行当前语句，参与该文件整体逻辑。
+- 611: `...s,` -> 执行当前语句，参与该文件整体逻辑。
+- 612: `webTools: { ...s.webTools, [key]: !s.webTools[key] },` -> 执行当前语句，参与该文件整体逻辑。
+- 613: `}))` -> 执行当前语句，参与该文件整体逻辑。
+- 614: `}` -> 结束当前语句或代码块。
+- 615: `className={\`relative h-7 w-12 rounded-full transition-colors focus-visible:outline focus-visible:ring-2 focus-visible:ring-primary/40 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 616: `on ? 'bg-cyan-500' : 'bg-muted'` -> 执行当前语句，参与该文件整体逻辑。
+- 617: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 618: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 619: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 620: `className={\`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${` -> 执行当前语句，参与该文件整体逻辑。
+- 621: `on ? 'translate-x-5' : 'translate-x-0'` -> 执行当前语句，参与该文件整体逻辑。
+- 622: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 623: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 624: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 625: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 626: `)` -> 结束当前语句或代码块。
+- 627: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 628: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 629: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 630: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 631: `(空行)` -> 空行，用于提升代码结构可读性。
+- 632: `(空行)` -> 空行，用于提升代码结构可读性。
+- 633: `<section className="rounded-3xl border border-border/70 bg-card/80 p-6 mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 634: `<h2 className="text-lg font-bold flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 635: `<Bot className="h-5 w-5 text-sky-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 636: `API 调用统计（本地累计）` -> 执行当前语句，参与该文件整体逻辑。
+- 637: `</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 638: `<p className="text-sm text-muted-foreground mt-1">预览区每次成功调用 /api/chat 后累加，便于观察用量（费用为粗略估算）</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 639: `<div className="mt-4 grid grid-cols-3 gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 640: `{[` -> 执行当前语句，参与该文件整体逻辑。
+- 641: `{ k: '调用次数', v: String(settings.stats.calls) },` -> 执行当前语句，参与该文件整体逻辑。
+- 642: `{ k: 'Token（估算）', v: String(settings.stats.tokens) },` -> 执行当前语句，参与该文件整体逻辑。
+- 643: `{ k: '费用（估算）', v: \`¥${settings.stats.estCost.toFixed(4)}\` },` -> 执行当前语句，参与该文件整体逻辑。
+- 644: `].map((row) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 645: `<div key={row.k} className="rounded-2xl border border-border/60 bg-background/60 px-4 py-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 646: `<div className="text-xs text-muted-foreground">{row.k}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 647: `<div className="text-lg font-extrabold text-foreground mt-1">{row.v}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 648: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 649: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 650: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 651: `</section>` -> JSX/HTML 结构行，用于描述页面元素。
+- 652: `(空行)` -> 空行，用于提升代码结构可读性。
+- 653: `(空行)` -> 空行，用于提升代码结构可读性。
+- 654: `<div className="mb-3 flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 655: `<h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">预览调试</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 656: `<span className="h-px flex-1 bg-border/80" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 657: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 658: `(空行)` -> 空行，用于提升代码结构可读性。
+- 659: `<section` -> 执行当前语句，参与该文件整体逻辑。
+- 660: `className={\`rounded-3xl border border-border/70 bg-card shadow-lg overflow-hidden ${` -> 执行当前语句，参与该文件整体逻辑。
+- 661: `previewExpanded ? 'fixed inset-3 z-[60] flex flex-col' : 'relative'` -> 执行当前语句，参与该文件整体逻辑。
+- 662: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 663: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 664: `<div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border/60 bg-muted/30">` -> JSX/HTML 结构行，用于描述页面元素。
+- 665: `<div className="flex items-center gap-2 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 666: `<Sparkles className="h-5 w-5 text-primary shrink-0" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 667: `<span className="font-bold truncate">智能体在线预</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 668: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 669: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 670: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 671: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 672: `onClick={clearPreview}` -> 执行当前语句，参与该文件整体逻辑。
+- 673: `className="text-xs font-semibold px-2 py-1 rounded-lg hover:bg-background/80 transition active:scale-95"` -> 执行当前语句，参与该文件整体逻辑。
+- 674: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 675: `清空对话` -> 执行当前语句，参与该文件整体逻辑。
+- 676: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 677: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 678: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 679: `onClick={() => setPreviewExpanded((v) => !v)}` -> 执行当前语句，参与该文件整体逻辑。
+- 680: `className="p-2 rounded-xl border border-border/60 hover:bg-background/80 transition active:scale-95"` -> 执行当前语句，参与该文件整体逻辑。
+- 681: `title={previewExpanded ? '退出全屏' : '全屏预览'}` -> 执行当前语句，参与该文件整体逻辑。
+- 682: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 683: `{previewExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 684: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 685: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 686: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 687: `(空行)` -> 空行，用于提升代码结构可读性。
+- 688: `<div className="px-4 pt-3 flex gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 689: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 690: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 691: `onClick={() => setPreviewTab('model')}` -> 执行当前语句，参与该文件整体逻辑。
+- 692: `className={\`px-4 py-2 rounded-xl text-sm font-semibold transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 693: `previewTab === 'model' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted/50 text-muted-foreground hover:text-foreground'` -> 执行当前语句，参与该文件整体逻辑。
+- 694: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 695: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 696: `模型助手` -> 执行当前语句，参与该文件整体逻辑。
+- 697: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 698: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 699: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 700: `onClick={() => setPreviewTab('kb')}` -> 执行当前语句，参与该文件整体逻辑。
+- 701: `className={\`px-4 py-2 rounded-xl text-sm font-semibold transition ${` -> 执行当前语句，参与该文件整体逻辑。
+- 702: `previewTab === 'kb' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted/50 text-muted-foreground hover:text-foreground'` -> 执行当前语句，参与该文件整体逻辑。
+- 703: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 704: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 705: `知识库问?` -> 执行当前语句，参与该文件整体逻辑。
+- 706: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 707: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 708: `(空行)` -> 空行，用于提升代码结构可读性。
+- 709: `<div className={\`px-4 py-3 space-y-3 ${previewExpanded ? 'flex-1 min-h-0 overflow-y-auto' : 'max-h-[360px] overflow-y-auto'}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 710: `{previewMsgs.map((m, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 711: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 712: `key={\`${i}-${m.role}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 713: `className={\`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 714: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 715: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 716: `className={\`max-w-[92%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap leading-relaxed ${` -> 执行当前语句，参与该文件整体逻辑。
+- 717: `m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted/80 text-foreground border border-border/50'` -> 执行当前语句，参与该文件整体逻辑。
+- 718: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 719: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 720: `{m.content}` -> 执行当前语句，参与该文件整体逻辑。
+- 721: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 722: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 723: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 724: `<div ref={previewEndRef} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 725: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 726: `(空行)` -> 空行，用于提升代码结构可读性。
+- 727: `<div className="p-4 border-t border-border/60 bg-background/50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 728: `<div className="flex gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 729: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 730: `className="input flex-1"` -> 执行当前语句，参与该文件整体逻辑。
+- 731: `placeholder={previewTab === 'kb' ? '基于知识库提问...' : '向模型助手发送消息...'}` -> 执行当前语句，参与该文件整体逻辑。
+- 732: `value={previewInput}   // value?` -> 执行当前语句，参与该文件整体逻辑。
+- 733: `onChange={(e) => setPreviewInput(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 734: `onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendPreview())}` -> 执行当前语句，参与该文件整体逻辑。
+- 735: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 736: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 737: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 738: `disabled={previewSending}` -> 执行当前语句，参与该文件整体逻辑。
+- 739: `onClick={sendPreview}` -> 执行当前语句，参与该文件整体逻辑。
+- 740: `className="travel-btn-gradient px-5 shrink-0 inline-flex items-center gap-2 disabled:opacity-60 active:scale-[0.98] transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 741: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 742: `{previewSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 743: `发?` -> 执行当前语句，参与该文件整体逻辑。
+- 744: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 745: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 746: `<p className="text-[11px] text-muted-foreground mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 747: `联网工具开关：<span className="font-medium">{settings.webTools.brave ? '搜索 ' : ''}</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 748: `<span className="font-medium">{settings.webTools.news ? '新闻 ' : ''}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 749: `<span className="font-medium">{settings.webTools.weather ? '天气' : ''}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 750: `{!settings.webTools.brave && !settings.webTools.news && !settings.webTools.weather ? '（均已关闭）' : ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 751: `（实际生效依赖后端工具接入）` -> 执行当前语句，参与该文件整体逻辑。
+- 752: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 753: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 754: `</section>` -> JSX/HTML 结构行，用于描述页面元素。
+- 755: `(空行)` -> 空行，用于提升代码结构可读性。
+- 756: `(空行)` -> 空行，用于提升代码结构可读性。
+- 757: `<div className="mt-6 rounded-3xl border-2 border-dashed border-border/50 bg-background/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 hover:border-primary/30 hover:bg-primary/2 transition-colors group">` -> JSX/HTML 结构行，用于描述页面元素。
+- 758: `<div className="flex items-center gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 759: `<div className="h-12 w-12 rounded-2xl border-2 border-dashed border-border/60 flex items-center justify-center text-2xl group-hover:border-primary/40 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 760: `?` -> 执行当前语句，参与该文件整体逻辑。
+- 761: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 762: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 763: `<div className="font-bold text-foreground">创建更多智能</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 764: `<div className="text-sm text-muted-foreground mt-0.5">针对不同场景（文案写作、文档分析、行程规划）创建专属配置</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 765: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 766: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 767: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 768: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 769: `className="btn btn-outline shrink-0 inline-flex items-center gap-2 hover:border-primary/50 hover:text-primary"` -> 执行当前语句，参与该文件整体逻辑。
+- 770: `onClick={() => toast('多智能体管理功能即将上线 🎉', { icon: '🚀' })}` -> 执行当前语句，参与该文件整体逻辑。
+- 771: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 772: `<Sparkles className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 773: `即将推出` -> 执行当前语句，参与该文件整体逻辑。
+- 774: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 775: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 776: `(空行)` -> 空行，用于提升代码结构可读性。
+- 777: `<div className="mt-8 flex flex-wrap gap-3 justify-between items-center text-sm text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 778: `<Link href="/assistant" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">` -> JSX/HTML 结构行，用于描述页面元素。
+- 779: `?返回 AI 助手` -> 执行当前语句，参与该文件整体逻辑。
+- 780: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 781: `<button type="button" onClick={onSave} className="text-primary font-semibold hover:underline">` -> JSX/HTML 结构行，用于描述页面元素。
+- 782: `再次保存配置` -> 执行当前语句，参与该文件整体逻辑。
+- 783: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 784: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 785: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 786: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 787: `(空行)` -> 空行，用于提升代码结构可读性。
+- 788: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 789: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 790: `)` -> 结束当前语句或代码块。
+- 791: `}` -> 结束当前语句或代码块。

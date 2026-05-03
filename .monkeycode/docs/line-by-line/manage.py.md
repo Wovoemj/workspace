@@ -1,0 +1,263 @@
+# `manage.py` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `#!/usr/bin/env python3` -> 注释行，用于解释设计意图或使用说明。
+- 2: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 3: `manage.py — 智旅助手数据库管理 CLI` -> 执行当前语句，参与该文件整体逻辑。
+- 4: `(空行)` -> 空行，用于提升代码结构可读性。
+- 5: `用法：` -> 执行当前语句，参与该文件整体逻辑。
+- 6: `python manage.py list-users                        列出所有用户` -> 执行当前语句，参与该文件整体逻辑。
+- 7: `python manage.py create-user <email>              创建普通用户（交互式输入密码）` -> 执行当前语句，参与该文件整体逻辑。
+- 8: `python manage.py create-user <email> --admin      创建管理员用户` -> 执行当前语句，参与该文件整体逻辑。
+- 9: `python manage.py set-admin <email>                将用户设为管理员` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `python manage.py revoke-admin <email>             撤销管理员权限` -> 执行当前语句，参与该文件整体逻辑。
+- 11: `python manage.py set-level <email> <level>        设置会员等级` -> 执行当前语句，参与该文件整体逻辑。
+- 12: `python manage.py reset-password <email>           重置密码（交互式）` -> 执行当前语句，参与该文件整体逻辑。
+- 13: `python manage.py delete-user <email>              删除用户` -> 执行当前语句，参与该文件整体逻辑。
+- 14: `python manage.py shell                             进入 Flask shell 交互环境` -> 执行当前语句，参与该文件整体逻辑。
+- 15: `(空行)` -> 空行，用于提升代码结构可读性。
+- 16: `示例：` -> 执行当前语句，参与该文件整体逻辑。
+- 17: `python manage.py create-user admin@example.com --admin` -> 执行当前语句，参与该文件整体逻辑。
+- 18: `python manage.py list-users` -> 执行当前语句，参与该文件整体逻辑。
+- 19: `python manage.py set-level super@example.com 10` -> 执行当前语句，参与该文件整体逻辑。
+- 20: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 21: `import os` -> 导入依赖模块，供当前文件使用。
+- 22: `import sys` -> 导入依赖模块，供当前文件使用。
+- 23: `import click` -> 导入依赖模块，供当前文件使用。
+- 24: `(空行)` -> 空行，用于提升代码结构可读性。
+- 25: `# ── 确保项目根目录在 Python 路径 ────────────────────────────────────────────` -> 注释行，用于解释设计意图或使用说明。
+- 26: `_ROOT = os.path.dirname(os.path.abspath(__file__))` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `if _ROOT not in sys.path:` -> 条件判断分支，根据场景执行不同逻辑。
+- 28: `sys.path.insert(0, _ROOT)` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `(空行)` -> 空行，用于提升代码结构可读性。
+- 30: `from extensions import db` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `from models import User` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `from werkzeug.security import generate_password_hash, check_password_hash` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `from datetime import datetime` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `(空行)` -> 空行，用于提升代码结构可读性。
+- 35: `(空行)` -> 空行，用于提升代码结构可读性。
+- 36: `def _app():` -> 定义 Python 函数，封装可复用逻辑。
+- 37: `"""延迟导入，避免循环依赖时过早创建表"""` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `# 注意：app.py 中已完成 db.init_app(app)，直接导入 app 即可` -> 注释行，用于解释设计意图或使用说明。
+- 39: `from app import app` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `return app` -> 返回结果或提前结束当前流程。
+- 41: `(空行)` -> 空行，用于提升代码结构可读性。
+- 42: `(空行)` -> 空行，用于提升代码结构可读性。
+- 43: `def _ctx():` -> 定义 Python 函数，封装可复用逻辑。
+- 44: `app = _app()` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `return app.app_context()` -> 返回结果或提前结束当前流程。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `(空行)` -> 空行，用于提升代码结构可读性。
+- 48: `# ── 命令组 ────────────────────────────────────────────────────────────────────` -> 注释行，用于解释设计意图或使用说明。
+- 49: `(空行)` -> 空行，用于提升代码结构可读性。
+- 50: `@click.group()` -> 装饰器或样式指令，用于声明行为或规则。
+- 51: `def cli():` -> 定义 Python 函数，封装可复用逻辑。
+- 52: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `智旅助手数据库管理工具` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `pass` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `(空行)` -> 空行，用于提升代码结构可读性。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `@cli.command("list-users")` -> 装饰器或样式指令，用于声明行为或规则。
+- 59: `def list_users():` -> 定义 Python 函数，封装可复用逻辑。
+- 60: `"""列出所有用户"""` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `users = User.query.order_by(User.created_at.desc()).all()` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `if not users:` -> 条件判断分支，根据场景执行不同逻辑。
+- 64: `click.echo("暂无用户记录。")` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `return` -> 返回结果或提前结束当前流程。
+- 66: `click.echo(f"\n{'ID':>4}  {'邮箱':<30}  {'昵称':<15}  {'管理员':<6}  {'等级':<5}  {'注册时间'}")` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `click.echo("-" * 90)` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `for u in users:` -> 循环处理集合或重复执行逻辑。
+- 69: `is_admin = "✅" if _is_admin(u) else "  "` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `created = u.created_at.strftime("%Y-%m-%d %H:%M") if u.created_at else "—"` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `email = (u.email or "—")[:28]` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `nickname = (u.nickname or "—")[:13]` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `click.echo(f"{u.id:>4}  {email:<30}  {nickname:<15}  {is_admin:<6}  {u.membership_level:<5}  {created}")` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `click.echo(f"\n共 {len(users)} 位用户。")` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `(空行)` -> 空行，用于提升代码结构可读性。
+- 76: `(空行)` -> 空行，用于提升代码结构可读性。
+- 77: `def _is_admin(user: User) -> bool:` -> 定义 Python 函数，封装可复用逻辑。
+- 78: `if getattr(user, 'is_admin', False):` -> 条件判断分支，根据场景执行不同逻辑。
+- 79: `return True` -> 返回结果或提前结束当前流程。
+- 80: `try:` -> 异常处理逻辑，提升程序健壮性。
+- 81: `threshold = int(os.environ.get("ADMIN_MEMBERSHIP_LEVEL", "9").strip() or "9")` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `except Exception:` -> 异常处理逻辑，提升程序健壮性。
+- 83: `threshold = 9` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `return int(user.membership_level or 1) >= threshold` -> 返回结果或提前结束当前流程。
+- 85: `(空行)` -> 空行，用于提升代码结构可读性。
+- 86: `(空行)` -> 空行，用于提升代码结构可读性。
+- 87: `def _prompt_password() -> str:` -> 定义 Python 函数，封装可复用逻辑。
+- 88: `while True:` -> 循环处理集合或重复执行逻辑。
+- 89: `p1 = click.prompt("密码（不少于 8 位，需包含大小写字母和数字）", hide_input=True,` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `default="", show_default=False)` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `if len(p1) < 8:` -> 条件判断分支，根据场景执行不同逻辑。
+- 92: `click.echo("⚠  密码长度不能少于 8 位，请重新输入。")` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `continue` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `p2 = click.prompt("确认密码", hide_input=True)` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `if p1 != p2:` -> 条件判断分支，根据场景执行不同逻辑。
+- 96: `click.echo("⚠  两次密码不一致，请重新输入。")` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `continue` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `return p1` -> 返回结果或提前结束当前流程。
+- 99: `(空行)` -> 空行，用于提升代码结构可读性。
+- 100: `(空行)` -> 空行，用于提升代码结构可读性。
+- 101: `@cli.command("create-user")` -> 装饰器或样式指令，用于声明行为或规则。
+- 102: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 103: `@click.option("--admin", is_flag=True, help="创建为管理员账号")` -> 装饰器或样式指令，用于声明行为或规则。
+- 104: `@click.option("--username", default=None, help="用户名（username 字段，默认取邮箱前缀）")` -> 装饰器或样式指令，用于声明行为或规则。
+- 105: `@click.option("--nickname", default=None, help="昵称（默认取邮箱前缀）")` -> 装饰器或样式指令，用于声明行为或规则。
+- 106: `@click.option("--password", default=None, help="直接指定密码（建议仅测试用，交互式更安全）")` -> 装饰器或样式指令，用于声明行为或规则。
+- 107: `def create_user(email: str, admin: bool, username: str, nickname: str, password: str):` -> 定义 Python 函数，封装可复用逻辑。
+- 108: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `创建新用户。` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `若不指定密码，将交互式输入。` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `# 检查邮箱是否已存在` -> 注释行，用于解释设计意图或使用说明。
+- 114: `existing = User.query.filter_by(email=email.lower()).first()` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `if existing:` -> 条件判断分支，根据场景执行不同逻辑。
+- 116: `click.echo(f"❌  邮箱 {email} 已存在（用户 ID={existing.id}）。")` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `if not password:` -> 条件判断分支，根据场景执行不同逻辑。
+- 120: `password = _prompt_password()` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `elif len(password) < 8:` -> 条件判断分支，根据场景执行不同逻辑。
+- 122: `click.echo("❌  密码长度不能少于 8 位。")` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `(空行)` -> 空行，用于提升代码结构可读性。
+- 125: `if not username:` -> 条件判断分支，根据场景执行不同逻辑。
+- 126: `username = email.split("@")[0][:20]` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `if not nickname:` -> 条件判断分支，根据场景执行不同逻辑。
+- 128: `nickname = username` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `(空行)` -> 空行，用于提升代码结构可读性。
+- 130: `user = User(` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `username=username,` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `nickname=nickname,` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `email=email.lower(),` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `password_hash=generate_password_hash(password),` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `membership_level=10 if admin else 1,` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `is_admin=admin,` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `created_at=datetime.now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `updated_at=datetime.now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `)` -> 结束当前语句或代码块。
+- 140: `db.session.add(user)` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `db.session.commit()` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `(空行)` -> 空行，用于提升代码结构可读性。
+- 143: `role = "管理员" if admin else "普通用户"` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `click.echo(f"✅  用户创建成功！")` -> 执行当前语句，参与该文件整体逻辑。
+- 145: `click.echo(f"    邮箱：{email}")` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `click.echo(f"    角色：{role}")` -> 执行当前语句，参与该文件整体逻辑。
+- 147: `click.echo(f"    会员等级：{user.membership_level}")` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `click.echo(f"    is_admin：{user.is_admin}")` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `click.echo(f"\n提示：管理员请使用 /api/admin/login 接口登录")` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `(空行)` -> 空行，用于提升代码结构可读性。
+- 151: `(空行)` -> 空行，用于提升代码结构可读性。
+- 152: `@cli.command("set-admin")` -> 装饰器或样式指令，用于声明行为或规则。
+- 153: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 154: `def set_admin(email: str):` -> 定义 Python 函数，封装可复用逻辑。
+- 155: `"""将用户设为管理员"""` -> 执行当前语句，参与该文件整体逻辑。
+- 156: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 157: `user = User.query.filter_by(email=email.lower()).first()` -> 执行当前语句，参与该文件整体逻辑。
+- 158: `if not user:` -> 条件判断分支，根据场景执行不同逻辑。
+- 159: `click.echo(f"❌  用户 {email} 不存在。")` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `# 将用户设为管理员` -> 注释行，用于解释设计意图或使用说明。
+- 162: `user.is_admin = True` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `# 确保 membership_level 至少为 10，兼容 None 或非整数情况` -> 注释行，用于解释设计意图或使用说明。
+- 164: `try:` -> 异常处理逻辑，提升程序健壮性。
+- 165: `current_level = int(user.membership_level or 1)` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `except Exception:` -> 异常处理逻辑，提升程序健壮性。
+- 167: `current_level = 1` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `user.membership_level = max(current_level, 10)` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `# 更新更新时间并提交` -> 注释行，用于解释设计意图或使用说明。
+- 170: `user.updated_at = datetime.now()` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `db.session.commit()` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `click.echo(f"✅  {email} 现已是管理员（is_admin=True, membership_level={user.membership_level}）")` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `(空行)` -> 空行，用于提升代码结构可读性。
+- 174: `(空行)` -> 空行，用于提升代码结构可读性。
+- 175: `@cli.command("revoke-admin")` -> 装饰器或样式指令，用于声明行为或规则。
+- 176: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 177: `def revoke_admin(email: str):` -> 定义 Python 函数，封装可复用逻辑。
+- 178: `"""撤销用户的管理员权限"""` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `user = User.query.filter_by(email=email.lower()).first()` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `if not user:` -> 条件判断分支，根据场景执行不同逻辑。
+- 182: `click.echo(f"❌  用户 {email} 不存在。")` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 184: `user.is_admin = False` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `db.session.commit()` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `click.echo(f"✅  已撤销 {email} 的管理员权限（is_admin=False）")` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `(空行)` -> 空行，用于提升代码结构可读性。
+- 188: `(空行)` -> 空行，用于提升代码结构可读性。
+- 189: `@cli.command("set-level")` -> 装饰器或样式指令，用于声明行为或规则。
+- 190: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 191: `@click.argument("level", type=int)` -> 装饰器或样式指令，用于声明行为或规则。
+- 192: `def set_level(email: str, level: int):` -> 定义 Python 函数，封装可复用逻辑。
+- 193: `"""设置用户会员等级"""` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `user = User.query.filter_by(email=email.lower()).first()` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `if not user:` -> 条件判断分支，根据场景执行不同逻辑。
+- 197: `click.echo(f"❌  用户 {email} 不存在。")` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 199: `user.membership_level = max(1, level)` -> 执行当前语句，参与该文件整体逻辑。
+- 200: `db.session.commit()` -> 执行当前语句，参与该文件整体逻辑。
+- 201: `click.echo(f"✅  {email} 的会员等级已更新为 {user.membership_level}")` -> 执行当前语句，参与该文件整体逻辑。
+- 202: `(空行)` -> 空行，用于提升代码结构可读性。
+- 203: `(空行)` -> 空行，用于提升代码结构可读性。
+- 204: `@cli.command("reset-password")` -> 装饰器或样式指令，用于声明行为或规则。
+- 205: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 206: `def reset_password(email: str):` -> 定义 Python 函数，封装可复用逻辑。
+- 207: `"""交互式重置用户密码"""` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `user = User.query.filter_by(email=email.lower()).first()` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `if not user:` -> 条件判断分支，根据场景执行不同逻辑。
+- 211: `click.echo(f"❌  用户 {email} 不存在。")` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `password = _prompt_password()` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `user.password_hash = generate_password_hash(password)` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `db.session.commit()` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `click.echo(f"✅  {email} 的密码已重置。")` -> 执行当前语句，参与该文件整体逻辑。
+- 217: `(空行)` -> 空行，用于提升代码结构可读性。
+- 218: `(空行)` -> 空行，用于提升代码结构可读性。
+- 219: `@cli.command("delete-user")` -> 装饰器或样式指令，用于声明行为或规则。
+- 220: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 221: `@click.option("--force", is_flag=True, help="跳过确认直接删除")` -> 装饰器或样式指令，用于声明行为或规则。
+- 222: `def delete_user(email: str, force: bool):` -> 定义 Python 函数，封装可复用逻辑。
+- 223: `"""删除用户（会级联删除其评论）"""` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `with _ctx():` -> 执行当前语句，参与该文件整体逻辑。
+- 225: `user = User.query.filter_by(email=email.lower()).first()` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `if not user:` -> 条件判断分支，根据场景执行不同逻辑。
+- 227: `click.echo(f"❌  用户 {email} 不存在。")` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `sys.exit(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `if not force:` -> 条件判断分支，根据场景执行不同逻辑。
+- 230: `click.confirm(f"确认删除用户 {email}（ID={user.id}）及其所有评论？", abort=True)` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `from models import DestinationComment` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `DestinationComment.query.filter_by(user_id=user.id).delete(synchronize_session=False)` -> 执行当前语句，参与该文件整体逻辑。
+- 233: `db.session.delete(user)` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `db.session.commit()` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `click.echo(f"✅  用户 {email} 已删除。")` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `(空行)` -> 空行，用于提升代码结构可读性。
+- 237: `(空行)` -> 空行，用于提升代码结构可读性。
+- 238: `@cli.command("shell")` -> 装饰器或样式指令，用于声明行为或规则。
+- 239: `def shell():` -> 定义 Python 函数，封装可复用逻辑。
+- 240: `"""进入 Flask 应用上下文交互环境（等同于 flask shell）"""` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `app = _app()` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `import code` -> 导入依赖模块，供当前文件使用。
+- 243: `ctx = app.test_request_context()` -> 执行当前语句，参与该文件整体逻辑。
+- 244: `ctx.push()` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `code.interact(local={"app": app, "db": db, "User": User})` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `(空行)` -> 空行，用于提升代码结构可读性。
+- 247: `(空行)` -> 空行，用于提升代码结构可读性。
+- 248: `# ── 快捷别名 ──────────────────────────────────────────────────────────────────` -> 注释行，用于解释设计意图或使用说明。
+- 249: `(空行)` -> 空行，用于提升代码结构可读性。
+- 250: `@cli.command("promote")` -> 装饰器或样式指令，用于声明行为或规则。
+- 251: `@click.argument("email")` -> 装饰器或样式指令，用于声明行为或规则。
+- 252: `def promote(email: str):` -> 定义 Python 函数，封装可复用逻辑。
+- 253: `"""快捷命令：将用户提升为管理员（等同于 set-admin）"""` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `ctx = click.get_current_context()` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `ctx.invoke(set_admin, email=email)` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `(空行)` -> 空行，用于提升代码结构可读性。
+- 257: `(空行)` -> 空行，用于提升代码结构可读性。
+- 258: `if __name__ == "__main__":` -> 条件判断分支，根据场景执行不同逻辑。
+- 259: `cli()` -> 执行当前语句，参与该文件整体逻辑。

@@ -1,0 +1,337 @@
+# `frontend/user-web/src/components/GlobalSearch.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 全局搜索组件 (GlobalSearch)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 全局搜索下拉框，支持搜索目的地和产品` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 实时搜索（300ms防抖），显示搜索结果预览` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 支持搜索历史记录（本地存储，最多10条）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 显示热门搜索推荐` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 键盘快捷键支持（Enter搜索，Escape关闭）` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 数据来源：` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - 后端 API: GET /api/search` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 18: `(空行)` -> 空行，用于提升代码结构可读性。
+- 19: `import { useState, useEffect, useRef, useCallback } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 20: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 21: `import { useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 22: `import { Search, X, Clock, TrendingUp, MapPin, Package, Loader2 } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 23: `(空行)` -> 空行，用于提升代码结构可读性。
+- 24: `/** 搜索结果项类型 */` -> 注释行，用于解释设计意图或使用说明。
+- 25: `interface SearchResult {` -> 定义类型或类结构，约束数据与行为。
+- 26: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `type: 'destination' | 'product'` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `image?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `price?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `city?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `}` -> 结束当前语句或代码块。
+- 33: `(空行)` -> 空行，用于提升代码结构可读性。
+- 34: `interface GlobalSearchProps {` -> 定义类型或类结构，约束数据与行为。
+- 35: `className?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `}` -> 结束当前语句或代码块。
+- 37: `(空行)` -> 空行，用于提升代码结构可读性。
+- 38: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 39: `* 全局搜索组件` -> 注释行，用于解释设计意图或使用说明。
+- 40: `* @description 带下拉结果的全局搜索框` -> 注释行，用于解释设计意图或使用说明。
+- 41: `* @param props - 组件属性` -> 注释行，用于解释设计意图或使用说明。
+- 42: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 43: `export function GlobalSearch({ className = '' }: GlobalSearchProps) {` -> 导出当前声明，供其他模块复用。
+- 44: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 45: `const [isOpen, setIsOpen] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 46: `const [query, setQuery] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 47: `const [results, setResults] = useState<{ destinations: SearchResult[]; products: SearchResult[] }>({` -> 声明变量或常量，保存运行时数据。
+- 48: `destinations: [],` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `products: []` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `const [loading, setLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 52: `const [searchHistory, setSearchHistory] = useState<string[]>([])` -> 声明变量或常量，保存运行时数据。
+- 53: `const inputRef = useRef<HTMLInputElement>(null)` -> 声明变量或常量，保存运行时数据。
+- 54: `const containerRef = useRef<HTMLDivElement>(null)` -> 声明变量或常量，保存运行时数据。
+- 55: `(空行)` -> 空行，用于提升代码结构可读性。
+- 56: `// Load search history from localStorage` -> 注释行，用于解释设计意图或使用说明。
+- 57: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `const history = localStorage.getItem('search_history')` -> 声明变量或常量，保存运行时数据。
+- 59: `if (history) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 60: `setSearchHistory(JSON.parse(history))` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `}` -> 结束当前语句或代码块。
+- 62: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `(空行)` -> 空行，用于提升代码结构可读性。
+- 64: `// Save search history to localStorage` -> 注释行，用于解释设计意图或使用说明。
+- 65: `const saveToHistory = (keyword: string) => {` -> 声明变量或常量，保存运行时数据。
+- 66: `if (!keyword.trim()) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 67: `const newHistory = [keyword, ...searchHistory.filter(h => h !== keyword)].slice(0, 10)` -> 声明变量或常量，保存运行时数据。
+- 68: `setSearchHistory(newHistory)` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `localStorage.setItem('search_history', JSON.stringify(newHistory))` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `}` -> 结束当前语句或代码块。
+- 71: `(空行)` -> 空行，用于提升代码结构可读性。
+- 72: `// Clear search history` -> 注释行，用于解释设计意图或使用说明。
+- 73: `const clearHistory = () => {` -> 声明变量或常量，保存运行时数据。
+- 74: `setSearchHistory([])` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `localStorage.removeItem('search_history')` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `}` -> 结束当前语句或代码块。
+- 77: `(空行)` -> 空行，用于提升代码结构可读性。
+- 78: `// Debounced search` -> 注释行，用于解释设计意图或使用说明。
+- 79: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `if (!query.trim()) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 81: `setResults({ destinations: [], products: [] })` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `return` -> 返回结果或提前结束当前流程。
+- 83: `}` -> 结束当前语句或代码块。
+- 84: `(空行)` -> 空行，用于提升代码结构可读性。
+- 85: `const timer = setTimeout(async () => {` -> 声明变量或常量，保存运行时数据。
+- 86: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 88: `const res = await fetch(\`/api/search?q=${encodeURIComponent(query)}&type=all&per_page=5\`)` -> 声明变量或常量，保存运行时数据。
+- 89: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 90: `if (data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 91: `setResults({` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `destinations: (data.destinations || []).map((d: any) => ({` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `id: d.id,` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `name: d.name,` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `type: 'destination' as const,` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `image: d.cover_image,` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `city: d.city` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `})),` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `products: (data.products || []).map((p: any) => ({` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `id: p.id,` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `name: p.name,` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `type: 'product' as const,` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `image: p.cover_image,` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `price: p.discount_price || p.base_price` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `}))` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `}` -> 结束当前语句或代码块。
+- 108: `} catch (e) {` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `console.error('Search error:', e)` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `}` -> 结束当前语句或代码块。
+- 113: `}, 300)` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `(空行)` -> 空行，用于提升代码结构可读性。
+- 115: `return () => clearTimeout(timer)` -> 返回结果或提前结束当前流程。
+- 116: `}, [query])` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `(空行)` -> 空行，用于提升代码结构可读性。
+- 118: `// Handle click outside to close` -> 注释行，用于解释设计意图或使用说明。
+- 119: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `const handleClickOutside = (e: MouseEvent) => {` -> 声明变量或常量，保存运行时数据。
+- 121: `if (containerRef.current && !containerRef.current.contains(e.target as Node)) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 122: `setIsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `}` -> 结束当前语句或代码块。
+- 124: `}` -> 结束当前语句或代码块。
+- 125: `document.addEventListener('mousedown', handleClickOutside)` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `return () => document.removeEventListener('mousedown', handleClickOutside)` -> 返回结果或提前结束当前流程。
+- 127: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `(空行)` -> 空行，用于提升代码结构可读性。
+- 129: `// Focus input when opened` -> 注释行，用于解释设计意图或使用说明。
+- 130: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `if (isOpen && inputRef.current) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 132: `inputRef.current.focus()` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `}` -> 结束当前语句或代码块。
+- 134: `}, [isOpen])` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `(空行)` -> 空行，用于提升代码结构可读性。
+- 136: `// Handle search submit` -> 注释行，用于解释设计意图或使用说明。
+- 137: `const handleSearch = (keyword?: string) => {` -> 声明变量或常量，保存运行时数据。
+- 138: `const searchTerm = keyword || query` -> 声明变量或常量，保存运行时数据。
+- 139: `if (!searchTerm.trim()) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 140: `saveToHistory(searchTerm)` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `setIsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `router.push(\`/search?q=${encodeURIComponent(searchTerm)}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 143: `}` -> 结束当前语句或代码块。
+- 144: `(空行)` -> 空行，用于提升代码结构可读性。
+- 145: `// Handle keyboard shortcuts` -> 注释行，用于解释设计意图或使用说明。
+- 146: `const handleKeyDown = (e: React.KeyboardEvent) => {` -> 声明变量或常量，保存运行时数据。
+- 147: `if (e.key === 'Enter') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 148: `handleSearch()` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `} else if (e.key === 'Escape') {` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `setIsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `}` -> 结束当前语句或代码块。
+- 152: `}` -> 结束当前语句或代码块。
+- 153: `(空行)` -> 空行，用于提升代码结构可读性。
+- 154: `const totalResults = results.destinations.length + results.products.length` -> 声明变量或常量，保存运行时数据。
+- 155: `(空行)` -> 空行，用于提升代码结构可读性。
+- 156: `return (` -> 返回结果或提前结束当前流程。
+- 157: `<div ref={containerRef} className={\`relative ${className}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 158: `{/* Search Button */}` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `onClick={() => setIsOpen(true)}` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `<Search className="h-4 w-4 text-gray-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `<span className="text-sm text-gray-500 hidden sm:inline">搜索目的地或产品...</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `(空行)` -> 空行，用于提升代码结构可读性。
+- 167: `{/* Search Dropdown */}` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `{isOpen && (` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `<div className="absolute top-full right-0 mt-2 w-[400px] max-h-[500px] overflow-y-auto bg-white rounded-2xl shadow-xl border border-gray-200 z-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 170: `{/* Search Input */}` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `<div className="p-4 border-b border-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 173: `<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 174: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 175: `ref={inputRef}` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `type="text"` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `value={query}` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `onChange={(e) => setQuery(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `onKeyDown={handleKeyDown}` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `placeholder="搜索目的地、产品..."` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `className="w-full pl-10 pr-10 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"` -> 执行当前语句，参与该文件整体逻辑。
+- 182: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `{query && (` -> 执行当前语句，参与该文件整体逻辑。
+- 184: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `onClick={() => setQuery('')}` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `className="absolute right-3 top-1/2 -translate-y-1/2"` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `<X className="h-4 w-4 text-gray-400 hover:text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `(空行)` -> 空行，用于提升代码结构可读性。
+- 194: `{/* Loading State */}` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `{loading && (` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `<div className="p-8 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 197: `<Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `<p className="text-sm text-gray-500 mt-2">搜索中...</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 201: `(空行)` -> 空行，用于提升代码结构可读性。
+- 202: `{/* Search Results */}` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `{!loading && query && totalResults > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `<div className="p-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 205: `{/* Destinations */}` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `{results.destinations.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `<div className="mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 208: `<div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">` -> JSX/HTML 结构行，用于描述页面元素。
+- 209: `目的地` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 211: `{results.destinations.map((item) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `key={\`dest-${item.id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `href={\`/destinations/${item.id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `saveToHistory(query)` -> 执行当前语句，参与该文件整体逻辑。
+- 217: `setIsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 220: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `<div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 222: `<MapPin className="h-5 w-5 text-blue-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 223: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 224: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 225: `<div className="font-medium text-gray-900 truncate">{item.name}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 226: `<div className="text-xs text-gray-500">{item.city}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 227: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 228: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 229: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 231: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `(空行)` -> 空行，用于提升代码结构可读性。
+- 233: `{/* Products */}` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `{results.products.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `<div className="mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `<div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">` -> JSX/HTML 结构行，用于描述页面元素。
+- 237: `产品` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 239: `{results.products.map((item) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `key={\`prod-${item.id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `href={\`/products/${item.id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 243: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 244: `saveToHistory(query)` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `setIsOpen(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `<div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<Package className="h-5 w-5 text-green-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 252: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `<div className="font-medium text-gray-900 truncate">{item.name}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 254: `<div className="text-xs text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 255: `{item.price ? \`¥${item.price}\` : ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 258: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 259: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 260: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 261: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `(空行)` -> 空行，用于提升代码结构可读性。
+- 263: `{/* View All Results */}` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `onClick={() => handleSearch()}` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `className="w-full mt-2 py-2 text-center text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium"` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `查看全部结果 →` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 271: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `(空行)` -> 空行，用于提升代码结构可读性。
+- 273: `{/* No Results */}` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `{!loading && query && totalResults === 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `<div className="p-8 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 276: `<p className="text-gray-500">未找到相关结果</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 277: `<p className="text-sm text-gray-400 mt-1">试试其他关键词</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 278: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `(空行)` -> 空行，用于提升代码结构可读性。
+- 281: `{/* Search History (when no query) */}` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `{!query && searchHistory.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `<div className="p-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 284: `<div className="flex items-center justify-between px-3 py-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 285: `<span className="text-xs font-semibold text-gray-500 uppercase">最近搜索</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 286: `<button onClick={clearHistory} className="text-xs text-gray-400 hover:text-gray-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 287: `清除` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 289: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 290: `{searchHistory.map((keyword, idx) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 292: `key={idx}` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `setQuery(keyword)` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `handleSearch(keyword)` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 text-left"` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `<Clock className="h-4 w-4 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 300: `<span className="text-gray-700">{keyword}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 301: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 302: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 304: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `(空行)` -> 空行，用于提升代码结构可读性。
+- 306: `{/* Popular Searches (when no query and no history) */}` -> 执行当前语句，参与该文件整体逻辑。
+- 307: `{!query && searchHistory.length === 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 308: `<div className="p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `<div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-500 uppercase">` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `<TrendingUp className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 311: `热门搜索` -> 执行当前语句，参与该文件整体逻辑。
+- 312: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 313: `<div className="flex flex-wrap gap-2 mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 314: `{['北京', '上海', '杭州', '成都', '西安'].map((keyword) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `key={keyword}` -> 执行当前语句，参与该文件整体逻辑。
+- 317: `onClick={() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `setQuery(keyword)` -> 执行当前语句，参与该文件整体逻辑。
+- 319: `handleSearch(keyword)` -> 执行当前语句，参与该文件整体逻辑。
+- 320: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700 hover:bg-gray-200"` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `{keyword}` -> 执行当前语句，参与该文件整体逻辑。
+- 324: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 325: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 326: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 327: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 328: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 329: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 330: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 331: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 332: `)` -> 结束当前语句或代码块。
+- 333: `}` -> 结束当前语句或代码块。

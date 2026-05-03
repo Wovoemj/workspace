@@ -1,0 +1,406 @@
+# `frontend/user-web/src/components/CommentSection.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 评论组件 (CommentSection)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地评论列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 用户评分功能（1-5星）` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 评论发布功能（需登录）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 评论时间格式化（相对时间显示）` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 用户头像生成（基于昵称首字母）` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 数据来源：` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - GET /api/destinations/{id}/comments - 获取评论列表` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - POST /api/destinations/{id}/comments - 发布评论` -> 注释行，用于解释设计意图或使用说明。
+- 18: `*` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* 权限控制：` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - 查看评论：无需登录` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - 发布评论：需要登录（JWT Token）` -> 注释行，用于解释设计意图或使用说明。
+- 22: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 23: `(空行)` -> 空行，用于提升代码结构可读性。
+- 24: `import { useState, useEffect } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 25: `import { Star, ThumbsUp, MessageSquare, Send, User, Clock } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 26: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 27: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 28: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 29: `(空行)` -> 空行，用于提升代码结构可读性。
+- 30: `/** 评论用户信息 */` -> 注释行，用于解释设计意图或使用说明。
+- 31: `interface CommentUser {` -> 定义类型或类结构，约束数据与行为。
+- 32: `id?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `nickname?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `username?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `avatar?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `}` -> 结束当前语句或代码块。
+- 37: `(空行)` -> 空行，用于提升代码结构可读性。
+- 38: `interface Comment {` -> 定义类型或类结构，约束数据与行为。
+- 39: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `content: string` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `rating?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `likes_count?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `user?: CommentUser` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `created_at?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `}` -> 结束当前语句或代码块。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `interface CommentSectionProps {` -> 定义类型或类结构，约束数据与行为。
+- 48: `destinationId: string | number` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `destinationName?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `initialComments?: Comment[]` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `}` -> 结束当前语句或代码块。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 54: `* 评论组件主函数` -> 注释行，用于解释设计意图或使用说明。
+- 55: `* @description 目的地评论展示和发布组件` -> 注释行，用于解释设计意图或使用说明。
+- 56: `* @param props - 组件属性` -> 注释行，用于解释设计意图或使用说明。
+- 57: `* @param props.destinationId - 目的地ID` -> 注释行，用于解释设计意图或使用说明。
+- 58: `* @param props.destinationName - 目的地名称（用于显示）` -> 注释行，用于解释设计意图或使用说明。
+- 59: `* @param props.initialComments - 初始评论列表（可选）` -> 注释行，用于解释设计意图或使用说明。
+- 60: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 61: `export default function CommentSection({` -> 导出当前声明，供其他模块复用。
+- 62: `destinationId,` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `destinationName,` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `initialComments = []` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `}: CommentSectionProps) {` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `const { isAuthenticated } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 67: `const [comments, setComments] = useState<Comment[]>(initialComments)` -> 声明变量或常量，保存运行时数据。
+- 68: `const [loading, setLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 69: `const [error, setError] = useState<string | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 70: `const [commentText, setCommentText] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 71: `const [submitting, setSubmitting] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 72: `const [userRating, setUserRating] = useState(0)` -> 声明变量或常量，保存运行时数据。
+- 73: `const [hoverRating, setHoverRating] = useState(0)` -> 声明变量或常量，保存运行时数据。
+- 74: `(空行)` -> 空行，用于提升代码结构可读性。
+- 75: `const loadComments = async () => {` -> 声明变量或常量，保存运行时数据。
+- 76: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `setError(null)` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 79: `const res = await fetch(\`/api/destinations/${destinationId}/comments?limit=50\`, {` -> 声明变量或常量，保存运行时数据。
+- 80: `cache: 'no-store'` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 83: `if (!res.ok || !data?.success) throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 条件判断分支，根据场景执行不同逻辑。
+- 84: `setComments(data?.comments ?? [])` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `const msg = e?.message || '评论加载失败'` -> 声明变量或常量，保存运行时数据。
+- 87: `setError(msg)` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `}` -> 结束当前语句或代码块。
+- 91: `}` -> 结束当前语句或代码块。
+- 92: `(空行)` -> 空行，用于提升代码结构可读性。
+- 93: `const submitComment = async () => {` -> 声明变量或常量，保存运行时数据。
+- 94: `if (!isAuthenticated) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 95: `toast.error('请先登录再发表评论')` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `return` -> 返回结果或提前结束当前流程。
+- 97: `}` -> 结束当前语句或代码块。
+- 98: `const content = commentText.trim()` -> 声明变量或常量，保存运行时数据。
+- 99: `if (!content) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 100: `toast.error('评论内容不能为空')` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `return` -> 返回结果或提前结束当前流程。
+- 102: `}` -> 结束当前语句或代码块。
+- 103: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 104: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 105: `toast.error('未找到登录 token，请重新登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `return` -> 返回结果或提前结束当前流程。
+- 107: `}` -> 结束当前语句或代码块。
+- 108: `(空行)` -> 空行，用于提升代码结构可读性。
+- 109: `setSubmitting(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 111: `const res = await fetch(\`/api/destinations/${destinationId}/comments\`, {` -> 声明变量或常量，保存运行时数据。
+- 112: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `headers: {` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `Authorization: \`Bearer ${token}\`,` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `'Content-Type': 'application/json'` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `body: JSON.stringify({` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `content,` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `rating: userRating || undefined` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `}),` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 123: `if (!res.ok || !data?.success) throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 条件判断分支，根据场景执行不同逻辑。
+- 124: `setCommentText('')` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `setUserRating(0)` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `toast.success('评论发布成功！')` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `await loadComments()` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `toast.error(e?.message || '发布评论失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `setSubmitting(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `}` -> 结束当前语句或代码块。
+- 133: `}` -> 结束当前语句或代码块。
+- 134: `(空行)` -> 空行，用于提升代码结构可读性。
+- 135: `// 页面加载时获取评论` -> 注释行，用于解释设计意图或使用说明。
+- 136: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `loadComments()` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `}, [destinationId])` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `(空行)` -> 空行，用于提升代码结构可读性。
+- 140: `// 格式化时间` -> 注释行，用于解释设计意图或使用说明。
+- 141: `const formatTime = (dateStr?: string) => {` -> 声明变量或常量，保存运行时数据。
+- 142: `if (!dateStr) return ''` -> 条件判断分支，根据场景执行不同逻辑。
+- 143: `const date = new Date(dateStr)` -> 声明变量或常量，保存运行时数据。
+- 144: `const now = new Date()` -> 声明变量或常量，保存运行时数据。
+- 145: `const diff = now.getTime() - date.getTime()` -> 声明变量或常量，保存运行时数据。
+- 146: `const minutes = Math.floor(diff / 60000)` -> 声明变量或常量，保存运行时数据。
+- 147: `const hours = Math.floor(diff / 3600000)` -> 声明变量或常量，保存运行时数据。
+- 148: `const days = Math.floor(diff / 86400000)` -> 声明变量或常量，保存运行时数据。
+- 149: `(空行)` -> 空行，用于提升代码结构可读性。
+- 150: `if (minutes < 1) return '刚刚'` -> 条件判断分支，根据场景执行不同逻辑。
+- 151: `if (minutes < 60) return \`${minutes}分钟前\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 152: `if (hours < 24) return \`${hours}小时前\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 153: `if (days < 7) return \`${days}天前\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 154: `return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })` -> 返回结果或提前结束当前流程。
+- 155: `}` -> 结束当前语句或代码块。
+- 156: `(空行)` -> 空行，用于提升代码结构可读性。
+- 157: `// 获取用户头像背景色` -> 注释行，用于解释设计意图或使用说明。
+- 158: `const getAvatarColor = (name?: string) => {` -> 声明变量或常量，保存运行时数据。
+- 159: `const colors = [` -> 声明变量或常量，保存运行时数据。
+- 160: `'from-pink-400 to-rose-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `'from-violet-400 to-purple-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `'from-blue-400 to-cyan-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `'from-emerald-400 to-teal-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `'from-amber-400 to-orange-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `'from-red-400 to-pink-500',` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `const index = (name?.charCodeAt(0) || 0) % colors.length` -> 声明变量或常量，保存运行时数据。
+- 168: `return colors[index]` -> 返回结果或提前结束当前流程。
+- 169: `}` -> 结束当前语句或代码块。
+- 170: `(空行)` -> 空行，用于提升代码结构可读性。
+- 171: `// 获取用户首字母` -> 注释行，用于解释设计意图或使用说明。
+- 172: `const getInitial = (name?: string) => {` -> 声明变量或常量，保存运行时数据。
+- 173: `return name?.charAt(0).toUpperCase() || '?'` -> 返回结果或提前结束当前流程。
+- 174: `}` -> 结束当前语句或代码块。
+- 175: `(空行)` -> 空行，用于提升代码结构可读性。
+- 176: `return (` -> 返回结果或提前结束当前流程。
+- 177: `<div className="card p-6 mt-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 178: `{/* 标题 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `<div className="flex items-center justify-between mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 181: `<div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `<MessageSquare className="w-5 h-5 text-white" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 185: `<h3 className="text-xl font-bold text-gray-900">游客点评</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 186: `<p className="text-sm text-gray-500">{comments.length} 条真实评价</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 188: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `onClick={() => loadComments()}` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `className="text-sm text-blue-600 hover:text-blue-700 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 192: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 193: `刷新` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 195: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 196: `(空行)` -> 空行，用于提升代码结构可读性。
+- 197: `{/* 评分统计 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `{comments.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 199: `<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `<div className="flex items-center gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 201: `<div className="text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 202: `<div className="text-3xl font-bold text-gray-900">` -> JSX/HTML 结构行，用于描述页面元素。
+- 203: `{(comments.reduce((sum, c) => sum + (c.rating || 0), 0) / comments.filter(c => c.rating).length || 5).toFixed(1)}` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 205: `<div className="flex items-center gap-1 mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 206: `{[1, 2, 3, 4, 5].map((star) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `<Star` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `key={star}` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `className="w-4 h-4 text-amber-400 fill-amber-400"` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 211: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 213: `<div className="text-xs text-gray-500 mt-1">平均评分</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 214: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 215: `<div className="flex-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 216: `<div className="flex items-center gap-2 mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `<span className="text-sm text-gray-600">评论趋势</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 218: `<div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 219: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 220: `className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `style={{ width: \`${Math.min(100, (comments.length / 50) * 100)}%\` }}` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 224: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 225: `<p className="text-xs text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 226: `{destinationName ? \`来自「${destinationName}」的游客真实评价\` : '真实游客评价'}` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 228: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 229: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 230: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 231: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `(空行)` -> 空行，用于提升代码结构可读性。
+- 233: `{/* 评论列表 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `<div className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `{[1, 2, 3].map((i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `<div key={i} className="animate-pulse">` -> JSX/HTML 结构行，用于描述页面元素。
+- 238: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 239: `<div className="w-10 h-10 rounded-full bg-gray-200" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 240: `<div className="flex-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 241: `<div className="h-4 bg-gray-200 rounded w-24 mb-2" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 242: `<div className="h-3 bg-gray-200 rounded w-48" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 243: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `<div className="mt-3 h-16 bg-gray-100 rounded-lg" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 246: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 247: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 249: `) : error ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 250: `<div className="text-center py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `<div className="text-red-500 mb-2">{error}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 252: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 253: `onClick={() => loadComments()}` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `重试` -> 执行当前语句，参与该文件整体逻辑。
+- 257: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 258: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 259: `) : comments.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 260: `<div className="text-center py-12 bg-gray-50 rounded-xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 261: `<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 262: `<MessageSquare className="w-8 h-8 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 263: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 264: `<p className="text-gray-500 mb-2">还没有人评论过这里</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 265: `<p className="text-sm text-gray-400">成为第一个分享旅行体验的人吧！</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 267: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `<div className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 269: `{comments.map((comment) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `key={comment.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `className="group bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-all duration-200"` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `<div className="flex items-start gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 275: `{/* 用户头像 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `<div className={\`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(comment.user?.nickname)} flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 277: `{comment.user?.avatar ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `<img src={comment.user.avatar} alt="" className="w-full h-full rounded-full object-cover" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `getInitial(comment.user?.nickname || comment.user?.username)` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 283: `(空行)` -> 空行，用于提升代码结构可读性。
+- 284: `<div className="flex-1 min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 285: `{/* 用户信息行 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `<div className="flex items-center justify-between gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 287: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 288: `<span className="font-semibold text-gray-900">` -> JSX/HTML 结构行，用于描述页面元素。
+- 289: `{comment.user?.nickname || comment.user?.username || '匿名用户'}` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `{comment.rating && (` -> 执行当前语句，参与该文件整体逻辑。
+- 292: `<div className="flex items-center gap-0.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 293: `{[1, 2, 3, 4, 5].map((star) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `<Star` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `key={star}` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `className={\`w-3 h-3 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `star <= comment.rating!` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `? 'text-amber-400 fill-amber-400'` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `: 'text-gray-300'` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 304: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 306: `<span className="text-xs text-gray-400 flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 307: `<Clock className="w-3 h-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 308: `{formatTime(comment.created_at)}` -> 执行当前语句，参与该文件整体逻辑。
+- 309: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 311: `(空行)` -> 空行，用于提升代码结构可读性。
+- 312: `{/* 评论内容 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 313: `<p className="mt-2 text-gray-700 leading-relaxed whitespace-pre-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 314: `{comment.content}` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 316: `(空行)` -> 空行，用于提升代码结构可读性。
+- 317: `{/* 点赞 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `{comment.likes_count !== undefined && comment.likes_count > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 319: `<div className="mt-2 flex items-center gap-1 text-gray-400 text-xs">` -> JSX/HTML 结构行，用于描述页面元素。
+- 320: `<ThumbsUp className="w-3 h-3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 321: `{comment.likes_count} 觉得有用` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 323: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 324: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 325: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 326: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 327: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 328: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 329: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 330: `(空行)` -> 空行，用于提升代码结构可读性。
+- 331: `{/* 发表评论 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 332: `<div className="mt-6 pt-6 border-t border-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 333: `<div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 334: `<div className="flex items-center justify-between mb-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 335: `<span className="text-sm font-semibold text-gray-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 336: `{isAuthenticated ? '分享你的旅行体验' : '登录后发表评论'}` -> 执行当前语句，参与该文件整体逻辑。
+- 337: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 338: `{isAuthenticated && (` -> 执行当前语句，参与该文件整体逻辑。
+- 339: `<div className="flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 340: `<span className="text-sm text-gray-500 mr-2">评分：</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 341: `{[1, 2, 3, 4, 5].map((star) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 342: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 343: `key={star}` -> 执行当前语句，参与该文件整体逻辑。
+- 344: `onMouseEnter={() => setHoverRating(star)}` -> 执行当前语句，参与该文件整体逻辑。
+- 345: `onMouseLeave={() => setHoverRating(0)}` -> 执行当前语句，参与该文件整体逻辑。
+- 346: `onClick={() => setUserRating(star === userRating ? 0 : star)}` -> 执行当前语句，参与该文件整体逻辑。
+- 347: `className="transition-transform hover:scale-110"` -> 执行当前语句，参与该文件整体逻辑。
+- 348: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 349: `<Star` -> 执行当前语句，参与该文件整体逻辑。
+- 350: `className={\`w-5 h-5 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 351: `star <= (hoverRating || userRating)` -> 执行当前语句，参与该文件整体逻辑。
+- 352: `? 'text-amber-400 fill-amber-400'` -> 执行当前语句，参与该文件整体逻辑。
+- 353: `: 'text-gray-300'` -> 执行当前语句，参与该文件整体逻辑。
+- 354: `} transition-colors\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 355: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 356: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 357: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 358: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 359: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 360: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 361: `(空行)` -> 空行，用于提升代码结构可读性。
+- 362: `{!isAuthenticated ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 363: `<div className="text-center py-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 364: `<p className="text-gray-500 mb-3">登录后才能发表评价哦</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 365: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 366: `href="/login"` -> 执行当前语句，参与该文件整体逻辑。
+- 367: `className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md"` -> 执行当前语句，参与该文件整体逻辑。
+- 368: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 369: `<User className="w-4 h-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 370: `登录 / 注册` -> 执行当前语句，参与该文件整体逻辑。
+- 371: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 372: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 373: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 374: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 375: `<textarea` -> 执行当前语句，参与该文件整体逻辑。
+- 376: `className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all resize-none text-sm bg-white"` -> 执行当前语句，参与该文件整体逻辑。
+- 377: `rows={3}` -> 执行当前语句，参与该文件整体逻辑。
+- 378: `value={commentText}` -> 执行当前语句，参与该文件整体逻辑。
+- 379: `onChange={(e) => setCommentText(e.target.value)}` -> 执行当前语句，参与该文件整体逻辑。
+- 380: `placeholder="推荐这个地方吗？分享你的真实感受吧..."` -> 执行当前语句，参与该文件整体逻辑。
+- 381: `maxLength={500}` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 383: `<div className="flex items-center justify-between mt-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 384: `<span className="text-xs text-gray-400">` -> JSX/HTML 结构行，用于描述页面元素。
+- 385: `{commentText.length}/500` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 387: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 388: `onClick={submitComment}` -> 执行当前语句，参与该文件整体逻辑。
+- 389: `disabled={submitting || !commentText.trim()}` -> 执行当前语句，参与该文件整体逻辑。
+- 390: `className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"` -> 执行当前语句，参与该文件整体逻辑。
+- 391: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 392: `<Send className="w-4 h-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 393: `{submitting ? '发布中...' : '发布评论'}` -> 执行当前语句，参与该文件整体逻辑。
+- 394: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 395: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 396: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 397: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 398: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 399: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 400: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 401: `)` -> 结束当前语句或代码块。
+- 402: `}` -> 结束当前语句或代码块。

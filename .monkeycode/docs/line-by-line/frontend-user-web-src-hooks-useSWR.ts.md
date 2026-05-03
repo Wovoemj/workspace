@@ -1,0 +1,219 @@
+# `frontend/user-web/src/hooks/useSWR.ts` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `import { useState, useEffect, useCallback, useRef } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 4: `(空行)` -> 空行，用于提升代码结构可读性。
+- 5: `interface SWROptions {` -> 定义类型或类结构，约束数据与行为。
+- 6: `refreshInterval?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 7: `revalidateOnFocus?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 8: `revalidateOnReconnect?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 9: `dedupingInterval?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `cacheTime?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 11: `onSuccess?: (data: any) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 12: `onError?: (error: Error) => void` -> 执行当前语句，参与该文件整体逻辑。
+- 13: `}` -> 结束当前语句或代码块。
+- 14: `(空行)` -> 空行，用于提升代码结构可读性。
+- 15: `interface SWRState<T> {` -> 定义类型或类结构，约束数据与行为。
+- 16: `data: T | null` -> 执行当前语句，参与该文件整体逻辑。
+- 17: `error: Error | null` -> 执行当前语句，参与该文件整体逻辑。
+- 18: `isLoading: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 19: `isValidating: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 20: `}` -> 结束当前语句或代码块。
+- 21: `(空行)` -> 空行，用于提升代码结构可读性。
+- 22: `type Fetcher<T> = (url: string) => Promise<T>` -> 定义类型或类结构，约束数据与行为。
+- 23: `(空行)` -> 空行，用于提升代码结构可读性。
+- 24: `// 简单的内存缓存` -> 注释行，用于解释设计意图或使用说明。
+- 25: `const cache = new Map<string, { data: any; timestamp: number }>()` -> 声明变量或常量，保存运行时数据。
+- 26: `(空行)` -> 空行，用于提升代码结构可读性。
+- 27: `export function useSWR<T>(` -> 导出当前声明，供其他模块复用。
+- 28: `key: string | null,` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `fetcher?: Fetcher<T>,` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `options: SWROptions = {}` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `): SWRState<T> & { mutate: () => Promise<void> } {` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `const {` -> 声明变量或常量，保存运行时数据。
+- 33: `refreshInterval = 0,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `revalidateOnFocus = true,` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `revalidateOnReconnect = true,` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `dedupingInterval = 2000,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `cacheTime = 5 * 60 * 1000, // 5分钟默认缓存` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `onSuccess,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `onError,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `} = options` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `(空行)` -> 空行，用于提升代码结构可读性。
+- 42: `const [state, setState] = useState<SWRState<T>>({` -> 声明变量或常量，保存运行时数据。
+- 43: `data: null,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `error: null,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `isLoading: key !== null && !cache.has(key),` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `isValidating: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `(空行)` -> 空行，用于提升代码结构可读性。
+- 49: `const isMounted = useRef(true)` -> 声明变量或常量，保存运行时数据。
+- 50: `const lastFetchTime = useRef(0)` -> 声明变量或常量，保存运行时数据。
+- 51: `const intervalId = useRef<NodeJS.Timeout | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `const fetchData = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 54: `if (!key || !fetcher) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 55: `(空行)` -> 空行，用于提升代码结构可读性。
+- 56: `// 去重：如果在 dedupingInterval 内已经请求过，跳过` -> 注释行，用于解释设计意图或使用说明。
+- 57: `const now = Date.now()` -> 声明变量或常量，保存运行时数据。
+- 58: `if (now - lastFetchTime.current < dedupingInterval && state.data) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 59: `return` -> 返回结果或提前结束当前流程。
+- 60: `}` -> 结束当前语句或代码块。
+- 61: `(空行)` -> 空行，用于提升代码结构可读性。
+- 62: `// 检查缓存` -> 注释行，用于解释设计意图或使用说明。
+- 63: `const cached = cache.get(key)` -> 声明变量或常量，保存运行时数据。
+- 64: `if (cached && now - cached.timestamp < cacheTime) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 65: `if (isMounted.current) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 66: `setState(prev => ({ ...prev, data: cached.data, isLoading: false }))` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `onSuccess?.(cached.data)` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `}` -> 结束当前语句或代码块。
+- 69: `return` -> 返回结果或提前结束当前流程。
+- 70: `}` -> 结束当前语句或代码块。
+- 71: `(空行)` -> 空行，用于提升代码结构可读性。
+- 72: `if (isMounted.current) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 73: `setState(prev => ({ ...prev, isValidating: true }))` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `}` -> 结束当前语句或代码块。
+- 75: `(空行)` -> 空行，用于提升代码结构可读性。
+- 76: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 77: `lastFetchTime.current = now` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `const data = await fetcher(key)` -> 声明变量或常量，保存运行时数据。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `// 更新缓存` -> 注释行，用于解释设计意图或使用说明。
+- 81: `cache.set(key, { data, timestamp: now })` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `(空行)` -> 空行，用于提升代码结构可读性。
+- 83: `if (isMounted.current) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 84: `setState({ data, error: null, isLoading: false, isValidating: false })` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `onSuccess?.(data)` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `}` -> 结束当前语句或代码块。
+- 87: `} catch (error) {` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `if (isMounted.current) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 89: `const err = error instanceof Error ? error : new Error(String(error))` -> 声明变量或常量，保存运行时数据。
+- 90: `setState(prev => ({ ...prev, error: err, isLoading: false, isValidating: false }))` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `onError?.(err)` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `}` -> 结束当前语句或代码块。
+- 93: `}` -> 结束当前语句或代码块。
+- 94: `}, [key, fetcher, dedupingInterval, cacheTime, onSuccess, onError, state.data])` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `(空行)` -> 空行，用于提升代码结构可读性。
+- 96: `// 初始加载` -> 注释行，用于解释设计意图或使用说明。
+- 97: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `isMounted.current = true` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `(空行)` -> 空行，用于提升代码结构可读性。
+- 100: `if (key) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 101: `fetchData()` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `setState({ data: null, error: null, isLoading: false, isValidating: false })` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `}` -> 结束当前语句或代码块。
+- 105: `(空行)` -> 空行，用于提升代码结构可读性。
+- 106: `return () => {` -> 返回结果或提前结束当前流程。
+- 107: `isMounted.current = false` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `}` -> 结束当前语句或代码块。
+- 109: `}, [key])` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `(空行)` -> 空行，用于提升代码结构可读性。
+- 111: `// 自动刷新` -> 注释行，用于解释设计意图或使用说明。
+- 112: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `if (refreshInterval > 0 && key) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 114: `intervalId.current = setInterval(fetchData, refreshInterval)` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `return () => {` -> 返回结果或提前结束当前流程。
+- 116: `if (intervalId.current) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 117: `clearInterval(intervalId.current)` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `}` -> 结束当前语句或代码块。
+- 119: `}` -> 结束当前语句或代码块。
+- 120: `}` -> 结束当前语句或代码块。
+- 121: `}, [key, refreshInterval, fetchData])` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `(空行)` -> 空行，用于提升代码结构可读性。
+- 123: `// 页面重新聚焦时刷新` -> 注释行，用于解释设计意图或使用说明。
+- 124: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `if (!revalidateOnFocus || !key) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 126: `(空行)` -> 空行，用于提升代码结构可读性。
+- 127: `const handleFocus = () => {` -> 声明变量或常量，保存运行时数据。
+- 128: `// 确保至少过去5秒才刷新` -> 注释行，用于解释设计意图或使用说明。
+- 129: `if (Date.now() - lastFetchTime.current > 5000) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 130: `fetchData()` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `}` -> 结束当前语句或代码块。
+- 132: `}` -> 结束当前语句或代码块。
+- 133: `(空行)` -> 空行，用于提升代码结构可读性。
+- 134: `window.addEventListener('focus', handleFocus)` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `return () => window.removeEventListener('focus', handleFocus)` -> 返回结果或提前结束当前流程。
+- 136: `}, [key, revalidateOnFocus, fetchData])` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `(空行)` -> 空行，用于提升代码结构可读性。
+- 138: `// 网络重连时刷新` -> 注释行，用于解释设计意图或使用说明。
+- 139: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `if (!revalidateOnReconnect || !key) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 141: `(空行)` -> 空行，用于提升代码结构可读性。
+- 142: `const handleOnline = () => fetchData()` -> 声明变量或常量，保存运行时数据。
+- 143: `window.addEventListener('online', handleOnline)` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `return () => window.removeEventListener('online', handleOnline)` -> 返回结果或提前结束当前流程。
+- 145: `}, [key, revalidateOnReconnect, fetchData])` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `(空行)` -> 空行，用于提升代码结构可读性。
+- 147: `const mutate = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 148: `// 清除缓存并重新请求` -> 注释行，用于解释设计意图或使用说明。
+- 149: `if (key) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 150: `cache.delete(key)` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `}` -> 结束当前语句或代码块。
+- 152: `await fetchData()` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `}, [key, fetchData])` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `(空行)` -> 空行，用于提升代码结构可读性。
+- 155: `return { ...state, mutate }` -> 返回结果或提前结束当前流程。
+- 156: `}` -> 结束当前语句或代码块。
+- 157: `(空行)` -> 空行，用于提升代码结构可读性。
+- 158: `// 默认 fetcher` -> 注释行，用于解释设计意图或使用说明。
+- 159: `export const defaultFetcher = async <T,>(url: string): Promise<T> => {` -> 导出当前声明，供其他模块复用。
+- 160: `const res = await fetch(url, {` -> 声明变量或常量，保存运行时数据。
+- 161: `headers: {` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `'Accept': 'application/json',` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `(空行)` -> 空行，用于提升代码结构可读性。
+- 166: `if (!res.ok) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 167: `throw new Error(\`HTTP ${res.status}: ${res.statusText}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `}` -> 结束当前语句或代码块。
+- 169: `(空行)` -> 空行，用于提升代码结构可读性。
+- 170: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 171: `return data` -> 返回结果或提前结束当前流程。
+- 172: `}` -> 结束当前语句或代码块。
+- 173: `(空行)` -> 空行，用于提升代码结构可读性。
+- 174: `// 带认证的 fetcher` -> 注释行，用于解释设计意图或使用说明。
+- 175: `export const authFetcher = async <T,>(url: string): Promise<T> => {` -> 导出当前声明，供其他模块复用。
+- 176: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 177: `const headers: Record<string, string> = {` -> 声明变量或常量，保存运行时数据。
+- 178: `'Accept': 'application/json',` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `}` -> 结束当前语句或代码块。
+- 180: `(空行)` -> 空行，用于提升代码结构可读性。
+- 181: `if (token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 182: `headers['Authorization'] = \`Bearer ${token}\`` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `}` -> 结束当前语句或代码块。
+- 184: `(空行)` -> 空行，用于提升代码结构可读性。
+- 185: `const res = await fetch(url, { headers })` -> 声明变量或常量，保存运行时数据。
+- 186: `(空行)` -> 空行，用于提升代码结构可读性。
+- 187: `if (!res.ok) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 188: `throw new Error(\`HTTP ${res.status}: ${res.statusText}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `}` -> 结束当前语句或代码块。
+- 190: `(空行)` -> 空行，用于提升代码结构可读性。
+- 191: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 192: `return data` -> 返回结果或提前结束当前流程。
+- 193: `}` -> 结束当前语句或代码块。
+- 194: `(空行)` -> 空行，用于提升代码结构可读性。
+- 195: `// 预加载函数` -> 注释行，用于解释设计意图或使用说明。
+- 196: `export function preloadSWR<T>(key: string, fetcher: Fetcher<T>): Promise<T> {` -> 导出当前声明，供其他模块复用。
+- 197: `const cached = cache.get(key)` -> 声明变量或常量，保存运行时数据。
+- 198: `if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 199: `return Promise.resolve(cached.data)` -> 返回结果或提前结束当前流程。
+- 200: `}` -> 结束当前语句或代码块。
+- 201: `(空行)` -> 空行，用于提升代码结构可读性。
+- 202: `return fetcher(key).then(data => {` -> 返回结果或提前结束当前流程。
+- 203: `cache.set(key, { data, timestamp: Date.now() })` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `return data` -> 返回结果或提前结束当前流程。
+- 205: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `}` -> 结束当前语句或代码块。
+- 207: `(空行)` -> 空行，用于提升代码结构可读性。
+- 208: `// 清除缓存` -> 注释行，用于解释设计意图或使用说明。
+- 209: `export function clearSWRCache(key?: string) {` -> 导出当前声明，供其他模块复用。
+- 210: `if (key) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 211: `cache.delete(key)` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `cache.clear()` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `}` -> 结束当前语句或代码块。
+- 215: `}` -> 结束当前语句或代码块。

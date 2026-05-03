@@ -1,0 +1,204 @@
+# `frontend/user-web/src/components/Footer.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 页脚组件 (Footer)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 网站底部信息展示，包含品牌介绍、导航链接、联系方式` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 分为四个导航区块：热门目的地、服务项目、客户支持、关于我们` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 包含社交媒体链接（微信、抖音、微博）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 自动计算并显示网站运营年份` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 14: `(空行)` -> 空行，用于提升代码结构可读性。
+- 15: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 16: `import { MapPin, Phone, Mail, Heart, MessageCircle, Share2, Music } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 17: `(空行)` -> 空行，用于提升代码结构可读性。
+- 18: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* 页脚组件` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* @description 网站底部组件，展示品牌信息、导航链接和联系方式` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 22: `export function Footer() {` -> 导出当前声明，供其他模块复用。
+- 23: `const startYear = 2025` -> 声明变量或常量，保存运行时数据。
+- 24: `const currentYear = new Date().getFullYear()` -> 声明变量或常量，保存运行时数据。
+- 25: `const yearText = currentYear > startYear ? \`${startYear}-${currentYear}\` : \`${startYear}\`` -> 声明变量或常量，保存运行时数据。
+- 26: `(空行)` -> 空行，用于提升代码结构可读性。
+- 27: `const footerLinks = {` -> 声明变量或常量，保存运行时数据。
+- 28: `destinations: [` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `{ name: '热门目的地', href: '/destinations/popular' },` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `{ name: '国内游', href: '/destinations/domestic' },` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `{ name: '出境游', href: '/destinations/international' },` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `{ name: '周边游', href: '/destinations/local' },` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `],` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `services: [` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `{ name: 'AI 智能规划', href: '/assistant' },` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `{ name: '旅行攻略', href: '/travel-notes' },` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `{ name: '旅游保险', href: '/services/insurance' },` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `{ name: '签证办理', href: '/services/visa' },` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `],` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `support: [` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `{ name: '帮助中心', href: '/help' },` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `{ name: '客服热线', href: '/contact' },` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `{ name: '常见问题', href: '/help/faq' },` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `{ name: '意见反馈', href: '/feedback' },` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `],` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `company: [` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `{ name: '关于我们', href: '/about' },` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `{ name: '加入我们', href: '/careers' },` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `{ name: '合作伙伴', href: '/partners' },` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `{ name: '新闻资讯', href: '/news' },` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `],` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `}` -> 结束当前语句或代码块。
+- 53: `(空行)` -> 空行，用于提升代码结构可读性。
+- 54: `return (` -> 返回结果或提前结束当前流程。
+- 55: `<footer className="bg-gray-900 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 56: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 57: `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 58: `(空行)` -> 空行，用于提升代码结构可读性。
+- 59: `<div className="lg:col-span-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 60: `<div className="flex items-center space-x-2 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 61: `<div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 62: `<MapPin className="h-6 w-6 text-white" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 63: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 64: `<span className="text-xl font-bold">智能旅游助手</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 65: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 66: `<p className="text-gray-300 mb-6 max-w-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 67: `AI驱动的智能旅游平台，为您提供个性化行程规划、智能推荐和24/7实时助手服务，让每一次旅行都成为美好回忆。` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 69: `<div className="flex space-x-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `<div className="flex items-center space-x-2 text-gray-300">` -> JSX/HTML 结构行，用于描述页面元素。
+- 71: `<Phone className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `<span className="text-sm">400-888-9999</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 73: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 74: `<div className="flex items-center space-x-2 text-gray-300">` -> JSX/HTML 结构行，用于描述页面元素。
+- 75: `<Mail className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 76: `<span className="text-sm">service@travelai.com</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 77: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 78: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 79: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 80: `(空行)` -> 空行，用于提升代码结构可读性。
+- 81: `(空行)` -> 空行，用于提升代码结构可读性。
+- 82: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 83: `<h3 className="text-lg font-semibold mb-4">热门目的地</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 84: `<ul className="space-y-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 85: `{footerLinks.destinations.map((link) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `<li key={link.name}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 87: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `href={link.href}` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `className="text-gray-300 hover:text-white transition-colors text-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `{link.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 93: `</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `</ul>` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `(空行)` -> 空行，用于提升代码结构可读性。
+- 98: `(空行)` -> 空行，用于提升代码结构可读性。
+- 99: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `<h3 className="text-lg font-semibold mb-4">服务项目</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `<ul className="space-y-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `{footerLinks.services.map((link) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `<li key={link.name}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `href={link.href}` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `className="text-gray-300 hover:text-white transition-colors text-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `{link.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 110: `</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `</ul>` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 114: `(空行)` -> 空行，用于提升代码结构可读性。
+- 115: `(空行)` -> 空行，用于提升代码结构可读性。
+- 116: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 117: `<h3 className="text-lg font-semibold mb-4">客户支持</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 118: `<ul className="space-y-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 119: `{footerLinks.support.map((link) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `<li key={link.name}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `href={link.href}` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `className="text-gray-300 hover:text-white transition-colors text-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `{link.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `</ul>` -> JSX/HTML 结构行，用于描述页面元素。
+- 130: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `(空行)` -> 空行，用于提升代码结构可读性。
+- 132: `(空行)` -> 空行，用于提升代码结构可读性。
+- 133: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<h3 className="text-lg font-semibold mb-4">关于我们</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `<ul className="space-y-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `{footerLinks.company.map((link) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `<li key={link.name}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `href={link.href}` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `className="text-gray-300 hover:text-white transition-colors text-sm"` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `{link.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 143: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 144: `</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `</ul>` -> JSX/HTML 结构行，用于描述页面元素。
+- 147: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 148: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 149: `(空行)` -> 空行，用于提升代码结构可读性。
+- 150: `(空行)` -> 空行，用于提升代码结构可读性。
+- 151: `<div className="mt-12 pt-8 border-t border-gray-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 152: `<div className="flex flex-col md:flex-row justify-between items-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 153: `<div className="flex items-center space-x-6 mb-4 md:mb-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `<div className="flex items-center space-x-2 text-gray-300">` -> JSX/HTML 结构行，用于描述页面元素。
+- 155: `<span className="text-sm">© {yearText} 智能旅游助手</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 156: `<span>·</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 157: `<Link href="/privacy" className="hover:text-white transition-colors text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 158: `隐私政策` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `<span>·</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `<Link href="/terms" className="hover:text-white transition-colors text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `服务条款` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `<div className="flex items-center space-x-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 167: `<span className="text-gray-400 text-sm">关注我们</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 168: `<div className="flex space-x-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 169: `<a` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `href="#"` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `aria-label="微信"` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `<MessageCircle className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 175: `</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 176: `<a` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `href="#"` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `aria-label="抖音"` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `<Music className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `<a` -> 执行当前语句，参与该文件整体逻辑。
+- 184: `href="#"` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `aria-label="微博"` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `<Share2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `</a>` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 191: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `<div className="mt-4 text-center text-gray-400 text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 194: `Made with <Heart className="h-3 w-3 text-red-500 inline mx-1" /> by Travel Assistant` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 196: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 197: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `</footer>` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `)` -> 结束当前语句或代码块。
+- 200: `}` -> 结束当前语句或代码块。

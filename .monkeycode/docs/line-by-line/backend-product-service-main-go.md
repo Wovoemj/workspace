@@ -1,0 +1,491 @@
+# `backend/product-service/main.go` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `package product` -> 声明当前文件所属的 Go 包。
+- 2: `import (` -> 开始导入依赖包列表。
+- 3: `"context"` -> 执行当前语句，参与该函数的业务流程。
+- 4: `"database/sql"` -> 执行当前语句，参与该函数的业务流程。
+- 5: `"encoding/json"` -> 执行当前语句，参与该函数的业务流程。
+- 6: `"fmt"` -> 执行当前语句，参与该函数的业务流程。
+- 7: `"net/http"` -> 执行当前语句，参与该函数的业务流程。
+- 8: `"strings"` -> 执行当前语句，参与该函数的业务流程。
+- 9: `"time"` -> 执行当前语句，参与该函数的业务流程。
+- 10: `(空行)` -> 空行，用于提升代码结构可读性。
+- 11: `"github.com/gin-gonic/gin"` -> 执行当前语句，参与该函数的业务流程。
+- 12: `"github.com/sirupsen/logrus"` -> 执行当前语句，参与该函数的业务流程。
+- 13: `"gorm.io/gorm"` -> 执行当前语句，参与该函数的业务流程。
+- 14: `)` -> 结束当前代码块或导入块。
+- 15: `type Service struct {` -> 定义类型结构，用于组织数据或行为。
+- 16: `db     *gorm.DB` -> 执行当前语句，参与该函数的业务流程。
+- 17: `logger *logrus.Logger` -> 记录日志，便于运行观测与故障排查。
+- 18: `}` -> 代码块边界，标记作用域开始或结束。
+- 19: `type Product struct {` -> 定义类型结构，用于组织数据或行为。
+- 20: `ID           uint      \`json:"id" gorm:"primaryKey"\`` -> 执行当前语句，参与该函数的业务流程。
+- 21: `Type         string    \`json:"type" gorm:"not null"\`` -> 执行当前语句，参与该函数的业务流程。
+- 22: `Name         string    \`json:"name" gorm:"not null"\`` -> 执行当前语句，参与该函数的业务流程。
+- 23: `Description  string    \`json:"description"\`` -> 执行当前语句，参与该函数的业务流程。
+- 24: `Price        float64   \`json:"price" gorm:"not null"\`` -> 执行当前语句，参与该函数的业务流程。
+- 25: `OriginalPrice *float64  \`json:"original_price"\`` -> 执行当前语句，参与该函数的业务流程。
+- 26: `Inventory    int       \`json:"inventory" gorm:"not null"\`` -> 执行当前语句，参与该函数的业务流程。
+- 27: `Tags         []string  \`json:"tags" gorm:"type:jsonb"\`` -> 执行当前语句，参与该函数的业务流程。
+- 28: `Metadata     ProductMetadata \`json:"metadata" gorm:"type:jsonb"\`` -> 执行当前语句，参与该函数的业务流程。
+- 29: `Status       string    \`json:"status" gorm:"not null"\`` -> 执行当前语句，参与该函数的业务流程。
+- 30: `Images       []string  \`json:"images" gorm:"type:jsonb"\`` -> 执行当前语句，参与该函数的业务流程。
+- 31: `Location     Location  \`json:"location" gorm:"type:jsonb"\`` -> 执行当前语句，参与该函数的业务流程。
+- 32: `Rating       float64   \`json:"rating"\`` -> 执行当前语句，参与该函数的业务流程。
+- 33: `ReviewCount  int       \`json:"review_count"\`` -> 执行当前语句，参与该函数的业务流程。
+- 34: `CreatedAt    time.Time \`json:"created_at"\`` -> 执行当前语句，参与该函数的业务流程。
+- 35: `UpdatedAt    time.Time \`json:"updated_at"\`` -> 执行当前语句，参与该函数的业务流程。
+- 36: `CoverImage   string    \`json:"cover_image"\`` -> 执行当前语句，参与该函数的业务流程。
+- 37: `Subtitle     string    \`json:"subtitle"\`` -> 执行当前语句，参与该函数的业务流程。
+- 38: `City         string    \`json:"city" gorm:"column:subtitle"\`` -> 执行当前语句，参与该函数的业务流程。
+- 39: `}` -> 代码块边界，标记作用域开始或结束。
+- 40: `(空行)` -> 空行，用于提升代码结构可读性。
+- 41: `type Location struct {` -> 定义类型结构，用于组织数据或行为。
+- 42: `City       string  \`json:"city"\`` -> 执行当前语句，参与该函数的业务流程。
+- 43: `Country    string  \`json:"country"\`` -> 执行当前语句，参与该函数的业务流程。
+- 44: `Latitude   float64 \`json:"latitude"\`` -> 执行当前语句，参与该函数的业务流程。
+- 45: `Longitude  float64 \`json:"longitude"\`` -> 执行当前语句，参与该函数的业务流程。
+- 46: `}` -> 代码块边界，标记作用域开始或结束。
+- 47: `(空行)` -> 空行，用于提升代码结构可读性。
+- 48: `type ProductMetadata struct {` -> 定义类型结构，用于组织数据或行为。
+- 49: `// Flight specific` -> 注释行，用于说明后续逻辑意图。
+- 50: `Airline         string  \`json:"airline"\`` -> 执行当前语句，参与该函数的业务流程。
+- 51: `FlightNumber    string  \`json:"flight_number"\`` -> 执行当前语句，参与该函数的业务流程。
+- 52: `DepartureAirport string \`json:"departure_airport"\`` -> 执行当前语句，参与该函数的业务流程。
+- 53: `ArrivalAirport   string \`json:"arrival_airport"\`` -> 执行当前语句，参与该函数的业务流程。
+- 54: `DepartureTime   string \`json:"departure_time"\`` -> 执行当前语句，参与该函数的业务流程。
+- 55: `ArrivalTime     string \`json:"arrival_time"\`` -> 执行当前语句，参与该函数的业务流程。
+- 56: `Duration        string \`json:"duration"\`` -> 执行当前语句，参与该函数的业务流程。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `// Hotel specific` -> 注释行，用于说明后续逻辑意图。
+- 59: `StarRating      int      \`json:"star_rating"\`` -> 执行当前语句，参与该函数的业务流程。
+- 60: `Amenities       []string \`json:"amenities"\`` -> 执行当前语句，参与该函数的业务流程。
+- 61: `RoomType        string   \`json:"room_type"\`` -> 执行当前语句，参与该函数的业务流程。
+- 62: `CheckInTime     string   \`json:"check_in_time"\`` -> 执行当前语句，参与该函数的业务流程。
+- 63: `CheckOutTime    string   \`json:"check_out_time"\`` -> 执行当前语句，参与该函数的业务流程。
+- 64: `(空行)` -> 空行，用于提升代码结构可读性。
+- 65: `// Ticket specific` -> 注释行，用于说明后续逻辑意图。
+- 66: `AttractionName  string \`json:"attraction_name"\`` -> 执行当前语句，参与该函数的业务流程。
+- 67: `OpeningHours   string \`json:"opening_hours"\`` -> 执行当前语句，参与该函数的业务流程。
+- 68: `ValidDays       int    \`json:"valid_days"\`` -> 执行当前语句，参与该函数的业务流程。
+- 69: `(空行)` -> 空行，用于提升代码结构可读性。
+- 70: `// Experience specific` -> 注释行，用于说明后续逻辑意图。
+- 71: `Duration        string \`json:"duration"\`` -> 执行当前语句，参与该函数的业务流程。
+- 72: `Difficulty      string \`json:"difficulty"\`` -> 执行当前语句，参与该函数的业务流程。
+- 73: `GroupSizeMin    int    \`json:"group_size_min"\`` -> 执行当前语句，参与该函数的业务流程。
+- 74: `GroupSizeMax    int    \`json:"group_size_max"\`` -> 执行当前语句，参与该函数的业务流程。
+- 75: `Includes        []string \`json:"includes"\`` -> 执行当前语句，参与该函数的业务流程。
+- 76: `}` -> 代码块边界，标记作用域开始或结束。
+- 77: `(空行)` -> 空行，用于提升代码结构可读性。
+- 78: `type SearchFilters struct {` -> 定义类型结构，用于组织数据或行为。
+- 79: `Destination    *string  \`json:"destination"\`` -> 执行当前语句，参与该函数的业务流程。
+- 80: `StartDate      *string  \`json:"start_date"\`` -> 执行当前语句，参与该函数的业务流程。
+- 81: `EndDate        *string  \`json:"end_date"\`` -> 执行当前语句，参与该函数的业务流程。
+- 82: `BudgetMin      *float64 \`json:"budget_min"\`` -> 执行当前语句，参与该函数的业务流程。
+- 83: `BudgetMax      *float64 \`json:"budget_max"\`` -> 执行当前语句，参与该函数的业务流程。
+- 84: `TravelStyle    *string  \`json:"travel_style"\`` -> 执行当前语句，参与该函数的业务流程。
+- 85: `GroupSize      *int     \`json:"group_size"\`` -> 执行当前语句，参与该函数的业务流程。
+- 86: `Tags           []string \`json:"tags"\`` -> 执行当前语句，参与该函数的业务流程。
+- 87: `RatingMin      *float64 \`json:"rating_min"\`` -> 执行当前语句，参与该函数的业务流程。
+- 88: `Type           *string  \`json:"type"\`` -> 执行当前语句，参与该函数的业务流程。
+- 89: `Limit          int      \`json:"limit"\`` -> 执行当前语句，参与该函数的业务流程。
+- 90: `Offset         int      \`json:"offset"\`` -> 执行当前语句，参与该函数的业务流程。
+- 91: `}` -> 代码块边界，标记作用域开始或结束。
+- 92: `(空行)` -> 空行，用于提升代码结构可读性。
+- 93: `type CreateProductRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 94: `Type         string             \`json:"type" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 95: `Name         string             \`json:"name" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 96: `Description  string             \`json:"description"\`` -> 执行当前语句，参与该函数的业务流程。
+- 97: `Price        float64            \`json:"price" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 98: `OriginalPrice *float64           \`json:"original_price"\`` -> 执行当前语句，参与该函数的业务流程。
+- 99: `Inventory    int                \`json:"inventory" binding:"required"\`` -> 执行当前语句，参与该函数的业务流程。
+- 100: `Tags         []string           \`json:"tags"\`` -> 执行当前语句，参与该函数的业务流程。
+- 101: `Metadata     ProductMetadata    \`json:"metadata"\`` -> 执行当前语句，参与该函数的业务流程。
+- 102: `Status       string             \`json:"status"\`` -> 执行当前语句，参与该函数的业务流程。
+- 103: `Images       []string           \`json:"images"\`` -> 执行当前语句，参与该函数的业务流程。
+- 104: `Location     Location           \`json:"location"\`` -> 执行当前语句，参与该函数的业务流程。
+- 105: `}` -> 代码块边界，标记作用域开始或结束。
+- 106: `(空行)` -> 空行，用于提升代码结构可读性。
+- 107: `type UpdateProductRequest struct {` -> 定义类型结构，用于组织数据或行为。
+- 108: `Type         *string            \`json:"type"\`` -> 执行当前语句，参与该函数的业务流程。
+- 109: `Name         *string            \`json:"name"\`` -> 执行当前语句，参与该函数的业务流程。
+- 110: `Description  *string            \`json:"description"\`` -> 执行当前语句，参与该函数的业务流程。
+- 111: `Price        *float64           \`json:"price"\`` -> 执行当前语句，参与该函数的业务流程。
+- 112: `OriginalPrice *float64           \`json:"original_price"\`` -> 执行当前语句，参与该函数的业务流程。
+- 113: `Inventory    *int               \`json:"inventory"\`` -> 执行当前语句，参与该函数的业务流程。
+- 114: `Tags         []string           \`json:"tags"\`` -> 执行当前语句，参与该函数的业务流程。
+- 115: `Metadata     *ProductMetadata   \`json:"metadata"\`` -> 执行当前语句，参与该函数的业务流程。
+- 116: `Status       *string            \`json:"status"\`` -> 执行当前语句，参与该函数的业务流程。
+- 117: `Images       []string           \`json:"images"\`` -> 执行当前语句，参与该函数的业务流程。
+- 118: `Location     *Location         \`json:"location"\`` -> 执行当前语句，参与该函数的业务流程。
+- 119: `}` -> 代码块边界，标记作用域开始或结束。
+- 120: `(空行)` -> 空行，用于提升代码结构可读性。
+- 121: `func NewService(db *gorm.DB, logger *logrus.Logger) *Service {` -> 定义函数或方法，实现具体业务逻辑。
+- 122: `return &Service{` -> 返回函数结果或提前结束当前流程。
+- 123: `db:     db,` -> 执行当前语句，参与该函数的业务流程。
+- 124: `logger: logger,` -> 记录日志，便于运行观测与故障排查。
+- 125: `}` -> 代码块边界，标记作用域开始或结束。
+- 126: `}` -> 代码块边界，标记作用域开始或结束。
+- 127: `(空行)` -> 空行，用于提升代码结构可读性。
+- 128: `func (s *Service) SetupRoutes(router *gin.RouterGroup) {` -> 定义函数或方法，实现具体业务逻辑。
+- 129: `products := router.Group("/products")` -> 注册路由或组织接口分组。
+- 130: `{` -> 代码块边界，标记作用域开始或结束。
+- 131: `// Search products` -> 注释行，用于说明后续逻辑意图。
+- 132: `products.GET("/search", s.SearchProducts)` -> 注册路由或组织接口分组。
+- 133: `(空行)` -> 空行，用于提升代码结构可读性。
+- 134: `// CRUD operations` -> 注释行，用于说明后续逻辑意图。
+- 135: `products.POST("", s.CreateProduct)` -> 注册路由或组织接口分组。
+- 136: `products.GET("", s.ListProducts)` -> 注册路由或组织接口分组。
+- 137: `products.GET("/:id", s.GetProduct)` -> 注册路由或组织接口分组。
+- 138: `products.PUT("/:id", s.UpdateProduct)` -> 注册路由或组织接口分组。
+- 139: `products.DELETE("/:id", s.DeleteProduct)` -> 注册路由或组织接口分组。
+- 140: `(空行)` -> 空行，用于提升代码结构可读性。
+- 141: `// Specific endpoints` -> 注释行，用于说明后续逻辑意图。
+- 142: `products.GET("/popular", s.GetPopularProducts)` -> 注册路由或组织接口分组。
+- 143: `products.GET("/recommendations/:user_id", s.GetRecommendations)` -> 注册路由或组织接口分组。
+- 144: `products.POST("/:id/increment-views", s.IncrementViews)` -> 注册路由或组织接口分组。
+- 145: `}` -> 代码块边界，标记作用域开始或结束。
+- 146: `}` -> 代码块边界，标记作用域开始或结束。
+- 147: `(空行)` -> 空行，用于提升代码结构可读性。
+- 148: `func (s *Service) SearchProducts(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 149: `var filters SearchFilters` -> 声明局部变量，为后续逻辑准备数据。
+- 150: `(空行)` -> 空行，用于提升代码结构可读性。
+- 151: `// Parse query parameters` -> 注释行，用于说明后续逻辑意图。
+- 152: `if destination := c.Query("destination"); destination != "" {` -> 条件判断，根据分支处理不同情况。
+- 153: `filters.Destination = &destination` -> 执行当前语句，参与该函数的业务流程。
+- 154: `}` -> 代码块边界，标记作用域开始或结束。
+- 155: `if startDate := c.Query("start_date"); startDate != "" {` -> 条件判断，根据分支处理不同情况。
+- 156: `filters.StartDate = &startDate` -> 执行当前语句，参与该函数的业务流程。
+- 157: `}` -> 代码块边界，标记作用域开始或结束。
+- 158: `if endDate := c.Query("end_date"); endDate != "" {` -> 条件判断，根据分支处理不同情况。
+- 159: `filters.EndDate = &endDate` -> 执行当前语句，参与该函数的业务流程。
+- 160: `}` -> 代码块边界，标记作用域开始或结束。
+- 161: `if budgetMin := c.Query("budget_min"); budgetMin != "" {` -> 条件判断，根据分支处理不同情况。
+- 162: `if min, err := fmt.Sscanf(budgetMin, "%f", &filters.BudgetMin); err == nil && min == 1 {` -> 条件判断，根据分支处理不同情况。
+- 163: `// BudgetMin is set` -> 注释行，用于说明后续逻辑意图。
+- 164: `}` -> 代码块边界，标记作用域开始或结束。
+- 165: `}` -> 代码块边界，标记作用域开始或结束。
+- 166: `if budgetMax := c.Query("budget_max"); budgetMax != "" {` -> 条件判断，根据分支处理不同情况。
+- 167: `if max, err := fmt.Sscanf(budgetMax, "%f", &filters.BudgetMax); err == nil && max == 1 {` -> 条件判断，根据分支处理不同情况。
+- 168: `// BudgetMax is set` -> 注释行，用于说明后续逻辑意图。
+- 169: `}` -> 代码块边界，标记作用域开始或结束。
+- 170: `}` -> 代码块边界，标记作用域开始或结束。
+- 171: `if travelStyle := c.Query("travel_style"); travelStyle != "" {` -> 条件判断，根据分支处理不同情况。
+- 172: `filters.TravelStyle = &travelStyle` -> 执行当前语句，参与该函数的业务流程。
+- 173: `}` -> 代码块边界，标记作用域开始或结束。
+- 174: `if groupSize := c.Query("group_size"); groupSize != "" {` -> 条件判断，根据分支处理不同情况。
+- 175: `if size, err := fmt.Sscanf(groupSize, "%d", &filters.GroupSize); err == nil && size == 1 {` -> 条件判断，根据分支处理不同情况。
+- 176: `// GroupSize is set` -> 注释行，用于说明后续逻辑意图。
+- 177: `}` -> 代码块边界，标记作用域开始或结束。
+- 178: `}` -> 代码块边界，标记作用域开始或结束。
+- 179: `if ratingMin := c.Query("rating_min"); ratingMin != "" {` -> 条件判断，根据分支处理不同情况。
+- 180: `if rating, err := fmt.Sscanf(ratingMin, "%f", &filters.RatingMin); err == nil && rating == 1 {` -> 条件判断，根据分支处理不同情况。
+- 181: `// RatingMin is set` -> 注释行，用于说明后续逻辑意图。
+- 182: `}` -> 代码块边界，标记作用域开始或结束。
+- 183: `}` -> 代码块边界，标记作用域开始或结束。
+- 184: `if productType := c.Query("type"); productType != "" {` -> 条件判断，根据分支处理不同情况。
+- 185: `filters.Type = &productType` -> 执行当前语句，参与该函数的业务流程。
+- 186: `}` -> 代码块边界，标记作用域开始或结束。
+- 187: `if limit := c.DefaultQuery("limit", "20"); limit != "" {` -> 条件判断，根据分支处理不同情况。
+- 188: `if l, err := fmt.Sscanf(limit, "%d", &filters.Limit); err == nil && l == 1 {` -> 条件判断，根据分支处理不同情况。
+- 189: `// Limit is set` -> 注释行，用于说明后续逻辑意图。
+- 190: `} else {` -> 执行当前语句，参与该函数的业务流程。
+- 191: `filters.Limit = 20` -> 执行当前语句，参与该函数的业务流程。
+- 192: `}` -> 代码块边界，标记作用域开始或结束。
+- 193: `}` -> 代码块边界，标记作用域开始或结束。
+- 194: `if offset := c.DefaultQuery("offset", "0"); offset != "" {` -> 条件判断，根据分支处理不同情况。
+- 195: `if o, err := fmt.Sscanf(offset, "%d", &filters.Offset); err == nil && o == 1 {` -> 条件判断，根据分支处理不同情况。
+- 196: `// Offset is set` -> 注释行，用于说明后续逻辑意图。
+- 197: `} else {` -> 执行当前语句，参与该函数的业务流程。
+- 198: `filters.Offset = 0` -> 执行当前语句，参与该函数的业务流程。
+- 199: `}` -> 代码块边界，标记作用域开始或结束。
+- 200: `}` -> 代码块边界，标记作用域开始或结束。
+- 201: `(空行)` -> 空行，用于提升代码结构可读性。
+- 202: `var products []Product` -> 声明局部变量，为后续逻辑准备数据。
+- 203: `query := s.db.Model(&Product{})` -> 执行当前语句，参与该函数的业务流程。
+- 204: `(空行)` -> 空行，用于提升代码结构可读性。
+- 205: `// Apply filters` -> 注释行，用于说明后续逻辑意图。
+- 206: `if filters.Destination != nil {` -> 条件判断，根据分支处理不同情况。
+- 207: `query = query.Where("location->>'city' = ?", *filters.Destination)` -> 执行数据库查询或持久化操作。
+- 208: `}` -> 代码块边界，标记作用域开始或结束。
+- 209: `if filters.Type != nil {` -> 条件判断，根据分支处理不同情况。
+- 210: `query = query.Where("type = ?", *filters.Type)` -> 执行数据库查询或持久化操作。
+- 211: `}` -> 代码块边界，标记作用域开始或结束。
+- 212: `if filters.BudgetMin != nil {` -> 条件判断，根据分支处理不同情况。
+- 213: `query = query.Where("price >= ?", *filters.BudgetMin)` -> 执行数据库查询或持久化操作。
+- 214: `}` -> 代码块边界，标记作用域开始或结束。
+- 215: `if filters.BudgetMax != nil {` -> 条件判断，根据分支处理不同情况。
+- 216: `query = query.Where("price <= ?", *filters.BudgetMax)` -> 执行数据库查询或持久化操作。
+- 217: `}` -> 代码块边界，标记作用域开始或结束。
+- 218: `if filters.RatingMin != nil {` -> 条件判断，根据分支处理不同情况。
+- 219: `query = query.Where("rating >= ?", *filters.RatingMin)` -> 执行数据库查询或持久化操作。
+- 220: `}` -> 代码块边界，标记作用域开始或结束。
+- 221: `if len(filters.Tags) > 0 {` -> 条件判断，根据分支处理不同情况。
+- 222: `// This is a simplified tag search - in production you'd want more complex logic` -> 注释行，用于说明后续逻辑意图。
+- 223: `query = query.Where("tags @> ?", fmt.Sprintf("[%s]", strings.Join(filters.Tags, ",")))` -> 执行数据库查询或持久化操作。
+- 224: `}` -> 代码块边界，标记作用域开始或结束。
+- 225: `if filters.Status != nil {` -> 条件判断，根据分支处理不同情况。
+- 226: `query = query.Where("status = ?", *filters.Status)` -> 执行数据库查询或持久化操作。
+- 227: `} else {` -> 执行当前语句，参与该函数的业务流程。
+- 228: `query = query.Where("status = ?", "active")` -> 执行数据库查询或持久化操作。
+- 229: `}` -> 代码块边界，标记作用域开始或结束。
+- 230: `(空行)` -> 空行，用于提升代码结构可读性。
+- 231: `// Apply pagination` -> 注释行，用于说明后续逻辑意图。
+- 232: `query = query.Offset(filters.Offset).Limit(filters.Limit)` -> 执行当前语句，参与该函数的业务流程。
+- 233: `(空行)` -> 空行，用于提升代码结构可读性。
+- 234: `// Order by rating and review count` -> 注释行，用于说明后续逻辑意图。
+- 235: `query = query.Order("rating DESC, review_count DESC")` -> 执行当前语句，参与该函数的业务流程。
+- 236: `(空行)` -> 空行，用于提升代码结构可读性。
+- 237: `if err := query.Find(&products).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 238: `s.logger.WithError(err).Error("Failed to search products")` -> 记录日志，便于运行观测与故障排查。
+- 239: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search products"})` -> 向客户端返回 JSON 响应。
+- 240: `return` -> 返回函数结果或提前结束当前流程。
+- 241: `}` -> 代码块边界，标记作用域开始或结束。
+- 242: `(空行)` -> 空行，用于提升代码结构可读性。
+- 243: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 244: `"products": products,` -> 执行当前语句，参与该函数的业务流程。
+- 245: `"total":    len(products),` -> 执行当前语句，参与该函数的业务流程。
+- 246: `"filters": filters,` -> 执行当前语句，参与该函数的业务流程。
+- 247: `})` -> 执行当前语句，参与该函数的业务流程。
+- 248: `}` -> 代码块边界，标记作用域开始或结束。
+- 249: `(空行)` -> 空行，用于提升代码结构可读性。
+- 250: `func (s *Service) CreateProduct(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 251: `var req CreateProductRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 252: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 253: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 254: `return` -> 返回函数结果或提前结束当前流程。
+- 255: `}` -> 代码块边界，标记作用域开始或结束。
+- 256: `(空行)` -> 空行，用于提升代码结构可读性。
+- 257: `product := Product{` -> 执行当前语句，参与该函数的业务流程。
+- 258: `Type:         req.Type,` -> 执行当前语句，参与该函数的业务流程。
+- 259: `Name:         req.Name,` -> 执行当前语句，参与该函数的业务流程。
+- 260: `Description:  req.Description,` -> 执行当前语句，参与该函数的业务流程。
+- 261: `Price:        req.Price,` -> 执行当前语句，参与该函数的业务流程。
+- 262: `OriginalPrice: req.OriginalPrice,` -> 执行当前语句，参与该函数的业务流程。
+- 263: `Inventory:    req.Inventory,` -> 执行当前语句，参与该函数的业务流程。
+- 264: `Tags:         req.Tags,` -> 执行当前语句，参与该函数的业务流程。
+- 265: `Metadata:     req.Metadata,` -> 执行当前语句，参与该函数的业务流程。
+- 266: `Status:       req.Status,` -> 执行当前语句，参与该函数的业务流程。
+- 267: `Images:       req.Images,` -> 执行当前语句，参与该函数的业务流程。
+- 268: `Location:     req.Location,` -> 执行当前语句，参与该函数的业务流程。
+- 269: `Rating:       0,` -> 执行当前语句，参与该函数的业务流程。
+- 270: `ReviewCount:  0,` -> 执行当前语句，参与该函数的业务流程。
+- 271: `CreatedAt:    time.Now(),` -> 获取当前时间，用于时间字段或时序控制。
+- 272: `UpdatedAt:    time.Now(),` -> 获取当前时间，用于时间字段或时序控制。
+- 273: `}` -> 代码块边界，标记作用域开始或结束。
+- 274: `(空行)` -> 空行，用于提升代码结构可读性。
+- 275: `if err := s.db.Create(&product).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 276: `s.logger.WithError(err).Error("Failed to create product")` -> 记录日志，便于运行观测与故障排查。
+- 277: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product"})` -> 向客户端返回 JSON 响应。
+- 278: `return` -> 返回函数结果或提前结束当前流程。
+- 279: `}` -> 代码块边界，标记作用域开始或结束。
+- 280: `(空行)` -> 空行，用于提升代码结构可读性。
+- 281: `s.logger.WithField("product_id", product.ID).Info("Product created successfully")` -> 记录日志，便于运行观测与故障排查。
+- 282: `c.JSON(http.StatusCreated, gin.H{` -> 向客户端返回 JSON 响应。
+- 283: `"message": "Product created successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 284: `"product": product,` -> 执行当前语句，参与该函数的业务流程。
+- 285: `})` -> 执行当前语句，参与该函数的业务流程。
+- 286: `}` -> 代码块边界，标记作用域开始或结束。
+- 287: `(空行)` -> 空行，用于提升代码结构可读性。
+- 288: `func (s *Service) ListProducts(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 289: `var products []Product` -> 声明局部变量，为后续逻辑准备数据。
+- 290: `query := s.db.Model(&Product{}).Where("status = ?", "active")` -> 执行数据库查询或持久化操作。
+- 291: `(空行)` -> 空行，用于提升代码结构可读性。
+- 292: `if err := query.Find(&products).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 293: `s.logger.WithError(err).Error("Failed to list products")` -> 记录日志，便于运行观测与故障排查。
+- 294: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list products"})` -> 向客户端返回 JSON 响应。
+- 295: `return` -> 返回函数结果或提前结束当前流程。
+- 296: `}` -> 代码块边界，标记作用域开始或结束。
+- 297: `(空行)` -> 空行，用于提升代码结构可读性。
+- 298: `// 填充Images和Location（兼容旧数据）` -> 注释行，用于说明后续逻辑意图。
+- 299: `for i := range products {` -> 循环遍历数据集合并执行处理。
+- 300: `// 如果Images为空，用CoverImage填充` -> 注释行，用于说明后续逻辑意图。
+- 301: `if len(products[i].Images) == 0 && products[i].CoverImage != "" {` -> 条件判断，根据分支处理不同情况。
+- 302: `products[i].Images = []string{products[i].CoverImage}` -> 执行当前语句，参与该函数的业务流程。
+- 303: `}` -> 代码块边界，标记作用域开始或结束。
+- 304: `// 如果Location为空但有Subtitle，尝试提取城市名` -> 注释行，用于说明后续逻辑意图。
+- 305: `if products[i].Location.City == "" && products[i].Subtitle != "" {` -> 条件判断，根据分支处理不同情况。
+- 306: `city := strings.TrimSuffix(products[i].Subtitle, "推荐")` -> 执行当前语句，参与该函数的业务流程。
+- 307: `products[i].Location = Location{City: city}` -> 执行当前语句，参与该函数的业务流程。
+- 308: `}` -> 代码块边界，标记作用域开始或结束。
+- 309: `}` -> 代码块边界，标记作用域开始或结束。
+- 310: `(空行)` -> 空行，用于提升代码结构可读性。
+- 311: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 312: `"products": products,` -> 执行当前语句，参与该函数的业务流程。
+- 313: `"total":    len(products),` -> 执行当前语句，参与该函数的业务流程。
+- 314: `})` -> 执行当前语句，参与该函数的业务流程。
+- 315: `}` -> 代码块边界，标记作用域开始或结束。
+- 316: `(空行)` -> 空行，用于提升代码结构可读性。
+- 317: `func (s *Service) GetProduct(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 318: `id := c.Param("id")` -> 执行当前语句，参与该函数的业务流程。
+- 319: `(空行)` -> 空行，用于提升代码结构可读性。
+- 320: `var product Product` -> 声明局部变量，为后续逻辑准备数据。
+- 321: `if err := s.db.First(&product, id).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 322: `c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})` -> 向客户端返回 JSON 响应。
+- 323: `return` -> 返回函数结果或提前结束当前流程。
+- 324: `}` -> 代码块边界，标记作用域开始或结束。
+- 325: `(空行)` -> 空行，用于提升代码结构可读性。
+- 326: `// 填充Images（兼容旧数据）` -> 注释行，用于说明后续逻辑意图。
+- 327: `if len(product.Images) == 0 && product.CoverImage != "" {` -> 条件判断，根据分支处理不同情况。
+- 328: `product.Images = []string{product.CoverImage}` -> 执行当前语句，参与该函数的业务流程。
+- 329: `}` -> 代码块边界，标记作用域开始或结束。
+- 330: `// 填充Location` -> 注释行，用于说明后续逻辑意图。
+- 331: `if product.Location.City == "" && product.Subtitle != "" {` -> 条件判断，根据分支处理不同情况。
+- 332: `city := strings.TrimSuffix(product.Subtitle, "推荐")` -> 执行当前语句，参与该函数的业务流程。
+- 333: `product.Location = Location{City: city}` -> 执行当前语句，参与该函数的业务流程。
+- 334: `}` -> 代码块边界，标记作用域开始或结束。
+- 335: `(空行)` -> 空行，用于提升代码结构可读性。
+- 336: `c.JSON(http.StatusOK, product)` -> 向客户端返回 JSON 响应。
+- 337: `}` -> 代码块边界，标记作用域开始或结束。
+- 338: `(空行)` -> 空行，用于提升代码结构可读性。
+- 339: `func (s *Service) UpdateProduct(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 340: `id := c.Param("id")` -> 执行当前语句，参与该函数的业务流程。
+- 341: `(空行)` -> 空行，用于提升代码结构可读性。
+- 342: `var req UpdateProductRequest` -> 声明局部变量，为后续逻辑准备数据。
+- 343: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断，根据分支处理不同情况。
+- 344: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 向客户端返回 JSON 响应。
+- 345: `return` -> 返回函数结果或提前结束当前流程。
+- 346: `}` -> 代码块边界，标记作用域开始或结束。
+- 347: `(空行)` -> 空行，用于提升代码结构可读性。
+- 348: `var product Product` -> 声明局部变量，为后续逻辑准备数据。
+- 349: `if err := s.db.First(&product, id).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 350: `c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})` -> 向客户端返回 JSON 响应。
+- 351: `return` -> 返回函数结果或提前结束当前流程。
+- 352: `}` -> 代码块边界，标记作用域开始或结束。
+- 353: `(空行)` -> 空行，用于提升代码结构可读性。
+- 354: `// Update fields` -> 注释行，用于说明后续逻辑意图。
+- 355: `if req.Type != nil {` -> 条件判断，根据分支处理不同情况。
+- 356: `product.Type = *req.Type` -> 执行当前语句，参与该函数的业务流程。
+- 357: `}` -> 代码块边界，标记作用域开始或结束。
+- 358: `if req.Name != nil {` -> 条件判断，根据分支处理不同情况。
+- 359: `product.Name = *req.Name` -> 执行当前语句，参与该函数的业务流程。
+- 360: `}` -> 代码块边界，标记作用域开始或结束。
+- 361: `if req.Description != nil {` -> 条件判断，根据分支处理不同情况。
+- 362: `product.Description = *req.Description` -> 执行当前语句，参与该函数的业务流程。
+- 363: `}` -> 代码块边界，标记作用域开始或结束。
+- 364: `if req.Price != nil {` -> 条件判断，根据分支处理不同情况。
+- 365: `product.Price = *req.Price` -> 执行当前语句，参与该函数的业务流程。
+- 366: `}` -> 代码块边界，标记作用域开始或结束。
+- 367: `if req.OriginalPrice != nil {` -> 条件判断，根据分支处理不同情况。
+- 368: `product.OriginalPrice = req.OriginalPrice` -> 执行当前语句，参与该函数的业务流程。
+- 369: `}` -> 代码块边界，标记作用域开始或结束。
+- 370: `if req.Inventory != nil {` -> 条件判断，根据分支处理不同情况。
+- 371: `product.Inventory = *req.Inventory` -> 执行当前语句，参与该函数的业务流程。
+- 372: `}` -> 代码块边界，标记作用域开始或结束。
+- 373: `if len(req.Tags) > 0 {` -> 条件判断，根据分支处理不同情况。
+- 374: `product.Tags = req.Tags` -> 执行当前语句，参与该函数的业务流程。
+- 375: `}` -> 代码块边界，标记作用域开始或结束。
+- 376: `if req.Metadata != nil {` -> 条件判断，根据分支处理不同情况。
+- 377: `product.Metadata = *req.Metadata` -> 执行当前语句，参与该函数的业务流程。
+- 378: `}` -> 代码块边界，标记作用域开始或结束。
+- 379: `if req.Status != nil {` -> 条件判断，根据分支处理不同情况。
+- 380: `product.Status = *req.Status` -> 执行当前语句，参与该函数的业务流程。
+- 381: `}` -> 代码块边界，标记作用域开始或结束。
+- 382: `if len(req.Images) > 0 {` -> 条件判断，根据分支处理不同情况。
+- 383: `product.Images = req.Images` -> 执行当前语句，参与该函数的业务流程。
+- 384: `}` -> 代码块边界，标记作用域开始或结束。
+- 385: `if req.Location != nil {` -> 条件判断，根据分支处理不同情况。
+- 386: `product.Location = *req.Location` -> 执行当前语句，参与该函数的业务流程。
+- 387: `}` -> 代码块边界，标记作用域开始或结束。
+- 388: `(空行)` -> 空行，用于提升代码结构可读性。
+- 389: `product.UpdatedAt = time.Now()` -> 获取当前时间，用于时间字段或时序控制。
+- 390: `(空行)` -> 空行，用于提升代码结构可读性。
+- 391: `if err := s.db.Save(&product).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 392: `s.logger.WithError(err).Error("Failed to update product")` -> 记录日志，便于运行观测与故障排查。
+- 393: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product"})` -> 向客户端返回 JSON 响应。
+- 394: `return` -> 返回函数结果或提前结束当前流程。
+- 395: `}` -> 代码块边界，标记作用域开始或结束。
+- 396: `(空行)` -> 空行，用于提升代码结构可读性。
+- 397: `s.logger.WithField("product_id", product.ID).Info("Product updated successfully")` -> 记录日志，便于运行观测与故障排查。
+- 398: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 399: `"message": "Product updated successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 400: `"product": product,` -> 执行当前语句，参与该函数的业务流程。
+- 401: `})` -> 执行当前语句，参与该函数的业务流程。
+- 402: `}` -> 代码块边界，标记作用域开始或结束。
+- 403: `(空行)` -> 空行，用于提升代码结构可读性。
+- 404: `func (s *Service) DeleteProduct(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 405: `id := c.Param("id")` -> 执行当前语句，参与该函数的业务流程。
+- 406: `(空行)` -> 空行，用于提升代码结构可读性。
+- 407: `var product Product` -> 声明局部变量，为后续逻辑准备数据。
+- 408: `if err := s.db.First(&product, id).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 409: `c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})` -> 向客户端返回 JSON 响应。
+- 410: `return` -> 返回函数结果或提前结束当前流程。
+- 411: `}` -> 代码块边界，标记作用域开始或结束。
+- 412: `(空行)` -> 空行，用于提升代码结构可读性。
+- 413: `// Soft delete by setting status to inactive` -> 注释行，用于说明后续逻辑意图。
+- 414: `product.Status = "inactive"` -> 执行当前语句，参与该函数的业务流程。
+- 415: `product.UpdatedAt = time.Now()` -> 获取当前时间，用于时间字段或时序控制。
+- 416: `(空行)` -> 空行，用于提升代码结构可读性。
+- 417: `if err := s.db.Save(&product).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 418: `s.logger.WithError(err).Error("Failed to delete product")` -> 记录日志，便于运行观测与故障排查。
+- 419: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete product"})` -> 向客户端返回 JSON 响应。
+- 420: `return` -> 返回函数结果或提前结束当前流程。
+- 421: `}` -> 代码块边界，标记作用域开始或结束。
+- 422: `(空行)` -> 空行，用于提升代码结构可读性。
+- 423: `s.logger.WithField("product_id", product.ID).Info("Product deleted successfully")` -> 记录日志，便于运行观测与故障排查。
+- 424: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 425: `"message": "Product deleted successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 426: `})` -> 执行当前语句，参与该函数的业务流程。
+- 427: `}` -> 代码块边界，标记作用域开始或结束。
+- 428: `(空行)` -> 空行，用于提升代码结构可读性。
+- 429: `func (s *Service) GetPopularProducts(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 430: `var products []Product` -> 声明局部变量，为后续逻辑准备数据。
+- 431: `limit := 20` -> 执行当前语句，参与该函数的业务流程。
+- 432: `(空行)` -> 空行，用于提升代码结构可读性。
+- 433: `if l := c.DefaultQuery("limit", "20"); l != "" {` -> 条件判断，根据分支处理不同情况。
+- 434: `fmt.Sscanf(l, "%d", &limit)` -> 执行当前语句，参与该函数的业务流程。
+- 435: `}` -> 代码块边界，标记作用域开始或结束。
+- 436: `(空行)` -> 空行，用于提升代码结构可读性。
+- 437: `query := s.db.Model(&Product{}).` -> 执行当前语句，参与该函数的业务流程。
+- 438: `Where("status = ?", "active").` -> 执行数据库查询或持久化操作。
+- 439: `Order("rating DESC, review_count DESC").` -> 执行当前语句，参与该函数的业务流程。
+- 440: `Limit(limit)` -> 执行当前语句，参与该函数的业务流程。
+- 441: `(空行)` -> 空行，用于提升代码结构可读性。
+- 442: `if err := query.Find(&products).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 443: `s.logger.WithError(err).Error("Failed to get popular products")` -> 记录日志，便于运行观测与故障排查。
+- 444: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get popular products"})` -> 向客户端返回 JSON 响应。
+- 445: `return` -> 返回函数结果或提前结束当前流程。
+- 446: `}` -> 代码块边界，标记作用域开始或结束。
+- 447: `(空行)` -> 空行，用于提升代码结构可读性。
+- 448: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 449: `"products": products,` -> 执行当前语句，参与该函数的业务流程。
+- 450: `"total":    len(products),` -> 执行当前语句，参与该函数的业务流程。
+- 451: `})` -> 执行当前语句，参与该函数的业务流程。
+- 452: `}` -> 代码块边界，标记作用域开始或结束。
+- 453: `(空行)` -> 空行，用于提升代码结构可读性。
+- 454: `func (s *Service) GetRecommendations(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 455: `userID := c.Param("user_id")` -> 执行当前语句，参与该函数的业务流程。
+- 456: `(空行)` -> 空行，用于提升代码结构可读性。
+- 457: `// TODO: Implement recommendation logic based on user preferences and behavior` -> 注释行，用于说明后续逻辑意图。
+- 458: `// For now, return popular products` -> 注释行，用于说明后续逻辑意图。
+- 459: `var products []Product` -> 声明局部变量，为后续逻辑准备数据。
+- 460: `(空行)` -> 空行，用于提升代码结构可读性。
+- 461: `query := s.db.Model(&Product{}).` -> 执行当前语句，参与该函数的业务流程。
+- 462: `Where("status = ?", "active").` -> 执行数据库查询或持久化操作。
+- 463: `Order("rating DESC, review_count DESC").` -> 执行当前语句，参与该函数的业务流程。
+- 464: `Limit(10)` -> 执行当前语句，参与该函数的业务流程。
+- 465: `(空行)` -> 空行，用于提升代码结构可读性。
+- 466: `if err := query.Find(&products).Error; err != nil {` -> 条件判断，根据分支处理不同情况。
+- 467: `s.logger.WithError(err).Error("Failed to get recommendations")` -> 记录日志，便于运行观测与故障排查。
+- 468: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get recommendations"})` -> 向客户端返回 JSON 响应。
+- 469: `return` -> 返回函数结果或提前结束当前流程。
+- 470: `}` -> 代码块边界，标记作用域开始或结束。
+- 471: `(空行)` -> 空行，用于提升代码结构可读性。
+- 472: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 473: `"products": products,` -> 执行当前语句，参与该函数的业务流程。
+- 474: `"user_id":   userID,` -> 执行当前语句，参与该函数的业务流程。
+- 475: `})` -> 执行当前语句，参与该函数的业务流程。
+- 476: `}` -> 代码块边界，标记作用域开始或结束。
+- 477: `(空行)` -> 空行，用于提升代码结构可读性。
+- 478: `func (s *Service) IncrementViews(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 479: `id := c.Param("id")` -> 执行当前语句，参与该函数的业务流程。
+- 480: `(空行)` -> 空行，用于提升代码结构可读性。
+- 481: `// TODO: Implement view counting logic` -> 注释行，用于说明后续逻辑意图。
+- 482: `// For now, just return success` -> 注释行，用于说明后续逻辑意图。
+- 483: `c.JSON(http.StatusOK, gin.H{` -> 向客户端返回 JSON 响应。
+- 484: `"message": "Views incremented successfully",` -> 执行当前语句，参与该函数的业务流程。
+- 485: `"product_id": id,` -> 执行当前语句，参与该函数的业务流程。
+- 486: `})` -> 执行当前语句，参与该函数的业务流程。
+- 487: `}` -> 代码块边界，标记作用域开始或结束。

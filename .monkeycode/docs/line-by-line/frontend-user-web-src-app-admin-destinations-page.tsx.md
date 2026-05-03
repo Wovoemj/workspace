@@ -1,0 +1,403 @@
+# `frontend/user-web/src/app/admin/destinations/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 管理后台 - 目的地管理模块` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 目的地列表展示（分页）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 目的地搜索（关键词、城市筛选）` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地信息编辑（名称/城市/省份/描述/评分/价格/开放时间）` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 封面图片上传` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 删除目的地` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 创建新目的地` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 刷新列表功能` -> 注释行，用于解释设计意图或使用说明。
+- 14: `*` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - AdminGuard: 管理员权限守卫` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - resolveCoverSrc: 图片 URL 处理` -> 注释行，用于解释设计意图或使用说明。
+- 19: `*` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - GET /api/destinations?page=xxx&per_page=12: 获取目的地列表` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - POST /api/destinations: 创建目的地` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - PUT /api/destinations/${id}: 更新目的地` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - DELETE /api/destinations/${id}: 删除目的地` -> 注释行，用于解释设计意图或使用说明。
+- 25: `*` -> 注释行，用于解释设计意图或使用说明。
+- 26: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 27: `* - useState: destinations, page, total, keyword, editingId, editData, uploadingId` -> 注释行，用于解释设计意图或使用说明。
+- 28: `* - useCallback: fetchDestinations, saveEdit, deleteDestination, uploadCover` -> 注释行，用于解释设计意图或使用说明。
+- 29: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 30: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `(空行)` -> 空行，用于提升代码结构可读性。
+- 32: `import { useEffect, useState, useCallback } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 33: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 34: `import { useSearchParams } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 35: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 36: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 37: `import { AdminGuard } from '@/components/AdminGuard'` -> 导入依赖模块，供当前文件使用。
+- 38: `import {` -> 导入依赖模块，供当前文件使用。
+- 39: `Loader2, MapPin, Search, ChevronLeft, ChevronRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `Edit2, Save, X, Trash2, RefreshCw, ArrowLeft, ImagePlus, Upload` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 43: `import { resolveCoverSrc } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 44: `(空行)` -> 空行，用于提升代码结构可读性。
+- 45: `const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'` -> 声明变量或常量，保存运行时数据。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `type Destination = {` -> 定义类型或类结构，约束数据与行为。
+- 48: `id: number; name: string; city: string; province: string;` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `description: string; cover_image: string; rating: number;` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `ticket_price: number; open_time: string; created_at: string` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `}` -> 结束当前语句或代码块。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `function adminHeaders() {` -> 定义函数或方法，实现具体业务逻辑。
+- 54: `const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null` -> 声明变量或常量，保存运行时数据。
+- 55: `const h: Record<string, string> = { 'Content-Type': 'application/json' }` -> 声明变量或常量，保存运行时数据。
+- 56: `if (token) h['Authorization'] = \`Bearer ${token}\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 57: `return h` -> 返回结果或提前结束当前流程。
+- 58: `}` -> 结束当前语句或代码块。
+- 59: `(空行)` -> 空行，用于提升代码结构可读性。
+- 60: `export default function AdminDestinationsPage() {` -> 导出当前声明，供其他模块复用。
+- 61: `const searchParams = useSearchParams()` -> 声明变量或常量，保存运行时数据。
+- 62: `const cityFilter = searchParams.get('city') || ''` -> 声明变量或常量，保存运行时数据。
+- 63: `(空行)` -> 空行，用于提升代码结构可读性。
+- 64: `const [destinations, setDestinations] = useState<Destination[]>([])` -> 声明变量或常量，保存运行时数据。
+- 65: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 66: `const [page, setPage] = useState(1)` -> 声明变量或常量，保存运行时数据。
+- 67: `const [total, setTotal] = useState(0)` -> 声明变量或常量，保存运行时数据。
+- 68: `const [keyword, setKeyword] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 69: `const [editingId, setEditingId] = useState<number | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 70: `const [editData, setEditData] = useState<Partial<Destination>>({})` -> 声明变量或常量，保存运行时数据。
+- 71: `const [uploadingId, setUploadingId] = useState<number | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 72: `const perPage = 12` -> 声明变量或常量，保存运行时数据。
+- 73: `(空行)` -> 空行，用于提升代码结构可读性。
+- 74: `const fetchDestinations = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 75: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 76: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `const params = new URLSearchParams({` -> 声明变量或常量，保存运行时数据。
+- 78: `page: String(page),` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `per_page: String(perPage)` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `if (keyword.trim()) params.set('keyword', keyword.trim())` -> 条件判断分支，根据场景执行不同逻辑。
+- 82: `if (cityFilter) params.set('city', cityFilter)` -> 条件判断分支，根据场景执行不同逻辑。
+- 83: `(空行)` -> 空行，用于提升代码结构可读性。
+- 84: `const token = localStorage.getItem('admin_token') || ''` -> 声明变量或常量，保存运行时数据。
+- 85: `const res = await fetch(\`${API_BASE}/api/admin/destinations?${params.toString()}\`, {` -> 声明变量或常量，保存运行时数据。
+- 86: `headers: token ? { 'Authorization': \`Bearer ${token}\` } : {}` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `(空行)` -> 空行，用于提升代码结构可读性。
+- 89: `if (!res.ok) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 90: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 91: `throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `}` -> 结束当前语句或代码块。
+- 93: `(空行)` -> 空行，用于提升代码结构可读性。
+- 94: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 95: `setDestinations(data.destinations || [])` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `setTotal(data.total || 0)` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `console.error('加载目的地失败', e)` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `toast.error('加载失败: ' + e.message)` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `}` -> 结束当前语句或代码块。
+- 103: `}, [page, keyword, cityFilter])` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `(空行)` -> 空行，用于提升代码结构可读性。
+- 105: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `fetchDestinations()` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `}, [fetchDestinations])` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `(空行)` -> 空行，用于提升代码结构可读性。
+- 109: `const startEdit = (d: Destination) => {` -> 声明变量或常量，保存运行时数据。
+- 110: `setEditingId(d.id)` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `setEditData({ ...d })` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `}` -> 结束当前语句或代码块。
+- 113: `(空行)` -> 空行，用于提升代码结构可读性。
+- 114: `const cancelEdit = () => {` -> 声明变量或常量，保存运行时数据。
+- 115: `setEditingId(null)` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `setEditData({})` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `}` -> 结束当前语句或代码块。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `const saveEdit = async () => {` -> 声明变量或常量，保存运行时数据。
+- 120: `if (!editingId) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 121: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 122: `const token = localStorage.getItem('admin_token') || ''` -> 声明变量或常量，保存运行时数据。
+- 123: `const res = await fetch(\`${API_BASE}/api/admin/destinations/${editingId}\`, {` -> 声明变量或常量，保存运行时数据。
+- 124: `method: 'PUT',` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `headers: { ...adminHeaders(), 'Authorization': \`Bearer ${token}\` },` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `body: JSON.stringify(editData)` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `if (!res.ok) throw new Error('保存失败')` -> 条件判断分支，根据场景执行不同逻辑。
+- 129: `toast.success('保存成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `setEditingId(null)` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `setEditData({})` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `fetchDestinations()` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `toast.error(e.message)` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `}` -> 结束当前语句或代码块。
+- 136: `}` -> 结束当前语句或代码块。
+- 137: `(空行)` -> 空行，用于提升代码结构可读性。
+- 138: `const deleteDest = async (id: number) => {` -> 声明变量或常量，保存运行时数据。
+- 139: `if (!confirm('确定要删除这个目的地吗？')) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 140: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 141: `const token = localStorage.getItem('admin_token') || ''` -> 声明变量或常量，保存运行时数据。
+- 142: `const res = await fetch(\`${API_BASE}/api/admin/destinations/${id}\`, {` -> 声明变量或常量，保存运行时数据。
+- 143: `method: 'DELETE',` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `headers: { 'Authorization': \`Bearer ${token}\` }` -> 执行当前语句，参与该文件整体逻辑。
+- 145: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `if (!res.ok) throw new Error('删除失败')` -> 条件判断分支，根据场景执行不同逻辑。
+- 147: `toast.success('删除成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `fetchDestinations()` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `toast.error(e.message)` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `}` -> 结束当前语句或代码块。
+- 152: `}` -> 结束当前语句或代码块。
+- 153: `(空行)` -> 空行，用于提升代码结构可读性。
+- 154: `const handleImageUpload = async (destId: number, e: React.ChangeEvent<HTMLInputElement>) => {` -> 声明变量或常量，保存运行时数据。
+- 155: `const file = e.target.files?.[0]` -> 声明变量或常量，保存运行时数据。
+- 156: `if (!file) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 157: `const allowed = ['image/jpeg', 'image/png', 'image/webp']` -> 声明变量或常量，保存运行时数据。
+- 158: `if (!allowed.includes(file.type)) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 159: `toast.error('仅支持 JPG/PNG/WebP 格式')` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `return` -> 返回结果或提前结束当前流程。
+- 161: `}` -> 结束当前语句或代码块。
+- 162: `if (file.size > 10 * 1024 * 1024) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 163: `toast.error('文件大小不能超过 10MB')` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `return` -> 返回结果或提前结束当前流程。
+- 165: `}` -> 结束当前语句或代码块。
+- 166: `(空行)` -> 空行，用于提升代码结构可读性。
+- 167: `setUploadingId(destId)` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 169: `const formData = new FormData()` -> 声明变量或常量，保存运行时数据。
+- 170: `formData.append('image', file)` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `const token = localStorage.getItem('admin_token') || ''` -> 声明变量或常量，保存运行时数据。
+- 172: `const res = await fetch(\`${API_BASE}/api/admin/destinations/${destId}/upload-image\`, {` -> 声明变量或常量，保存运行时数据。
+- 173: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `headers: { 'Authorization': \`Bearer ${token}\` },` -> 执行当前语句，参与该文件整体逻辑。
+- 175: `body: formData` -> 执行当前语句，参与该文件整体逻辑。
+- 176: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `if (!res.ok) throw new Error('上传失败')` -> 条件判断分支，根据场景执行不同逻辑。
+- 178: `toast.success('图片上传成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `fetchDestinations()` -> 执行当前语句，参与该文件整体逻辑。
+- 180: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `toast.error(e.message)` -> 执行当前语句，参与该文件整体逻辑。
+- 182: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `setUploadingId(null)` -> 执行当前语句，参与该文件整体逻辑。
+- 184: `}` -> 结束当前语句或代码块。
+- 185: `}` -> 结束当前语句或代码块。
+- 186: `(空行)` -> 空行，用于提升代码结构可读性。
+- 187: `const totalPages = Math.ceil(total / perPage)` -> 声明变量或常量，保存运行时数据。
+- 188: `(空行)` -> 空行，用于提升代码结构可读性。
+- 189: `return (` -> 返回结果或提前结束当前流程。
+- 190: `<AdminGuard>` -> JSX/HTML 结构行，用于描述页面元素。
+- 191: `<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `<main className="max-w-7xl mx-auto px-4 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 194: `{/* Header */}` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `<div className="flex items-center justify-between mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 196: `<div className="flex items-center gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 197: `<Link href="/admin" className="p-2 hover:bg-white rounded-lg transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `<ArrowLeft className="h-5 w-5 text-gray-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 201: `<h1 className="text-2xl font-bold text-gray-900">目的地管理</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 202: `{cityFilter && (` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `<p className="text-sm text-green-600 mt-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 204: `筛选: {cityFilter} ({total} 处)` -> 执行当前语句，参与该文件整体逻辑。
+- 205: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 206: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 208: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 209: `<button onClick={fetchDestinations} className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all">` -> JSX/HTML 结构行，用于描述页面元素。
+- 210: `<RefreshCw className={\`h-4 w-4 ${loading ? 'animate-spin' : ''}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 211: `刷新` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 213: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 214: `(空行)` -> 空行，用于提升代码结构可读性。
+- 215: `{/* 搜索栏 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `<div className="bg-white rounded-2xl p-4 shadow-sm mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `<div className="flex gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 218: `<div className="flex-1 relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 219: `<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 220: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `type="text"` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `placeholder="搜索目的地名称..."` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `value={keyword}` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `onChange={(e) => { setKeyword(e.target.value); setPage(1) }}` -> 执行当前语句，参与该文件整体逻辑。
+- 225: `className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 228: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 229: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 230: `(空行)` -> 空行，用于提升代码结构可读性。
+- 231: `{/* 数据表格 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `<div className="bg-white rounded-2xl shadow-sm overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 233: `<div className="overflow-x-auto">` -> JSX/HTML 结构行，用于描述页面元素。
+- 234: `<table className="w-full">` -> JSX/HTML 结构行，用于描述页面元素。
+- 235: `<thead className="bg-gray-50 border-b">` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `<tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 237: `<th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">封面</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 238: `<th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">名称</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 239: `<th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">城市</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 240: `<th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">省份</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 241: `<th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">评分</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 242: `<th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">门票</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 243: `<th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">操作</th>` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `</tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `</thead>` -> JSX/HTML 结构行，用于描述页面元素。
+- 246: `<tbody className="divide-y">` -> JSX/HTML 结构行，用于描述页面元素。
+- 247: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `<tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 249: `<td colSpan={7} className="px-4 py-12 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `<p className="mt-2 text-sm text-gray-500">加载中...</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 252: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `</tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 254: `) : destinations.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `<tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 256: `<td colSpan={7} className="px-4 py-12 text-center text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `暂无数据` -> 执行当前语句，参与该文件整体逻辑。
+- 258: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 259: `</tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 260: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `destinations.map((d) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `<tr key={d.id} className="hover:bg-gray-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 263: `<td className="px-4 py-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 264: `<div className="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 265: `{d.cover_image ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 267: `<img src={resolveCoverSrc(d.cover_image)} alt="" className="w-full h-full object-cover" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 268: `<label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity">` -> JSX/HTML 结构行，用于描述页面元素。
+- 269: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `type="file"` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `accept="image/*"` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `className="hidden"` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `onChange={(e) => handleImageUpload(d.id, e)}` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `disabled={uploadingId === d.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `<ImagePlus className="h-5 w-5 text-white" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 277: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 278: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `<label className="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-gray-200 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 281: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `type="file"` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `accept="image/*"` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `className="hidden"` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `onChange={(e) => handleImageUpload(d.id, e)}` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `disabled={uploadingId === d.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `{uploadingId === d.id ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `<Loader2 className="h-5 w-5 animate-spin text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 290: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `<Upload className="h-5 w-5 text-gray-400" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 292: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 294: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 296: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 297: `<td className="px-4 py-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 298: `{editingId === d.id ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `value={editData.name || ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `onChange={(e) => setEditData({ ...editData, name: e.target.value })}` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `className="w-full px-2 py-1 text-sm border rounded"` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `<span className="font-medium text-gray-900">{d.name}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 306: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 307: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 308: `<td className="px-4 py-3 text-sm text-gray-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `{editingId === d.id ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 310: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `value={editData.city || ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 312: `onChange={(e) => setEditData({ ...editData, city: e.target.value })}` -> 执行当前语句，参与该文件整体逻辑。
+- 313: `className="w-full px-2 py-1 text-sm border rounded"` -> 执行当前语句，参与该文件整体逻辑。
+- 314: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `d.city` -> 执行当前语句，参与该文件整体逻辑。
+- 317: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `<td className="px-4 py-3 text-sm text-gray-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 320: `{editingId === d.id ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `value={editData.province || ''}` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `onChange={(e) => setEditData({ ...editData, province: e.target.value })}` -> 执行当前语句，参与该文件整体逻辑。
+- 324: `className="w-full px-2 py-1 text-sm border rounded"` -> 执行当前语句，参与该文件整体逻辑。
+- 325: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 326: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 327: `d.province` -> 执行当前语句，参与该文件整体逻辑。
+- 328: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 329: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 330: `<td className="px-4 py-3 text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 331: `<span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">` -> JSX/HTML 结构行，用于描述页面元素。
+- 332: `{d.rating?.toFixed(1) || 'N/A'}` -> 执行当前语句，参与该文件整体逻辑。
+- 333: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 334: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 335: `<td className="px-4 py-3 text-sm text-gray-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 336: `¥{d.ticket_price?.toFixed(2) || '0.00'}` -> 执行当前语句，参与该文件整体逻辑。
+- 337: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 338: `<td className="px-4 py-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 339: `<div className="flex items-center justify-end gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 340: `{editingId === d.id ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 341: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 342: `<button onClick={saveEdit} className="p-1.5 bg-green-100 text-green-600 rounded-lg hover:bg-green-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 343: `<Save className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 344: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 345: `<button onClick={cancelEdit} className="p-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 346: `<X className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 347: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 348: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 349: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 350: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 351: `<button onClick={() => startEdit(d)} className="p-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 352: `<Edit2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 353: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 354: `<button onClick={() => deleteDest(d.id)} className="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 355: `<Trash2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 356: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 357: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 358: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 359: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 360: `</td>` -> JSX/HTML 结构行，用于描述页面元素。
+- 361: `</tr>` -> JSX/HTML 结构行，用于描述页面元素。
+- 362: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 363: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 364: `</tbody>` -> JSX/HTML 结构行，用于描述页面元素。
+- 365: `</table>` -> JSX/HTML 结构行，用于描述页面元素。
+- 366: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 367: `(空行)` -> 空行，用于提升代码结构可读性。
+- 368: `{/* 分页 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 369: `{!loading && destinations.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 370: `<div className="flex items-center justify-between px-4 py-3 border-t">` -> JSX/HTML 结构行，用于描述页面元素。
+- 371: `<p className="text-sm text-gray-600">` -> JSX/HTML 结构行，用于描述页面元素。
+- 372: `共 {total} 条，第 {page}/{totalPages} 页` -> 执行当前语句，参与该文件整体逻辑。
+- 373: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 374: `<div className="flex gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 375: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 376: `onClick={() => setPage(Math.max(1, page - 1))}` -> 执行当前语句，参与该文件整体逻辑。
+- 377: `disabled={page <= 1}` -> 执行当前语句，参与该文件整体逻辑。
+- 378: `className="px-3 py-1.5 text-sm rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 379: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 380: `<ChevronLeft className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 381: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 382: `<span className="px-3 py-1.5 text-sm">{page} / {totalPages}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 383: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 384: `onClick={() => setPage(Math.min(totalPages, page + 1))}` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `disabled={page >= totalPages}` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `className="px-3 py-1.5 text-sm rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 387: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 388: `<ChevronRight className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 389: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 390: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 391: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 392: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 393: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 394: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 395: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 396: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 397: `</AdminGuard>` -> JSX/HTML 结构行，用于描述页面元素。
+- 398: `)` -> 结束当前语句或代码块。
+- 399: `}` -> 结束当前语句或代码块。

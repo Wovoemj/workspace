@@ -1,0 +1,300 @@
+# `frontend/user-web/src/app/travel-notes/[id]/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 游记详情模块 - 单篇游记展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 游记详情展示（标题、封面、内容、标签）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 作者信息展示（昵称、头像）` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地关联展示` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 浏览量、点赞数展示` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 点赞/取消点赞功能` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 分享功能` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 编辑游记入口（作者本人）` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - 删除游记功能（作者本人）` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - 返回游记列表按钮` -> 注释行，用于解释设计意图或使用说明。
+- 16: `*` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - useUserStore: 用户状态（Zustand）` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - apiMediaUrl: 头像 URL 处理` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - GET /api/travel-notes/${id}: 获取游记详情` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - POST /api/travel-notes/${id}/like: 点赞/取消点赞` -> 注释行，用于解释设计意图或使用说明。
+- 25: `* - DELETE /api/travel-notes/${id}: 删除游记（需登录，作者本人）` -> 注释行，用于解释设计意图或使用说明。
+- 26: `*` -> 注释行，用于解释设计意图或使用说明。
+- 27: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 28: `* - useState: note(游记数据), loading, liked(点赞状态), likeCount, deleting` -> 注释行，用于解释设计意图或使用说明。
+- 29: `* - useCallback: loadNote, toggleLike, deleteNote` -> 注释行，用于解释设计意图或使用说明。
+- 30: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 31: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `(空行)` -> 空行，用于提升代码结构可读性。
+- 33: `import { useState, useEffect, useCallback } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 34: `import { useParams, useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 35: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 36: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 37: `import {` -> 导入依赖模块，供当前文件使用。
+- 38: `ArrowLeft, Heart, Share2, Edit, Trash2,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `Loader2, MapPin, Calendar, Eye, MessageCircle,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `Sparkles` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 43: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 44: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 45: `import { apiMediaUrl } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `type TravelNote = {` -> 定义类型或类结构，约束数据与行为。
+- 48: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `title: string` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `cover_image?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `content: string` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `tags: string[]` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `view_count: number` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `like_count: number` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `status: string` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `created_at: string` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `updated_at?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `user: { id: number; nickname: string; avatar_url?: string }` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `destination?: { id: number; name: string; city: string }` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `}` -> 结束当前语句或代码块。
+- 61: `(空行)` -> 空行，用于提升代码结构可读性。
+- 62: `export default function TravelNoteDetailPage() {` -> 导出当前声明，供其他模块复用。
+- 63: `const params = useParams()` -> 声明变量或常量，保存运行时数据。
+- 64: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 65: `const { isAuthenticated, user } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 66: `(空行)` -> 空行，用于提升代码结构可读性。
+- 67: `const [note, setNote] = useState<TravelNote | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 68: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 69: `const [liked, setLiked] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 70: `const [likeCount, setLikeCount] = useState(0)` -> 声明变量或常量，保存运行时数据。
+- 71: `const [deleting, setDeleting] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 72: `(空行)` -> 空行，用于提升代码结构可读性。
+- 73: `const noteId = Number(params.id)` -> 声明变量或常量，保存运行时数据。
+- 74: `(空行)` -> 空行，用于提升代码结构可读性。
+- 75: `const loadNote = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 76: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 78: `const res = await fetch(\`/api/travel-notes/${noteId}\`)` -> 声明变量或常量，保存运行时数据。
+- 79: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 80: `if (data.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 81: `setNote(data.travel_note)` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `setLikeCount(data.travel_note.like_count || 0)` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `toast.error('游记不存在')` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `router.push('/travel-notes')` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `}` -> 结束当前语句或代码块。
+- 87: `} catch (e) {` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `console.error(e)` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `toast.error('加载失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `}` -> 结束当前语句或代码块。
+- 93: `}, [noteId, router])` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `(空行)` -> 空行，用于提升代码结构可读性。
+- 95: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `loadNote()` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `}, [loadNote])` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `(空行)` -> 空行，用于提升代码结构可读性。
+- 99: `const handleLike = async () => {` -> 声明变量或常量，保存运行时数据。
+- 100: `if (!isAuthenticated) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 101: `toast.error('请先登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `return` -> 返回结果或提前结束当前流程。
+- 103: `}` -> 结束当前语句或代码块。
+- 104: `(空行)` -> 空行，用于提升代码结构可读性。
+- 105: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 106: `const url = liked` -> 声明变量或常量，保存运行时数据。
+- 107: `? \`/api/travel-notes/${noteId}/unlike\`` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `: \`/api/travel-notes/${noteId}/like\`` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `const res = await fetch(url, { method: 'POST' })` -> 声明变量或常量，保存运行时数据。
+- 110: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 111: `if (data.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 112: `setLiked(!liked)` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `setLikeCount(data.like_count)` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `} else if (data.error !== '已点赞' && data.error !== '未点赞') {` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `toast.error(data.error || '操作失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `}` -> 结束当前语句或代码块。
+- 117: `} catch (e) {` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `console.error(e)` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `}` -> 结束当前语句或代码块。
+- 120: `}` -> 结束当前语句或代码块。
+- 121: `(空行)` -> 空行，用于提升代码结构可读性。
+- 122: `const handleDelete = async () => {` -> 声明变量或常量，保存运行时数据。
+- 123: `if (!confirm('确定要删除这篇游记吗？')) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 124: `(空行)` -> 空行，用于提升代码结构可读性。
+- 125: `setDeleting(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 127: `const res = await fetch(\`/api/travel-notes/${noteId}\`, { method: 'DELETE' })` -> 声明变量或常量，保存运行时数据。
+- 128: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 129: `if (data.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 130: `toast.success('删除成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `router.push('/travel-notes')` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `toast.error(data.error || '删除失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `}` -> 结束当前语句或代码块。
+- 135: `} catch (e) {` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `console.error(e)` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `setDeleting(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `}` -> 结束当前语句或代码块。
+- 140: `}` -> 结束当前语句或代码块。
+- 141: `(空行)` -> 空行，用于提升代码结构可读性。
+- 142: `const handleShare = async () => {` -> 声明变量或常量，保存运行时数据。
+- 143: `const url = window.location.href` -> 声明变量或常量，保存运行时数据。
+- 144: `if (navigator.share) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 145: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 146: `await navigator.share({` -> 执行当前语句，参与该文件整体逻辑。
+- 147: `title: note?.title,` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `text: \`${note?.title} - 旅行攻略\`,` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `url` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `} catch {}` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `navigator.clipboard.writeText(url)` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `toast.success('链接已复制')` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `}` -> 结束当前语句或代码块。
+- 156: `}` -> 结束当前语句或代码块。
+- 157: `(空行)` -> 空行，用于提升代码结构可读性。
+- 158: `if (loading) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 159: `return (` -> 返回结果或提前结束当前流程。
+- 160: `<div className="min-h-screen">` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `<div className="flex items-center justify-center pt-40">` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `<Loader2 className="h-8 w-8 animate-spin text-sky-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `)` -> 结束当前语句或代码块。
+- 167: `}` -> 结束当前语句或代码块。
+- 168: `(空行)` -> 空行，用于提升代码结构可读性。
+- 169: `if (!note) return null` -> 条件判断分支，根据场景执行不同逻辑。
+- 170: `(空行)` -> 空行，用于提升代码结构可读性。
+- 171: `const isAuthor = isAuthenticated && user?.id !== undefined && String(user.id) === String(note.user?.id)` -> 声明变量或常量，保存运行时数据。
+- 172: `(空行)` -> 空行，用于提升代码结构可读性。
+- 173: `return (` -> 返回结果或提前结束当前流程。
+- 174: `<div className="min-h-screen bg-gray-50">` -> JSX/HTML 结构行，用于描述页面元素。
+- 175: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 176: `<main className="pt-20 pb-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 177: `<div className="max-w-4xl mx-auto px-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 178: `{/* Back */}` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `<Link href="/travel-notes" className="inline-flex items-center gap-2 text-gray-600 hover:text-sky-600 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `<ArrowLeft className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 181: `返回攻略` -> 执行当前语句，参与该文件整体逻辑。
+- 182: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `(空行)` -> 空行，用于提升代码结构可读性。
+- 184: `{/* Cover */}` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `{note.cover_image && (` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `<div className="rounded-2xl overflow-hidden mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 188: `src={apiMediaUrl(note.cover_image)}` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `alt={note.title}` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `className="w-full max-h-[400px] object-cover"` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 192: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `(空行)` -> 空行，用于提升代码结构可读性。
+- 195: `{/* Header */}` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `<div className="bg-white rounded-2xl p-6 shadow-sm mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 197: `<h1 className="text-3xl font-black text-gray-900 mb-4">{note.title}</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `(空行)` -> 空行，用于提升代码结构可读性。
+- 199: `<div className="flex items-center justify-between flex-wrap gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 201: `{note.user?.avatar_url && (` -> 执行当前语句，参与该文件整体逻辑。
+- 202: `<img src={apiMediaUrl(note.user.avatar_url)} className="w-10 h-10 rounded-full" alt="" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 203: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 205: `<div className="font-semibold text-gray-800">{note.user?.nickname || '匿名用户'}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 206: `<div className="text-sm text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 207: `{new Date(note.created_at).toLocaleDateString('zh-CN')}` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `{note.destination && <> · {note.destination.city}</>}` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 210: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 211: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 212: `(空行)` -> 空行，用于提升代码结构可读性。
+- 213: `{/* 行程规划入口 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `{note.destination && (` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `href={\`/assistant?destination=${encodeURIComponent(note.destination.name)}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 217: `className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-semibold shadow-lg hover:from-sky-700 hover:to-indigo-700 transition-all"` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `<Sparkles className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 220: `基于此攻略规划行程` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 222: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `(空行)` -> 空行，用于提升代码结构可读性。
+- 224: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 225: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `onClick={handleLike}` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `className={\`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-colors ${` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `liked` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `? 'bg-red-50 border-red-200 text-red-600'` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `: 'border-gray-200 text-gray-600 hover:bg-gray-50'` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 233: `<Heart className={\`h-4 w-4 ${liked ? 'fill-current' : ''}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 234: `<span className="text-sm">{likeCount}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 235: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `onClick={handleShare}` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `<Share2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 241: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 242: `{isAuthor && (` -> 执行当前语句，参与该文件整体逻辑。
+- 243: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `href={\`/travel-notes/${note.id}/edit\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `<Edit className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 249: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 251: `onClick={handleDelete}` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `disabled={deleting}` -> 执行当前语句，参与该文件整体逻辑。
+- 253: `className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50"` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `<Trash2 className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 256: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 258: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 259: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 260: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 261: `(空行)` -> 空行，用于提升代码结构可读性。
+- 262: `{note.tags && note.tags.length > 0 && (` -> 执行当前语句，参与该文件整体逻辑。
+- 263: `<div className="flex flex-wrap gap-2 mt-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 264: `{note.tags.map((tag: string) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `<span key={tag} className="px-3 py-1 bg-sky-50 text-sky-600 text-sm rounded-full">` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `{tag}` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 268: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 272: `(空行)` -> 空行，用于提升代码结构可读性。
+- 273: `{/* Content */}` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `<div className="bg-white rounded-2xl p-8 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 275: `<div className="prose max-w-none" dangerouslySetInnerHTML={{` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `__html: note.content.replace(/\n/g, '<br/>')` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `}} />` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `(空行)` -> 空行，用于提升代码结构可读性。
+- 280: `{/* Stats */}` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `<div className="flex items-center justify-center gap-6 mt-6 text-sm text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 282: `<span className="flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 283: `<Eye className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 284: `{note.view_count} 阅读` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 286: `<span className="flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 287: `<Heart className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 288: `{likeCount} 点赞` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 290: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 292: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 293: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 294: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 295: `)` -> 结束当前语句或代码块。
+- 296: `}` -> 结束当前语句或代码块。

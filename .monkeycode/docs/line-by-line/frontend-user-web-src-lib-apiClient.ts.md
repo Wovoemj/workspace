@@ -1,0 +1,97 @@
+# `frontend/user-web/src/lib/apiClient.ts` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/** 后端直连地址（SSR 用） */` -> 注释行，用于解释设计意图或使用说明。
+- 2: `const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'` -> 声明变量或常量，保存运行时数据。
+- 3: `(空行)` -> 空行，用于提升代码结构可读性。
+- 4: `function apiBaseURL() {` -> 定义函数或方法，实现具体业务逻辑。
+- 5: `// SSR: direct-call backend with absolute base URL.` -> 注释行，用于解释设计意图或使用说明。
+- 6: `if (typeof window === 'undefined') return BACKEND_URL` -> 条件判断分支，根据场景执行不同逻辑。
+- 7: `// Browser: hit Next.js origin, rewrites proxy /api/* to backend.` -> 注释行，用于解释设计意图或使用说明。
+- 8: `return window.location.origin` -> 返回结果或提前结束当前流程。
+- 9: `}` -> 结束当前语句或代码块。
+- 10: `(空行)` -> 空行，用于提升代码结构可读性。
+- 11: `type ApiClientOptions = {` -> 定义类型或类结构，约束数据与行为。
+- 12: `method?: 'GET' | 'POST' | 'PUT' | 'DELETE'` -> 执行当前语句，参与该文件整体逻辑。
+- 13: `query?: Record<string, string | number | boolean | undefined | null>` -> 执行当前语句，参与该文件整体逻辑。
+- 14: `body?: unknown` -> 执行当前语句，参与该文件整体逻辑。
+- 15: `auth?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 16: `/** 管理员认证：?localStorage.admin_token 取值，并直连后端（绕过 Next.js rewrite?*/` -> 注释行，用于解释设计意图或使用说明。
+- 17: `adminAuth?: boolean` -> 执行当前语句，参与该文件整体逻辑。
+- 18: `cache?: RequestCache` -> 执行当前语句，参与该文件整体逻辑。
+- 19: `signal?: AbortSignal` -> 执行当前语句，参与该文件整体逻辑。
+- 20: `}` -> 结束当前语句或代码块。
+- 21: `(空行)` -> 空行，用于提升代码结构可读性。
+- 22: `function buildUrl(pathOrUrl: string, query?: ApiClientOptions['query']) {` -> 定义函数或方法，实现具体业务逻辑。
+- 23: `// pathOrUrl: '/api/xxx' or 'https://...'` -> 注释行，用于解释设计意图或使用说明。
+- 24: `const base = pathOrUrl.startsWith('http') ? '' : apiBaseURL()` -> 声明变量或常量，保存运行时数据。
+- 25: `const url = pathOrUrl.startsWith('http') ? new URL(pathOrUrl) : new URL(pathOrUrl, base)` -> 声明变量或常量，保存运行时数据。
+- 26: `if (query) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 27: `for (const [k, v] of Object.entries(query)) {` -> 循环处理集合或重复执行逻辑。
+- 28: `if (v === undefined || v === null) continue` -> 条件判断分支，根据场景执行不同逻辑。
+- 29: `url.searchParams.set(k, String(v))` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `}` -> 结束当前语句或代码块。
+- 31: `}` -> 结束当前语句或代码块。
+- 32: `return url.toString()` -> 返回结果或提前结束当前流程。
+- 33: `}` -> 结束当前语句或代码块。
+- 34: `(空行)` -> 空行，用于提升代码结构可读性。
+- 35: `export async function apiClient<T>(pathOrUrl: string, options: ApiClientOptions = {}): Promise<T> {` -> 导出当前声明，供其他模块复用。
+- 36: `const {` -> 声明变量或常量，保存运行时数据。
+- 37: `method = 'GET',` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `query,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `body,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `auth = false,` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `adminAuth = false,` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `cache = 'no-store',` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `signal,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `} = options` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `(空行)` -> 空行，用于提升代码结构可读性。
+- 46: `const headers: Record<string, string> = {` -> 声明变量或常量，保存运行时数据。
+- 47: `'Content-Type': 'application/json',` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `}` -> 结束当前语句或代码块。
+- 49: `(空行)` -> 空行，用于提升代码结构可读性。
+- 50: `if (typeof window !== 'undefined') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 51: `if (adminAuth) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 52: `const token = window.localStorage.getItem('admin_token')` -> 声明变量或常量，保存运行时数据。
+- 53: `if (token) headers.Authorization = \`Bearer ${token}\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 54: `} else if (auth) {` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `const token = window.localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 56: `if (token) headers.Authorization = \`Bearer ${token}\`` -> 条件判断分支，根据场景执行不同逻辑。
+- 57: `}` -> 结束当前语句或代码块。
+- 58: `}` -> 结束当前语句或代码块。
+- 59: `(空行)` -> 空行，用于提升代码结构可读性。
+- 60: `// 管理员请求直连后端，绕过 Next.js rewrite（rewrite 会丢?Authorization 头）` -> 注释行，用于解释设计意图或使用说明。
+- 61: `let url: string` -> 声明变量或常量，保存运行时数据。
+- 62: `if (adminAuth && typeof window !== 'undefined') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 63: `const backendBase = BACKEND_URL` -> 声明变量或常量，保存运行时数据。
+- 64: `const parsed = pathOrUrl.startsWith('http')` -> 声明变量或常量，保存运行时数据。
+- 65: `? new URL(pathOrUrl)` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `: new URL(pathOrUrl, backendBase)` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `if (query) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 68: `for (const [k, v] of Object.entries(query)) {` -> 循环处理集合或重复执行逻辑。
+- 69: `if (v === undefined || v === null) continue` -> 条件判断分支，根据场景执行不同逻辑。
+- 70: `parsed.searchParams.set(k, String(v))` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `}` -> 结束当前语句或代码块。
+- 72: `}` -> 结束当前语句或代码块。
+- 73: `url = parsed.toString()` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `url = buildUrl(pathOrUrl, query)` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `}` -> 结束当前语句或代码块。
+- 77: `(空行)` -> 空行，用于提升代码结构可读性。
+- 78: `const res = await fetch(url, {` -> 声明变量或常量，保存运行时数据。
+- 79: `method,` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `headers,` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `cache,` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `signal,` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `body: body === undefined ? undefined : JSON.stringify(body),` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `(空行)` -> 空行，用于提升代码结构可读性。
+- 86: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 87: `if (!res.ok) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 88: `const msg = (data && (data as any).error) || \`HTTP ${res.status}\`` -> 声明变量或常量，保存运行时数据。
+- 89: `throw new Error(msg)` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `}` -> 结束当前语句或代码块。
+- 91: `return data as T` -> 返回结果或提前结束当前流程。
+- 92: `}` -> 结束当前语句或代码块。
+- 93: `(空行)` -> 空行，用于提升代码结构可读性。

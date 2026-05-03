@@ -1,0 +1,330 @@
+# `frontend/user-web/src/app/destinations/[id]/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 目的地详情页模块 - 景点详细信息展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 目的地基础信息展示（名称、评分、门票价格、开放时间）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 场馆名片 HeroCard 组件展示` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 必看清单 QuickGlance 亮点推荐` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 一日游时间轴 Timeline 行程规划` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 实用锦囊 TipsAccordion 游玩攻略` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 周边联动 NearbyMap 地理信息展示` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 用户评论 CommentSection 评论区` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - 分享功能 ShareButton` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - 足迹记录（自动记录浏览历史）` -> 注释行，用于解释设计意图或使用说明。
+- 16: `*` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - HeroCard: 场馆名片组件` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - QuickGlance: 亮点展示组件` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - Timeline: 时间轴行程组件` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - TipsAccordion: 实用锦囊组件` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - NearbyMap: 周边地图组件（动态加载）` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - CommentSection: 评论区域组件` -> 注释行，用于解释设计意图或使用说明。
+- 25: `* - ShareButton: 分享按钮组件` -> 注释行，用于解释设计意图或使用说明。
+- 26: `* - DestinationDetailSkeleton: 加载骨架屏` -> 注释行，用于解释设计意图或使用说明。
+- 27: `*` -> 注释行，用于解释设计意图或使用说明。
+- 28: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 29: `* - GET /api/destinations/${id}: 获取目的地详情（1小时缓存）` -> 注释行，用于解释设计意图或使用说明。
+- 30: `* - GET /api/destinations/${id}/recommendations: 获取推荐数据（亮点、时间轴、锦囊）` -> 注释行，用于解释设计意图或使用说明。
+- 31: `* - POST /api/footprints: 记录用户足迹（需登录）` -> 注释行，用于解释设计意图或使用说明。
+- 32: `*` -> 注释行，用于解释设计意图或使用说明。
+- 33: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 34: `* - useState: item(目的地数据), recommendations(推荐数据), loading/error状态` -> 注释行，用于解释设计意图或使用说明。
+- 35: `* - 登录用户自动记录足迹到 /api/footprints` -> 注释行，用于解释设计意图或使用说明。
+- 36: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 37: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `(空行)` -> 空行，用于提升代码结构可读性。
+- 39: `import { useEffect, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 40: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 41: `import { useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 42: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 43: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 44: `import { Loader2, MapPin, Star, ArrowLeft, Clock, Info, Ticket } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 45: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 46: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 47: `import type { DestinationComment } from '@/types'` -> 导入依赖模块，供当前文件使用。
+- 48: `import { formatPriceStart, formatRating, shouldShowRating } from '@/lib/display'` -> 导入依赖模块，供当前文件使用。
+- 49: `import { onImgErrorUseFallback, resolveCoverSrc } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 50: `import HeroCard from '@/components/HeroCard'` -> 导入依赖模块，供当前文件使用。
+- 51: `import QuickGlance from '@/components/QuickGlance'` -> 导入依赖模块，供当前文件使用。
+- 52: `import Timeline from '@/components/Timeline'` -> 导入依赖模块，供当前文件使用。
+- 53: `import TipsAccordion from '@/components/TipsAccordion'` -> 导入依赖模块，供当前文件使用。
+- 54: `import { ShareButton } from '@/components/ShareButton'` -> 导入依赖模块，供当前文件使用。
+- 55: `import CommentSection from '@/components/CommentSection'` -> 导入依赖模块，供当前文件使用。
+- 56: `import { DestinationDetailSkeleton } from '@/components/LoadingSkeletons'` -> 导入依赖模块，供当前文件使用。
+- 57: `import dynamic from 'next/dynamic'` -> 导入依赖模块，供当前文件使用。
+- 58: `(空行)` -> 空行，用于提升代码结构可读性。
+- 59: `// 动态导入 NearbyMap，避免 SSR 时访问 window` -> 注释行，用于解释设计意图或使用说明。
+- 60: `const NearbyMap = dynamic(() => import('@/components/NearbyMap').then(mod => mod.default), {` -> 声明变量或常量，保存运行时数据。
+- 61: `ssr: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `loading: () => <div className="h-64 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center"><Loader2 className="animate-spin" /></div>` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `(空行)` -> 空行，用于提升代码结构可读性。
+- 65: `type Destination = {` -> 定义类型或类结构，约束数据与行为。
+- 66: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `description?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `cover_image?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `rating?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `ticket_price?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `open_time?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `lng?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `lat?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `location?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `}` -> 结束当前语句或代码块。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `type TimelineItem = {` -> 定义类型或类结构，约束数据与行为。
+- 81: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `timeLabel: string` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `title: string` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `description: string` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `tags: string[]` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `}` -> 结束当前语句或代码块。
+- 87: `(空行)` -> 空行，用于提升代码结构可读性。
+- 88: `type HighlightItem = {` -> 定义类型或类结构，约束数据与行为。
+- 89: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `title: string` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `description: string` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `icon: 'star' | 'gem' | 'crown' | 'award' | 'eye' | 'history'` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `}` -> 结束当前语句或代码块。
+- 94: `(空行)` -> 空行，用于提升代码结构可读性。
+- 95: `type TipItem = {` -> 定义类型或类结构，约束数据与行为。
+- 96: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `title: string` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `content: string` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `}` -> 结束当前语句或代码块。
+- 100: `(空行)` -> 空行，用于提升代码结构可读性。
+- 101: `type Recommendations = {` -> 定义类型或类结构，约束数据与行为。
+- 102: `highlights: HighlightItem[]` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `timeline: TimelineItem[]` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `tips: TipItem[]` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `}` -> 结束当前语句或代码块。
+- 106: `(空行)` -> 空行，用于提升代码结构可读性。
+- 107: `async function getDestination(id: string) {` -> 定义函数或方法，实现具体业务逻辑。
+- 108: `const res = await fetch(\`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${id}\`, {` -> 声明变量或常量，保存运行时数据。
+- 109: `cache: 'force-cache',` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `next: { revalidate: 3600 } // 1小时重新验证` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `if (!res.ok) return null` -> 条件判断分支，根据场景执行不同逻辑。
+- 113: `const data = await res.json()` -> 声明变量或常量，保存运行时数据。
+- 114: `return data?.destination ?? null` -> 返回结果或提前结束当前流程。
+- 115: `}` -> 结束当前语句或代码块。
+- 116: `(空行)` -> 空行，用于提升代码结构可读性。
+- 117: `export default function DestinationDetailPage({ params }: { params: { id: string } }) {` -> 导出当前声明，供其他模块复用。
+- 118: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 119: `const { isAuthenticated } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 120: `const [item, setItem] = useState<Destination | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 121: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 122: `const [error, setError] = useState<string | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 123: `(空行)` -> 空行，用于提升代码结构可读性。
+- 124: `// 推荐数据` -> 注释行，用于解释设计意图或使用说明。
+- 125: `const [recommendations, setRecommendations] = useState<Recommendations | null>(null)` -> 声明变量或常量，保存运行时数据。
+- 126: `const [recLoading, setRecLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 127: `(空行)` -> 空行，用于提升代码结构可读性。
+- 128: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `if (!params.id) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 130: `let cancelled = false` -> 声明变量或常量，保存运行时数据。
+- 131: `(空行)` -> 空行，用于提升代码结构可读性。
+- 132: `async function run() {` -> 定义函数或方法，实现具体业务逻辑。
+- 133: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 134: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `setError(null)` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `(空行)` -> 空行，用于提升代码结构可读性。
+- 137: `// 并行加载景点详情和推荐数据` -> 注释行，用于解释设计意图或使用说明。
+- 138: `const [destRes, recRes] = await Promise.all([` -> 声明变量或常量，保存运行时数据。
+- 139: `fetch(\`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}\`),` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `fetch(\`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}/recommendations\`)` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `])` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `(空行)` -> 空行，用于提升代码结构可读性。
+- 143: `const destData = await destRes.json()` -> 声明变量或常量，保存运行时数据。
+- 144: `const recData = await recRes.json()` -> 声明变量或常量，保存运行时数据。
+- 145: `(空行)` -> 空行，用于提升代码结构可读性。
+- 146: `if (!cancelled) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 147: `if (destData.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 148: `setItem(destData.destination)` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `setError(destData.error || '加载失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `}` -> 结束当前语句或代码块。
+- 152: `if (recData.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 153: `setRecommendations(recData.recommendations)` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `}` -> 结束当前语句或代码块。
+- 155: `}` -> 结束当前语句或代码块。
+- 156: `(空行)` -> 空行，用于提升代码结构可读性。
+- 157: `// 记录足迹（登录用户）` -> 注释行，用于解释设计意图或使用说明。
+- 158: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 159: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 160: `if (token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 161: `fetch('/api/footprints', {` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `headers: { Authorization: \`Bearer ${token}\`, 'Content-Type': 'application/json' },` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `body: JSON.stringify({ destination_id: Number(params.id), source: 'view' }),` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `}).catch(() => {})` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `}` -> 结束当前语句或代码块。
+- 167: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `// ignore` -> 注释行，用于解释设计意图或使用说明。
+- 169: `}` -> 结束当前语句或代码块。
+- 170: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `if (!cancelled) setError(e?.message || '加载失败')` -> 条件判断分支，根据场景执行不同逻辑。
+- 172: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `if (!cancelled) setLoading(false)` -> 条件判断分支，根据场景执行不同逻辑。
+- 174: `}` -> 结束当前语句或代码块。
+- 175: `}` -> 结束当前语句或代码块。
+- 176: `run()` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `return () => {` -> 返回结果或提前结束当前流程。
+- 178: `cancelled = true` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `}` -> 结束当前语句或代码块。
+- 180: `}, [params.id])` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `(空行)` -> 空行，用于提升代码结构可读性。
+- 182: `return (` -> 返回结果或提前结束当前流程。
+- 183: `<div className="min-h-screen">` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 185: `<main className="pt-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 186: `<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `<div className="mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 188: `<Link href="/destinations" className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900">` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `<ArrowLeft className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `返回列表` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `(空行)` -> 空行，用于提升代码结构可读性。
+- 194: `{loading && <DestinationDetailSkeleton />}` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `{error && <div className="card p-4 border-red-200 bg-red-50 text-red-700">加载失败：{error}</div>}` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `(空行)` -> 空行，用于提升代码结构可读性。
+- 197: `{!loading && !error && item && (` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `{/* 场馆名片 Hero Card */}` -> 执行当前语句，参与该文件整体逻辑。
+- 200: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 201: `<HeroCard` -> 执行当前语句，参与该文件整体逻辑。
+- 202: `name={item.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `city={item.city}` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `province={item.province}` -> 执行当前语句，参与该文件整体逻辑。
+- 205: `rating={item.rating}` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `openTime={item.open_time}` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `ticketPrice={item.ticket_price}` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `coverImage={item.cover_image}` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `tags={[]}` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 211: `<div className="absolute top-4 right-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 212: `<ShareButton` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `title={item.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `description={\`${item.city} · ${item.province}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `type="destination"` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 217: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 218: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 219: `(空行)` -> 空行，用于提升代码结构可读性。
+- 220: `{/* 必看清单 Quick Glance */}` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `<QuickGlance` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `title="必看清单"` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `items={recommendations?.highlights || [` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `{ id: 1, title: '核心景点', description: '最具代表性的景观', icon: 'star' },` -> 执行当前语句，参与该文件整体逻辑。
+- 225: `{ id: 2, title: '特色体验', description: '当地特色活动', icon: 'gem' },` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `{ id: 3, title: '文化遗迹', description: '历史文化遗存', icon: 'crown' },` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `{ id: 4, title: '周边美食', description: '特色小吃推荐', icon: 'history' },` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `]}` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `(空行)` -> 空行，用于提升代码结构可读性。
+- 231: `{/* 简介与门票卡片 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 233: `{/* 简介区域 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `<div className="lg:col-span-2 card p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 235: `<div className="flex items-center gap-3 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `<div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 237: `<Info className="w-5 h-5 text-white" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 238: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 239: `<h2 className="text-h2 text-gray-900">景点简介</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 240: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 241: `<div className="prose prose-gray max-w-none">` -> JSX/HTML 结构行，用于描述页面元素。
+- 242: `<p className="text-body text-gray-700 leading-relaxed whitespace-pre-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 243: `{item.description?.replace(/\[citation:\d+\]/g, '') || '暂无简介'}` -> 执行当前语句，参与该文件整体逻辑。
+- 244: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 246: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 247: `(空行)` -> 空行，用于提升代码结构可读性。
+- 248: `{/* 门票预订卡片 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `<div className="card overflow-hidden">` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<div className="bg-gradient-to-br from-primary-600 to-primary-700 p-6 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `<div className="flex items-center gap-2 mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 252: `<Ticket className="w-5 h-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `<span className="text-sm opacity-90">门票预订</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 254: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 255: `<div className="text-3xl font-bold">` -> JSX/HTML 结构行，用于描述页面元素。
+- 256: `{formatPriceStart(item.ticket_price)}` -> 执行当前语句，参与该文件整体逻辑。
+- 257: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 258: `<p className="text-xs opacity-75 mt-1">起/人均</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 259: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 260: `<div className="p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 261: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `className="block w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl text-center transition-all duration-200 shadow-md hover:shadow-lg"` -> 执行当前语句，参与该文件整体逻辑。
+- 263: `href="/assistant"` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `让 AI 规划行程` -> 执行当前语句，参与该文件整体逻辑。
+- 266: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 267: `<div className="mt-4 pt-4 border-t border-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 268: `<div className="flex items-center gap-2 text-xs text-gray-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 269: `<MapPin className="w-3.5 h-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `<span>{item.city} · {item.province}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 271: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 272: `{item.open_time && (` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `<div className="flex items-center gap-2 text-xs text-gray-500 mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 274: `<Clock className="w-3.5 h-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 275: `<span>{item.open_time}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 276: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 277: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 280: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 281: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 282: `(空行)` -> 空行，用于提升代码结构可读性。
+- 283: `{/* 时间轴行程 Timeline */}` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `<Timeline` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `title="一日游时间轴"` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `items={recommendations?.timeline || [` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `{ id: 1, timeLabel: '上午', title: '入园游览', description: '开始游览，感受当地风情', tags: ['2小时', '推荐'] },` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `{ id: 2, timeLabel: '中午', title: '特色午餐', description: '品尝当地美食', tags: ['1小时', '餐饮'] },` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `{ id: 3, timeLabel: '下午', title: '核心景点', description: '参观主要景点', tags: ['2小时', '精华'] },` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `{ id: 4, timeLabel: '傍晚', title: '休闲时光', description: '周边漫步，享受悠闲时光', tags: ['1小时', '自由'] },` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `]}` -> 执行当前语句，参与该文件整体逻辑。
+- 292: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `(空行)` -> 空行，用于提升代码结构可读性。
+- 294: `{/* 实用锦囊 Tips Accordion */}` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `<TipsAccordion` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `title="实用锦囊"` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `items={recommendations?.tips || [` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `{ id: 1, title: '交通指南', content: '建议提前规划交通路线，选择合适的出行方式。' },` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `{ id: 2, title: '餐饮建议', content: '周边餐饮选择丰富，可品尝当地特色美食。' },` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `{ id: 3, title: '拍照提示', content: '建议穿着舒适，热门景点人流较多，建议错峰拍照。' },` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `{ id: 4, title: '最佳游览时间', content: '建议避开节假日和周末高峰期，上午早些时候人较少。' },` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `{ id: 5, title: '温馨提示', content: '建议提前查看开放时间和门票信息，携带必要的随身物品。' },` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `]}` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `(空行)` -> 空行，用于提升代码结构可读性。
+- 306: `{/* 周边联动 Nearby Map */}` -> 执行当前语句，参与该文件整体逻辑。
+- 307: `<NearbyMap` -> 执行当前语句，参与该文件整体逻辑。
+- 308: `title="周边联动"` -> 执行当前语句，参与该文件整体逻辑。
+- 309: `center={item.lng && item.lat ? [item.lng, item.lat] : undefined}` -> 执行当前语句，参与该文件整体逻辑。
+- 310: `destinationName={item.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 312: `(空行)` -> 空行，用于提升代码结构可读性。
+- 313: `{/* 评论区域 - 新版精美样式 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 314: `<CommentSection` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `destinationId={item.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `destinationName={item.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 317: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 318: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 320: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 321: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 322: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 323: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 324: `)` -> 结束当前语句或代码块。
+- 325: `}` -> 结束当前语句或代码块。
+- 326: `(空行)` -> 空行，用于提升代码结构可读性。

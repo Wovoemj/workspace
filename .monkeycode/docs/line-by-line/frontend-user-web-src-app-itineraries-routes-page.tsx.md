@@ -1,0 +1,401 @@
+# `frontend/user-web/src/app/itineraries/routes/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 行程路线模块 - AI 推荐路线展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - AI 生成的行程路线列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 路线卡片：标题、目的地、日期范围、状态标签` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 状态分类 Tab：全部 / 待完善 / 规划中 / 进行中 / 已完成` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 旅行风格标签：休闲放松/人文探索/冒险体验/商务出行` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 背景渐变色动态分配` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 查看详情按钮（跳转到 /itineraries/${id}）` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - useUserStore: 用户状态（Zustand）` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - GET /api/itineraries?status=xxx: 获取行程列表（支持状态过滤）` -> 注释行，用于解释设计意图或使用说明。
+- 20: `*` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - useState: trips(行程), activeTab(当前Tab), loading` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - useCallback: loadTrips` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - useMemo: filteredTrips(根据Tab过滤)` -> 注释行，用于解释设计意图或使用说明。
+- 25: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 26: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `(空行)` -> 空行，用于提升代码结构可读性。
+- 28: `import { useCallback, useEffect, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 29: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 30: `import { useRouter, useSearchParams } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 31: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 32: `import {` -> 导入依赖模块，供当前文件使用。
+- 33: `Calendar,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `MapPin,` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `Users,` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `Clock,` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `Plane,` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `CheckCircle2,` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `AlertCircle,` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `PlayCircle,` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `Archive,` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `Loader2,` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `Filter,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `ChevronRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `Sparkles,` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `Plus,` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 49: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 50: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 51: `(空行)` -> 空行，用于提升代码结构可读性。
+- 52: `type Trip = {` -> 定义类型或类结构，约束数据与行为。
+- 53: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `user_id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `title: string` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `description?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `status?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `travel_style?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `budget_max?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `group_size?: number` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `created_at?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `start_date?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `end_date?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `}` -> 结束当前语句或代码块。
+- 65: `(空行)` -> 空行，用于提升代码结构可读性。
+- 66: `type StatusTab = {` -> 定义类型或类结构，约束数据与行为。
+- 67: `key: string` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `label: string` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `icon: React.ComponentType<{ className?: string }>` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `color: string` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `bgColor: string` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `}` -> 结束当前语句或代码块。
+- 73: `(空行)` -> 空行，用于提升代码结构可读性。
+- 74: `const statusTabs: StatusTab[] = [` -> 声明变量或常量，保存运行时数据。
+- 75: `{ key: 'all', label: '全部', icon: Filter, color: 'text-gray-600', bgColor: 'bg-gray-100' },` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `{ key: 'pending', label: '待完？', icon: AlertCircle, color: 'text-amber-600', bgColor: 'bg-amber-50' },` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `{ key: 'planning', label: '规划？', icon: Clock, color: 'text-blue-600', bgColor: 'bg-blue-50' },` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `{ key: 'in_progress', label: '进行？', icon: PlayCircle, color: 'text-emerald-600', bgColor: 'bg-emerald-50' },` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `{ key: 'completed', label: '已完？', icon: CheckCircle2, color: 'text-violet-600', bgColor: 'bg-violet-50' },` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `(空行)` -> 空行，用于提升代码结构可读性。
+- 82: `const coverGradients = [` -> 声明变量或常量，保存运行时数据。
+- 83: `'from-sky-600 to-blue-700',` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `'from-emerald-600 to-teal-700',` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `'from-coral-500 to-coral-600',` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `'from-violet-600 to-indigo-700',` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `'from-rose-500 to-pink-600',` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `'from-orange-500 to-red-600',` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `'from-cyan-600 to-blue-700',` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `'from-lime-600 to-green-700',` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `(空行)` -> 空行，用于提升代码结构可读性。
+- 93: `const styleLabels: Record<string, string> = {` -> 声明变量或常量，保存运行时数据。
+- 94: `relaxation: '休闲放松',` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `cultural: '人文探索',` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `adventure: '冒险体验',` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `business: '商务出行',` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `}` -> 结束当前语句或代码块。
+- 99: `(空行)` -> 空行，用于提升代码结构可读性。
+- 100: `function formatDate(dateStr?: string | null) {` -> 定义函数或方法，实现具体业务逻辑。
+- 101: `if (!dateStr) return null` -> 条件判断分支，根据场景执行不同逻辑。
+- 102: `return dateStr.split('T')[0]` -> 返回结果或提前结束当前流程。
+- 103: `}` -> 结束当前语句或代码块。
+- 104: `(空行)` -> 空行，用于提升代码结构可读性。
+- 105: `export default function ItineraryRoutesPage() {` -> 导出当前声明，供其他模块复用。
+- 106: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 107: `const searchParams = useSearchParams()` -> 声明变量或常量，保存运行时数据。
+- 108: `const { isAuthenticated, user } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 109: `(空行)` -> 空行，用于提升代码结构可读性。
+- 110: `const [loadingTrips, setLoadingTrips] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 111: `const [trips, setTrips] = useState<Trip[]>([])` -> 声明变量或常量，保存运行时数据。
+- 112: `const [selectedStatus, setSelectedStatus] = useState<string>(() => searchParams.get('status') || 'all')` -> 声明变量或常量，保存运行时数据。
+- 113: `(空行)` -> 空行，用于提升代码结构可读性。
+- 114: `const loadTrips = useCallback(async () => {` -> 声明变量或常量，保存运行时数据。
+- 115: `if (!isAuthenticated || !user) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 116: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 117: `if (!token) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `setLoadingTrips(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 121: `const res = await fetch('/api/me/trips', {` -> 声明变量或常量，保存运行时数据。
+- 122: `headers: { Authorization: \`Bearer ${token}\` },` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 125: `if (res.status === 401) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 126: `localStorage.removeItem('auth_token')` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `toast.error('登录已过期，请重新登？')` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `return` -> 返回结果或提前结束当前流程。
+- 130: `}` -> 结束当前语句或代码块。
+- 131: `if (!data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 132: `throw new Error(data?.error || '加载行程失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `}` -> 结束当前语句或代码块。
+- 134: `setTrips(data?.trips || [])` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `toast.error(e?.message || '加载行程失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 137: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `setLoadingTrips(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `}` -> 结束当前语句或代码块。
+- 140: `}, [isAuthenticated, user, router])` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `(空行)` -> 空行，用于提升代码结构可读性。
+- 142: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 143: `if (!isAuthenticated || !user) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 144: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 145: `return` -> 返回结果或提前结束当前流程。
+- 146: `}` -> 结束当前语句或代码块。
+- 147: `loadTrips()` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `}, [isAuthenticated, user, router, loadTrips])` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `(空行)` -> 空行，用于提升代码结构可读性。
+- 150: `const filteredTrips = selectedStatus === 'all'` -> 声明变量或常量，保存运行时数据。
+- 151: `? trips` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `: trips.filter(t => t.status === selectedStatus)` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `(空行)` -> 空行，用于提升代码结构可读性。
+- 154: `const statusCounts = statusTabs.reduce((acc, tab) => {` -> 声明变量或常量，保存运行时数据。
+- 155: `if (tab.key === 'all') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 156: `acc[tab.key] = trips.length` -> 执行当前语句，参与该文件整体逻辑。
+- 157: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 158: `acc[tab.key] = trips.filter(t => t.status === tab.key).length` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `}` -> 结束当前语句或代码块。
+- 160: `return acc` -> 返回结果或提前结束当前流程。
+- 161: `}, {} as Record<string, number>)` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `(空行)` -> 空行，用于提升代码结构可读性。
+- 163: `const handleStatusChange = (status: string) => {` -> 声明变量或常量，保存运行时数据。
+- 164: `setSelectedStatus(status)` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `const params = new URLSearchParams(searchParams.toString())` -> 声明变量或常量，保存运行时数据。
+- 166: `if (status === 'all') {` -> 条件判断分支，根据场景执行不同逻辑。
+- 167: `params.delete('status')` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `} else {` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `params.set('status', status)` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `}` -> 结束当前语句或代码块。
+- 171: `router.push(\`/itineraries/routes?${params.toString()}\`, { scroll: false })` -> 执行当前语句，参与该文件整体逻辑。
+- 172: `}` -> 结束当前语句或代码块。
+- 173: `(空行)` -> 空行，用于提升代码结构可读性。
+- 174: `if (!isAuthenticated || !user) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 175: `return (` -> 返回结果或提前结束当前流程。
+- 176: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 177: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 178: `<main className="pt-16 pb-28 lg:pb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 179: `<div className="max-w-4xl mx-auto px-4 py-10 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `<div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 181: `<Plane className="h-16 w-16 text-blue-500 mx-auto mb-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `<h1 className="text-2xl font-bold text-slate-900 mb-2">我的行程路线</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `<p className="text-slate-600 mb-6">登录后可查看和管理您的所有行</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `<Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition">` -> JSX/HTML 结构行，用于描述页面元素。
+- 185: `立即登录` -> 执行当前语句，参与该文件整体逻辑。
+- 186: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 188: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 191: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `)` -> 结束当前语句或代码块。
+- 193: `}` -> 结束当前语句或代码块。
+- 194: `(空行)` -> 空行，用于提升代码结构可读性。
+- 195: `return (` -> 返回结果或提前结束当前流程。
+- 196: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 197: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `<main className="pt-16 pb-28 lg:pb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `(空行)` -> 空行，用于提升代码结构可读性。
+- 201: `<div className="flex items-center gap-3 mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 202: `<div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-sky-500 rounded-xl flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 203: `<MapPin className="h-6 w-6 text-white" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 204: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 205: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 206: `<h1 className="text-3xl font-bold text-slate-900">我的行程路线</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 207: `<p className="text-slate-500 mt-1">管理和查看您的所有旅行计</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 208: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 209: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 210: `(空行)` -> 空行，用于提升代码结构可读性。
+- 211: `(空行)` -> 空行，用于提升代码结构可读性。
+- 212: `<div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 213: `<div className="flex items-center gap-2 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 214: `<Filter className="h-4 w-4 text-slate-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 215: `<span className="text-sm font-medium text-slate-700">按状态筛</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 216: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `<div className="flex flex-wrap gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 218: `{statusTabs.map((tab) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `const Icon = tab.icon` -> 声明变量或常量，保存运行时数据。
+- 220: `const isActive = selectedStatus === tab.key` -> 声明变量或常量，保存运行时数据。
+- 221: `return (` -> 返回结果或提前结束当前流程。
+- 222: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `key={tab.key}` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `onClick={() => handleStatusChange(tab.key)}` -> 执行当前语句，参与该文件整体逻辑。
+- 225: `className={\`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `isActive` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `? \`${tab.bgColor} ${tab.color} ring-2 ring-current ring-offset-1\`` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `: 'bg-slate-100 text-slate-600 hover:bg-slate-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `<Icon className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 232: `{tab.label}` -> 执行当前语句，参与该文件整体逻辑。
+- 233: `<span className={\`px-1.5 py-0.5 rounded-full text-xs ${` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `isActive ? 'bg-white/50' : 'bg-slate-200'` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `}\`}>` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `{statusCounts[tab.key] || 0}` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 238: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 239: `)` -> 结束当前语句或代码块。
+- 240: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 242: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 243: `(空行)` -> 空行，用于提升代码结构可读性。
+- 244: `(空行)` -> 空行，用于提升代码结构可读性。
+- 245: `<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 246: `{statusTabs.slice(1).map((tab) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `const Icon = tab.icon` -> 声明变量或常量，保存运行时数据。
+- 248: `const count = statusCounts[tab.key] || 0` -> 声明变量或常量，保存运行时数据。
+- 249: `return (` -> 返回结果或提前结束当前流程。
+- 250: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 251: `key={tab.key}` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `onClick={() => handleStatusChange(tab.key)}` -> 执行当前语句，参与该文件整体逻辑。
+- 253: `className={\`p-4 rounded-xl border transition-all hover:shadow-md text-left ${` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `selectedStatus === tab.key` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `? \`${tab.bgColor} border-transparent\`` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `: 'bg-white border-slate-200 hover:border-slate-300'` -> 执行当前语句，参与该文件整体逻辑。
+- 257: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 258: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 259: `<Icon className={\`h-5 w-5 ${tab.color} mb-2\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 260: `<div className="text-2xl font-bold text-slate-900">{count}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 261: `<div className="text-sm text-slate-500">{tab.label}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 262: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 263: `)` -> 结束当前语句或代码块。
+- 264: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `(空行)` -> 空行，用于提升代码结构可读性。
+- 267: `(空行)` -> 空行，用于提升代码结构可读性。
+- 268: `{loadingTrips ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `<div className="flex items-center justify-center py-20">` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `<Loader2 className="h-8 w-8 animate-spin text-blue-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 271: `<span className="ml-3 text-slate-600">加载?..</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 272: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 273: `) : filteredTrips.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `<div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 275: `<Archive className="h-16 w-16 text-slate-300 mx-auto mb-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 276: `<h3 className="text-xl font-semibold text-slate-700 mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 277: `{selectedStatus === 'all' ? '暂无行程记录' : \`暂无${statusTabs.find(t => t.key === selectedStatus)?.label}的行程\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 279: `<p className="text-slate-500 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 280: `{selectedStatus === 'all'` -> 执行当前语句，参与该文件整体逻辑。
+- 281: `? '创建您的第一个旅行计划，开始探索世界吧！'` -> 执行当前语句，参与该文件整体逻辑。
+- 282: `: '尝试选择其他状态查看，或创建新行程'}` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 284: `<div className="flex flex-wrap justify-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 285: `{selectedStatus !== 'all' && (` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `onClick={() => handleStatusChange('all')}` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `className="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 289: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `查看全部` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 292: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `href="/assistant"` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 297: `<Sparkles className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 298: `AI 生成行程` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 300: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `href="/itineraries"` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 transition"` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `<Plus className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 305: `创建新计?` -> 执行当前语句，参与该文件整体逻辑。
+- 306: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 307: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 308: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 310: `<div className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 311: `{filteredTrips.map((trip) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 312: `const gradient = coverGradients[Math.abs(trip.id) % coverGradients.length]` -> 声明变量或常量，保存运行时数据。
+- 313: `const startDate = formatDate(trip.start_date)` -> 声明变量或常量，保存运行时数据。
+- 314: `const endDate = formatDate(trip.end_date)` -> 声明变量或常量，保存运行时数据。
+- 315: `const statusTab = statusTabs.find(t => t.key === (trip.status || 'pending')) || statusTabs[1]` -> 声明变量或常量，保存运行时数据。
+- 316: `(空行)` -> 空行，用于提升代码结构可读性。
+- 317: `return (` -> 返回结果或提前结束当前流程。
+- 318: `<Link` -> 执行当前语句，参与该文件整体逻辑。
+- 319: `key={trip.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 320: `href={\`/itineraries/${trip.id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 321: `className="block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:border-blue-300 transition-all group"` -> 执行当前语句，参与该文件整体逻辑。
+- 322: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 323: `<div className="flex flex-col sm:flex-row">` -> JSX/HTML 结构行，用于描述页面元素。
+- 324: `(空行)` -> 空行，用于提升代码结构可读性。
+- 325: `<div className={\`sm:w-48 h-32 sm:h-auto bg-gradient-to-br ${gradient} flex items-center justify-center relative\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 326: `<MapPin className="h-12 w-12 text-white/80" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 327: `<div className="absolute inset-0 bg-black/10" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 328: `<span className="absolute bottom-3 left-3 text-white font-bold text-lg drop-shadow-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 329: `第{trip.id}号行?` -> 执行当前语句，参与该文件整体逻辑。
+- 330: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 331: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 332: `(空行)` -> 空行，用于提升代码结构可读性。
+- 333: `(空行)` -> 空行，用于提升代码结构可读性。
+- 334: `<div className="flex-1 p-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 335: `<div className="flex items-start justify-between gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 336: `<div className="min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 337: `<h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 338: `{trip.title}` -> 执行当前语句，参与该文件整体逻辑。
+- 339: `</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 340: `{trip.description && (` -> 执行当前语句，参与该文件整体逻辑。
+- 341: `<p className="text-sm text-slate-500 mt-1 line-clamp-2">{trip.description}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 342: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 343: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 344: `<span className={\`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${statusTab.bgColor} ${statusTab.color}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 345: `<statusTab.icon className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 346: `{statusTab.label}` -> 执行当前语句，参与该文件整体逻辑。
+- 347: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 348: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 349: `(空行)` -> 空行，用于提升代码结构可读性。
+- 350: `<div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-slate-500">` -> JSX/HTML 结构行，用于描述页面元素。
+- 351: `{startDate && endDate && (` -> 执行当前语句，参与该文件整体逻辑。
+- 352: `<div className="flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 353: `<Calendar className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 354: `{startDate} ~ {endDate}` -> 执行当前语句，参与该文件整体逻辑。
+- 355: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 356: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 357: `{trip.group_size && (` -> 执行当前语句，参与该文件整体逻辑。
+- 358: `<div className="flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 359: `<Users className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 360: `{trip.group_size}?` -> 执行当前语句，参与该文件整体逻辑。
+- 361: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 362: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 363: `{trip.travel_style && (` -> 执行当前语句，参与该文件整体逻辑。
+- 364: `<div className="flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 365: `<Plane className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 366: `{styleLabels[trip.travel_style] || trip.travel_style}` -> 执行当前语句，参与该文件整体逻辑。
+- 367: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 368: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 369: `{trip.budget_max && (` -> 执行当前语句，参与该文件整体逻辑。
+- 370: `<div className="text-amber-600 font-medium">` -> JSX/HTML 结构行，用于描述页面元素。
+- 371: `预算 ¥{trip.budget_max}` -> 执行当前语句，参与该文件整体逻辑。
+- 372: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 373: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 374: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 375: `(空行)` -> 空行，用于提升代码结构可读性。
+- 376: `<div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 377: `<span className="text-xs text-slate-400">` -> JSX/HTML 结构行，用于描述页面元素。
+- 378: `创建?{formatDate(trip.created_at) || '未知'}` -> 执行当前语句，参与该文件整体逻辑。
+- 379: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 380: `<span className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 group-hover:gap-2 transition-all">` -> JSX/HTML 结构行，用于描述页面元素。
+- 381: `查看详情` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `<ChevronRight className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 383: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 384: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 385: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 386: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 387: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 388: `)` -> 结束当前语句或代码块。
+- 389: `})}` -> 执行当前语句，参与该文件整体逻辑。
+- 390: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 391: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 392: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 393: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 394: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 395: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 396: `)` -> 结束当前语句或代码块。
+- 397: `}` -> 结束当前语句或代码块。

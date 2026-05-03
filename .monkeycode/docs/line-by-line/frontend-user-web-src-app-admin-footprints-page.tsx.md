@@ -1,0 +1,325 @@
+# `frontend/user-web/src/app/admin/footprints/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 管理后台 - 足迹管理模块` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 用户足迹记录列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 用户 ID 筛选` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地 ID 筛选` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 足迹详情查看（用户、目的地、来源、时间）` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 删除足迹记录` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 导出足迹数据` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* - 刷新列表功能` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - 管理员权限校验` -> 注释行，用于解释设计意图或使用说明。
+- 15: `*` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - AdminGuard: 管理员权限守卫` -> 注释行，用于解释设计意图或使用说明。
+- 19: `*` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - GET /api/footprints?user_id=xxx&destination_id=xxx&limit=300: 获取足迹列表` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - DELETE /api/footprints/${id}: 删除足迹记录` -> 注释行，用于解释设计意图或使用说明。
+- 23: `*` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 25: `* - useState: rows, userId, destinationId, loading, isAdmin` -> 注释行，用于解释设计意图或使用说明。
+- 26: `* - 认证：admin_token 存储在 localStorage` -> 注释行，用于解释设计意图或使用说明。
+- 27: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 28: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `(空行)` -> 空行，用于提升代码结构可读性。
+- 30: `import { useEffect, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 31: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 32: `import { useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 33: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 34: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 35: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 36: `import { AdminGuard } from '@/components/AdminGuard'` -> 导入依赖模块，供当前文件使用。
+- 37: `(空行)` -> 空行，用于提升代码结构可读性。
+- 38: `const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'` -> 声明变量或常量，保存运行时数据。
+- 39: `(空行)` -> 空行，用于提升代码结构可读性。
+- 40: `type FootprintRow = {` -> 定义类型或类结构，约束数据与行为。
+- 41: `id: string` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `user_id: string` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `destination_id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `source?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `visited_at?: string | null` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `destination?: {` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `id: number` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `name: string` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `city: string` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `province: string` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `} | null` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `}` -> 结束当前语句或代码块。
+- 53: `(空行)` -> 空行，用于提升代码结构可读性。
+- 54: `export default function AdminFootprintsPage() {` -> 导出当前声明，供其他模块复用。
+- 55: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 56: `(空行)` -> 空行，用于提升代码结构可读性。
+- 57: `const [userId, setUserId] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 58: `const [destinationId, setDestinationId] = useState('')` -> 声明变量或常量，保存运行时数据。
+- 59: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 60: `const [rows, setRows] = useState<FootprintRow[]>([])` -> 声明变量或常量，保存运行时数据。
+- 61: `const [isAdmin, setIsAdmin] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 62: `(空行)` -> 空行，用于提升代码结构可读性。
+- 63: `const load = async () => {` -> 声明变量或常量，保存运行时数据。
+- 64: `const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null` -> 声明变量或常量，保存运行时数据。
+- 65: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 66: `setRows([])` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `return` -> 返回结果或提前结束当前流程。
+- 69: `}` -> 结束当前语句或代码块。
+- 70: `setIsAdmin(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `const authHeaders = { Authorization: \`Bearer ${token}\` }` -> 声明变量或常量，保存运行时数据。
+- 72: `(空行)` -> 空行，用于提升代码结构可读性。
+- 73: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 75: `const qs = new URLSearchParams()` -> 声明变量或常量，保存运行时数据。
+- 76: `qs.set('limit', '300')` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `if (userId.trim()) qs.set('user_id', userId.trim())` -> 条件判断分支，根据场景执行不同逻辑。
+- 78: `if (destinationId.trim()) qs.set('destination_id', destinationId.trim())` -> 条件判断分支，根据场景执行不同逻辑。
+- 79: `(空行)` -> 空行，用于提升代码结构可读性。
+- 80: `const res = await fetch(\`${API_BASE}/api/admin/footprints?${qs.toString()}\`, { headers: authHeaders })` -> 声明变量或常量，保存运行时数据。
+- 81: `if (res.status === 401) return router.push('/admin')` -> 条件判断分支，根据场景执行不同逻辑。
+- 82: `if (res.status === 403) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 83: `toast.error('没有管理员权限')` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `return` -> 返回结果或提前结束当前流程。
+- 86: `}` -> 结束当前语句或代码块。
+- 87: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 88: `if (!res.ok || !data?.success) throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 条件判断分支，根据场景执行不同逻辑。
+- 89: `setRows((data?.footprints ?? []) as FootprintRow[])` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `toast.error(e?.message || '加载足迹失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `}` -> 结束当前语句或代码块。
+- 95: `}` -> 结束当前语句或代码块。
+- 96: `(空行)` -> 空行，用于提升代码结构可读性。
+- 97: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `load().catch(() => {})` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `// eslint-disable-next-line react-hooks/exhaustive-deps` -> 注释行，用于解释设计意图或使用说明。
+- 100: `}, [userId, destinationId])` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `(空行)` -> 空行，用于提升代码结构可读性。
+- 102: `const onDelete = async (id: string) => {` -> 声明变量或常量，保存运行时数据。
+- 103: `const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null` -> 声明变量或常量，保存运行时数据。
+- 104: `if (!token) return router.push('/admin')` -> 条件判断分支，根据场景执行不同逻辑。
+- 105: `if (!confirm('确定删除该足迹吗？')) return` -> 条件判断分支，根据场景执行不同逻辑。
+- 106: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 107: `const res = await fetch(\`${API_BASE}/api/admin/footprints/${id}\`, { method: 'DELETE', headers: { Authorization: \`Bearer ${token}\` } })` -> 声明变量或常量，保存运行时数据。
+- 108: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 109: `if (res.status === 401) return router.push('/admin')` -> 条件判断分支，根据场景执行不同逻辑。
+- 110: `if (!res.ok || !data?.success) throw new Error(data?.error || \`HTTP ${res.status}\`)` -> 条件判断分支，根据场景执行不同逻辑。
+- 111: `toast.success('删除成功')` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `await load()` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `window.parent?.postMessage({ type: 'admin:changed', reason: 'footprints' }, '*')` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `toast.error(e?.message || '删除失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `}` -> 结束当前语句或代码块。
+- 117: `}` -> 结束当前语句或代码块。
+- 118: `(空行)` -> 空行，用于提升代码结构可读性。
+- 119: `return (` -> 返回结果或提前结束当前流程。
+- 120: `<AdminGuard>` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 122: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `<main className="pt-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 124: `<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 125: `{/* 页面标题区域 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `<div className="mb-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `<Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 mb-3 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 130: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `返回管理首页` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 133: `<div className="flex items-center gap-3 mb-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 137: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 140: `<h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-800 bg-clip-text text-transparent">` -> JSX/HTML 结构行，用于描述页面元素。
+- 141: `足迹管理` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 143: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 144: `<p className="text-gray-500 ml-13">查看和管理所有用户的足迹记录</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 146: `(空行)` -> 空行，用于提升代码结构可读性。
+- 147: `{!isAdmin ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `<div className="card p-8 bg-gradient-to-br from-white to-indigo-50 border border-indigo-100 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 149: `<div className="animate-pulse">` -> JSX/HTML 结构行，用于描述页面元素。
+- 150: `<div className="w-12 h-12 mx-auto mb-4 rounded-full bg-indigo-200"></div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 151: `<div className="h-4 w-32 mx-auto bg-indigo-200 rounded"></div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 152: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 153: `<p className="text-indigo-400 mt-4">正在检查管理员权限...</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 155: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 156: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 157: `{/* 统计卡片 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 158: `<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 159: `<div className="card p-4 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `<div className="text-3xl font-bold">{rows.length}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `<div className="text-indigo-100 text-sm">足迹总数</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `<div className="card p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `<div className="text-3xl font-bold">{rows.filter(r => r.source === 'view').length}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `<div className="text-emerald-100 text-sm">浏览足迹</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 167: `<div className="card p-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 168: `<div className="text-3xl font-bold">{rows.filter(r => r.source === 'search').length}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 169: `<div className="text-amber-100 text-sm">搜索足迹</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 170: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 171: `<div className="card p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-200">` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `<div className="text-3xl font-bold">{new Set(rows.map(r => r.user_id)).size}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 173: `<div className="text-purple-100 text-sm">用户数</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 174: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 175: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 176: `(空行)` -> 空行，用于提升代码结构可读性。
+- 177: `{/* 过滤区域 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `<div className="card p-5 bg-gradient-to-r from-gray-50 to-indigo-50 border border-gray-100 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 179: `<div className="flex items-center gap-2 mb-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `<svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 181: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `<span className="text-sm font-medium text-gray-700">筛选条件</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 185: `<div className="flex flex-wrap items-end gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 186: `<div className="flex-1 min-w-[150px]">` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `<input className="input bg-white/80 backdrop-blur shadow-sm" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="用户 ID" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 188: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `<div className="flex-1 min-w-[150px]">` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `<input className="input bg-white/80 backdrop-blur shadow-sm" value={destinationId} onChange={(e) => setDestinationId(e.target.value)} placeholder="目的地 ID" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 191: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 193: `className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all active:scale-95 flex items-center gap-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 194: `onClick={() => load()}` -> 执行当前语句，参与该文件整体逻辑。
+- 195: `disabled={loading}` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 197: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `<svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>` -> JSX/HTML 结构行，用于描述页面元素。
+- 200: `<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>` -> JSX/HTML 结构行，用于描述页面元素。
+- 201: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 202: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 204: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 205: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 206: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `刷新` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 209: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 210: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 211: `(空行)` -> 空行，用于提升代码结构可读性。
+- 212: `{/* 列表区域 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `<div className="space-y-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 214: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `<div className="card p-8 bg-white border border-gray-100">` -> JSX/HTML 结构行，用于描述页面元素。
+- 216: `<div className="space-y-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `{[1, 2, 3].map(i => (` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `<div key={i} className="animate-pulse flex items-center gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 219: `<div className="w-12 h-12 rounded-xl bg-gray-200"></div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 220: `<div className="flex-1 space-y-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 221: `<div className="h-4 bg-gray-200 rounded w-3/4"></div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 222: `<div className="h-3 bg-gray-100 rounded w-1/2"></div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 223: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 224: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 225: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 226: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 227: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 228: `) : rows.length === 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 229: `<div className="card p-12 bg-gradient-to-br from-gray-50 to-indigo-50 border border-gray-100 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 230: `<svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 231: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 232: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 233: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 234: `<p className="text-gray-400 font-medium">暂无足迹记录</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 235: `<p className="text-gray-300 text-sm mt-1">用户访问后将显示在这里</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 236: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 237: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `rows.map((r, idx) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `key={r.id}` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `className="group card p-5 bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100 transition-all duration-300 hover:-translate-y-0.5"` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `style={{ animationDelay: \`${idx * 50}ms\` }}` -> 执行当前语句，参与该文件整体逻辑。
+- 243: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 244: `<div className="flex items-start justify-between gap-4 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `<div className="flex items-start gap-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 246: `<div className="p-3 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 group-hover:from-indigo-200 group-hover:to-purple-200 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 247: `<svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 248: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 249: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 252: `<div className="font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `{r.destination?.name || \`目的地 ${r.destination_id}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 255: `<div className="flex items-center gap-3 mt-1.5 text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 256: `<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 258: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 259: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 260: `用户 {r.user_id}` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 262: `<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 263: `<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 264: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 265: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `{r.source || 'view'}` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 268: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 269: `<div className="flex items-center gap-2 mt-2 text-xs text-gray-400">` -> JSX/HTML 结构行，用于描述页面元素。
+- 270: `{r.destination?.city && (` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `<span className="flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 272: `<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 273: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 274: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 275: `{r.destination.city}` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 277: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `{r.visited_at && (` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `<span className="flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 280: `<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 281: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 282: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 283: `{new Date(r.visited_at).toLocaleString('zh-CN')}` -> 执行当前语句，参与该文件整体逻辑。
+- 284: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 285: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 286: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 287: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 288: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 289: `<div className="flex gap-2 flex-wrap">` -> JSX/HTML 结构行，用于描述页面元素。
+- 290: `<Link href={\`/destinations/${r.destination_id}\`} className="px-4 py-2 text-sm bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600 transition-colors flex items-center gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 292: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 293: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 294: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 295: `查看` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 297: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `className="px-4 py-2 text-sm bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors flex items-center gap-1.5"` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `onClick={() => onDelete(r.id)}` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">` -> JSX/HTML 结构行，用于描述页面元素。
+- 302: `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 303: `</svg>` -> JSX/HTML 结构行，用于描述页面元素。
+- 304: `删除` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 306: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 307: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 308: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 309: `))` -> 执行当前语句，参与该文件整体逻辑。
+- 310: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 312: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 313: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 314: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 315: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 316: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 317: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 318: `</AdminGuard>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `)` -> 结束当前语句或代码块。
+- 320: `}` -> 结束当前语句或代码块。
+- 321: `(空行)` -> 空行，用于提升代码结构可读性。

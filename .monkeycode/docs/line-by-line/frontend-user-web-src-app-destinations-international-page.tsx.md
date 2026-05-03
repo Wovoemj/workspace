@@ -1,0 +1,141 @@
+# `frontend/user-web/src/app/destinations/international/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 出境旅游模块 - 国际目的地展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 热门出境目的地展示（静态数据）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 国家卡片：名称、国旗、描述、价格起价` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 目的地特色介绍` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 服务特点展示：签证服务/往返机票/精选酒店/当地向导` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 查看详情入口` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 15: `*` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* 【支持国家】` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - 亚洲：日本、韩国、泰国、新加坡、马尔代夫` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - 欧洲：申根国家` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - 美洲：美国` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - 大洋洲：澳大利亚` -> 注释行，用于解释设计意图或使用说明。
+- 21: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 22: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 23: `(空行)` -> 空行，用于提升代码结构可读性。
+- 24: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 25: `import {` -> 导入依赖模块，供当前文件使用。
+- 26: `Building2,` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `Plane,` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `Globe,` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `ArrowRight,` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `} from 'lucide-react'` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 32: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 33: `(空行)` -> 空行，用于提升代码结构可读性。
+- 34: `const countries = [` -> 声明变量或常量，保存运行时数据。
+- 35: `{ name: '日本', flag: '🇯🇵', description: '樱花与和风的完美融合', price: '¥7999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `{ name: '韩国', flag: '🇰🇷', description: '时尚与传统的交织', price: '¥4999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `{ name: '泰国', flag: '🇹🇭', description: '微笑国度的热带风情', price: '¥3999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `{ name: '新加坡', flag: '🇸🇬', description: '花园城市的现代魅力', price: '¥5999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `{ name: '马尔代夫', flag: '🇲🇻', description: '印度洋上的度假天堂', price: '¥12999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `{ name: '欧洲', flag: '🇪🇺', description: '古典与现代的艺术殿堂', price: '¥19999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `{ name: '美国', flag: '🇺🇸', description: '多元文化的超级大国', price: '¥15999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `{ name: '澳大利亚', flag: '🇦🇺', description: '南半球的自然奇观', price: '¥13999起' },` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `(空行)` -> 空行，用于提升代码结构可读性。
+- 45: `const features = [` -> 声明变量或常量，保存运行时数据。
+- 46: `{ icon: '🛂', title: '签证服务', desc: '专业签证指导，全程无忧' },` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `{ icon: '✈️', title: '往返机票', desc: '优质航班，舒适出行' },` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `{ icon: '🏨', title: '精选酒店', desc: '特色住宿，舒适体验' },` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `{ icon: '🎯', title: '当地向导', desc: '专业导游，深度讲解' },` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `(空行)` -> 空行，用于提升代码结构可读性。
+- 52: `export default function InternationalDestinationsPage() {` -> 导出当前声明，供其他模块复用。
+- 53: `return (` -> 返回结果或提前结束当前流程。
+- 54: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 55: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 56: `<main className="pt-16 pb-28 lg:pb-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `<div className="bg-gradient-to-r from-violet-600 to-purple-500 text-white">` -> JSX/HTML 结构行，用于描述页面元素。
+- 59: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 60: `<div className="flex items-center gap-3 mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 61: `<Globe className="h-8 w-8" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 62: `<span className="text-xl font-bold">出境旅游</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 63: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 64: `<h1 className="text-4xl md:text-5xl font-bold mb-4">出境游精选</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 65: `<p className="text-white/90 text-lg max-w-2xl">` -> JSX/HTML 结构行，用于描述页面元素。
+- 66: `环游世界，探索不同文化的魅力，从亚洲近邻到遥远大陆，开启您的全球之旅。` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 68: `<div className="flex flex-wrap gap-3 mt-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 69: `<Link href="/destinations/popular" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">热门推荐</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 70: `<Link href="/destinations/domestic" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">国内</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 71: `<Link href="/destinations/local" className="px-4 py-2 bg-white/20 rounded-full text-sm hover:bg-white/30 transition">周边</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 72: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 73: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 74: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 75: `(空行)` -> 空行，用于提升代码结构可读性。
+- 76: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 77: `(空行)` -> 空行，用于提升代码结构可读性。
+- 78: `<div className="mb-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 79: `<h2 className="text-2xl font-bold text-slate-900 mb-6">热门出境目的地</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 80: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 81: `{countries.map((country) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `<Link key={country.name} href="/assistant"` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-violet-300 transition-all">` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `<div className="text-5xl mb-4">{country.flag}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 85: `<h3 className="text-xl font-bold text-slate-900 mb-2">{country.name}</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 86: `<p className="text-slate-500 text-sm mb-4">{country.description}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 87: `<div className="flex items-center justify-between">` -> JSX/HTML 结构行，用于描述页面元素。
+- 88: `<span className="text-violet-600 font-bold">{country.price}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 89: `<span className="text-sm text-slate-400 group-hover:text-violet-600 flex items-center gap-1 transition-colors">` -> JSX/HTML 结构行，用于描述页面元素。
+- 90: `咨询 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 92: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 93: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 94: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `(空行)` -> 空行，用于提升代码结构可读性。
+- 98: `(空行)` -> 空行，用于提升代码结构可读性。
+- 99: `<div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-3xl p-8 mb-12">` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `<h2 className="text-2xl font-bold text-slate-900 mb-6">一站式出境服务</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `<div className="grid grid-cols-2 lg:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `{features.map((feature) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `<div key={feature.title} className="text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `<div className="text-4xl mb-3">{feature.icon}</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `<h3 className="font-bold text-slate-900 mb-1">{feature.title}</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `<p className="text-sm text-slate-500">{feature.desc}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 110: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `(空行)` -> 空行，用于提升代码结构可读性。
+- 112: `(空行)` -> 空行，用于提升代码结构可读性。
+- 113: `<div className="bg-white rounded-3xl border border-slate-200 p-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 114: `<h2 className="text-2xl font-bold text-slate-900 mb-6">预订流程</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `<div className="grid grid-cols-1 md:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `{[` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `{ step: '01', title: '选择目的地', desc: '浏览目的地，选择心仪行程' },` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `{ step: '02', title: '提交需求', desc: '填写出行信息，提交预订' },` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `{ step: '03', title: '确认行程', desc: '客服联系，确认细节' },` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `{ step: '04', title: '出发旅行', desc: '轻松出行，享受旅程' },` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `].map((item) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `<div key={item.step} className="text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `<div className="w-12 h-12 bg-violet-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 124: `{item.step}` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 126: `<h3 className="font-bold text-slate-900 mb-2">{item.title}</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `<p className="text-sm text-slate-500">{item.desc}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 132: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 133: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `)` -> 结束当前语句或代码块。
+- 137: `}` -> 结束当前语句或代码块。

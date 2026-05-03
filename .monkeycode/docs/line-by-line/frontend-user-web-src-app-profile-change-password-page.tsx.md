@@ -1,0 +1,328 @@
+# `frontend/user-web/src/app/profile/change-password/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 修改密码模块 - 用户密码更新` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 修改密码表单（旧密码、新密码、确认密码）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 密码显示/隐藏切换` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 实时密码强度校验（8位+大小写字母+数字）` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 新旧密码不能相同校验` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 表单提交（调用 API 更新密码）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 成功提示并跳转登录页（重新登录）` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - useUserStore: 用户状态（Zustand）` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 【表单校验规则】` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - 旧密码：必填，至少8位` -> 注释行，用于解释设计意图或使用说明。
+- 20: `* - 新密码：必填，至少8位，包含大小写字母和数字` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* - 确认密码：必须与新密码一致` -> 注释行，用于解释设计意图或使用说明。
+- 22: `*` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - PUT /api/users/password: 更新密码（需登录）` -> 注释行，用于解释设计意图或使用说明。
+- 25: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 26: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `(空行)` -> 空行，用于提升代码结构可读性。
+- 28: `import { useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 29: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 30: `import { useRouter } from 'next/navigation'` -> 导入依赖模块，供当前文件使用。
+- 31: `import { toast } from 'react-hot-toast'` -> 导入依赖模块，供当前文件使用。
+- 32: `import { Lock, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 33: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 34: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 35: `import { useUserStore } from '@/store'` -> 导入依赖模块，供当前文件使用。
+- 36: `(空行)` -> 空行，用于提升代码结构可读性。
+- 37: `export default function ChangePasswordPage() {` -> 导出当前声明，供其他模块复用。
+- 38: `const router = useRouter()` -> 声明变量或常量，保存运行时数据。
+- 39: `const { isAuthenticated, logout } = useUserStore()` -> 声明变量或常量，保存运行时数据。
+- 40: `(空行)` -> 空行，用于提升代码结构可读性。
+- 41: `const [form, setForm] = useState({` -> 声明变量或常量，保存运行时数据。
+- 42: `oldPassword: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `newPassword: '',` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `confirmPassword: ''` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `const [loading, setLoading] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 47: `const [showPasswords, setShowPasswords] = useState({` -> 声明变量或常量，保存运行时数据。
+- 48: `old: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `new: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `confirm: false` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `const [touched, setTouched] = useState({` -> 声明变量或常量，保存运行时数据。
+- 53: `oldPassword: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `newPassword: false,` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `confirmPassword: false` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `// 校验旧密码` -> 注释行，用于解释设计意图或使用说明。
+- 59: `const validateOldPassword = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 60: `if (!v) return '请输入旧密码'` -> 条件判断分支，根据场景执行不同逻辑。
+- 61: `if (v.length < 8) return '密码至少8位'` -> 条件判断分支，根据场景执行不同逻辑。
+- 62: `return null` -> 返回结果或提前结束当前流程。
+- 63: `}` -> 结束当前语句或代码块。
+- 64: `(空行)` -> 空行，用于提升代码结构可读性。
+- 65: `// 校验新密码` -> 注释行，用于解释设计意图或使用说明。
+- 66: `const validateNewPassword = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 67: `if (!v) return '请输入新密码'` -> 条件判断分支，根据场景执行不同逻辑。
+- 68: `if (v.length < 8) return '新密码至少8位'` -> 条件判断分支，根据场景执行不同逻辑。
+- 69: `if (!/[a-z]/.test(v)) return '需包含小写字母'` -> 条件判断分支，根据场景执行不同逻辑。
+- 70: `if (!/[A-Z]/.test(v)) return '需包含大写字母'` -> 条件判断分支，根据场景执行不同逻辑。
+- 71: `if (!/\d/.test(v)) return '需包含数字'` -> 条件判断分支，根据场景执行不同逻辑。
+- 72: `if (v === form.oldPassword) return '新密码不能与旧密码相同'` -> 条件判断分支，根据场景执行不同逻辑。
+- 73: `return null` -> 返回结果或提前结束当前流程。
+- 74: `}` -> 结束当前语句或代码块。
+- 75: `(空行)` -> 空行，用于提升代码结构可读性。
+- 76: `// 校验确认密码` -> 注释行，用于解释设计意图或使用说明。
+- 77: `const validateConfirmPassword = (v: string) => {` -> 声明变量或常量，保存运行时数据。
+- 78: `if (!v) return '请确认新密码'` -> 条件判断分支，根据场景执行不同逻辑。
+- 79: `if (v !== form.newPassword) return '两次密码不一致'` -> 条件判断分支，根据场景执行不同逻辑。
+- 80: `return null` -> 返回结果或提前结束当前流程。
+- 81: `}` -> 结束当前语句或代码块。
+- 82: `(空行)` -> 空行，用于提升代码结构可读性。
+- 83: `// 密码强度` -> 注释行，用于解释设计意图或使用说明。
+- 84: `const passwordStrength = (pwd: string) => {` -> 声明变量或常量，保存运行时数据。
+- 85: `if (!pwd) return { level: 0, text: '', color: '' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 86: `let score = 0` -> 声明变量或常量，保存运行时数据。
+- 87: `if (pwd.length >= 8) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 88: `if (pwd.length >= 12) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 89: `if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 90: `if (/\d/.test(pwd)) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 91: `if (/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) score++` -> 条件判断分支，根据场景执行不同逻辑。
+- 92: `(空行)` -> 空行，用于提升代码结构可读性。
+- 93: `if (score <= 2) return { level: 1, text: '弱', color: 'bg-red-500' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 94: `if (score <= 3) return { level: 2, text: '中等', color: 'bg-yellow-500' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 95: `if (score <= 4) return { level: 3, text: '强', color: 'bg-green-500' }` -> 条件判断分支，根据场景执行不同逻辑。
+- 96: `return { level: 4, text: '非常强', color: 'bg-emerald-500' }` -> 返回结果或提前结束当前流程。
+- 97: `}` -> 结束当前语句或代码块。
+- 98: `(空行)` -> 空行，用于提升代码结构可读性。
+- 99: `const strength = passwordStrength(form.newPassword)` -> 声明变量或常量，保存运行时数据。
+- 100: `(空行)` -> 空行，用于提升代码结构可读性。
+- 101: `// 提交` -> 注释行，用于解释设计意图或使用说明。
+- 102: `const onSubmit = async (e: React.FormEvent) => {` -> 声明变量或常量，保存运行时数据。
+- 103: `e.preventDefault()` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `(空行)` -> 空行，用于提升代码结构可读性。
+- 105: `const vOld = validateOldPassword(form.oldPassword)` -> 声明变量或常量，保存运行时数据。
+- 106: `const vNew = validateNewPassword(form.newPassword)` -> 声明变量或常量，保存运行时数据。
+- 107: `const vConfirm = validateConfirmPassword(form.confirmPassword)` -> 声明变量或常量，保存运行时数据。
+- 108: `(空行)` -> 空行，用于提升代码结构可读性。
+- 109: `if (vOld || vNew || vConfirm) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 110: `if (vOld) toast.error(vOld)` -> 条件判断分支，根据场景执行不同逻辑。
+- 111: `else if (vNew) toast.error(vNew)` -> 条件判断分支，根据场景执行不同逻辑。
+- 112: `else if (vConfirm) toast.error(vConfirm)` -> 条件判断分支，根据场景执行不同逻辑。
+- 113: `return` -> 返回结果或提前结束当前流程。
+- 114: `}` -> 结束当前语句或代码块。
+- 115: `(空行)` -> 空行，用于提升代码结构可读性。
+- 116: `const token = localStorage.getItem('auth_token')` -> 声明变量或常量，保存运行时数据。
+- 117: `if (!token) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 118: `toast.error('请先登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `return` -> 返回结果或提前结束当前流程。
+- 121: `}` -> 结束当前语句或代码块。
+- 122: `(空行)` -> 空行，用于提升代码结构可读性。
+- 123: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 125: `const res = await fetch('/api/users/me/change-password', {` -> 声明变量或常量，保存运行时数据。
+- 126: `method: 'POST',` -> 执行当前语句，参与该文件整体逻辑。
+- 127: `headers: {` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `'Content-Type': 'application/json',` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `Authorization: \`Bearer ${token}\`` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `body: JSON.stringify({` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `old_password: form.oldPassword,` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `new_password: form.newPassword` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 135: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `(空行)` -> 空行，用于提升代码结构可读性。
+- 137: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 138: `(空行)` -> 空行，用于提升代码结构可读性。
+- 139: `if (!res.ok || !data?.success) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 140: `throw new Error(data?.error || '修改失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `}` -> 结束当前语句或代码块。
+- 142: `(空行)` -> 空行，用于提升代码结构可读性。
+- 143: `toast.success('密码修改成功，请重新登录')` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `(空行)` -> 空行，用于提升代码结构可读性。
+- 145: `// 清除 token 并跳转登录` -> 注释行，用于解释设计意图或使用说明。
+- 146: `localStorage.removeItem('auth_token')` -> 执行当前语句，参与该文件整体逻辑。
+- 147: `logout()` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `router.push('/login')` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `(空行)` -> 空行，用于提升代码结构可读性。
+- 150: `} catch (e: any) {` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `toast.error(e?.message || '修改密码失败')` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `setLoading(false)` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `}` -> 结束当前语句或代码块。
+- 155: `}` -> 结束当前语句或代码块。
+- 156: `(空行)` -> 空行，用于提升代码结构可读性。
+- 157: `if (!isAuthenticated) {` -> 条件判断分支，根据场景执行不同逻辑。
+- 158: `return (` -> 返回结果或提前结束当前流程。
+- 159: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 161: `<main className="pt-24 pb-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `<div className="max-w-md mx-auto px-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `<div className="card p-8 text-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 164: `<Lock className="h-16 w-16 mx-auto text-gray-300 mb-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `<h2 className="text-xl font-semibold text-gray-900">请先登录</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 166: `<p className="text-gray-600 mt-2">登录后即可修改密码</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 167: `<Link href="/login" className="btn btn-primary mt-4 inline-block">` -> JSX/HTML 结构行，用于描述页面元素。
+- 168: `去登录` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 170: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 171: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 173: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 174: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 175: `)` -> 结束当前语句或代码块。
+- 176: `}` -> 结束当前语句或代码块。
+- 177: `(空行)` -> 空行，用于提升代码结构可读性。
+- 178: `return (` -> 返回结果或提前结束当前流程。
+- 179: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 181: `<main className="pt-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `<div className="max-w-md mx-auto px-4 py-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `<div className="card p-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `{/* 头部 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `<div className="flex items-center gap-4 mb-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 186: `<Link href="/profile" className="p-2 hover:bg-gray-100 rounded-lg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 187: `<ArrowLeft className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 188: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 189: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 190: `<h1 className="text-xl font-bold text-gray-900">修改密码</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 191: `<p className="text-sm text-gray-500">定期修改密码保护账户安全</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 192: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 193: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 194: `(空行)` -> 空行，用于提升代码结构可读性。
+- 195: `<form onSubmit={onSubmit} className="space-y-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 196: `{/* 旧密码 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 197: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 198: `<label className="block text-sm font-medium text-gray-700 mb-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 199: `旧密码 <span className="text-red-500">*</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 200: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 201: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 202: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `type={showPasswords.old ? 'text' : 'password'}` -> 执行当前语句，参与该文件整体逻辑。
+- 204: `value={form.oldPassword}` -> 执行当前语句，参与该文件整体逻辑。
+- 205: `onChange={(e) => setForm(s => ({ ...s, oldPassword: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `onBlur={() => setTouched(t => ({ ...t, oldPassword: true }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 207: `placeholder="请输入旧密码"` -> 执行当前语句，参与该文件整体逻辑。
+- 208: `className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 211: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 212: `onClick={() => setShowPasswords(s => ({ ...s, old: !s.old }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 213: `className="absolute right-3 top-1/2 -translate-y-1/2"` -> 执行当前语句，参与该文件整体逻辑。
+- 214: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `{showPasswords.old ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 217: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 218: `{touched.oldPassword && validateOldPassword(form.oldPassword) && (` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `<p className="mt-1 text-sm text-red-500">{validateOldPassword(form.oldPassword)}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 220: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 222: `(空行)` -> 空行，用于提升代码结构可读性。
+- 223: `{/* 新密码 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 225: `<label className="block text-sm font-medium text-gray-700 mb-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 226: `新密码 <span className="text-red-500">*</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 228: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 229: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 230: `type={showPasswords.new ? 'text' : 'password'}` -> 执行当前语句，参与该文件整体逻辑。
+- 231: `value={form.newPassword}` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `onChange={(e) => setForm(s => ({ ...s, newPassword: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 233: `onBlur={() => setTouched(t => ({ ...t, newPassword: true }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `placeholder="至少8位，包含大小写字母和数字"` -> 执行当前语句，参与该文件整体逻辑。
+- 235: `className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"` -> 执行当前语句，参与该文件整体逻辑。
+- 236: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 237: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `onClick={() => setShowPasswords(s => ({ ...s, new: !s.new }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `className="absolute right-3 top-1/2 -translate-y-1/2"` -> 执行当前语句，参与该文件整体逻辑。
+- 241: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `{showPasswords.new ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 243: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 244: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 245: `{touched.newPassword && validateNewPassword(form.newPassword) && (` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `<p className="mt-1 text-sm text-red-500">{validateNewPassword(form.newPassword)}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 247: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `{form.newPassword && (` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `<div className="mt-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 250: `<div className="flex gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 251: `{[1, 2, 3, 4].map(level => (` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `<div key={level} className={\`h-1 flex-1 rounded-full ${level <= strength.level ? strength.color : 'bg-gray-200'}\`} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 253: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 255: `<p className="mt-1 text-xs text-gray-500">密码强度：{strength.text}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 256: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 257: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 258: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 259: `(空行)` -> 空行，用于提升代码结构可读性。
+- 260: `{/* 确认新密码 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 261: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 262: `<label className="block text-sm font-medium text-gray-700 mb-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 263: `确认新密码 <span className="text-red-500">*</span>` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `</label>` -> JSX/HTML 结构行，用于描述页面元素。
+- 265: `<div className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 266: `<input` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `type={showPasswords.confirm ? 'text' : 'password'}` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `value={form.confirmPassword}` -> 执行当前语句，参与该文件整体逻辑。
+- 269: `onChange={(e) => setForm(s => ({ ...s, confirmPassword: e.target.value }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 270: `onBlur={() => setTouched(t => ({ ...t, confirmPassword: true }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 271: `placeholder="再次输入新密码"` -> 执行当前语句，参与该文件整体逻辑。
+- 272: `className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"` -> 执行当前语句，参与该文件整体逻辑。
+- 273: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `type="button"` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `onClick={() => setShowPasswords(s => ({ ...s, confirm: !s.confirm }))}` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `className="absolute right-3 top-1/2 -translate-y-1/2"` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `{showPasswords.confirm ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 281: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 282: `{touched.confirmPassword && form.confirmPassword && !validateConfirmPassword(form.confirmPassword) && (` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `<p className="mt-1 text-sm text-green-500 flex items-center gap-1">` -> JSX/HTML 结构行，用于描述页面元素。
+- 284: `<CheckCircle2 className="h-4 w-4" /> 密码一致` -> 执行当前语句，参与该文件整体逻辑。
+- 285: `</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 286: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `{touched.confirmPassword && validateConfirmPassword(form.confirmPassword) && (` -> 执行当前语句，参与该文件整体逻辑。
+- 288: `<p className="mt-1 text-sm text-red-500">{validateConfirmPassword(form.confirmPassword)}</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 289: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 291: `(空行)` -> 空行，用于提升代码结构可读性。
+- 292: `{/* 提示 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `<div className="bg-blue-50 rounded-xl p-4 text-sm text-blue-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 294: `<p>💡 密码要求：</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 295: `<ul className="mt-2 space-y-1 list-disc list-inside">` -> JSX/HTML 结构行，用于描述页面元素。
+- 296: `<li>至少 8 位字符</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 297: `<li>包含大小写字母</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 298: `<li>包含数字</li>` -> JSX/HTML 结构行，用于描述页面元素。
+- 299: `</ul>` -> JSX/HTML 结构行，用于描述页面元素。
+- 300: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 301: `(空行)` -> 空行，用于提升代码结构可读性。
+- 302: `{/* 提交按钮 */}` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `<button` -> 执行当前语句，参与该文件整体逻辑。
+- 304: `type="submit"` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `disabled={loading}` -> 执行当前语句，参与该文件整体逻辑。
+- 306: `className="w-full btn btn-primary py-3 flex items-center justify-center gap-2"` -> 执行当前语句，参与该文件整体逻辑。
+- 307: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 308: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 309: `<>` -> JSX/HTML 结构行，用于描述页面元素。
+- 310: `<Loader2 className="h-5 w-5 animate-spin" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 311: `修改中...` -> 执行当前语句，参与该文件整体逻辑。
+- 312: `</>` -> JSX/HTML 结构行，用于描述页面元素。
+- 313: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 314: `'确认修改'` -> 执行当前语句，参与该文件整体逻辑。
+- 315: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `</button>` -> JSX/HTML 结构行，用于描述页面元素。
+- 317: `</form>` -> JSX/HTML 结构行，用于描述页面元素。
+- 318: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 319: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 320: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 321: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 322: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 323: `)` -> 结束当前语句或代码块。
+- 324: `}` -> 结束当前语句或代码块。

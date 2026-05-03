@@ -1,0 +1,130 @@
+# `models.json` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `"models": [` -> 执行当前语句，参与该文件整体逻辑。
+- 3: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 4: `"id": "deepseek.v3.2",` -> 执行当前语句，参与该文件整体逻辑。
+- 5: `"name": "DeepSeek V3.2",` -> 执行当前语句，参与该文件整体逻辑。
+- 6: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 7: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 8: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 9: `"maxInputTokens": 128000,` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `"maxOutputTokens": 8192,` -> 执行当前语句，参与该文件整体逻辑。
+- 11: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 12: `"supportsImages": false` -> 执行当前语句，参与该文件整体逻辑。
+- 13: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 14: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 15: `"id": "qwen.qwen3-coder-480b-a35b-instruct",` -> 执行当前语句，参与该文件整体逻辑。
+- 16: `"name": "Qwen3 Coder 480B",` -> 执行当前语句，参与该文件整体逻辑。
+- 17: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 18: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 19: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 20: `"maxInputTokens": 128000,` -> 执行当前语句，参与该文件整体逻辑。
+- 21: `"maxOutputTokens": 16384,` -> 执行当前语句，参与该文件整体逻辑。
+- 22: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 23: `"supportsImages": false` -> 执行当前语句，参与该文件整体逻辑。
+- 24: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 25: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `"id": "google.gemma-3-12b-it",` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `"name": "Gemma 3 12B",` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `"maxInputTokens": 128000,` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `"maxOutputTokens": 8192,` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `"supportsToolCall": false,` -> 执行当前语句，参与该文件整体逻辑。
+- 34: `"supportsImages": true` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 37: `"id": "moonshotai.kimi-k2.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `"name": "Kimi K2.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `"maxInputTokens": 131072,` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `"maxOutputTokens": 16384,` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `"supportsImages": true` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 48: `"id": "minimax.minimax-m2",` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `"name": "MiniMax M2",` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `"maxInputTokens": 1000000,` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `"maxOutputTokens": 8192,` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `"supportsImages": false` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `"id": "minimax.minimax-m2.1",` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `"name": "MiniMax M2.1",` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `"maxInputTokens": 1000000,` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `"maxOutputTokens": 8192,` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 67: `"supportsImages": false` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `"id": "minimax.minimax-m2.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `"name": "MiniMax M2.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0=",` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `"maxInputTokens": 1000000,` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `"maxOutputTokens": 8192,` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `"supportsImages": false` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `"id": "anthropic.claude-opus-4-6-v1",` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `"name": "Claude Opus 4.6",` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `"maxInputTokens": 1000000,` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `"maxOutputTokens": 131072,` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `"supportsImages": true` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `"id": "anthropic.claude-sonnet-4-6",` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `"name": "Claude Sonnet 4.6",` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 95: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `"maxInputTokens": 1000000,` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `"maxOutputTokens": 65536,` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `"supportsImages": true` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `"id": "anthropic.claude-haiku-4-5-20251001-v1:0",` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `"name": "Claude Haiku 4.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `"maxInputTokens": 200000,` -> 执行当前语句，参与该文件整体逻辑。
+- 109: `"maxOutputTokens": 65536,` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 111: `"supportsImages": true` -> 执行当前语句，参与该文件整体逻辑。
+- 112: `},` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 114: `"id": "anthropic.claude-sonnet-4-5-20250929-v1:0",` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `"name": "Claude Sonnet 4.5",` -> 执行当前语句，参与该文件整体逻辑。
+- 116: `"vendor": "OpenAI",` -> 执行当前语句，参与该文件整体逻辑。
+- 117: `"apiKey": "ABSKQmVkcm9ja0FQSUtleS13OHhpLWF0LTI5OTEzOTYyOTk1NDo3ZHk1ZEJjQ0I3N3FFVGNTd0Z6TlVQNlpjbnlxYlIyT2hJZCtIU21OMktQUHJxZDFQa2xZT3d5RE9IRT0",` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `"url": "https://bedrock-mantle.us-east-1.api.aws/v1/chat/completions",` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `"maxInputTokens": 200000,` -> 执行当前语句，参与该文件整体逻辑。
+- 120: `"maxOutputTokens": 65536,` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `"supportsToolCall": true,` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `"supportsImages": true` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `}` -> 结束当前语句或代码块。
+- 124: `(空行)` -> 空行，用于提升代码结构可读性。
+- 125: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `}` -> 结束当前语句或代码块。

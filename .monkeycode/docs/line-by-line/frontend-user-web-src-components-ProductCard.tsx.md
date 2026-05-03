@@ -1,0 +1,180 @@
+# `frontend/user-web/src/components/ProductCard.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 2: `(空行)` -> 空行，用于提升代码结构可读性。
+- 3: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `* 产品卡片组件 (ProductCard)` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 7: `*` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* 功能说明：` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 展示旅游产品（机票、酒店、门票、体验）信息` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 根据产品类型显示不同的图标和标签` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 支持特色产品高亮显示` -> 注释行，用于解释设计意图或使用说明。
+- 12: `* - 显示价格、评分、标签等信息` -> 注释行，用于解释设计意图或使用说明。
+- 13: `*` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* 产品类型：` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - flight: 机票` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - hotel: 酒店` -> 注释行，用于解释设计意图或使用说明。
+- 17: `* - ticket: 门票` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* - experience: 当地体验` -> 注释行，用于解释设计意图或使用说明。
+- 19: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 20: `(空行)` -> 空行，用于提升代码结构可读性。
+- 21: `import { useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 22: `import { Hotel, Plane, Star, Ticket, Theater, MapPin } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 23: `import { Product } from '@/types'` -> 导入依赖模块，供当前文件使用。
+- 24: `import { formatRating, shouldShowRating } from '@/lib/display'` -> 导入依赖模块，供当前文件使用。
+- 25: `import { onImgErrorUseFallback, resolveCoverSrc } from '@/lib/media'` -> 导入依赖模块，供当前文件使用。
+- 26: `(空行)` -> 空行，用于提升代码结构可读性。
+- 27: `/** 产品卡片属性接口 */` -> 注释行，用于解释设计意图或使用说明。
+- 28: `interface ProductCardProps {` -> 定义类型或类结构，约束数据与行为。
+- 29: `product: Product` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `onClick?: () => void` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `className?: string` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `variant?: 'default' | 'featured'` -> 执行当前语句，参与该文件整体逻辑。
+- 33: `}` -> 结束当前语句或代码块。
+- 34: `(空行)` -> 空行，用于提升代码结构可读性。
+- 35: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 36: `* 产品卡片主组件` -> 注释行，用于解释设计意图或使用说明。
+- 37: `* @description 展示旅游产品信息的卡片组件` -> 注释行，用于解释设计意图或使用说明。
+- 38: `* @param props - 组件属性` -> 注释行，用于解释设计意图或使用说明。
+- 39: `* @param props.product - 产品数据` -> 注释行，用于解释设计意图或使用说明。
+- 40: `* @param props.onClick - 点击回调（可选）` -> 注释行，用于解释设计意图或使用说明。
+- 41: `* @param props.className - 自定义样式` -> 注释行，用于解释设计意图或使用说明。
+- 42: `* @param props.variant - 变体类型：default | featured` -> 注释行，用于解释设计意图或使用说明。
+- 43: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 44: `export function ProductCard({ product, onClick, className = '', variant = 'default' }: ProductCardProps) {` -> 导出当前声明，供其他模块复用。
+- 45: `const [imgLoaded, setImgLoaded] = useState(false)` -> 声明变量或常量，保存运行时数据。
+- 46: `const formatPrice = (price: number) => \`¥${price.toLocaleString()}\`` -> 声明变量或常量，保存运行时数据。
+- 47: `(空行)` -> 空行，用于提升代码结构可读性。
+- 48: `const getTypeMeta = (type: Product['type']) => {` -> 声明变量或常量，保存运行时数据。
+- 49: `switch (type) {` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `case 'flight':` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `return { icon: Plane, label: '机票' }` -> 返回结果或提前结束当前流程。
+- 52: `case 'hotel':` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `return { icon: Hotel, label: '酒店' }` -> 返回结果或提前结束当前流程。
+- 54: `case 'ticket':` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `return { icon: Ticket, label: '门票' }` -> 返回结果或提前结束当前流程。
+- 56: `case 'experience':` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `return { icon: Theater, label: '当地体验' }` -> 返回结果或提前结束当前流程。
+- 58: `default:` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `return { icon: MapPin, label: '产品' }` -> 返回结果或提前结束当前流程。
+- 60: `}` -> 结束当前语句或代码块。
+- 61: `}` -> 结束当前语句或代码块。
+- 62: `(空行)` -> 空行，用于提升代码结构可读性。
+- 63: `const getImageSrc = (p: Product) => {` -> 声明变量或常量，保存运行时数据。
+- 64: `// 优先使用 images[0]，其次用 cover_image` -> 注释行，用于解释设计意图或使用说明。
+- 65: `const img = (p.images && p.images.length > 0) ? p.images[0] : p.cover_image || null` -> 声明变量或常量，保存运行时数据。
+- 66: `return resolveCoverSrc(img)` -> 返回结果或提前结束当前流程。
+- 67: `}` -> 结束当前语句或代码块。
+- 68: `(空行)` -> 空行，用于提升代码结构可读性。
+- 69: `const typeMeta = getTypeMeta(product.type)` -> 声明变量或常量，保存运行时数据。
+- 70: `const clickable = typeof onClick === 'function'` -> 声明变量或常量，保存运行时数据。
+- 71: `const isFeatured = variant === 'featured'` -> 声明变量或常量，保存运行时数据。
+- 72: `const rootClass = [` -> 声明变量或常量，保存运行时数据。
+- 73: `'bg-card text-foreground border border-border rounded-2xl shadow-sm overflow-hidden transition-all',` -> 执行当前语句，参与该文件整体逻辑。
+- 74: `'hover:shadow-md hover:-translate-y-1',` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `clickable ? 'cursor-pointer' : 'cursor-default',` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `isFeatured ? 'ring-1 ring-primary/15' : '',` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `className,` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `]` -> 执行当前语句，参与该文件整体逻辑。
+- 79: `.filter(Boolean)` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `.join(' ')` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `(空行)` -> 空行，用于提升代码结构可读性。
+- 82: `return (` -> 返回结果或提前结束当前流程。
+- 83: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 84: `className={rootClass}` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `onClick={onClick}` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `<div className={\`relative ${isFeatured ? 'aspect-[16/10]' : 'aspect-[4/3]'}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 88: `<div` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `className={\`absolute inset-0 bg-gradient-to-br from-muted to-muted/60 dark:from-slate-800 dark:to-slate-900 animate-pulse transition-opacity duration-300 ${` -> 执行当前语句，参与该文件整体逻辑。
+- 90: `imgLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `aria-hidden` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `(空行)` -> 空行，用于提升代码结构可读性。
+- 95: `<img` -> 执行当前语句，参与该文件整体逻辑。
+- 96: `src={getImageSrc(product)}` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `alt={product.name}` -> 执行当前语句，参与该文件整体逻辑。
+- 98: `className={\`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}\`}` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `onLoad={() => setImgLoaded(true)}` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `onError={(e) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `onImgErrorUseFallback(e)` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `setImgLoaded(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `}}` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `/>` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `<div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `(空行)` -> 空行，用于提升代码结构可读性。
+- 107: `<div className="absolute left-3 top-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `<div className="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/20 px-3 py-1.5 text-white/95 backdrop-blur-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `{(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `const Icon = typeMeta.icon` -> 声明变量或常量，保存运行时数据。
+- 111: `return <Icon className="h-4 w-4" />` -> 返回结果或提前结束当前流程。
+- 112: `})()}` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `<span className="text-xs font-semibold">{typeMeta.label}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 114: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 115: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `(空行)` -> 空行，用于提升代码结构可读性。
+- 117: `{product.inventory === 0 && product.status === 'sold_out' && (` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `<div className="absolute inset-0 bg-black/55 flex items-center justify-center">` -> JSX/HTML 结构行，用于描述页面元素。
+- 119: `<span className="text-white font-bold text-lg">已售罄</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 120: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 122: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `(空行)` -> 空行，用于提升代码结构可读性。
+- 124: `<div className="p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 125: `<div className="flex items-start justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 126: `<div className="min-w-0">` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `<h3 className={\`font-bold truncate ${isFeatured ? 'text-base' : 'text-[15px]'}\`}>{product.name}</h3>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `<div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `<MapPin className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 130: `<span className="truncate">{product.location?.city || product.city || product.subtitle?.replace('推荐', '') || '未知'}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 132: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 133: `(空行)` -> 空行，用于提升代码结构可读性。
+- 134: `<div className="text-right">` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `<div className={\`font-extrabold text-primary ${isFeatured ? 'text-xl' : 'text-lg'}\`}>` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `<span className="text-xs font-semibold text-muted-foreground mr-1.5">{typeMeta.label}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 137: `{formatPrice(product.price)}` -> 执行当前语句，参与该文件整体逻辑。
+- 138: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `{product.original_price && product.original_price > product.price ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `<div className="text-xs text-muted-foreground line-through">` -> JSX/HTML 结构行，用于描述页面元素。
+- 141: `¥{product.original_price.toLocaleString()}` -> 执行当前语句，参与该文件整体逻辑。
+- 142: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 143: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 146: `(空行)` -> 空行，用于提升代码结构可读性。
+- 147: `<div className="mt-3 flex items-center justify-between gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 148: `{shouldShowRating(product.rating) ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `<div className="flex items-center gap-1 text-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 150: `<Star className="h-4 w-4 text-amber-500 fill-amber-500" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 151: `<span className="font-semibold">{formatRating(product.rating)}</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 152: `{Number(product.review_count ?? 0) > 0 ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `<span className="text-muted-foreground text-xs">（{Number(product.review_count).toLocaleString()}条评价）</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 156: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 157: `<div />` -> JSX/HTML 结构行，用于描述页面元素。
+- 158: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `(空行)` -> 空行，用于提升代码结构可读性。
+- 161: `{product.tags?.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 162: `<div className="mt-3 flex flex-wrap gap-1.5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `{product.tags.slice(0, 4).map((tag) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `<span` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `key={tag}` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `className="px-2 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-medium border border-primary/15"` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `>` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `{tag}` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 170: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `) : null}` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 174: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 175: `)` -> 结束当前语句或代码块。
+- 176: `}` -> 结束当前语句或代码块。

@@ -1,0 +1,192 @@
+# `frontend/user-web/src/app/deals/page.tsx` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `/**` -> 注释行，用于解释设计意图或使用说明。
+- 2: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 3: `* 优惠活动模块 - 限时优惠产品展示` -> 注释行，用于解释设计意图或使用说明。
+- 4: `* =====================================================` -> 注释行，用于解释设计意图或使用说明。
+- 5: `*` -> 注释行，用于解释设计意图或使用说明。
+- 6: `* 【功能列表】` -> 注释行，用于解释设计意图或使用说明。
+- 7: `* - 限时优惠倒计时展示（每日24:00重置）` -> 注释行，用于解释设计意图或使用说明。
+- 8: `* - 高评分产品列表展示` -> 注释行，用于解释设计意图或使用说明。
+- 9: `* - 产品卡片网格布局` -> 注释行，用于解释设计意图或使用说明。
+- 10: `* - 优惠标签展示` -> 注释行，用于解释设计意图或使用说明。
+- 11: `* - 实时倒计时更新（秒级）` -> 注释行，用于解释设计意图或使用说明。
+- 12: `*` -> 注释行，用于解释设计意图或使用说明。
+- 13: `* 【组件依赖】` -> 注释行，用于解释设计意图或使用说明。
+- 14: `* - Navbar, Footer: 布局组件` -> 注释行，用于解释设计意图或使用说明。
+- 15: `* - ProductCard: 产品卡片组件` -> 注释行，用于解释设计意图或使用说明。
+- 16: `* - Product 类型定义` -> 注释行，用于解释设计意图或使用说明。
+- 17: `*` -> 注释行，用于解释设计意图或使用说明。
+- 18: `* 【API 接口】` -> 注释行，用于解释设计意图或使用说明。
+- 19: `* - GET /api/products?status=active&sort=rating&limit=12: 获取优惠产品列表` -> 注释行，用于解释设计意图或使用说明。
+- 20: `*` -> 注释行，用于解释设计意图或使用说明。
+- 21: `* 【状态管理】` -> 注释行，用于解释设计意图或使用说明。
+- 22: `* - useState: products(产品列表), loading, now(当前时间戳)` -> 注释行，用于解释设计意图或使用说明。
+- 23: `* - useMemo: endsAt(今日截止时间), leftMs(剩余毫秒)` -> 注释行，用于解释设计意图或使用说明。
+- 24: `* - useEffect: 1秒间隔更新倒计时` -> 注释行，用于解释设计意图或使用说明。
+- 25: `*/` -> 注释行，用于解释设计意图或使用说明。
+- 26: `'use client'` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `(空行)` -> 空行，用于提升代码结构可读性。
+- 28: `import Link from 'next/link'` -> 导入依赖模块，供当前文件使用。
+- 29: `import { useEffect, useMemo, useState } from 'react'` -> 导入依赖模块，供当前文件使用。
+- 30: `import { Navbar } from '@/components/Navbar'` -> 导入依赖模块，供当前文件使用。
+- 31: `import { Footer } from '@/components/Footer'` -> 导入依赖模块，供当前文件使用。
+- 32: `import { Heart, Tag, Timer, Flame, ArrowRight, Percent } from 'lucide-react'` -> 导入依赖模块，供当前文件使用。
+- 33: `import type { Product } from '@/types'` -> 导入依赖模块，供当前文件使用。
+- 34: `import { ProductCard } from '@/components/ProductCard'` -> 导入依赖模块，供当前文件使用。
+- 35: `(空行)` -> 空行，用于提升代码结构可读性。
+- 36: `export default function DealsPage() {` -> 导出当前声明，供其他模块复用。
+- 37: `const [products, setProducts] = useState<Product[]>([])` -> 声明变量或常量，保存运行时数据。
+- 38: `const [loading, setLoading] = useState(true)` -> 声明变量或常量，保存运行时数据。
+- 39: `(空行)` -> 空行，用于提升代码结构可读性。
+- 40: `// 简易倒计时：本地每天 24:00 截止（演示用，后续可接后端活动配置）` -> 注释行，用于解释设计意图或使用说明。
+- 41: `const [now, setNow] = useState(() => Date.now())` -> 声明变量或常量，保存运行时数据。
+- 42: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `const t = window.setInterval(() => setNow(Date.now()), 1000)` -> 声明变量或常量，保存运行时数据。
+- 44: `return () => window.clearInterval(t)` -> 返回结果或提前结束当前流程。
+- 45: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `const endsAt = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 48: `const d = new Date(now)` -> 声明变量或常量，保存运行时数据。
+- 49: `d.setHours(24, 0, 0, 0)` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `return d.getTime()` -> 返回结果或提前结束当前流程。
+- 51: `}, [now])` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `(空行)` -> 空行，用于提升代码结构可读性。
+- 53: `const leftMs = Math.max(0, endsAt - now)` -> 声明变量或常量，保存运行时数据。
+- 54: `const hh = Math.floor(leftMs / 3600000)` -> 声明变量或常量，保存运行时数据。
+- 55: `const mm = Math.floor((leftMs % 3600000) / 60000)` -> 声明变量或常量，保存运行时数据。
+- 56: `const ss = Math.floor((leftMs % 60000) / 1000)` -> 声明变量或常量，保存运行时数据。
+- 57: `(空行)` -> 空行，用于提升代码结构可读性。
+- 58: `useEffect(() => {` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `let cancelled = false` -> 声明变量或常量，保存运行时数据。
+- 60: `;(async () => {` -> 执行当前语句，参与该文件整体逻辑。
+- 61: `setLoading(true)` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `try {` -> 异常处理逻辑，提升程序健壮性。
+- 63: `const res = await fetch('/api/products?status=active&sort=rating&limit=12&offset=0', { cache: 'no-store' })` -> 声明变量或常量，保存运行时数据。
+- 64: `const data = await res.json().catch(() => ({}))` -> 声明变量或常量，保存运行时数据。
+- 65: `const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]` -> 声明变量或常量，保存运行时数据。
+- 66: `if (!cancelled) setProducts(Array.isArray(list) ? list : [])` -> 条件判断分支，根据场景执行不同逻辑。
+- 67: `} catch {` -> 执行当前语句，参与该文件整体逻辑。
+- 68: `if (!cancelled) setProducts([])` -> 条件判断分支，根据场景执行不同逻辑。
+- 69: `} finally {` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `if (!cancelled) setLoading(false)` -> 条件判断分支，根据场景执行不同逻辑。
+- 71: `}` -> 结束当前语句或代码块。
+- 72: `})()` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `return () => {` -> 返回结果或提前结束当前流程。
+- 74: `cancelled = true` -> 执行当前语句，参与该文件整体逻辑。
+- 75: `}` -> 结束当前语句或代码块。
+- 76: `}, [])` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `(空行)` -> 空行，用于提升代码结构可读性。
+- 78: `const dealProducts = useMemo(() => {` -> 声明变量或常量，保存运行时数据。
+- 79: `// 规则：有原价且更?=> 真折扣；否则给一个“活动价”展示（不改后端真实价格?` -> 注释行，用于解释设计意图或使用说明。
+- 80: `return products` -> 返回结果或提前结束当前流程。
+- 81: `.map((p) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `const original = typeof p.original_price === 'number' ? p.original_price : null` -> 声明变量或常量，保存运行时数据。
+- 83: `const hasDiscount = typeof original === 'number' && original > p.price` -> 声明变量或常量，保存运行时数据。
+- 84: `const discountPct = hasDiscount ? Math.max(1, Math.min(99, Math.round((1 - p.price / original) * 100))) : null` -> 声明变量或常量，保存运行时数据。
+- 85: `return { p, hasDiscount, discountPct }` -> 返回结果或提前结束当前流程。
+- 86: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `.sort((a, b) => {` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `// 折扣优先，其次评?` -> 注释行，用于解释设计意图或使用说明。
+- 89: `if (a.hasDiscount !== b.hasDiscount) return a.hasDiscount ? -1 : 1` -> 条件判断分支，根据场景执行不同逻辑。
+- 90: `return (b.p.rating ?? 0) - (a.p.rating ?? 0)` -> 返回结果或提前结束当前流程。
+- 91: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 92: `}, [products])` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `(空行)` -> 空行，用于提升代码结构可读性。
+- 94: `return (` -> 返回结果或提前结束当前流程。
+- 95: `<div className="min-h-screen page-bg">` -> JSX/HTML 结构行，用于描述页面元素。
+- 96: `<Navbar />` -> JSX/HTML 结构行，用于描述页面元素。
+- 97: `<main className="pt-16">` -> JSX/HTML 结构行，用于描述页面元素。
+- 98: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">` -> JSX/HTML 结构行，用于描述页面元素。
+- 99: `<div className="rounded-3xl border border-border/60 bg-white/80 backdrop-blur p-7 shadow-sm">` -> JSX/HTML 结构行，用于描述页面元素。
+- 100: `<div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">` -> JSX/HTML 结构行，用于描述页面元素。
+- 101: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 102: `<div className="flex items-center gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 103: `<div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-coral-500 to-coral-600 text-white flex items-center justify-center shadow-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 104: `<Flame className="h-5 w-5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 105: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 106: `<div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 107: `<h1 className="text-3xl font-extrabold tracking-tight text-foreground">限时优惠</h1>` -> JSX/HTML 结构行，用于描述页面元素。
+- 108: `<p className="text-sm text-muted-foreground mt-1">每天更新 · 热门产品活动?· 先到先得</p>` -> JSX/HTML 结构行，用于描述页面元素。
+- 109: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 110: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 111: `(空行)` -> 空行，用于提升代码结构可读性。
+- 112: `<div className="mt-4 inline-flex items-center gap-2 rounded-full border border-coral-200/60 bg-coral-50/80 px-4 py-2 text-sm font-semibold text-coral-700">` -> JSX/HTML 结构行，用于描述页面元素。
+- 113: `<Timer className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 114: `本场截止：{String(hh).padStart(2, '0')}:{String(mm).padStart(2, '0')}:{String(ss).padStart(2, '0')}` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 116: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 117: `(空行)` -> 空行，用于提升代码结构可读性。
+- 118: `<div className="flex flex-wrap gap-3">` -> JSX/HTML 结构行，用于描述页面元素。
+- 119: `<Link href="/destinations" className="btn btn-primary">` -> JSX/HTML 结构行，用于描述页面元素。
+- 120: `<Tag className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 121: `<span className="ml-2">去逛目的地</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 122: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 123: `<Link href="/assistant" className="btn btn-outline">` -> JSX/HTML 结构行，用于描述页面元素。
+- 124: `去做行程规划 <ArrowRight className="h-4 w-4 ml-1" />` -> 执行当前语句，参与该文件整体逻辑。
+- 125: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 126: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 127: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 128: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 129: `(空行)` -> 空行，用于提升代码结构可读性。
+- 130: `<div className="mt-8">` -> JSX/HTML 结构行，用于描述页面元素。
+- 131: `<div className="flex items-center justify-between gap-4 flex-wrap mb-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 132: `<div className="flex items-center gap-2">` -> JSX/HTML 结构行，用于描述页面元素。
+- 133: `<Heart className="h-5 w-5 text-rose-600" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 134: `<h2 className="text-lg font-extrabold text-foreground">今日热卖</h2>` -> JSX/HTML 结构行，用于描述页面元素。
+- 135: `<span className="text-sm text-muted-foreground">（优先展示有原价折扣的商品）</span>` -> JSX/HTML 结构行，用于描述页面元素。
+- 136: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 137: `<div className="inline-flex items-center gap-2 text-xs text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 138: `<Percent className="h-4 w-4" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 139: `折扣仅为演示展示，后续可接真实活?` -> 执行当前语句，参与该文件整体逻辑。
+- 140: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 141: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 142: `(空行)` -> 空行，用于提升代码结构可读性。
+- 143: `{loading ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 145: `{Array.from({ length: 8 }).map((_, i) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `<div key={i} className="rounded-2xl bg-card border border-border/60 overflow-hidden animate-pulse">` -> JSX/HTML 结构行，用于描述页面元素。
+- 147: `<div className="aspect-[4/3] bg-muted-foreground/10" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 148: `<div className="p-4">` -> JSX/HTML 结构行，用于描述页面元素。
+- 149: `<div className="h-4 bg-muted-foreground/10 rounded w-2/3" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 150: `<div className="mt-2 h-3 bg-muted-foreground/10 rounded w-1/2" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 151: `<div className="mt-4 h-6 bg-muted-foreground/10 rounded w-3/5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 152: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 153: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 154: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 156: `) : dealProducts.length ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 157: `<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">` -> JSX/HTML 结构行，用于描述页面元素。
+- 158: `{dealProducts.map(({ p, hasDiscount, discountPct }) => (` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `<div key={p.id} className="relative">` -> JSX/HTML 结构行，用于描述页面元素。
+- 160: `{hasDiscount && discountPct ? (` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `<div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-coral-600 to-coral-500 px-3 py-1.5 text-xs font-extrabold text-white shadow-md">` -> JSX/HTML 结构行，用于描述页面元素。
+- 162: `<Flame className="h-3.5 w-3.5" />` -> JSX/HTML 结构行，用于描述页面元素。
+- 163: `直降 {discountPct}%` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 165: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `<div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-slate-900/60 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">` -> JSX/HTML 结构行，用于描述页面元素。
+- 167: `今日特惠` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 169: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `<Link href={\`/products/${p.id}\`} className="block">` -> JSX/HTML 结构行，用于描述页面元素。
+- 171: `<ProductCard product={p} />` -> JSX/HTML 结构行，用于描述页面元素。
+- 172: `</Link>` -> JSX/HTML 结构行，用于描述页面元素。
+- 173: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 174: `))}` -> 执行当前语句，参与该文件整体逻辑。
+- 175: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 176: `) : (` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `<div className="rounded-2xl border border-border/60 bg-card p-10 text-center text-muted-foreground">` -> JSX/HTML 结构行，用于描述页面元素。
+- 178: `暂无优惠数据。请确认后端 \`/api/products\` 可用?` -> 执行当前语句，参与该文件整体逻辑。
+- 179: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 180: `)}` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 182: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 183: `</main>` -> JSX/HTML 结构行，用于描述页面元素。
+- 184: `<Footer />` -> JSX/HTML 结构行，用于描述页面元素。
+- 185: `</div>` -> JSX/HTML 结构行，用于描述页面元素。
+- 186: `)` -> 结束当前语句或代码块。
+- 187: `}` -> 结束当前语句或代码块。
+- 188: `(空行)` -> 空行，用于提升代码结构可读性。

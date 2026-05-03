@@ -1,0 +1,431 @@
+# `backend/order-service/main.go` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `package order` -> 声明当前文件所属包或模块命名空间。
+- 2: `import (` -> 导入依赖模块，供当前文件使用。
+- 3: `"context"` -> 执行当前语句，参与该文件整体逻辑。
+- 4: `"database/sql"` -> 执行当前语句，参与该文件整体逻辑。
+- 5: `"encoding/json"` -> 执行当前语句，参与该文件整体逻辑。
+- 6: `"fmt"` -> 执行当前语句，参与该文件整体逻辑。
+- 7: `"net/http"` -> 执行当前语句，参与该文件整体逻辑。
+- 8: `"time"` -> 执行当前语句，参与该文件整体逻辑。
+- 9: `"github.com/gin-gonic/gin"` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `"github.com/sirupsen/logrus"` -> 执行当前语句，参与该文件整体逻辑。
+- 11: `"golang.org/x/crypto/bcrypt"` -> 执行当前语句，参与该文件整体逻辑。
+- 12: `"gorm.io/gorm"` -> 执行当前语句，参与该文件整体逻辑。
+- 13: `)` -> 结束当前语句或代码块。
+- 14: `type Service struct {` -> 定义类型或类结构，约束数据与行为。
+- 15: `db     *gorm.DB` -> 执行当前语句，参与该文件整体逻辑。
+- 16: `logger *logrus.Logger` -> 执行当前语句，参与该文件整体逻辑。
+- 17: `}` -> 结束当前语句或代码块。
+- 18: `type Order struct {` -> 定义类型或类结构，约束数据与行为。
+- 19: `ID           uint      \`json:"id" gorm:"primaryKey"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 20: `UserID       uint      \`json:"user_id" gorm:"not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 21: `OrderNo      string    \`json:"order_no" gorm:"unique;not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 22: `TotalAmount  float64   \`json:"total_amount" gorm:"not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 23: `Status       string    \`json:"status" gorm:"not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 24: `PaymentMethod string   \`json:"payment_method"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 25: `PaymentTime  *time.Time \`json:"payment_time"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 26: `CancelledReason *string \`json:"cancelled_reason"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 27: `RefundAmount *float64  \`json:"refund_amount"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 28: `RefundTime   *time.Time \`json:"refund_time"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `RefundReason *string   \`json:"refund_reason"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 30: `CreatedAt    time.Time \`json:"created_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 31: `UpdatedAt    time.Time \`json:"updated_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `(空行)` -> 空行，用于提升代码结构可读性。
+- 33: `// 关联` -> 注释行，用于解释设计意图或使用说明。
+- 34: `User         User       \`json:"user" gorm:"foreignKey:UserID"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 35: `Items        []OrderItem \`json:"items" gorm:"foreignKey:OrderID"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `}` -> 结束当前语句或代码块。
+- 37: `(空行)` -> 空行，用于提升代码结构可读性。
+- 38: `type User struct {` -> 定义类型或类结构，约束数据与行为。
+- 39: `gorm.Model` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `Phone         string \`json:"phone" gorm:"unique;not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 41: `Email         string \`json:"email"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 42: `Nickname      string \`json:"nickname"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `AvatarURL     string \`json:"avatar_url"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 44: `MembershipLevel int  \`json:"membership_level"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `}` -> 结束当前语句或代码块。
+- 46: `(空行)` -> 空行，用于提升代码结构可读性。
+- 47: `type OrderItem struct {` -> 定义类型或类结构，约束数据与行为。
+- 48: `ID           uint    \`json:"id" gorm:"primaryKey"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 49: `OrderID      uint    \`json:"order_id" gorm:"not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `ProductID    uint    \`json:"product_id" gorm:"not null"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 51: `ProductName  string  \`json:"product_name"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `ProductType  string  \`json:"product_type"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `Quantity     int     \`json:"quantity"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `UnitPrice    float64 \`json:"unit_price"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 55: `TotalPrice   float64 \`json:"total_price"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 56: `BookingDetails json.RawMessage \`json:"booking_details" gorm:"type:json"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `Status       string  \`json:"status"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `CreatedAt    time.Time \`json:"created_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 59: `UpdatedAt    time.Time \`json:"updated_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `}` -> 结束当前语句或代码块。
+- 61: `(空行)` -> 空行，用于提升代码结构可读性。
+- 62: `type CreateOrderRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 63: `UserID       uint                 \`json:"user_id" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `Items        []CreateOrderItem    \`json:"items" binding:"required,min=1"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 65: `PaymentMethod string              \`json:"payment_method"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `}` -> 结束当前语句或代码块。
+- 67: `(空行)` -> 空行，用于提升代码结构可读性。
+- 68: `type CreateOrderItem struct {` -> 定义类型或类结构，约束数据与行为。
+- 69: `ProductID    uint                 \`json:"product_id" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 70: `Quantity     int                  \`json:"quantity" binding:"required,min=1"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `BookingDetails json.RawMessage     \`json:"booking_details"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 72: `}` -> 结束当前语句或代码块。
+- 73: `(空行)` -> 空行，用于提升代码结构可读性。
+- 74: `type PaymentRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 75: `OrderID      uint    \`json:"order_id" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `PaymentMethod string \`json:"payment_method" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 77: `}` -> 结束当前语句或代码块。
+- 78: `(空行)` -> 空行，用于提升代码结构可读性。
+- 79: `type CancelRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 80: `OrderID        uint   \`json:"order_id" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 81: `CancelledReason string \`json:"cancelled_reason" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 82: `}` -> 结束当前语句或代码块。
+- 83: `(空行)` -> 空行，用于提升代码结构可读性。
+- 84: `type RefundRequest struct {` -> 定义类型或类结构，约束数据与行为。
+- 85: `OrderID        uint    \`json:"order_id" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 86: `RefundAmount   float64 \`json:"refund_amount"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `RefundReason   string  \`json:"refund_reason" binding:"required"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `}` -> 结束当前语句或代码块。
+- 89: `(空行)` -> 空行，用于提升代码结构可读性。
+- 90: `func NewService(db *gorm.DB, logger *logrus.Logger) *Service {` -> 定义函数或方法，实现具体业务逻辑。
+- 91: `return &Service{` -> 返回结果或提前结束当前流程。
+- 92: `db:     db,` -> 执行当前语句，参与该文件整体逻辑。
+- 93: `logger: logger,` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `}` -> 结束当前语句或代码块。
+- 95: `}` -> 结束当前语句或代码块。
+- 96: `(空行)` -> 空行，用于提升代码结构可读性。
+- 97: `func (s *Service) SetupRoutes(router *gin.RouterGroup) {` -> 定义函数或方法，实现具体业务逻辑。
+- 98: `orders := router.Group("/orders")` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `{` -> 执行当前语句，参与该文件整体逻辑。
+- 100: `orders.POST("", s.CreateOrder)` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `orders.GET("/user/:user_id", s.GetUserOrders)` -> 执行当前语句，参与该文件整体逻辑。
+- 102: `orders.GET("/:id", s.GetOrder)` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `orders.PUT("/:id/pay", s.PayOrder)` -> 执行当前语句，参与该文件整体逻辑。
+- 104: `orders.PUT("/:id/cancel", s.CancelOrder)` -> 执行当前语句，参与该文件整体逻辑。
+- 105: `orders.PUT("/:id/refund", s.RefundOrder)` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `orders.GET("/:id/status", s.GetOrderStatus)` -> 执行当前语句，参与该文件整体逻辑。
+- 107: `}` -> 结束当前语句或代码块。
+- 108: `}` -> 结束当前语句或代码块。
+- 109: `(空行)` -> 空行，用于提升代码结构可读性。
+- 110: `func (s *Service) CreateOrder(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 111: `var req CreateOrderRequest` -> 声明变量或常量，保存运行时数据。
+- 112: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 113: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 114: `return` -> 返回结果或提前结束当前流程。
+- 115: `}` -> 结束当前语句或代码块。
+- 116: `(空行)` -> 空行，用于提升代码结构可读性。
+- 117: `// 生成订单号` -> 注释行，用于解释设计意图或使用说明。
+- 118: `orderNo := fmt.Sprintf("TR%s%d", time.Now().Format("20060102"), time.Now().UnixNano()%10000)` -> 执行当前语句，参与该文件整体逻辑。
+- 119: `(空行)` -> 空行，用于提升代码结构可读性。
+- 120: `// 计算总金额` -> 注释行，用于解释设计意图或使用说明。
+- 121: `var totalAmount float64` -> 声明变量或常量，保存运行时数据。
+- 122: `orderItems := make([]OrderItem, len(req.Items))` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `(空行)` -> 空行，用于提升代码结构可读性。
+- 124: `for i, item := range req.Items {` -> 循环处理集合或重复执行逻辑。
+- 125: `// 获取产品信息` -> 注释行，用于解释设计意图或使用说明。
+- 126: `var product struct {` -> 声明变量或常量，保存运行时数据。
+- 127: `ID       uint` -> 执行当前语句，参与该文件整体逻辑。
+- 128: `Name     string` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `Type     string` -> 执行当前语句，参与该文件整体逻辑。
+- 130: `Price    float64` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `Inventory int` -> 执行当前语句，参与该文件整体逻辑。
+- 132: `}` -> 结束当前语句或代码块。
+- 133: `(空行)` -> 空行，用于提升代码结构可读性。
+- 134: `if err := s.db.First(&product, item.ProductID).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 135: `c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("Product %d not found", item.ProductID)})` -> 构造并返回接口响应数据。
+- 136: `return` -> 返回结果或提前结束当前流程。
+- 137: `}` -> 结束当前语句或代码块。
+- 138: `(空行)` -> 空行，用于提升代码结构可读性。
+- 139: `// 检查库存` -> 注释行，用于解释设计意图或使用说明。
+- 140: `if product.Inventory < item.Quantity {` -> 条件判断分支，根据场景执行不同逻辑。
+- 141: `c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Product %d inventory not enough", item.ProductID)})` -> 构造并返回接口响应数据。
+- 142: `return` -> 返回结果或提前结束当前流程。
+- 143: `}` -> 结束当前语句或代码块。
+- 144: `(空行)` -> 空行，用于提升代码结构可读性。
+- 145: `// 创建订单项` -> 注释行，用于解释设计意图或使用说明。
+- 146: `totalPrice := float64(item.Quantity) * product.Price` -> 执行当前语句，参与该文件整体逻辑。
+- 147: `orderItems[i] = OrderItem{` -> 执行当前语句，参与该文件整体逻辑。
+- 148: `ProductID:    item.ProductID,` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `ProductName:  product.Name,` -> 执行当前语句，参与该文件整体逻辑。
+- 150: `ProductType:  product.Type,` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `Quantity:     item.Quantity,` -> 执行当前语句，参与该文件整体逻辑。
+- 152: `UnitPrice:    product.Price,` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `TotalPrice:   totalPrice,` -> 执行当前语句，参与该文件整体逻辑。
+- 154: `BookingDetails: item.BookingDetails,` -> 执行当前语句，参与该文件整体逻辑。
+- 155: `Status:       "pending",` -> 执行当前语句，参与该文件整体逻辑。
+- 156: `}` -> 结束当前语句或代码块。
+- 157: `(空行)` -> 空行，用于提升代码结构可读性。
+- 158: `totalAmount += totalPrice` -> 执行当前语句，参与该文件整体逻辑。
+- 159: `}` -> 结束当前语句或代码块。
+- 160: `(空行)` -> 空行，用于提升代码结构可读性。
+- 161: `// 创建订单` -> 注释行，用于解释设计意图或使用说明。
+- 162: `order := Order{` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `UserID:       req.UserID,` -> 执行当前语句，参与该文件整体逻辑。
+- 164: `OrderNo:      orderNo,` -> 执行当前语句，参与该文件整体逻辑。
+- 165: `TotalAmount:  totalAmount,` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `Status:       "pending",` -> 执行当前语句，参与该文件整体逻辑。
+- 167: `PaymentMethod: req.PaymentMethod,` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `CreatedAt:    time.Now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 169: `UpdatedAt:    time.Now(),` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `}` -> 结束当前语句或代码块。
+- 171: `(空行)` -> 空行，用于提升代码结构可读性。
+- 172: `// 开始事务` -> 注释行，用于解释设计意图或使用说明。
+- 173: `tx := s.db.Begin()` -> 执行当前语句，参与该文件整体逻辑。
+- 174: `(空行)` -> 空行，用于提升代码结构可读性。
+- 175: `if err := tx.Create(&order).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 176: `tx.Rollback()` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `s.logger.WithError(err).Error("Failed to create order")` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})` -> 构造并返回接口响应数据。
+- 179: `return` -> 返回结果或提前结束当前流程。
+- 180: `}` -> 结束当前语句或代码块。
+- 181: `(空行)` -> 空行，用于提升代码结构可读性。
+- 182: `// 创建订单项` -> 注释行，用于解释设计意图或使用说明。
+- 183: `for i := range orderItems {` -> 循环处理集合或重复执行逻辑。
+- 184: `orderItems[i].OrderID = order.ID` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `}` -> 结束当前语句或代码块。
+- 186: `(空行)` -> 空行，用于提升代码结构可读性。
+- 187: `if err := tx.Create(&orderItems).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 188: `tx.Rollback()` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `s.logger.WithError(err).Error("Failed to create order items")` -> 执行当前语句，参与该文件整体逻辑。
+- 190: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order items"})` -> 构造并返回接口响应数据。
+- 191: `return` -> 返回结果或提前结束当前流程。
+- 192: `}` -> 结束当前语句或代码块。
+- 193: `(空行)` -> 空行，用于提升代码结构可读性。
+- 194: `// 减少库存` -> 注释行，用于解释设计意图或使用说明。
+- 195: `for _, item := range orderItems {` -> 循环处理集合或重复执行逻辑。
+- 196: `var product struct {` -> 声明变量或常量，保存运行时数据。
+- 197: `Inventory int` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `}` -> 结束当前语句或代码块。
+- 199: `if err := tx.Model(&struct{}{}).Table("products").Where("id = ?", item.ProductID).Update("inventory", gorm.Expr("inventory - ?", item.Quantity)).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 200: `tx.Rollback()` -> 执行当前语句，参与该文件整体逻辑。
+- 201: `s.logger.WithError(err).Error("Failed to update inventory")` -> 执行当前语句，参与该文件整体逻辑。
+- 202: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update inventory"})` -> 构造并返回接口响应数据。
+- 203: `return` -> 返回结果或提前结束当前流程。
+- 204: `}` -> 结束当前语句或代码块。
+- 205: `}` -> 结束当前语句或代码块。
+- 206: `(空行)` -> 空行，用于提升代码结构可读性。
+- 207: `// 提交事务` -> 注释行，用于解释设计意图或使用说明。
+- 208: `if err := tx.Commit().Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 209: `s.logger.WithError(err).Error("Failed to commit transaction")` -> 执行当前语句，参与该文件整体逻辑。
+- 210: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})` -> 构造并返回接口响应数据。
+- 211: `return` -> 返回结果或提前结束当前流程。
+- 212: `}` -> 结束当前语句或代码块。
+- 213: `(空行)` -> 空行，用于提升代码结构可读性。
+- 214: `s.logger.WithFields(logrus.Fields{` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `"order_id":   order.ID,` -> 执行当前语句，参与该文件整体逻辑。
+- 216: `"order_no":   orderNo,` -> 执行当前语句，参与该文件整体逻辑。
+- 217: `"total_amount": totalAmount,` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `}).Info("Order created successfully")` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `(空行)` -> 空行，用于提升代码结构可读性。
+- 220: `c.JSON(http.StatusCreated, gin.H{` -> 构造并返回接口响应数据。
+- 221: `"message": "Order created successfully",` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `"order":   order,` -> 执行当前语句，参与该文件整体逻辑。
+- 223: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `}` -> 结束当前语句或代码块。
+- 225: `(空行)` -> 空行，用于提升代码结构可读性。
+- 226: `func (s *Service) GetUserOrders(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 227: `userID := c.Param("user_id")` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `(空行)` -> 空行，用于提升代码结构可读性。
+- 229: `var orders []Order` -> 声明变量或常量，保存运行时数据。
+- 230: `if err := s.db.Where("user_id = ?", userID).Preload("Items").Order("created_at DESC").Find(&orders).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 231: `s.logger.WithError(err).Error("Failed to get user orders")` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user orders"})` -> 构造并返回接口响应数据。
+- 233: `return` -> 返回结果或提前结束当前流程。
+- 234: `}` -> 结束当前语句或代码块。
+- 235: `(空行)` -> 空行，用于提升代码结构可读性。
+- 236: `c.JSON(http.StatusOK, gin.H{` -> 构造并返回接口响应数据。
+- 237: `"orders": orders,` -> 执行当前语句，参与该文件整体逻辑。
+- 238: `"total":  len(orders),` -> 执行当前语句，参与该文件整体逻辑。
+- 239: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `}` -> 结束当前语句或代码块。
+- 241: `(空行)` -> 空行，用于提升代码结构可读性。
+- 242: `func (s *Service) GetOrder(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 243: `id := c.Param("id")` -> 执行当前语句，参与该文件整体逻辑。
+- 244: `(空行)` -> 空行，用于提升代码结构可读性。
+- 245: `var order Order` -> 声明变量或常量，保存运行时数据。
+- 246: `if err := s.db.Preload("Items").First(&order, id).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 247: `c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})` -> 构造并返回接口响应数据。
+- 248: `return` -> 返回结果或提前结束当前流程。
+- 249: `}` -> 结束当前语句或代码块。
+- 250: `(空行)` -> 空行，用于提升代码结构可读性。
+- 251: `c.JSON(http.StatusOK, order)` -> 构造并返回接口响应数据。
+- 252: `}` -> 结束当前语句或代码块。
+- 253: `(空行)` -> 空行，用于提升代码结构可读性。
+- 254: `func (s *Service) PayOrder(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 255: `var req PaymentRequest` -> 声明变量或常量，保存运行时数据。
+- 256: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 257: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 258: `return` -> 返回结果或提前结束当前流程。
+- 259: `}` -> 结束当前语句或代码块。
+- 260: `(空行)` -> 空行，用于提升代码结构可读性。
+- 261: `// 查找订单` -> 注释行，用于解释设计意图或使用说明。
+- 262: `var order Order` -> 声明变量或常量，保存运行时数据。
+- 263: `if err := s.db.First(&order, req.OrderID).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 264: `c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})` -> 构造并返回接口响应数据。
+- 265: `return` -> 返回结果或提前结束当前流程。
+- 266: `}` -> 结束当前语句或代码块。
+- 267: `(空行)` -> 空行，用于提升代码结构可读性。
+- 268: `// 检查订单状态` -> 注释行，用于解释设计意图或使用说明。
+- 269: `if order.Status != "pending" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 270: `c.JSON(http.StatusBadRequest, gin.H{"error": "Order is not in pending status"})` -> 构造并返回接口响应数据。
+- 271: `return` -> 返回结果或提前结束当前流程。
+- 272: `}` -> 结束当前语句或代码块。
+- 273: `(空行)` -> 空行，用于提升代码结构可读性。
+- 274: `// 更新订单状态` -> 注释行，用于解释设计意图或使用说明。
+- 275: `now := time.Now()` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `order.Status = "paid"` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `order.PaymentMethod = req.PaymentMethod` -> 执行当前语句，参与该文件整体逻辑。
+- 278: `order.PaymentTime = &now` -> 执行当前语句，参与该文件整体逻辑。
+- 279: `order.UpdatedAt = time.Now()` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `(空行)` -> 空行，用于提升代码结构可读性。
+- 281: `if err := s.db.Save(&order).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 282: `s.logger.WithError(err).Error("Failed to update order")` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order"})` -> 构造并返回接口响应数据。
+- 284: `return` -> 返回结果或提前结束当前流程。
+- 285: `}` -> 结束当前语句或代码块。
+- 286: `(空行)` -> 空行，用于提升代码结构可读性。
+- 287: `// 更新订单项状态` -> 注释行，用于解释设计意图或使用说明。
+- 288: `if err := s.db.Model(&OrderItem{}).Where("order_id = ?", req.OrderID).Update("status", "confirmed").Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 289: `s.logger.WithError(err).Error("Failed to update order items")` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `}` -> 结束当前语句或代码块。
+- 291: `(空行)` -> 空行，用于提升代码结构可读性。
+- 292: `s.logger.WithFields(logrus.Fields{` -> 执行当前语句，参与该文件整体逻辑。
+- 293: `"order_id": req.OrderID,` -> 执行当前语句，参与该文件整体逻辑。
+- 294: `"status":   "paid",` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `}).Info("Order paid successfully")` -> 执行当前语句，参与该文件整体逻辑。
+- 296: `(空行)` -> 空行，用于提升代码结构可读性。
+- 297: `c.JSON(http.StatusOK, gin.H{` -> 构造并返回接口响应数据。
+- 298: `"message": "Order paid successfully",` -> 执行当前语句，参与该文件整体逻辑。
+- 299: `"order":   order,` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `}` -> 结束当前语句或代码块。
+- 302: `(空行)` -> 空行，用于提升代码结构可读性。
+- 303: `func (s *Service) CancelOrder(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 304: `var req CancelRequest` -> 声明变量或常量，保存运行时数据。
+- 305: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 306: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 307: `return` -> 返回结果或提前结束当前流程。
+- 308: `}` -> 结束当前语句或代码块。
+- 309: `(空行)` -> 空行，用于提升代码结构可读性。
+- 310: `// 查找订单` -> 注释行，用于解释设计意图或使用说明。
+- 311: `var order Order` -> 声明变量或常量，保存运行时数据。
+- 312: `if err := s.db.First(&order, req.OrderID).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 313: `c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})` -> 构造并返回接口响应数据。
+- 314: `return` -> 返回结果或提前结束当前流程。
+- 315: `}` -> 结束当前语句或代码块。
+- 316: `(空行)` -> 空行，用于提升代码结构可读性。
+- 317: `// 检查订单状态` -> 注释行，用于解释设计意图或使用说明。
+- 318: `if order.Status != "pending" && order.Status != "paid" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 319: `c.JSON(http.StatusBadRequest, gin.H{"error": "Order cannot be cancelled"})` -> 构造并返回接口响应数据。
+- 320: `return` -> 返回结果或提前结束当前流程。
+- 321: `}` -> 结束当前语句或代码块。
+- 322: `(空行)` -> 空行，用于提升代码结构可读性。
+- 323: `// 更新订单状态` -> 注释行，用于解释设计意图或使用说明。
+- 324: `order.Status = "cancelled"` -> 执行当前语句，参与该文件整体逻辑。
+- 325: `order.CancelledReason = &req.CancelledReason` -> 执行当前语句，参与该文件整体逻辑。
+- 326: `order.UpdatedAt = time.Now()` -> 执行当前语句，参与该文件整体逻辑。
+- 327: `(空行)` -> 空行，用于提升代码结构可读性。
+- 328: `// 如果已支付，处理退款逻辑` -> 注释行，用于解释设计意图或使用说明。
+- 329: `if order.Status == "paid" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 330: `order.RefundAmount = &order.TotalAmount` -> 执行当前语句，参与该文件整体逻辑。
+- 331: `order.RefundTime = &time.Now()` -> 执行当前语句，参与该文件整体逻辑。
+- 332: `order.RefundReason = &req.CancelledReason` -> 执行当前语句，参与该文件整体逻辑。
+- 333: `(空行)` -> 空行，用于提升代码结构可读性。
+- 334: `// 恢复库存` -> 注释行，用于解释设计意图或使用说明。
+- 335: `var items []OrderItem` -> 声明变量或常量，保存运行时数据。
+- 336: `if err := s.db.Where("order_id = ?", req.OrderID).Find(&items).Error; err == nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 337: `for _, item := range items {` -> 循环处理集合或重复执行逻辑。
+- 338: `s.db.Model(&struct{}{}).Table("products").Where("id = ?", item.ProductID).Update("inventory", gorm.Expr("inventory + ?", item.Quantity))` -> 执行当前语句，参与该文件整体逻辑。
+- 339: `}` -> 结束当前语句或代码块。
+- 340: `}` -> 结束当前语句或代码块。
+- 341: `}` -> 结束当前语句或代码块。
+- 342: `(空行)` -> 空行，用于提升代码结构可读性。
+- 343: `if err := s.db.Save(&order).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 344: `s.logger.WithError(err).Error("Failed to cancel order")` -> 执行当前语句，参与该文件整体逻辑。
+- 345: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to cancel order"})` -> 构造并返回接口响应数据。
+- 346: `return` -> 返回结果或提前结束当前流程。
+- 347: `}` -> 结束当前语句或代码块。
+- 348: `(空行)` -> 空行，用于提升代码结构可读性。
+- 349: `s.logger.WithFields(logrus.Fields{` -> 执行当前语句，参与该文件整体逻辑。
+- 350: `"order_id": req.OrderID,` -> 执行当前语句，参与该文件整体逻辑。
+- 351: `"status":   "cancelled",` -> 执行当前语句，参与该文件整体逻辑。
+- 352: `}).Info("Order cancelled successfully")` -> 执行当前语句，参与该文件整体逻辑。
+- 353: `(空行)` -> 空行，用于提升代码结构可读性。
+- 354: `c.JSON(http.StatusOK, gin.H{` -> 构造并返回接口响应数据。
+- 355: `"message": "Order cancelled successfully",` -> 执行当前语句，参与该文件整体逻辑。
+- 356: `"order":   order,` -> 执行当前语句，参与该文件整体逻辑。
+- 357: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 358: `}` -> 结束当前语句或代码块。
+- 359: `(空行)` -> 空行，用于提升代码结构可读性。
+- 360: `func (s *Service) RefundOrder(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 361: `var req RefundRequest` -> 声明变量或常量，保存运行时数据。
+- 362: `if err := c.ShouldBindJSON(&req); err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 363: `c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})` -> 构造并返回接口响应数据。
+- 364: `return` -> 返回结果或提前结束当前流程。
+- 365: `}` -> 结束当前语句或代码块。
+- 366: `(空行)` -> 空行，用于提升代码结构可读性。
+- 367: `// 查找订单` -> 注释行，用于解释设计意图或使用说明。
+- 368: `var order Order` -> 声明变量或常量，保存运行时数据。
+- 369: `if err := s.db.First(&order, req.OrderID).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 370: `c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})` -> 构造并返回接口响应数据。
+- 371: `return` -> 返回结果或提前结束当前流程。
+- 372: `}` -> 结束当前语句或代码块。
+- 373: `(空行)` -> 空行，用于提升代码结构可读性。
+- 374: `// 检查订单状态` -> 注释行，用于解释设计意图或使用说明。
+- 375: `if order.Status != "paid" {` -> 条件判断分支，根据场景执行不同逻辑。
+- 376: `c.JSON(http.StatusBadRequest, gin.H{"error": "Order is not in paid status"})` -> 构造并返回接口响应数据。
+- 377: `return` -> 返回结果或提前结束当前流程。
+- 378: `}` -> 结束当前语句或代码块。
+- 379: `(空行)` -> 空行，用于提升代码结构可读性。
+- 380: `// 更新订单状态` -> 注释行，用于解释设计意图或使用说明。
+- 381: `order.Status = "refunded"` -> 执行当前语句，参与该文件整体逻辑。
+- 382: `order.RefundAmount = &req.RefundAmount` -> 执行当前语句，参与该文件整体逻辑。
+- 383: `order.RefundReason = &req.RefundReason` -> 执行当前语句，参与该文件整体逻辑。
+- 384: `order.RefundTime = &time.Now()` -> 执行当前语句，参与该文件整体逻辑。
+- 385: `order.UpdatedAt = time.Now()` -> 执行当前语句，参与该文件整体逻辑。
+- 386: `(空行)` -> 空行，用于提升代码结构可读性。
+- 387: `if err := s.db.Save(&order).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 388: `s.logger.WithError(err).Error("Failed to refund order")` -> 执行当前语句，参与该文件整体逻辑。
+- 389: `c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to refund order"})` -> 构造并返回接口响应数据。
+- 390: `return` -> 返回结果或提前结束当前流程。
+- 391: `}` -> 结束当前语句或代码块。
+- 392: `(空行)` -> 空行，用于提升代码结构可读性。
+- 393: `// 恢复库存` -> 注释行，用于解释设计意图或使用说明。
+- 394: `var items []OrderItem` -> 声明变量或常量，保存运行时数据。
+- 395: `if err := s.db.Where("order_id = ?", req.OrderID).Find(&items).Error; err == nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 396: `for _, item := range items {` -> 循环处理集合或重复执行逻辑。
+- 397: `s.db.Model(&struct{}{}).Table("products").Where("id = ?", item.ProductID).Update("inventory", gorm.Expr("inventory + ?", item.Quantity))` -> 执行当前语句，参与该文件整体逻辑。
+- 398: `}` -> 结束当前语句或代码块。
+- 399: `}` -> 结束当前语句或代码块。
+- 400: `(空行)` -> 空行，用于提升代码结构可读性。
+- 401: `s.logger.WithFields(logrus.Fields{` -> 执行当前语句，参与该文件整体逻辑。
+- 402: `"order_id": req.OrderID,` -> 执行当前语句，参与该文件整体逻辑。
+- 403: `"status":   "refunded",` -> 执行当前语句，参与该文件整体逻辑。
+- 404: `}).Info("Order refunded successfully")` -> 执行当前语句，参与该文件整体逻辑。
+- 405: `(空行)` -> 空行，用于提升代码结构可读性。
+- 406: `c.JSON(http.StatusOK, gin.H{` -> 构造并返回接口响应数据。
+- 407: `"message": "Order refunded successfully",` -> 执行当前语句，参与该文件整体逻辑。
+- 408: `"order":   order,` -> 执行当前语句，参与该文件整体逻辑。
+- 409: `})` -> 执行当前语句，参与该文件整体逻辑。
+- 410: `}` -> 结束当前语句或代码块。
+- 411: `(空行)` -> 空行，用于提升代码结构可读性。
+- 412: `func (s *Service) GetOrderStatus(c *gin.Context) {` -> 定义函数或方法，实现具体业务逻辑。
+- 413: `id := c.Param("id")` -> 执行当前语句，参与该文件整体逻辑。
+- 414: `(空行)` -> 空行，用于提升代码结构可读性。
+- 415: `var order struct {` -> 声明变量或常量，保存运行时数据。
+- 416: `ID     string    \`json:"id"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 417: `Status string    \`json:"status"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 418: `UpdatedAt time.Time \`json:"updated_at"\`` -> 执行当前语句，参与该文件整体逻辑。
+- 419: `}` -> 结束当前语句或代码块。
+- 420: `(空行)` -> 空行，用于提升代码结构可读性。
+- 421: `if err := s.db.Model(&Order{}).Select("id, status, updated_at").First(&order, id).Error; err != nil {` -> 条件判断分支，根据场景执行不同逻辑。
+- 422: `c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})` -> 构造并返回接口响应数据。
+- 423: `return` -> 返回结果或提前结束当前流程。
+- 424: `}` -> 结束当前语句或代码块。
+- 425: `(空行)` -> 空行，用于提升代码结构可读性。
+- 426: `c.JSON(http.StatusOK, order)` -> 构造并返回接口响应数据。
+- 427: `}` -> 结束当前语句或代码块。

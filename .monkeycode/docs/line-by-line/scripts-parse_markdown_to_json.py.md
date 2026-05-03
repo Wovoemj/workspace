@@ -1,0 +1,323 @@
+# `scripts/parse_markdown_to_json.py` 逐行说明
+
+说明：本文件按“代码行号 -> 代码 -> 作用”解释每一行。
+
+- 1: `#!/usr/bin/env python3` -> 注释行，用于解释设计意图或使用说明。
+- 2: `# -*- coding: utf-8 -*-` -> 注释行，用于解释设计意图或使用说明。
+- 3: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 4: `从全国景点攻略大全.md 文件解析景点数据并生成 JSON 格式` -> 执行当前语句，参与该文件整体逻辑。
+- 5: `"""` -> 执行当前语句，参与该文件整体逻辑。
+- 6: `(空行)` -> 空行，用于提升代码结构可读性。
+- 7: `import re` -> 导入依赖模块，供当前文件使用。
+- 8: `import json` -> 导入依赖模块，供当前文件使用。
+- 9: `from pathlib import Path` -> 执行当前语句，参与该文件整体逻辑。
+- 10: `import sys` -> 导入依赖模块，供当前文件使用。
+- 11: `(空行)` -> 空行，用于提升代码结构可读性。
+- 12: `(空行)` -> 空行，用于提升代码结构可读性。
+- 13: `def parse_markdown_to_json(markdown_path: str, output_path: str = None):  # 解析markdown_to_json  # 解析markdown_to_json  # 解析markdown_to_json` -> 定义 Python 函数，封装可复用逻辑。
+- 14: `"""解析 Markdown 文件并生成 JSON 格式的景点数据"""` -> 执行当前语句，参与该文件整体逻辑。
+- 15: `(空行)` -> 空行，用于提升代码结构可读性。
+- 16: `with open(markdown_path, 'r', encoding='utf-8') as f:  # 路径配置with open(markdown_path, 'r', encoding  # 路径配置with open(markdown_path, 'r', encoding  # 路径配置with open(markdown_path, 'r', encoding` -> 执行当前语句，参与该文件整体逻辑。
+- 17: `content = f.read()  # 内容变量content  # 内容变量content  # 内容变量content` -> 执行当前语句，参与该文件整体逻辑。
+- 18: `(空行)` -> 空行，用于提升代码结构可读性。
+- 19: `# 按景点分隔符分割内容` -> 注释行，用于解释设计意图或使用说明。
+- 20: `# 每个景点以数字编号开头，如 "1. 🏮 **故宫博物院**（北京市，北京）"` -> 注释行，用于解释设计意图或使用说明。
+- 21: `# 景点之间用 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" 分隔` -> 注释行，用于解释设计意图或使用说明。
+- 22: `sections = re.split(r'\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', content)` -> 执行当前语句，参与该文件整体逻辑。
+- 23: `(空行)` -> 空行，用于提升代码结构可读性。
+- 24: `destinations = []` -> 执行当前语句，参与该文件整体逻辑。
+- 25: `(空行)` -> 空行，用于提升代码结构可读性。
+- 26: `for section in sections:  # 遍历section  # 遍历section  # 遍历section` -> 循环处理集合或重复执行逻辑。
+- 27: `if not section.strip():` -> 条件判断分支，根据场景执行不同逻辑。
+- 28: `continue` -> 执行当前语句，参与该文件整体逻辑。
+- 29: `(空行)` -> 空行，用于提升代码结构可读性。
+- 30: `# 解析景点基本信息` -> 注释行，用于解释设计意图或使用说明。
+- 31: `destination = {}` -> 执行当前语句，参与该文件整体逻辑。
+- 32: `(空行)` -> 空行，用于提升代码结构可读性。
+- 33: `# 1. 解析标题行获取景点名称、城市、省份` -> 注释行，用于解释设计意图或使用说明。
+- 34: `# 尝试匹配格式：数字. [emoji] **景点名称**（城市，省份）` -> 注释行，用于解释设计意图或使用说明。
+- 35: `title_match = re.search(r'^\s*(\d+)\.\s*[^\s]+\s+\*\*(.+?)\*\*\s*（([^，]+)，([^)]+?)）', section, re.MULTILINE)` -> 执行当前语句，参与该文件整体逻辑。
+- 36: `if title_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 37: `destination['name'] = title_match.group(2).strip()['name']['name']['name'` -> 执行当前语句，参与该文件整体逻辑。
+- 38: `destination['city'] = title_match.group(3).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 39: `destination['province'] = title_match.group(4).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 40: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 41: `# 尝试匹配没有emoji的格式：数字. **景点名称**（城市，省份）` -> 注释行，用于解释设计意图或使用说明。
+- 42: `alt_match = re.search(r'^\s*(\d+)\.\s+\*\*(.+?)\*\*\s*（([^，]+)，([^)]+?)）', section, re.MULTILINE)` -> 执行当前语句，参与该文件整体逻辑。
+- 43: `if alt_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 44: `destination['name'] = alt_match.group(2).strip()['name']['name']['name'` -> 执行当前语句，参与该文件整体逻辑。
+- 45: `destination['city'] = alt_match.group(3).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 46: `destination['province'] = alt_match.group(4).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 47: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 48: `# 再尝试更简单的格式` -> 注释行，用于解释设计意图或使用说明。
+- 49: `simple_match = re.search(r'^\s*\d+\.\s*\*\*(.+?)\*\*\s*（([^，]+)，([^)]+?)）', section, re.MULTILINE)` -> 执行当前语句，参与该文件整体逻辑。
+- 50: `if simple_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 51: `destination['name'] = simple_match.group(1).strip()['name']['name']['name'` -> 执行当前语句，参与该文件整体逻辑。
+- 52: `destination['city'] = simple_match.group(2).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 53: `destination['province'] = simple_match.group(3).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 54: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 55: `# 如果还是无法解析，尝试提取第一行` -> 注释行，用于解释设计意图或使用说明。
+- 56: `lines = section.strip().split('\n')` -> 执行当前语句，参与该文件整体逻辑。
+- 57: `first_line = lines[0] if lines else ""` -> 执行当前语句，参与该文件整体逻辑。
+- 58: `# 尝试从第一行提取` -> 注释行，用于解释设计意图或使用说明。
+- 59: `first_line_match = re.search(r'\*\*(.+?)\*\*\s*（([^，]+)，([^)]+?)）', first_line)` -> 执行当前语句，参与该文件整体逻辑。
+- 60: `if first_line_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 61: `destination['name'] = first_line_match.group(1).strip()['name']['name']['name'` -> 执行当前语句，参与该文件整体逻辑。
+- 62: `destination['city'] = first_line_match.group(2).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 63: `destination['province'] = first_line_match.group(3).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 64: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 65: `continue  # 跳过无法解析的景点` -> 执行当前语句，参与该文件整体逻辑。
+- 66: `(空行)` -> 空行，用于提升代码结构可读性。
+- 67: `# 2. 解析地址` -> 注释行，用于解释设计意图或使用说明。
+- 68: `address_match = re.search(r'📍\s*\*\*地址\*\*：(.+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 69: `if address_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 70: `destination['address'] = address_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 71: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 72: `destination['address'] = ""` -> 执行当前语句，参与该文件整体逻辑。
+- 73: `(空行)` -> 空行，用于提升代码结构可读性。
+- 74: `# 3. 解析门票` -> 注释行，用于解释设计意图或使用说明。
+- 75: `ticket_match = re.search(r'🎫\s*\*\*门票\*\*：(.+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 76: `if ticket_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 77: `destination['price_range'] = ticket_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 78: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 79: `destination['price_range'] = ""` -> 执行当前语句，参与该文件整体逻辑。
+- 80: `(空行)` -> 空行，用于提升代码结构可读性。
+- 81: `# 4. 解析开放时间` -> 注释行，用于解释设计意图或使用说明。
+- 82: `time_match = re.search(r'⏰\s*\*\*开放时间\*\*：(.+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 83: `if time_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 84: `time_text = time_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 85: `# 移除状态标记` -> 注释行，用于解释设计意图或使用说明。
+- 86: `time_text = re.sub(r'（✅\s*正常开放）', '', time_text)` -> 执行当前语句，参与该文件整体逻辑。
+- 87: `time_text = re.sub(r'（❌\s.*?）', '', time_text)` -> 执行当前语句，参与该文件整体逻辑。
+- 88: `destination['opening_hours'] = time_text.strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 89: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 90: `destination['opening_hours'] = ""` -> 执行当前语句，参与该文件整体逻辑。
+- 91: `(空行)` -> 空行，用于提升代码结构可读性。
+- 92: `# 5. 解析评分和热度` -> 注释行，用于解释设计意图或使用说明。
+- 93: `rating_match = re.search(r'⭐\s*\*\*评分\*\*：([\d.]+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 94: `if rating_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 95: `try:` -> 异常处理逻辑，提升程序健壮性。
+- 96: `destination['rating'] = float(rating_match.group(1))` -> 执行当前语句，参与该文件整体逻辑。
+- 97: `except:` -> 异常处理逻辑，提升程序健壮性。
+- 98: `destination['rating'] = 4.5` -> 执行当前语句，参与该文件整体逻辑。
+- 99: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 100: `destination['rating'] = 4.5` -> 执行当前语句，参与该文件整体逻辑。
+- 101: `(空行)` -> 空行，用于提升代码结构可读性。
+- 102: `heat_match = re.search(r'🔥\s*\*\*热度\*\*：([\d.]+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 103: `if heat_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 104: `try:` -> 异常处理逻辑，提升程序健壮性。
+- 105: `destination['popularity_score'] = float(heat_match.group(1))` -> 执行当前语句，参与该文件整体逻辑。
+- 106: `except:` -> 异常处理逻辑，提升程序健壮性。
+- 107: `destination['popularity_score'] = 80.0` -> 执行当前语句，参与该文件整体逻辑。
+- 108: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 109: `destination['popularity_score'] = 80.0` -> 执行当前语句，参与该文件整体逻辑。
+- 110: `(空行)` -> 空行，用于提升代码结构可读性。
+- 111: `# 6. 解析一句话定位（描述）` -> 注释行，用于解释设计意图或使用说明。
+- 112: `desc_match = re.search(r'📌\s*\*\*一句话定位\*\*：(.+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 113: `if desc_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 114: `destination['description'] = desc_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 115: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 116: `# 如果没有一句话定位，尝试从其他部分提取描述` -> 注释行，用于解释设计意图或使用说明。
+- 117: `lines = section.split('\n')` -> 执行当前语句，参与该文件整体逻辑。
+- 118: `for line in lines:  # 遍历line  # 遍历line  # 遍历line` -> 循环处理集合或重复执行逻辑。
+- 119: `if '一句话定位' in line:  # 检查是否包含  # 检查是否包含  # 检查是否包含` -> 条件判断分支，根据场景执行不同逻辑。
+- 120: `desc_match = re.search(r'：(.+)', line)` -> 执行当前语句，参与该文件整体逻辑。
+- 121: `if desc_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 122: `destination['description'] = desc_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 123: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 124: `if 'description' not in destination:  # 检查是否包含  # 检查是否包含  # 检查是否包含` -> 条件判断分支，根据场景执行不同逻辑。
+- 125: `destination['description'] = f"{destination['name']}位于{destination['city']}，是一个值得游览的景点。"` -> 执行当前语句，参与该文件整体逻辑。
+- 126: `(空行)` -> 空行，用于提升代码结构可读性。
+- 127: `# 7. 解析标签` -> 注释行，用于解释设计意图或使用说明。
+- 128: `tags_match = re.search(r'🏷️\s*\*\*标签\*\*：(.+)', section)` -> 执行当前语句，参与该文件整体逻辑。
+- 129: `if tags_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 130: `tags_text = tags_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 131: `# 分割标签，支持多种分隔符` -> 注释行，用于解释设计意图或使用说明。
+- 132: `tags = re.split(r'[·、，,;；\s]+', tags_text)` -> 执行当前语句，参与该文件整体逻辑。
+- 133: `destination['tags'] = [tag.strip() for tag in tags if tag.strip()]` -> 执行当前语句，参与该文件整体逻辑。
+- 134: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 135: `destination['tags'] = []` -> 执行当前语句，参与该文件整体逻辑。
+- 136: `(空行)` -> 空行，用于提升代码结构可读性。
+- 137: `# 8. 解析必看清单（提取前几个）` -> 注释行，用于解释设计意图或使用说明。
+- 138: `must_see_section = re.search(r'【必看清单】\n(.+?)(?:\n\n|\n🗓️|\n📸|\n💡|$)', section, re.DOTALL)` -> 执行当前语句，参与该文件整体逻辑。
+- 139: `if must_see_section:` -> 条件判断分支，根据场景执行不同逻辑。
+- 140: `must_see_text = must_see_section.group(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 141: `# 提取清单项` -> 注释行，用于解释设计意图或使用说明。
+- 142: `must_see_items = re.findall(r'\d+\.\s*(.+?)(?=\n\d+\.|\n\n|$)', must_see_text)  # 单条数据must_see_items  # 单条数据must_see_items  # 单条数据must_see_items` -> 执行当前语句，参与该文件整体逻辑。
+- 143: `destination['must_see'] = [item.strip() for item in must_see_items[:4]]  # 最多取4个` -> 执行当前语句，参与该文件整体逻辑。
+- 144: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 145: `destination['must_see'] = []` -> 执行当前语句，参与该文件整体逻辑。
+- 146: `(空行)` -> 空行，用于提升代码结构可读性。
+- 147: `# 9. 解析推荐游览路线` -> 注释行，用于解释设计意图或使用说明。
+- 148: `route_match = re.search(r'🗓️\s*\*\*推荐游览路线\*\*\n\*\*建议路线\*\*：(.+?)(?:\n\n|\n📸|\n💡|$)', section, re.DOTALL)` -> 执行当前语句，参与该文件整体逻辑。
+- 149: `if route_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 150: `destination['recommended_route'] = route_match.group(1).strip()` -> 执行当前语句，参与该文件整体逻辑。
+- 151: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 152: `destination['recommended_route'] = ""` -> 执行当前语句，参与该文件整体逻辑。
+- 153: `(空行)` -> 空行，用于提升代码结构可读性。
+- 154: `# 10. 解析拍照攻略` -> 注释行，用于解释设计意图或使用说明。
+- 155: `photo_match = re.search(r'📸\s*\*\*拍照攻略\*\*\n(.+?)(?:\n\n|\n💡|$)', section, re.DOTALL)` -> 执行当前语句，参与该文件整体逻辑。
+- 156: `if photo_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 157: `photo_text = photo_match.group(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 158: `# 提取拍照建议` -> 注释行，用于解释设计意图或使用说明。
+- 159: `photo_tips = re.findall(r'[-•*]\s*(.+?)(?=\n[-•*]|\n\n|$)', photo_text)` -> 执行当前语句，参与该文件整体逻辑。
+- 160: `destination['photo_tips'] = [tip.strip() for tip in photo_tips[:3]]  # 最多取3个` -> 执行当前语句，参与该文件整体逻辑。
+- 161: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 162: `destination['photo_tips'] = []` -> 执行当前语句，参与该文件整体逻辑。
+- 163: `(空行)` -> 空行，用于提升代码结构可读性。
+- 164: `# 11. 解析实用贴士` -> 注释行，用于解释设计意图或使用说明。
+- 165: `tips_match = re.search(r'💡\s*\*\*实用贴士\*\*\n(.+?)(?=\n━━━━|$)', section, re.DOTALL)` -> 执行当前语句，参与该文件整体逻辑。
+- 166: `if tips_match:` -> 条件判断分支，根据场景执行不同逻辑。
+- 167: `tips_text = tips_match.group(1)` -> 执行当前语句，参与该文件整体逻辑。
+- 168: `# 提取贴士` -> 注释行，用于解释设计意图或使用说明。
+- 169: `tips = re.findall(r'[-•*]\s*(.+?)(?=\n[-•*]|\n\n|$)', tips_text)` -> 执行当前语句，参与该文件整体逻辑。
+- 170: `destination['practical_tips'] = [tip.strip() for tip in tips[:5]]  # 最多取5个` -> 执行当前语句，参与该文件整体逻辑。
+- 171: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 172: `destination['practical_tips'] = []` -> 执行当前语句，参与该文件整体逻辑。
+- 173: `(空行)` -> 空行，用于提升代码结构可读性。
+- 174: `# 12. 确定分类` -> 注释行，用于解释设计意图或使用说明。
+- 175: `# 根据标签和名称判断分类` -> 注释行，用于解释设计意图或使用说明。
+- 176: `name = destination['name']` -> 执行当前语句，参与该文件整体逻辑。
+- 177: `tags = destination['tags']` -> 执行当前语句，参与该文件整体逻辑。
+- 178: `(空行)` -> 空行，用于提升代码结构可读性。
+- 179: `if any(tag in ['博物馆', '纪念馆', '展览馆', '美术馆'] for tag in tags) or '博物馆' in name or '纪念馆' in name:  # 检查是否包含  # 检查是否包含  # 检查是否包含` -> 条件判断分支，根据场景执行不同逻辑。
+- 180: `category = '博物馆纪念馆'` -> 执行当前语句，参与该文件整体逻辑。
+- 181: `elif any(tag in ['历史文化', '古建筑', '寺庙', '古遗址'] for tag in tags) or '寺' in name or '庙' in name or '遗址' in name:  # 否则如果满足此条件  # 否则如果满足此条件  # 否则如果满足此条件` -> 条件判断分支，根据场景执行不同逻辑。
+- 182: `category = '历史文化'` -> 执行当前语句，参与该文件整体逻辑。
+- 183: `elif any(tag in ['自然风光', '山川', '湖泊', '河流', '公园', '风景区'] for tag in tags) or '山' in name or '湖' in name or '公园' in name:  # 否则如果满足此条件  # 否则如果满足此条件  # 否则如果满足此条件` -> 条件判断分支，根据场景执行不同逻辑。
+- 184: `category = '自然风光'` -> 执行当前语句，参与该文件整体逻辑。
+- 185: `elif any(tag in ['主题公园', '游乐园', '动物园', '海洋公园'] for tag in tags) or '乐园' in name or '公园' in name:  # 否则如果满足此条件  # 否则如果满足此条件  # 否则如果满足此条件` -> 条件判断分支，根据场景执行不同逻辑。
+- 186: `category = '主题公园'` -> 执行当前语句，参与该文件整体逻辑。
+- 187: `elif any(tag in ['城市地标', '广场', '塔', '桥'] for tag in tags):  # 否则如果满足此条件  # 否则如果满足此条件  # 否则如果满足此条件` -> 条件判断分支，根据场景执行不同逻辑。
+- 188: `category = '城市地标'` -> 执行当前语句，参与该文件整体逻辑。
+- 189: `else:  # 否则执行  # 否则执行  # 否则执行` -> 条件判断分支，根据场景执行不同逻辑。
+- 190: `category = '其他'` -> 执行当前语句，参与该文件整体逻辑。
+- 191: `(空行)` -> 空行，用于提升代码结构可读性。
+- 192: `destination['category'] = category` -> 执行当前语句，参与该文件整体逻辑。
+- 193: `(空行)` -> 空行，用于提升代码结构可读性。
+- 194: `# 13. 设置默认值` -> 注释行，用于解释设计意图或使用说明。
+- 195: `destination['review_count'] = 0  # 计数变量destination['review_count']  # 计数变量destination['review_count']  # 计数变量destination['review_count']` -> 执行当前语句，参与该文件整体逻辑。
+- 196: `destination['is_open'] = True` -> 执行当前语句，参与该文件整体逻辑。
+- 197: `destination['images'] = []` -> 执行当前语句，参与该文件整体逻辑。
+- 198: `destination['cover_image'] = ""` -> 执行当前语句，参与该文件整体逻辑。
+- 199: `(空行)` -> 空行，用于提升代码结构可读性。
+- 200: `# 14. 尝试匹配图片路径` -> 注释行，用于解释设计意图或使用说明。
+- 201: `# 根据景点名称构建可能的图片路径` -> 注释行，用于解释设计意图或使用说明。
+- 202: `scenic_name = destination['name']` -> 执行当前语句，参与该文件整体逻辑。
+- 203: `# 移除特殊字符和空格` -> 注释行，用于解释设计意图或使用说明。
+- 204: `clean_name = re.sub(r'[\\/*?:"<>|]', '', scenic_name)` -> 执行当前语句，参与该文件整体逻辑。
+- 205: `clean_name = clean_name.replace(' ', '_')` -> 执行当前语句，参与该文件整体逻辑。
+- 206: `(空行)` -> 空行，用于提升代码结构可读性。
+- 207: `# 检查图片目录是否存在` -> 注释行，用于解释设计意图或使用说明。
+- 208: `scenic_images_dir = Path(markdown_path).parent / "scenic_images"  # 路径配置scenic_images_dir  # 路径配置scenic_images_dir  # 路径配置scenic_images_dir` -> 执行当前语句，参与该文件整体逻辑。
+- 209: `if scenic_images_dir.exists():` -> 条件判断分支，根据场景执行不同逻辑。
+- 210: `# 查找匹配的图片目录` -> 注释行，用于解释设计意图或使用说明。
+- 211: `for item in scenic_images_dir.iterdir():  # 遍历item  # 遍历item  # 遍历item` -> 循环处理集合或重复执行逻辑。
+- 212: `if item.is_dir() and clean_name in item.name:  # 检查是否包含  # 检查是否包含  # 检查是否包含` -> 条件判断分支，根据场景执行不同逻辑。
+- 213: `# 查找该目录下的图片` -> 注释行，用于解释设计意图或使用说明。
+- 214: `image_files = list(item.glob("*.jpg")) + list(item.glob("*.png")) + list(item.glob("*.webp"))` -> 执行当前语句，参与该文件整体逻辑。
+- 215: `if image_files:` -> 条件判断分支，根据场景执行不同逻辑。
+- 216: `# 按文件名排序，取前几张` -> 注释行，用于解释设计意图或使用说明。
+- 217: `image_files.sort()` -> 执行当前语句，参与该文件整体逻辑。
+- 218: `destination['images'] = [f"scenic_images/{item.name}/{img.name}" for img in image_files[:3]]` -> 执行当前语句，参与该文件整体逻辑。
+- 219: `if destination['images']:` -> 条件判断分支，根据场景执行不同逻辑。
+- 220: `destination['cover_image'] = destination['images'][0]` -> 执行当前语句，参与该文件整体逻辑。
+- 221: `break` -> 执行当前语句，参与该文件整体逻辑。
+- 222: `(空行)` -> 空行，用于提升代码结构可读性。
+- 223: `destinations.append(destination)` -> 执行当前语句，参与该文件整体逻辑。
+- 224: `(空行)` -> 空行，用于提升代码结构可读性。
+- 225: `# 输出统计信息` -> 注释行，用于解释设计意图或使用说明。
+- 226: `print(f"解析完成：共找到 {len(destinations)} 个景点")` -> 执行当前语句，参与该文件整体逻辑。
+- 227: `print(f"示例景点：{destinations[0]['name'] if destinations else '无'}")` -> 执行当前语句，参与该文件整体逻辑。
+- 228: `(空行)` -> 空行，用于提升代码结构可读性。
+- 229: `# 如果需要保存到文件` -> 注释行，用于解释设计意图或使用说明。
+- 230: `if output_path:` -> 条件判断分支，根据场景执行不同逻辑。
+- 231: `with open(output_path, 'w', encoding='utf-8') as f:  # 路径配置with open(output_path, 'w', encoding  # 路径配置with open(output_path, 'w', encoding  # 路径配置with open(output_path, 'w', encoding` -> 执行当前语句，参与该文件整体逻辑。
+- 232: `json.dump(destinations, f, ensure_ascii=False, indent=2)  # JSON数据json.dump(destinations, f, ensure_ascii  # JSON数据json.dump(destinations, f, ensure_ascii  # JSON数据json.dump(destinations, f, ensure_ascii` -> 执行当前语句，参与该文件整体逻辑。
+- 233: `print(f"已保存到：{output_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 234: `(空行)` -> 空行，用于提升代码结构可读性。
+- 235: `return destinations` -> 返回结果或提前结束当前流程。
+- 236: `(空行)` -> 空行，用于提升代码结构可读性。
+- 237: `(空行)` -> 空行，用于提升代码结构可读性。
+- 238: `def create_compatible_json(destinations, output_path):  # 创建compatible_json  # 创建compatible_json  # 创建compatible_json` -> 定义 Python 函数，封装可复用逻辑。
+- 239: `"""创建与现有 destinations.json 格式兼容的 JSON 文件"""` -> 执行当前语句，参与该文件整体逻辑。
+- 240: `(空行)` -> 空行，用于提升代码结构可读性。
+- 241: `compatible_destinations = []` -> 执行当前语句，参与该文件整体逻辑。
+- 242: `(空行)` -> 空行，用于提升代码结构可读性。
+- 243: `for dest in destinations:  # 遍历dest  # 遍历dest  # 遍历dest` -> 循环处理集合或重复执行逻辑。
+- 244: `compatible_dest = {` -> 执行当前语句，参与该文件整体逻辑。
+- 245: `"name": dest.get("name", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 246: `"city": dest.get("city", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 247: `"province": dest.get("province", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 248: `"category": dest.get("category", "其他"),` -> 执行当前语句，参与该文件整体逻辑。
+- 249: `"description": dest.get("description", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 250: `"price_range": dest.get("price_range", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 251: `"rating": dest.get("rating", 4.5),` -> 执行当前语句，参与该文件整体逻辑。
+- 252: `"review_count": dest.get("review_count", 0),` -> 执行当前语句，参与该文件整体逻辑。
+- 253: `"opening_hours": dest.get("opening_hours", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 254: `"address": dest.get("address", ""),` -> 执行当前语句，参与该文件整体逻辑。
+- 255: `"popularity_score": dest.get("popularity_score", 80.0),` -> 执行当前语句，参与该文件整体逻辑。
+- 256: `"is_open": dest.get("is_open", True),` -> 执行当前语句，参与该文件整体逻辑。
+- 257: `"tags": dest.get("tags", []),` -> 执行当前语句，参与该文件整体逻辑。
+- 258: `"images": dest.get("images", []),` -> 执行当前语句，参与该文件整体逻辑。
+- 259: `"cover_image": dest.get("cover_image", "")` -> 执行当前语句，参与该文件整体逻辑。
+- 260: `}` -> 结束当前语句或代码块。
+- 261: `compatible_destinations.append(compatible_dest)` -> 执行当前语句，参与该文件整体逻辑。
+- 262: `(空行)` -> 空行，用于提升代码结构可读性。
+- 263: `with open(output_path, 'w', encoding='utf-8') as f:  # 路径配置with open(output_path, 'w', encoding  # 路径配置with open(output_path, 'w', encoding  # 路径配置with open(output_path, 'w', encoding` -> 执行当前语句，参与该文件整体逻辑。
+- 264: `json.dump(compatible_destinations, f, ensure_ascii=False, indent=2)  # JSON数据json.dump(compatible_destinations, f, ensure_ascii  # JSON数据json.dump(compatible_destinations, f, ensure_ascii  # JSON数据json.dump(compatible_destinations, f, ensure_ascii` -> 执行当前语句，参与该文件整体逻辑。
+- 265: `(空行)` -> 空行，用于提升代码结构可读性。
+- 266: `print(f"已创建兼容格式 JSON 文件：{output_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 267: `print(f"包含 {len(compatible_destinations)} 个景点")` -> 执行当前语句，参与该文件整体逻辑。
+- 268: `(空行)` -> 空行，用于提升代码结构可读性。
+- 269: `return compatible_destinations` -> 返回结果或提前结束当前流程。
+- 270: `(空行)` -> 空行，用于提升代码结构可读性。
+- 271: `(空行)` -> 空行，用于提升代码结构可读性。
+- 272: `def main():  # 主函数：程序入口点  # 主函数：程序入口点  # 主函数：程序入口点` -> 定义 Python 函数，封装可复用逻辑。
+- 273: `"""主函数"""` -> 执行当前语句，参与该文件整体逻辑。
+- 274: `markdown_path = Path("D:/travel-assistant/全国景点攻略大全.md")  # 路径配置markdown_path  # 路径配置markdown_path  # 路径配置markdown_path` -> 执行当前语句，参与该文件整体逻辑。
+- 275: `output_path = Path("D:/travel-assistant/destinations_from_md.json")  # 路径配置output_path  # 路径配置output_path  # 路径配置output_path` -> 执行当前语句，参与该文件整体逻辑。
+- 276: `compatible_path = Path("D:/travel-assistant/destinations_compatible.json")  # 路径配置compatible_path  # 路径配置compatible_path  # 路径配置compatible_path` -> 执行当前语句，参与该文件整体逻辑。
+- 277: `(空行)` -> 空行，用于提升代码结构可读性。
+- 278: `if not markdown_path.exists():` -> 条件判断分支，根据场景执行不同逻辑。
+- 279: `print(f"错误：Markdown 文件不存在：{markdown_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 280: `return` -> 返回结果或提前结束当前流程。
+- 281: `(空行)` -> 空行，用于提升代码结构可读性。
+- 282: `print(f"开始解析 Markdown 文件：{markdown_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 283: `(空行)` -> 空行，用于提升代码结构可读性。
+- 284: `try:` -> 异常处理逻辑，提升程序健壮性。
+- 285: `# 解析 Markdown 文件` -> 注释行，用于解释设计意图或使用说明。
+- 286: `destinations = parse_markdown_to_json(str(markdown_path))` -> 执行当前语句，参与该文件整体逻辑。
+- 287: `(空行)` -> 空行，用于提升代码结构可读性。
+- 288: `# 保存原始解析结果` -> 注释行，用于解释设计意图或使用说明。
+- 289: `with open(output_path, 'w', encoding='utf-8') as f:  # 路径配置with open(output_path, 'w', encoding  # 路径配置with open(output_path, 'w', encoding  # 路径配置with open(output_path, 'w', encoding` -> 执行当前语句，参与该文件整体逻辑。
+- 290: `json.dump(destinations, f, ensure_ascii=False, indent=2)  # JSON数据json.dump(destinations, f, ensure_ascii  # JSON数据json.dump(destinations, f, ensure_ascii  # JSON数据json.dump(destinations, f, ensure_ascii` -> 执行当前语句，参与该文件整体逻辑。
+- 291: `print(f"原始解析结果已保存到：{output_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 292: `(空行)` -> 空行，用于提升代码结构可读性。
+- 293: `# 创建兼容格式的 JSON` -> 注释行，用于解释设计意图或使用说明。
+- 294: `compatible_destinations = create_compatible_json(destinations, compatible_path)` -> 执行当前语句，参与该文件整体逻辑。
+- 295: `(空行)` -> 空行，用于提升代码结构可读性。
+- 296: `# 显示前几个景点作为示例` -> 注释行，用于解释设计意图或使用说明。
+- 297: `print("\n前5个景点示例：")` -> 执行当前语句，参与该文件整体逻辑。
+- 298: `for i, dest in enumerate(compatible_destinations[:5]):  # 遍历并获取索引  # 遍历并获取索引  # 遍历并获取索引` -> 循环处理集合或重复执行逻辑。
+- 299: `print(f"{i+1}. {dest['name']} - {dest['city']}, {dest['province']}")` -> 执行当前语句，参与该文件整体逻辑。
+- 300: `print(f"   描述：{dest['description'][:80]}...")` -> 执行当前语句，参与该文件整体逻辑。
+- 301: `print(f"   评分：{dest['rating']}，热度：{dest['popularity_score']}")` -> 执行当前语句，参与该文件整体逻辑。
+- 302: `print()` -> 执行当前语句，参与该文件整体逻辑。
+- 303: `(空行)` -> 空行，用于提升代码结构可读性。
+- 304: `print(f"\n解析完成！")` -> 执行当前语句，参与该文件整体逻辑。
+- 305: `print(f"1. 原始解析结果：{output_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 306: `print(f"2. 兼容格式 JSON：{compatible_path}")` -> 执行当前语句，参与该文件整体逻辑。
+- 307: `print(f"\n使用方法：")` -> 执行当前语句，参与该文件整体逻辑。
+- 308: `print(f"1. 备份原有的 destinations.json 文件")` -> 执行当前语句，参与该文件整体逻辑。
+- 309: `print(f"2. 将 {compatible_path} 重命名为 destinations.json")` -> 执行当前语句，参与该文件整体逻辑。
+- 310: `print(f"3. 运行导入脚本：python scripts/import_destinations_from_json.py")` -> 执行当前语句，参与该文件整体逻辑。
+- 311: `(空行)` -> 空行，用于提升代码结构可读性。
+- 312: `except Exception as e:` -> 异常处理逻辑，提升程序健壮性。
+- 313: `print(f"解析过程中出现错误：{e}")` -> 执行当前语句，参与该文件整体逻辑。
+- 314: `import traceback` -> 导入依赖模块，供当前文件使用。
+- 315: `traceback.print_exc()` -> 执行当前语句，参与该文件整体逻辑。
+- 316: `(空行)` -> 空行，用于提升代码结构可读性。
+- 317: `(空行)` -> 空行，用于提升代码结构可读性。
+- 318: `if __name__ == "__main__":` -> 条件判断分支，根据场景执行不同逻辑。
+- 319: `main()` -> 执行当前语句，参与该文件整体逻辑。
