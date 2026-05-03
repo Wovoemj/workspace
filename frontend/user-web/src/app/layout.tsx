@@ -2,6 +2,7 @@
 import { Metadata, Viewport } from 'next'
 // 导入全局样式文件
 import './globals.css'
+import { Toaster } from 'react-hot-toast'
 
 // 定义网站的元数据配置
 export const metadata: Metadata = {
@@ -69,6 +70,20 @@ export default function RootLayout({
         <div className="bg-wave-3" aria-hidden="true" />
         
         {children}
+        <Toaster position="top-center" toastOptions={{
+          duration: 3000,
+          style: {
+            borderRadius: '12px',
+            fontSize: '14px',
+            padding: '12px 20px',
+          },
+          success: {
+            iconTheme: { primary: '#10b981', secondary: 'white' },
+          },
+          error: {
+            iconTheme: { primary: '#ef4444', secondary: 'white' },
+          },
+        }} />
       </body>
     </html>
   )

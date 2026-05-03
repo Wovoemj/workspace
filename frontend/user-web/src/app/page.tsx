@@ -265,6 +265,13 @@ const dataCache = {
 
 const CACHE_DURATION = 5 * 60 * 1000 // 5分钟
 
+/** 清除数据缓存 */
+export function clearHomeCache() {
+  dataCache.destinations = null
+  dataCache.products = null
+  dataCache.timestamp = 0
+}
+
 export default function HomePage() {
   const router = useRouter()
 
@@ -298,8 +305,9 @@ export default function HomePage() {
   useEffect(() => {
     let cancelled = false
     async function run() {
-      // 检查缓存
-      if (dataCache.destinations && Date.now() - dataCache.timestamp < CACHE_DURATION) {
+      // 检查缓存（开发模式下每次刷新都重新加载）
+      const isDev = process.env.NODE_ENV === 'development'
+      if (!isDev && dataCache.destinations && Date.now() - dataCache.timestamp < CACHE_DURATION) {
         if (!cancelled) {
           setPopularDestinations(dataCache.destinations!)
           setPopularLoading(false)
@@ -336,8 +344,9 @@ export default function HomePage() {
   useEffect(() => {
     let cancelled = false
     async function run() {
-      // 检查缓存
-      if (dataCache.products && Date.now() - dataCache.timestamp < CACHE_DURATION) {
+      // 检查缓存（开发模式下每次刷新都重新加载）
+      const isDev = process.env.NODE_ENV === 'development'
+      if (!isDev && dataCache.products && Date.now() - dataCache.timestamp < CACHE_DURATION) {
         if (!cancelled) {
           setProducts(dataCache.products!)
           setProductsLoading(false)
@@ -347,8 +356,8 @@ export default function HomePage() {
 
       setProductsLoading(true)
       try {
-        const res = await fetch(`/api/products?status=active&sort=rating&limit=8`, { 
-          cache: 'default'
+        const res = await fetch(`/api/products?status=active&sort=rating&limit=8&_t=${Date.now()}`, { 
+          cache: 'no-store'
         })
         const data = await res.json().catch(() => ({}))
         const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]
@@ -372,7 +381,7 @@ export default function HomePage() {
 
   const categories = useMemo(
     () => [
-      { type: 'flight' as const, label: '机票', Icon: Plane, hint: '直达省心' },
+      { type: 'transport' as const, label: '机票', Icon: Plane, hint: '直达省心' },
       { type: 'hotel' as const, label: '酒店', Icon: Hotel, hint: '舒适住宿' },
       { type: 'ticket' as const, label: '门票', Icon: Ticket, hint: '热门景点' },
       { type: 'experience' as const, label: '当地体验', Icon: Drama, hint: '沉浸玩法' },
@@ -659,7 +668,7 @@ export default function HomePage() {
               {categories.map(({ type, label, Icon, hint }) => (
                 <Link
                   key={type}
-                  href={`/destinations?type=${type}`}
+                  href={`/products?category=${type}`}
                   className="group rounded-2xl border border-border/60 bg-gradient-to-b from-primary/5 to-transparent hover:shadow-md transition-all p-4"
                 >
                   <div className="flex items-start gap-3">

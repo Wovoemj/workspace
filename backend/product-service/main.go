@@ -33,6 +33,9 @@ type Product struct {
 	ReviewCount  int       `json:"review_count"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+	CoverImage   string    `json:"cover_image"`
+	Subtitle     string    `json:"subtitle"`
+	City         string    `json:"city" gorm:"column:subtitle"`
 }
 
 type Location struct {
@@ -292,6 +295,19 @@ func (s *Service) ListProducts(c *gin.Context) {
 		return
 	}
 
+	// 填充Images和Location（兼容旧数据）
+	for i := range products {
+		// 如果Images为空，用CoverImage填充
+		if len(products[i].Images) == 0 && products[i].CoverImage != "" {
+			products[i].Images = []string{products[i].CoverImage}
+		}
+		// 如果Location为空但有Subtitle，尝试提取城市名
+		if products[i].Location.City == "" && products[i].Subtitle != "" {
+			city := strings.TrimSuffix(products[i].Subtitle, "推荐")
+			products[i].Location = Location{City: city}
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"products": products,
 		"total":    len(products),
@@ -305,6 +321,16 @@ func (s *Service) GetProduct(c *gin.Context) {
 	if err := s.db.First(&product, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
+	}
+
+	// 填充Images（兼容旧数据）
+	if len(product.Images) == 0 && product.CoverImage != "" {
+		product.Images = []string{product.CoverImage}
+	}
+	// 填充Location
+	if product.Location.City == "" && product.Subtitle != "" {
+		city := strings.TrimSuffix(product.Subtitle, "推荐")
+		product.Location = Location{City: city}
 	}
 
 	c.JSON(http.StatusOK, product)

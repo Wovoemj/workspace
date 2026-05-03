@@ -307,8 +307,9 @@ export default function DestinationsPage() {
         if (typeof priceMax === 'number') params.set('budget_max', String(priceMax))
         if (debouncedKeyword.trim()) params.set('q', debouncedKeyword.trim())
 
+        params.append('_t', String(Date.now()))
         const res = await fetch(`/api/products?${params.toString()}`, { 
-          cache: 'default', 
+          cache: 'no-store', 
           signal: controller.signal 
         })
         const data = await res.json().catch(() => ({}))

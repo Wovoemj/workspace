@@ -96,7 +96,8 @@ function toProductCardProduct(p: ApiProduct): Product {
     status: (p.status === 'active' || p.status === 'inactive' || p.status === 'sold_out') 
       ? p.status 
       : p.status === 'active' ? 'active' : 'inactive',
-    images: p.images || [p.cover_image].filter(Boolean) as string[],
+    images: (p.images && p.images.length > 0) ? p.images : [p.cover_image].filter(Boolean) as string[],
+    cover_image: p.cover_image,
     location: typeof p.location === 'string' 
       ? { city: p.location, country: '中国', coordinates: { lat: 0, lng: 0 } }
       : p.location 
@@ -112,6 +113,9 @@ const TicketIcon = () => <div className="w-5 h-5">🎫</div>
 const HotelIcon = () => <div className="w-5 h-5">🏨</div>
 const TrainIcon = () => <div className="w-5 h-5">🚄</div>
 const FoodIcon = () => <div className="w-5 h-5">🍜</div>
+const ShoppingIcon = () => <div className="w-5 h-5">🛍️</div>
+const ExperienceIcon = () => <div className="w-5 h-5">🎯</div>
+const TourIcon = () => <div className="w-5 h-5">👥</div>
 
 // 筛选选项
 const CATEGORIES = [
@@ -175,6 +179,7 @@ export default function ProductsPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [sortOpen, setSortOpen] = useState(false)
 
   // 筛选状态
   const [filters, setFilters] = useState({
@@ -200,7 +205,7 @@ export default function ProductsPage() {
       })
 
       // 添加筛选参数
-      if (filters.category !== 'all') params.append('category', filters.category)
+      if (filters.category !== 'all') params.append('type', filters.category)
       if (filters.sortBy !== 'recommended') params.append('sort_by', filters.sortBy)
       if (filters.duration !== 'all') params.append('duration', filters.duration)
       if (filters.keyword) params.append('keyword', filters.keyword)
@@ -215,6 +220,8 @@ export default function ProductsPage() {
         if (priceRange.max !== null) params.append('max_price', priceRange.max.toString())
       }
 
+      // 加时间戳强制绕过后端缓存
+      params.append('_t', String(Date.now()))
       const response = await fetch(`/api/products?${params}`)
       
       if (!response.ok) {
@@ -478,7 +485,7 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-24 pb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* 左侧筛选栏 */}
           <div className="lg:w-1/4">
@@ -500,22 +507,60 @@ export default function ProductsPage() {
                 </div>
                 
                 {/* 排序 */}
-                <div className="relative">
-                  <select
-                    value={filters.sortBy}
-                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                    className="w-full sm:w-auto appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none bg-white"
+                <div className="relative" style={{ zIndex: 100 }} ref={(el) => {
+                  if (el) {
+                    const handleClickOutside = (e: MouseEvent) => {
+                      if (!el.contains(e.target as Node)) {
+                        setSortOpen(false)
+                      }
+                    }
+                    if (sortOpen) {
+                      document.addEventListener('mousedown', handleClickOutside)
+                    }
+                    return () => document.removeEventListener('mousedown', handleClickOutside)
+                  }
+                }}>
+                  <button
+                    onClick={() => setSortOpen(!sortOpen)}
+                    className="w-full sm:w-auto flex items-center gap-2 pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none bg-white relative"
                   >
-                    {SORT_OPTIONS.map(option => {
-                      const Icon = option.icon
+                    {(() => {
+                      const opt = SORT_OPTIONS.find(o => o.id === filters.sortBy)
+                      const Icon = opt?.icon || Sparkles
                       return (
-                        <option key={option.id} value={option.id}>
-                          {option.label}
-                        </option>
+                        <>
+                          <Icon className="h-4 w-4 text-gray-500" />
+                          <span>{opt?.label}</span>
+                        </>
                       )
-                    })}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    })()}
+                  </button>
+                  <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                  
+                  {sortOpen && (
+                    <div
+                      className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+                      style={{ zIndex: 9999 }}
+                    >
+                      {SORT_OPTIONS.map(option => {
+                        const Icon = option.icon
+                        const active = filters.sortBy === option.id
+                        return (
+                          <button
+                            key={option.id}
+                            onClick={() => {
+                              handleFilterChange('sortBy', option.id)
+                              setSortOpen(false)
+                            }}
+                            className={`w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-gray-50 transition-colors ${active ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
+                          >
+                            <Icon className={`h-4 w-4 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+                            {option.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 

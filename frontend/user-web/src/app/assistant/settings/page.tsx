@@ -140,7 +140,7 @@ export default function AssistantSettingsPage() {
   const [dhLoading, setDhLoading] = useState(false)
   const [vcLoading, setVcLoading] = useState(false)
 
-  const [previewTab, setPreviewTab] = useState<'model' | 'kb'>('model')
+  const [previewTab, setPreviewTab] = useState<'model' | 'kb'>('kb')
   const [previewExpanded, setPreviewExpanded] = useState(false)
   const [previewInput, setPreviewInput] = useState('')
   const [previewSending, setPreviewSending] = useState(false)

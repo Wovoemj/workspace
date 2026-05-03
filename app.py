@@ -223,6 +223,10 @@ def cache_response(timeout: int = 300, key_prefix: str = 'default') -> Callable[
     def decorator(f: F) -> F:
         @wraps(f)  # 保留原函数的元信息
         def decorated_function(*args: Any, **kwargs: Any) -> Any:
+            # 本地开发环境跳过缓存
+            if os.getenv('FLASK_ENV') != 'production':
+                return f(*args, **kwargs)
+
             # 生成缓存键：前缀:请求路径:请求参数的MD5哈希
             cache_key = f"{key_prefix}:{request.path}:{hashlib.md5(str(request.args).encode()).hexdigest()}"
 
@@ -332,7 +336,7 @@ db.init_app(app)
 # 导入数据模型（从 models.py 统一管理）
 from models import (
     Destination, User, Trip, TripItem, UserLike, Favorite,
-    Notification, UserFootprint, Product, DestinationComment,
+    Notification, UserFootprint, Product, DestinationComment, ProductReview,
     Page, SiteConfig, Menu, Order, OrderItem, ProductQA,
     TravelNote, TravelNoteLike, Coupon, UserCoupon,
     SupportTicket, TicketReply,
@@ -3151,6 +3155,151 @@ def init_db():
         logger.info(f"   - 行程：{Trip.query.count()}")
 
 
+def seed_travel_notes():
+    """如果游记表为空，则插入示例游记数据"""
+    with app.app_context():
+        if TravelNote.query.count() > 0:
+            return
+
+        logger.info("🌱 初始化示例游记数据...")
+
+        # 获取可用的用户和目的地
+        users = User.query.limit(6).all()
+        user_ids = [u.id for u in users] if users else [1]
+
+        dest_map = {}
+        for d in Destination.query.filter(Destination.name.in_([
+            '故宫博物院', '杭州西湖', '西安城墙', '丽江古城', '外滩',
+            '张家界武陵源', '鼓浪屿', '黄山', '九寨沟', '桂林漓江景区', '泰山'
+        ])).all():
+            dest_map[d.name] = d.id
+
+        notes_data = [
+            {
+                'title': '北京3日游 | 打卡故宫、长城、颐和园',
+                'content': '这次北京之行真的太充实了！第一天早上直奔故宫，红墙黄瓦的皇家气派让人震撼，建议提前在官网预约门票。\n\n第二天去了八达岭长城，虽然有点累，但站在烽火台上俯瞰群山的瞬间，一切都值得了。记得穿舒适的运动鞋！\n\n最后一天游览了颐和园，昆明湖的游船体验很棒，十七孔桥的日落简直美哭了。\n\n美食推荐：全聚德烤鸭、护国寺小吃、炸酱面。\n\n住宿建议住在东城区，交通便利，离景点近。',
+                'cover_image': 'scenic_images/故宫博物院/故宫博物院_2.jpg',
+                'tags': ['北京', '亲子游', '摄影'],
+                'dest_name': '故宫博物院',
+                'view_count': 2356,
+                'like_count': 156,
+            },
+            {
+                'title': '杭州西湖2日游攻略 | 必去景点推荐',
+                'content': '西湖真的是百去不厌！这次趁着春天来，苏堤春晓名不虚传，桃红柳绿倒映在湖面上，像一幅水墨画。\n\n第一天沿着白堤漫步，断桥残雪、平湖秋月一路打卡。下午去了雷峰塔，登塔远眺西湖全景。\n\n第二天游览了灵隐寺，香火很旺，环境清幽。随后去了龙井村品茶，正宗的西湖龙井清香扑鼻。\n\n推荐美食：西湖醋鱼、东坡肉、龙井虾仁、知味小笼。\n\n小贴士：周末游客很多，建议工作日来；自行车环湖骑行体验超棒！',
+                'cover_image': 'scenic_images/杭州西湖/杭州西湖_1.jpg',
+                'tags': ['杭州', '闺蜜游', '网红打卡'],
+                'dest_name': '杭州西湖',
+                'view_count': 1890,
+                'like_count': 98,
+            },
+            {
+                'title': '西安旅行 | 兵马俑、回民街、城墙深度游',
+                'content': '西安，一座承载着千年历史的古都。这次4天3夜的行程让我彻底爱上了这座城市。\n\n第一天参观兵马俑，一号坑的阵势让人叹为观止，建议请个讲解，否则会错过很多故事。\n\n晚上直奔回民街，肉夹馍、羊肉泡馍、凉皮……吃到扶墙出！\n\n第二天骑行西安城墙，全长13.7公里，租辆自行车边骑边看，古城风光尽收眼底。\n\n第三天去了大雁塔和陕西历史博物馆，藏品丰富，讲解员专业。晚上大唐不夜城的灯光秀绝对不能错过！\n\n交通：地铁很方便，大多数景点都能直达。',
+                'cover_image': 'scenic_images/西安城墙/西安城墙_1.jpg',
+                'tags': ['西安', '文化之旅', '美食'],
+                'dest_name': '西安城墙',
+                'view_count': 3201,
+                'like_count': 203,
+            },
+            {
+                'title': '丽江古城3天2夜 | 邂逅最美古镇',
+                'content': '丽江，一个让人来了就不想走的地方。古城的石板路、小桥流水、纳西民居，处处透着慵懒和浪漫。\n\n第一天在古城里闲逛，四方街、木府、狮子山观景台，每一个角落都适合拍照。\n\n第二天去了玉龙雪山，坐大索道到4506米，然后徒步到4680米的观景台。蓝月谷的水真的像蓝宝石一样！\n\n第三天体验了拉市海骑马走茶马古道，虽然有点颠，但沿途风景绝美。\n\n晚上一定要去酒吧街坐坐，听着民谣，喝着啤酒，感受丽江的夜生活。\n\n注意：古城内拉行李箱很不方便，建议住古城边缘。',
+                'cover_image': 'scenic_images/丽江古城/丽江古城_1.jpg',
+                'tags': ['丽江', '情侣游', '古镇'],
+                'dest_name': '丽江古城',
+                'view_count': 4102,
+                'like_count': 287,
+            },
+            {
+                'title': '上海外滩 | 魔都夜景全攻略',
+                'content': '来上海，外滩是必打卡的地方。无论是白天的万国建筑博览群，还是夜晚的霓虹璀璨，都让人流连忘返。\n\n推荐路线：从南京东路步行街出发，一路走到外滩观景台。傍晚时分到达，可以同时欣赏日落和夜景。\n\n拍照最佳机位：外滩观景台、外滩源、北外滩滨江绿地。如果想拍全景，可以坐轮渡到浦东，从对岸拍外滩。\n\n周边推荐：和平饭店下午茶、外滩三号晚餐、豫园城隍庙小吃。\n\nTips：节假日人超级多，建议工作日晚上来；冬天江风大，记得带外套。',
+                'cover_image': 'scenic_images/外滩/外滩_1.jpg',
+                'tags': ['上海', '周末去哪', '拍照圣地'],
+                'dest_name': '外滩',
+                'view_count': 5621,
+                'like_count': 334,
+            },
+            {
+                'title': '张家界国家森林公园 | 奇峰怪石之旅',
+                'content': '张家界，阿凡达悬浮山的灵感来源地，这里的奇峰怪石绝对会让你大开眼界！\n\n第一天游览袁家界，乾坤柱、天下第一桥、迷魂台，每个景点都让人惊叹大自然的鬼斧神工。\n\n第二天去了天子山，云海翻涌时仿佛置身仙境。贺龙公园的观景台视野极佳。\n\n第三天走金鞭溪，7.5公里的峡谷步道，溪水清澈，空气清新，还能偶遇野生猕猴（注意别投喂哦）。\n\n住宿建议住在武陵源区，离景区近，餐饮选择也多。\n\n交通：张家界荷花机场有直达景区的班车，约40分钟。',
+                'cover_image': 'scenic_images/张家界武陵源/张家界武陵源_1.jpg',
+                'tags': ['张家界', '徒步', '自然风光'],
+                'dest_name': '张家界武陵源',
+                'view_count': 1876,
+                'like_count': 145,
+            },
+            {
+                'title': '厦门鼓浪屿 | 文艺小清新之旅',
+                'content': '鼓浪屿，一个没有机动车的小岛，只有琴声、海浪和慢时光。\n\n第一天逛了菽庄花园和钢琴博物馆，花园依海而建，亭台楼阁错落有致。钢琴博物馆里收藏了上百架古董钢琴。\n\n第二天去了日光岩，虽然爬山有点累，但登顶后俯瞰全岛风光，红瓦绿树、碧海蓝天，美得像一幅画。\n\n岛上的小吃也很棒：叶氏麻糍、沈家肠粉、龙头路海蛎煎……\n\n注意事项：上岛需要提前在公众号预约船票；岛上全靠步行，穿双舒服的鞋很重要。',
+                'cover_image': 'scenic_images/鼓浪屿/鼓浪屿_1.jpg',
+                'tags': ['厦门', '小众景点', '海岛'],
+                'dest_name': '鼓浪屿',
+                'view_count': 2987,
+                'like_count': 198,
+            },
+            {
+                'title': '黄山日出云海 | 摄影师的必去之地',
+                'content': '黄山归来不看岳，这句话只有亲自来过才能真正体会。\n\n第一天从云谷寺坐索道上山，游览始信峰、黑虎松、梦笔生花。晚上住在山顶酒店，虽然贵但看日出超值。\n\n第二天凌晨4点半起床去光明顶等日出。当第一缕阳光穿透云海，金色的光芒洒在奇松怪石上，那种震撼无法用语言形容。\n\n下午去了西海大峡谷，网红小火车一定要坐，穿梭在云雾中的感觉太梦幻了。\n\n装备建议：登山杖、防滑鞋、雨衣（山顶天气多变）、保温杯。',
+                'cover_image': 'scenic_images/黄山/黄山_1.jpg',
+                'tags': ['黄山', '摄影', '登山'],
+                'dest_name': '黄山',
+                'view_count': 2345,
+                'like_count': 167,
+            },
+            {
+                'title': '九寨沟秋天 | 童话般的彩色世界',
+                'content': '秋天的九寨沟，是大自然最绚烂的调色盘。\n\n五花海的水呈现出蓝、绿、黄、橙等多种颜色，像一块巨大的宝石镶嵌在山谷中。珍珠滩瀑布水流湍急，溅起的水珠在阳光下像珍珠一样闪闪发光。\n\n长海是九寨沟最大的海子，湖水碧绿深邃，周围的雪山倒映其中，美得让人窒息。\n\n诺日朗瀑布是西游记的取景地，宽达300米的瀑布群气势恢宏。\n\n最佳游览时间：10月中下旬，彩林最美的时候。\n\n注意：海拔较高，部分人会有轻微高反；景区内不能住宿，建议住沟口。',
+                'cover_image': 'scenic_images/九寨沟/九寨沟_1.jpg',
+                'tags': ['九寨沟', '秋天', '自然风光'],
+                'dest_name': '九寨沟',
+                'view_count': 4567,
+                'like_count': 389,
+            },
+            {
+                'title': '桂林山水 | 泛舟漓江的悠闲时光',
+                'content': '桂林山水甲天下，漓江山水甲桂林。这次来桂林，最大的感受就是：这里的山水果然名不虚传！\n\n第一天从桂林坐船游漓江到阳朔，4小时的船程，两岸奇峰倒映在碧绿的江水中，像一幅徐徐展开的水墨长卷。九马画山、黄布倒影……每一处的风景都让人沉醉。\n\n第二天在阳朔租了辆电动车，沿着遇龙河骑行，田园牧歌般的风光让人心旷神怡。下午体验了竹筏漂流，慢慢悠悠地漂在河上，看着两岸的青山绿水，时间仿佛都静止了。\n\n美食推荐：桂林米粉、啤酒鱼、荔浦芋扣肉。\n\nTips：漓江游船建议选三星或四星船，体验更好。',
+                'cover_image': 'scenic_images/桂林漓江景区/桂林漓江景区_1.jpg',
+                'tags': ['桂林', '周末游', '省钱攻略'],
+                'dest_name': '桂林漓江景区',
+                'view_count': 3124,
+                'like_count': 234,
+            },
+            {
+                'title': '泰山登顶 | 看日出云海的震撼之旅',
+                'content': '泰山，五岳之首，这次终于完成了登顶的心愿！\n\n选择了夜爬路线，晚上10点从红门出发，一路经过中天门、十八盘。十八盘那段真的很陡，台阶又窄又长，建议大家带登山杖，能省很多力。\n\n凌晨4点左右到达南天门，稍作休息后继续前往日观峰。虽然又冷又累，但当太阳从云海中缓缓升起，金色的光芒洒满群山的那一刻，所有的辛苦都化为了感动。\n\n下山时选择了桃花峪路线，风景秀丽，比原路返回轻松不少。\n\n必备物品：头灯/手电筒、厚外套（山顶很冷）、手套、热水、高热量零食。',
+                'cover_image': 'scenic_images/泰山/泰山_1.jpg',
+                'tags': ['泰山', '登山', '日出'],
+                'dest_name': '泰山',
+                'view_count': 2789,
+                'like_count': 201,
+            },
+        ]
+
+        import random
+        for idx, note_data in enumerate(notes_data):
+            dest_id = dest_map.get(note_data['dest_name'])
+            if not dest_id:
+                continue
+            user_id = user_ids[idx % len(user_ids)]
+            note = TravelNote(
+                user_id=user_id,
+                destination_id=dest_id,
+                title=note_data['title'],
+                content=note_data['content'],
+                cover_image=note_data['cover_image'],
+                tags=json.dumps(note_data['tags']),
+                view_count=note_data['view_count'],
+                like_count=note_data['like_count'],
+                status='published',
+                created_at=datetime.now() - timedelta(days=random.randint(10, 120))
+            )
+            db.session.add(note)
+
+        db.session.commit()
+        logger.info(f"✅ 已插入 {TravelNote.query.count()} 条示例游记")
+
+
 # ==================== 产品API ====================
 
 @app.route('/api/products', methods=['GET'])
@@ -3301,6 +3450,71 @@ def get_product(id: int):
     """获取单个产品详情"""
     product = Product.query.get_or_404(id)
     return jsonify({'success': True, 'product': product.to_dict()})
+
+
+@app.route('/api/products/<int:id>/reviews', methods=['GET'])
+@rate_limit('product_reviews', limit=100)
+def get_product_reviews(id: int):
+    """获取产品评价列表"""
+    product = Product.query.get_or_404(id)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    reviews = ProductReview.query.filter_by(product_id=id).order_by(ProductReview.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    return jsonify({
+        'success': True,
+        'reviews': [r.to_dict() for r in reviews.items],
+        'total': reviews.total,
+        'page': page,
+        'per_page': per_page,
+    })
+
+
+@app.route('/api/products/<int:id>/reviews', methods=['POST'])
+@rate_limit('product_review_create', limit=20)
+def create_product_review(id: int):
+    """提交产品评价（需登录）"""
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return jsonify({'success': False, 'error': '未授权'}), 401
+
+    token = auth_header[7:]
+    try:
+        payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
+        user_id = payload.get('user_id')
+    except jwt.InvalidTokenError:
+        return jsonify({'success': False, 'error': '无效的token'}), 401
+
+    product = Product.query.get_or_404(id)
+    data = request.get_json() or {}
+    rating = data.get('rating', 5)
+    content = (data.get('content') or '').strip()
+    images = data.get('images', [])
+
+    if not content:
+        return jsonify({'success': False, 'error': '评价内容不能为空'}), 400
+    if not isinstance(rating, int) or rating < 1 or rating > 5:
+        return jsonify({'success': False, 'error': '评分必须是1-5的整数'}), 400
+
+    review = ProductReview(
+        product_id=id,
+        user_id=user_id,
+        rating=rating,
+        content=content,
+        images=json.dumps(images, ensure_ascii=False) if images else None,
+    )
+    db.session.add(review)
+
+    # 更新产品平均评分
+    avg_rating = db.session.query(db.func.avg(ProductReview.rating)).filter_by(product_id=id).scalar()
+    if avg_rating is not None:
+        product.rating = round(float(avg_rating), 1)
+
+    db.session.commit()
+    return jsonify({'success': True, 'review': review.to_dict()})
+
+
 
 
 # ==================== 通知API ====================
@@ -5071,6 +5285,7 @@ def create_order():
             status='pending'
         )
         db.session.add(order)
+        db.session.flush()  # 获取自增 order.id
         
         # 创建订单项
         for item in items:
@@ -5155,7 +5370,11 @@ def get_order_detail(order_no):
         except jwt.InvalidTokenError:
             return jsonify({'success': False, 'error': '无效的token'}), 401
         
-        order = Order.query.filter_by(order_no=order_no, user_id=user_id).first()
+        query = Order.query.filter_by(user_id=user_id)
+        if order_no.isdigit():
+            order = query.filter(db.or_(Order.order_no == order_no, Order.id == int(order_no))).first()
+        else:
+            order = query.filter_by(order_no=order_no).first()
         if not order:
             return jsonify({'success': False, 'error': '订单不存在'}), 404
         
@@ -5186,7 +5405,11 @@ def cancel_order(order_no):
         except jwt.InvalidTokenError:
             return jsonify({'success': False, 'error': '无效的token'}), 401
         
-        order = Order.query.filter_by(order_no=order_no, user_id=user_id).first()
+        query = Order.query.filter_by(user_id=user_id)
+        if order_no.isdigit():
+            order = query.filter(db.or_(Order.order_no == order_no, Order.id == int(order_no))).first()
+        else:
+            order = query.filter_by(order_no=order_no).first()
         if not order:
             return jsonify({'success': False, 'error': '订单不存在'}), 404
         
@@ -5221,7 +5444,11 @@ def pay_order(order_no):
         except jwt.InvalidTokenError:
             return jsonify({'success': False, 'error': '无效的token'}), 401
         
-        order = Order.query.filter_by(order_no=order_no, user_id=user_id).first()
+        query = Order.query.filter_by(user_id=user_id)
+        if order_no.isdigit():
+            order = query.filter(db.or_(Order.order_no == order_no, Order.id == int(order_no))).first()
+        else:
+            order = query.filter_by(order_no=order_no).first()
         if not order:
             return jsonify({'success': False, 'error': '订单不存在'}), 404
         
@@ -5259,8 +5486,8 @@ def get_database_tables():
         
         table_info = []
         for table_name in tables:
-            # 获取表的列信息
-            columns_result = db.session.execute(text(f"PRAGMA table_info({table_name})"))
+            # 获取表的列信息（表名加引号防止保留字冲突）
+            columns_result = db.session.execute(text(f'PRAGMA table_info("{table_name}")'))
             columns = []
             for col in columns_result:
                 columns.append({
@@ -5272,8 +5499,8 @@ def get_database_tables():
                     'pk': bool(col[5])
                 })
             
-            # 获取表的行数
-            count_result = db.session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+            # 获取表的行数（表名加引号防止保留字冲突）
+            count_result = db.session.execute(text(f'SELECT COUNT(*) FROM "{table_name}"'))
             row_count = count_result.scalar()
             
             table_info.append({
@@ -5306,16 +5533,16 @@ def get_table_data(table_name):
         if not all(c in allowed_chars for c in table_name):
             return jsonify({'success': False, 'error': '无效的表名'}), 400
         
-        # 获取数据
+        # 获取数据（表名加引号防止保留字冲突）
         data_result = db.session.execute(text(
-            f"SELECT * FROM {table_name} LIMIT :limit OFFSET :offset"
+            f'SELECT * FROM "{table_name}" LIMIT :limit OFFSET :offset'
         ), {'limit': per_page, 'offset': offset})
         
         columns = data_result.keys()
         rows = [dict(zip(columns, row)) for row in data_result]
         
-        # 获取总数
-        count_result = db.session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+        # 获取总数（表名加引号防止保留字冲突）
+        count_result = db.session.execute(text(f'SELECT COUNT(*) FROM "{table_name}"'))
         total = count_result.scalar()
         
         return jsonify({
@@ -5333,10 +5560,172 @@ def get_table_data(table_name):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# ==================== 数据库管理 - 增删改 API ====================
+
+def _get_table_columns(table_name: str):
+    """获取表列信息"""
+    result = db.session.execute(text(f'PRAGMA table_info("{table_name}")'))
+    cols = []
+    pk_col = None
+    for col in result:
+        cols.append({
+            'name': col[1],
+            'type': col[2],
+            'notnull': bool(col[3]),
+            'default': col[4],
+            'pk': bool(col[5])
+        })
+        if bool(col[5]):
+            pk_col = col[1]
+    return cols, pk_col
+
+
+def _validate_table_name(table_name: str):
+    allowed = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+    return all(c in allowed for c in table_name)
+
+
+@app.route('/api/admin/database/tables/<table_name>/row', methods=['POST'])
+@rate_limit('db_insert', limit=30)
+def insert_table_row(table_name: str):
+    """插入新行"""
+    try:
+        if not _validate_table_name(table_name):
+            return jsonify({'success': False, 'error': '无效的表名'}), 400
+
+        data = request.get_json() or {}
+        if not data:
+            return jsonify({'success': False, 'error': '数据不能为空'}), 400
+
+        cols, pk_col = _get_table_columns(table_name)
+        col_names = [c['name'] for c in cols]
+
+        # 过滤出有效字段
+        valid_data = {}
+        for k, v in data.items():
+            if k in col_names:
+                # JSON 对象/数组转为字符串
+                if isinstance(v, (dict, list)):
+                    v = json.dumps(v, ensure_ascii=False)
+                valid_data[k] = v
+
+        if not valid_data:
+            return jsonify({'success': False, 'error': '没有有效字段'}), 400
+
+        keys = list(valid_data.keys())
+        placeholders = ', '.join([f':{k}' for k in keys])
+        columns_str = ', '.join([f'"{k}"' for k in keys])
+
+        sql = f'INSERT INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
+        db.session.execute(text(sql), valid_data)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': '插入成功'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"插入数据失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/database/tables/<table_name>/row', methods=['PUT'])
+@rate_limit('db_update', limit=30)
+def update_table_row(table_name: str):
+    """更新行（需要主键）"""
+    try:
+        if not _validate_table_name(table_name):
+            return jsonify({'success': False, 'error': '无效的表名'}), 400
+
+        data = request.get_json() or {}
+        if not data or 'where' not in data or 'values' not in data:
+            return jsonify({'success': False, 'error': '需要 where 和 values 字段'}), 400
+
+        cols, pk_col = _get_table_columns(table_name)
+        col_names = [c['name'] for c in cols]
+
+        # 构建 SET 子句
+        set_clauses = []
+        set_params = {}
+        for k, v in data['values'].items():
+            if k in col_names:
+                # 密码字段自动哈希处理
+                if k == 'password_hash' and v and not v.startswith('scrypt:'):
+                    v = generate_password_hash(str(v))
+                if isinstance(v, (dict, list)):
+                    v = json.dumps(v, ensure_ascii=False)
+                param_key = f'set_{k}'
+                set_clauses.append(f'"{k}" = :{param_key}')
+                set_params[param_key] = v
+
+        if not set_clauses:
+            return jsonify({'success': False, 'error': '没有有效更新字段'}), 400
+
+        # 构建 WHERE 子句
+        where_clauses = []
+        where_params = {}
+        for k, v in data['where'].items():
+            if k in col_names:
+                param_key = f'where_{k}'
+                where_clauses.append(f'"{k}" = :{param_key}')
+                where_params[param_key] = v
+
+        if not where_clauses:
+            return jsonify({'success': False, 'error': 'WHERE 条件不能为空'}), 400
+
+        sql = f'UPDATE "{table_name}" SET {", ".join(set_clauses)} WHERE {" AND ".join(where_clauses)}'
+        params = {**set_params, **where_params}
+        db.session.execute(text(sql), params)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': '更新成功'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"更新数据失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/database/tables/<table_name>/row', methods=['DELETE'])
+@rate_limit('db_delete', limit=30)
+def delete_table_row(table_name: str):
+    """删除行（需要主键）"""
+    try:
+        if not _validate_table_name(table_name):
+            return jsonify({'success': False, 'error': '无效的表名'}), 400
+
+        data = request.get_json() or {}
+        if not data:
+            return jsonify({'success': False, 'error': '需要 WHERE 条件'}), 400
+
+        cols, pk_col = _get_table_columns(table_name)
+        col_names = [c['name'] for c in cols]
+
+        where_clauses = []
+        where_params = {}
+        for k, v in data.items():
+            if k in col_names:
+                param_key = f'where_{k}'
+                where_clauses.append(f'"{k}" = :{param_key}')
+                where_params[param_key] = v
+
+        if not where_clauses:
+            return jsonify({'success': False, 'error': 'WHERE 条件不能为空'}), 400
+
+        sql = f'DELETE FROM "{table_name}" WHERE {" AND ".join(where_clauses)}'
+        db.session.execute(text(sql), where_params)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': '删除成功'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"删除数据失败: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ==================== 应用启动入口 ====================
 if __name__ == '__main__':
     # 调用数据库初始化函数
     init_db()
+    # 初始化示例游记数据
+    seed_travel_notes()
 
     # 从环境变量读取端口，默认5001
     port = int(os.getenv('PORT', 5001))

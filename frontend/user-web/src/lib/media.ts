@@ -23,7 +23,9 @@ export const FALLBACK_MEDIA_PATH = 'scenic_images/__auto__/placeholder.png'
  * // 返回: '/api/media?path=scenic_images%2Fbeijing.jpg'
  */
 export function apiMediaUrl(path: string) {
-  return `/api/media?path=${encodeURIComponent(path)}`
+  // 始终使用完整 URL，避免 Next.js SSR 和客户端 hydration 不一致
+  const base = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+  return `${base}/api/media?path=${encodeURIComponent(path)}`
 }
 
 /**
@@ -72,7 +74,9 @@ export function onImgErrorUseFallback(e: SyntheticEvent<HTMLImageElement>) {
   const fallback = apiMediaUrl(FALLBACK_MEDIA_PATH)
   
   // 如果当前src已经是占位图，跳过避免循环
-  if (img.src && img.src.includes(FALLBACK_MEDIA_PATH)) return
+  // 使用 encodeURIComponent 后的路径来匹配，因为 URL 是编码的
+  const encodedFallback = encodeURIComponent(FALLBACK_MEDIA_PATH)
+  if (img.src && img.src.includes(encodedFallback)) return
   
   // 替换为占位图
   img.src = fallback

@@ -603,6 +603,21 @@ class Order(db.Model):
     # 关联的订单项列表，级联删除
     items = db.relationship('OrderItem', backref='order', cascade='all, delete-orphan')
 
+    def to_dict(self):
+        """将订单模型转换为字典格式"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'order_no': self.order_no,
+            'total_amount': self.total_amount,
+            'status': self.status,
+            'payment_method': self.payment_method,
+            'payment_time': self.payment_time.isoformat() if self.payment_time else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'items': [item.to_dict() for item in self.items] if self.items else []
+        }
+
 
 class OrderItem(db.Model):
     """订单明细模型 - 存储订单中的具体商品项"""
@@ -625,6 +640,20 @@ class OrderItem(db.Model):
     # 预订详情，JSON格式字符串
     booking_details = db.Column(db.Text)
 
+    def to_dict(self):
+        """将订单项模型转换为字典格式"""
+        return {
+            'id': self.id,
+            'order_id': self.order_id,
+            'product_id': self.product_id,
+            'product_name': self.product_name,
+            'product_type': self.product_type,
+            'quantity': self.quantity,
+            'unit_price': self.unit_price,
+            'total_price': self.total_price,
+            'booking_details': self.booking_details
+        }
+
 
 class Product(db.Model):
     """门票产品模型 - 存储景点门票产品信息"""
@@ -642,10 +671,16 @@ class Product(db.Model):
     destination_id = db.Column(db.Integer, db.ForeignKey('destinations.id'), nullable=True, index=True)
     # 产品类别，字符串，默认'ticket'（门票）
     category = db.Column(db.String(50), default='ticket', index=True)
+    # 产品类型（兼容前端），与 category 保持一致
+    type = db.Column(db.String(20), default='ticket')
     # 基础价格，浮点数，默认0.0
     base_price = db.Column(db.Float, default=0.0)
     # 折扣价格，浮点数
     discount_price = db.Column(db.Float, nullable=True)
+    # 售价（兼容直接定价场景）
+    price = db.Column(db.Float, default=0.0)
+    # 位置信息（JSON格式）
+    location = db.Column(db.Text)
     # 总库存，整数，默认0
     inventory_total = db.Column(db.Integer, default=0)
     # 已售数量，整数，默认0
@@ -676,6 +711,9 @@ class Product(db.Model):
 
     def to_dict(self):
         """将产品模型转换为字典格式"""
+        # 优先使用 price 字段，其次折扣价，最后基础价
+        display_price = self.price if self.price else (self.discount_price if self.discount_price else self.base_price)
+        d = self.destination
         return {
             'id': self.id,
             'name': self.name,
@@ -683,8 +721,9 @@ class Product(db.Model):
             'description': self.description,
             'destination_id': self.destination_id,
             'category': self.category,
-            # 优先显示折扣价，如果没有则显示基础价
-            'price': self.discount_price if self.discount_price else self.base_price,
+            'type': self.type or self.category,
+            # 优先显示 price，其次折扣价，最后基础价
+            'price': display_price,
             'base_price': self.base_price,
             'discount_price': self.discount_price,
             # 计算可用库存
@@ -699,6 +738,53 @@ class Product(db.Model):
             'rating': self.rating,
             'sold_count': self.sold_count,
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            # 解析位置信息
+            'location': json.loads(self.location) if self.location else None,
+            # 关联景点信息（用于行程展示）
+            'destination': {
+                'id': d.id,
+                'name': d.name,
+                'city': d.city,
+                'open_time': d.open_time,
+                'description': d.description,
+                'ticket_price': d.ticket_price,
+            } if d else None,
+        }
+
+
+class ProductReview(db.Model):
+    """产品评价模型 - 存储用户对产品的评价"""
+    __tablename__ = 'product_review'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    rating = db.Column(db.Integer, default=5, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    images = db.Column(db.Text)  # JSON 格式存储图片 URL 列表
+    created_at = db.Column(db.DateTime, default=datetime.now, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # 关联关系
+    author = db.relationship('User', foreign_keys=[user_id], lazy='joined')
+    product = db.relationship('Product', foreign_keys=[product_id], lazy='joined')
+
+    def to_dict(self):
+        author = self.author
+        return {
+            'id': self.id,
+            'product_id': self.product_id,
+            'user_id': self.user_id,
+            'rating': self.rating,
+            'content': self.content,
+            'images': json.loads(self.images) if self.images else [],
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'user': {
+                'id': str(author.id) if author else str(self.user_id),
+                'nickname': getattr(author, 'nickname', '') if author else '',
+                'avatar_url': getattr(author, 'avatar', None) if author else None,
+            },
         }
 
 

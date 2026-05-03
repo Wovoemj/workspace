@@ -54,24 +54,34 @@ export interface Product {
   id: string
   type: 'flight' | 'hotel' | 'ticket' | 'experience'
   name: string
+  subtitle?: string
   description: string
   price: number
   original_price?: number
+  base_price?: number
+  discount_price?: number
   inventory: number
+  inventory_available?: number
   tags: string[]
   metadata: ProductMetadata
   status: 'active' | 'inactive' | 'sold_out'
   images: string[]
+  // 兼容 Flask API 的 cover_image 字段
+  cover_image?: string
+  // 兼容 Flask API 的 category/type 字段
+  category?: string
   location: {
     city: string
     country: string
-    coordinates: {
+    address?: string
+    coordinates?: {
       lat: number
       lng: number
-    }
+    } | null
   }
   rating: number
   review_count: number
+  sold_count?: number
 }
 
 /**

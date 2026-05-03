@@ -20,7 +20,6 @@
 
  /** 景点详情页骨架屏 */
 export function DestinationDetailSkeleton() {
-export function DestinationDetailSkeleton() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* 返回按钮 */}

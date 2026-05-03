@@ -38,7 +38,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import { Loader2, CreditCard, Calendar, Clock, MapPin, Package, CheckCircle, XCircle, RefreshCw } from 'lucide-react'
+import { Loader2, CreditCard, Calendar, Clock, MapPin, Package, CheckCircle, XCircle, RefreshCw, ArrowLeft } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { useUserStore } from '@/store'
@@ -48,10 +48,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
 
 
 const statusMap: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-        pending: { label: '待支？', color: 'text-orange-500 bg-orange-50', icon: <CreditCard className="h-4 w-4" /> },
-        paid: { label: '已支？', color: 'text-green-500 bg-green-50', icon: <CheckCircle className="h-4 w-4" /> },
-        cancelled: { label: '已取？', color: 'text-gray-500 bg-gray-50', icon: <XCircle className="h-4 w-4" /> },
-        refunded: { label: '已退？', color: 'text-blue-500 bg-blue-50', icon: <RefreshCw className="h-4 w-4" /> },
+        pending: { label: '待支付', color: 'text-orange-500 bg-orange-50', icon: <CreditCard className="h-4 w-4" /> },
+        paid: { label: '已支付', color: 'text-green-500 bg-green-50', icon: <CheckCircle className="h-4 w-4" /> },
+        cancelled: { label: '已取消', color: 'text-gray-500 bg-gray-50', icon: <XCircle className="h-4 w-4" /> },
+        refunded: { label: '已退款', color: 'text-blue-500 bg-blue-50', icon: <RefreshCw className="h-4 w-4" /> },
 }
 
 export default function OrdersPage() {
@@ -96,7 +96,7 @@ export default function OrdersPage() {
 
   const onLogout = () => {
     logout()
-                toast.success('已退出登？')
+                toast.success('已退出登录')
     router.push('/')
   }
 
@@ -122,24 +122,25 @@ export default function OrdersPage() {
         throw new Error(data?.error || '支付请求失败')
       }
 
-      // 模拟支付流程：直接调用回调完成支?
-      const payRes = await fetch(`${API_BASE_URL}${data.payment.pay_url}/callback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_no: data.payment.order_no }),
-      })
-      const payData = await payRes.json().catch(() => ({}))
-
-      if (payData?.success) {
-                                toast.success('支付成功？')
-        // 刷新订单列表
-        const refreshRes = await fetch(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${token}` } })
-        const refreshData = await refreshRes.json().catch(() => ({}))
-        if (refreshData?.success) {
-          setOrders(refreshData.orders)
+      // 如果后端返回了模拟支付链接，走回调流程
+      if (data.payment?.pay_url) {
+        const payRes = await fetch(`${API_BASE_URL}${data.payment.pay_url}/callback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_no: data.payment.order_no }),
+        })
+        const payData = await payRes.json().catch(() => ({}))
+        if (!payData?.success) {
+          throw new Error(payData?.error || '支付失败')
         }
-      } else {
-        throw new Error(payData?.error || '支付失败')
+      }
+
+      toast.success('支付成功')
+      // 刷新订单列表
+      const refreshRes = await fetch(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${token}` } })
+      const refreshData = await refreshRes.json().catch(() => ({}))
+      if (refreshData?.success) {
+        setOrders(refreshData.orders)
       }
     } catch (e: any) {
       toast.error(e?.message || '支付失败')
@@ -188,34 +189,49 @@ export default function OrdersPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="card p-6">
             <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">我的订单</h1>
-                <p className="text-gray-600 mt-2">订单来自后端 `/api/orders`</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.back()}
+                  className="p-2 rounded-xl border border-gray-200 bg-white text-gray-500 hover:text-gray-800 hover:border-gray-300 hover:shadow-sm transition-all duration-200 active:scale-95"
+                  title="返回"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">我的订单</h1>
+                  <p className="text-gray-600 mt-2">订单来自后端 `/api/orders`</p>
+                </div>
               </div>
               {isAuthenticated ? (
-                <button onClick={onLogout} className="btn btn-outline">
-                  退出登?
+                <button
+                  onClick={onLogout}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl shadow-sm hover:text-red-600 hover:border-red-200 hover:bg-red-50 hover:shadow-md transition-all duration-200 active:scale-95"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M18 12h4m0 0l-3-3m3 3l-3 3" />
+                  </svg>
+                  退出登录
                 </button>
               ) : null}
             </div>
 
             {!isAuthenticated ? (
               <div className="mt-6 card p-4 bg-white border border-gray-200 text-gray-700">
-                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看订单?
+                请先 <Link href="/login" className="underline text-blue-600">登录</Link> 后查看订单
               </div>
             ) : (
               <div className="mt-6">
                 {loading ? (
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                    <span className="ml-2 text-gray-600">加载订单?..</span>
+                    <span className="ml-2 text-gray-600">加载订单中...</span>
                   </div>
                 ) : orders.length === 0 ? (
                   <div className="card p-8 text-center text-gray-600 bg-white">
                     <Package className="h-12 w-12 mx-auto text-gray-300 mb-3" />
                     <p>暂无订单</p>
                     <Link href="/products" className="text-blue-600 hover:underline mt-2 inline-block">
-                      去逛逛商?
+                      去逛逛商城
                     </Link>
                   </div>
                 ) : (
@@ -289,7 +305,7 @@ export default function OrdersPage() {
                                   {cancellingOrderId === o.id ? (
                                     <span className="flex items-center gap-1">
                                       <Loader2 className="h-3 w-3 animate-spin" />
-                                      取消?..
+                                      取消中...
                                     </span>
                                   ) : (
                                     '取消订单'
@@ -303,7 +319,7 @@ export default function OrdersPage() {
                                   {payingOrderId === o.id ? (
                                     <>
                                       <Loader2 className="h-4 w-4 animate-spin" />
-                                      支付?..
+                                      支付中...
                                     </>
                                   ) : (
                                     <>
@@ -319,7 +335,7 @@ export default function OrdersPage() {
                                 href={`/orders/${o.id}/ticket`}
                                 className="px-5 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
                               >
-                                查看电子?
+                                查看电子票
                               </Link>
                             )}
                           </div>

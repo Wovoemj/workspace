@@ -61,8 +61,9 @@ export function ProductCard({ product, onClick, className = '', variant = 'defau
   }
 
   const getImageSrc = (p: Product) => {
-    const img = p.images?.[0]
-    return resolveCoverSrc(img || null)
+    // 优先使用 images[0]，其次用 cover_image
+    const img = (p.images && p.images.length > 0) ? p.images[0] : p.cover_image || null
+    return resolveCoverSrc(img)
   }
 
   const typeMeta = getTypeMeta(product.type)
@@ -95,7 +96,6 @@ export function ProductCard({ product, onClick, className = '', variant = 'defau
           src={getImageSrc(product)}
           alt={product.name}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-          loading="lazy"
           onLoad={() => setImgLoaded(true)}
           onError={(e) => {
             onImgErrorUseFallback(e)
@@ -114,7 +114,7 @@ export function ProductCard({ product, onClick, className = '', variant = 'defau
           </div>
         </div>
 
-        {product.inventory === 0 && (
+        {product.inventory === 0 && product.status === 'sold_out' && (
           <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
             <span className="text-white font-bold text-lg">已售罄</span>
           </div>
@@ -127,7 +127,7 @@ export function ProductCard({ product, onClick, className = '', variant = 'defau
             <h3 className={`font-bold truncate ${isFeatured ? 'text-base' : 'text-[15px]'}`}>{product.name}</h3>
             <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
-              <span className="truncate">{product.location.city}</span>
+              <span className="truncate">{product.location?.city || product.city || product.subtitle?.replace('推荐', '') || '未知'}</span>
             </div>
           </div>
 

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(apt-get update *)",
+      "Bash(apt-get install *)",
+      "Bash(pip3 list *)",
+      "Bash(npm --version)",
+      "Bash(apt list *)",
+      "Bash(npm install *)",
+      "Read(//mnt/c/Users/32741/Documents/**)",
+      "Read(//mnt/d/**)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

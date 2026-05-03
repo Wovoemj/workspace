@@ -198,6 +198,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     if (!product) return []
     const imgs = product.images?.length ? product.images : []
     if (imgs.length) return imgs
+    // 没有 images 时回退到 cover_image
+    if (product.cover_image) return [product.cover_image]
     return [undefined as unknown as string]
   }, [product])
 
@@ -212,7 +214,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       setLoadingProduct(true)
       setProductError(null)
       try {
-        const res = await fetch(`${API_BASE_URL}/api/products/${productId}`, { cache: 'no-store' })
+        const res = await fetch(`${API_BASE_URL}/api/products/${productId}?_t=${Date.now()}`, { cache: 'no-store' })
         const data = await res.json().catch(() => ({}))
         const p = (data?.product ?? data?.products ?? data) as Product
         if (!cancelled) setProduct(p || null)
@@ -237,7 +239,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       try {
         const res = await fetch(`${API_BASE_URL}/api/products/${productId}/reviews`, { cache: 'no-store' })
         const data = await res.json().catch(() => ({}))
-        const list = (data?.reviews ?? data?.items ?? data?.data ?? []) as ProductReview[]
+        // API 返回结构: { success, result: { reviews } }
+        const list = (data?.result?.reviews ?? data?.reviews ?? data?.items ?? data?.data ?? []) as ProductReview[]
         if (!cancelled) setReviews(Array.isArray(list) ? list : [])
       } catch {
         if (!cancelled) setReviews([])
@@ -281,7 +284,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           { cache: 'no-store' },
         )
         const data = await res.json().catch(() => ({}))
-        const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]
+          const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]
         const filtered = Array.isArray(list)
           ? list.filter((p) => String(p.id) !== String(product?.id || '')).slice(0, 6)
           : []
@@ -569,17 +572,27 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
             </div>
           ) : product ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left / Main */}
-              <div className="lg:col-span-2 min-w-0">
-                {/* Gallery */}
-                <section className="rounded-3xl bg-card/70 border border-border/60 shadow-sm overflow-hidden">
-                  <div className="p-4 sm:p-5">
-                    <div className="flex items-start justify-between gap-4 flex-wrap">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-11 w-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                          {typeBadge.icon}
-                        </div>
+            <div>
+              {/* 返回按钮 */}
+              <button
+                onClick={() => router.back()}
+                className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                type="button"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                返回
+              </button>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left / Main */}
+                <div className="lg:col-span-2 min-w-0">
+                  {/* Gallery */}
+                  <section className="rounded-3xl bg-card/70 border border-border/60 shadow-sm overflow-hidden">
+                    <div className="p-4 sm:p-5">
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="h-11 w-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                            {typeBadge.icon}
+                          </div>
                         <div className="min-w-0">
                           <h1 className="text-xl sm:text-2xl font-extrabold truncate">{product.name}</h1>
                           <div className="mt-1 flex items-center gap-3 text-muted-foreground text-sm">
@@ -752,6 +765,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                 {product.location?.city ? `${product.location.city} · ` : ''}
                                 {product.location?.country || '地区未知'}
                               </p>
+                              {product.location?.address ? (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {product.location.address}
+                                </p>
+                              ) : null}
                               {product.location?.coordinates ? (
                                 <p className="text-xs text-muted-foreground mt-1">
                                   坐标：{product.location.coordinates.lat.toFixed(4)}, {product.location.coordinates.lng.toFixed(4)}
@@ -769,42 +787,52 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       </div>
                     ) : tab === 'itinerary' ? (
                       <div className="space-y-4">
-                        <h2 className="text-lg font-extrabold">行程安排（由产品元数据生成）</h2>
+                        <h2 className="text-lg font-extrabold">行程安排</h2>
                         {(() => {
                           const items: { title: string; desc?: string }[] = []
                           const meta = product.metadata || ({} as any)
+                          const dest = product.destination
                           switch (product.type) {
                             case 'flight':
                               items.push(
-                                { title: '航班信息', desc: `${meta.airline || '航班'}${meta.flight_number ? ` · ${meta.flight_number}` : ''}` },
-                                { title: '出发', desc: `${meta.departure_time || '-'} · ${meta.departure_airport || '-'}` },
-                                { title: '到达', desc: `${meta.arrival_time || '-'} · ${meta.arrival_airport || '-'}` },
+                                { title: '航班信息', desc: product.name || meta.airline || '航班' },
+                                { title: '详情', desc: product.description || meta.flight_number || '—' },
+                                ...(meta.departure_time ? [{ title: '出发', desc: `${meta.departure_time} · ${meta.departure_airport || '-'}` }] : []),
+                                ...(meta.arrival_time ? [{ title: '到达', desc: `${meta.arrival_time} · ${meta.arrival_airport || '-'}` }] : []),
                                 ...(meta.duration ? [{ title: '飞行时长', desc: meta.duration }] : []),
                               )
                               break
                             case 'hotel':
                               items.push(
-                                { title: '入住/离店', desc: `${meta.check_in_time || '—'} · ${meta.check_out_time || '—'}` },
-                                { title: '房型', desc: meta.room_type || '—' },
+                                { title: '酒店名称', desc: product.name || '—' },
+                                { title: '入住/离店', desc: `${meta.check_in_time || '14:00'} / ${meta.check_out_time || '12:00'}` },
+                                { title: '房型介绍', desc: product.description || meta.room_type || '—' },
                                 ...(meta.amenities?.slice(0, 3).map((a: string) => ({ title: '亮点服务', desc: a })) || []),
                               )
                               break
                             case 'ticket':
                               items.push(
-                                { title: '景点', desc: meta.attraction_name || '—' },
-                                { title: '开放时间', desc: meta.opening_hours || '—' },
+                                { title: '景点', desc: dest?.name || product.name || meta.attraction_name || '—' },
+                                { title: '开放时间', desc: dest?.open_time || meta.opening_hours || '—' },
+                                { title: '所在城市', desc: dest?.city || product.location?.city || '—' },
+                                ...(dest?.ticket_price ? [{ title: '官方票价', desc: `¥${dest.ticket_price}` }] : []),
                                 ...(meta.valid_days ? [{ title: '有效天数', desc: `${meta.valid_days} 天` }] : []),
                               )
                               break
                             case 'experience':
                               items.push(
+                                { title: '体验项目', desc: product.name || '—' },
                                 ...(meta.experience_duration ? [{ title: '体验时长', desc: meta.experience_duration }] : []),
                                 { title: '难度', desc: meta.difficulty || '—' },
+                                { title: '项目介绍', desc: product.description || '—' },
                                 ...(meta.includes?.slice(0, 5).map((x: string) => ({ title: '包含内容', desc: x })) || []),
                               )
                               break
                             default:
-                              items.push({ title: '行程信息', desc: product.description || '—' })
+                              items.push(
+                                { title: '项目', desc: product.name || '—' },
+                                { title: '详情', desc: product.description || '—' },
+                              )
                           }
                           const unique = Array.from(new Map(items.map((i) => [i.title, i])).values())
                           return (
@@ -919,7 +947,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                   fetch(`${API_BASE_URL}/api/products/${productId}/reviews`, { cache: 'no-store' })
                                     .then((r) => r.json().catch(() => ({})))
                                     .then((data) => {
-                                      const list = (data?.reviews ?? data?.items ?? data?.data ?? []) as ProductReview[]
+                                      // API 返回结构: { success, result: { reviews } }
+                                      const list = (data?.result?.reviews ?? data?.reviews ?? data?.items ?? data?.data ?? []) as ProductReview[]
                                       setReviews(Array.isArray(list) ? list : [])
                                     })
                                     .catch(() => toast.error('刷新失败'))
@@ -1329,6 +1358,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 </section>
               </div>
             </div>
+          </div>
           ) : null}
         </div>
       </main>

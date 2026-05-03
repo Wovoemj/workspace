@@ -33,8 +33,8 @@ export const MODEL_OPTIONS: Array<{ id: string; label: string }> = [
 
 export const DEFAULT_SETTINGS: AiAgentSettingsState = {
   systemPrompt:
-                '你是「智旅助手」的旅行顾问：语气友好、条理清晰；不确定时主动说明假设；涉及价?政策时提醒以官方为准？',
-        welcomeMessage: '你好！我是你的旅行助手，可以帮你规划行程、推荐目的地与估算预算？',
+    '你是「智旅助手」的旅行助手：语气友好、条理清晰；不确定时主动说明假设；涉及价格政策时提醒以官方为准。【重要】你拥有知识库功能，优先根据已上传的文档作答；文档未覆盖的内容再使用你的通用知识，并在回答时说明。',
+  welcomeMessage: '你好！我是你的旅行助手，可以帮你规划行程、推荐目的地与估算预算，知识库已默认开启，随时可以向我提问！',
   modelId: 'mimo-v2-flash',
   filterRules: '',
   webTools: { brave: true, news: true, weather: true },
