@@ -3,6 +3,7 @@ import { Metadata, Viewport } from 'next'
 // 导入全局样式文件
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
+import { FetchInterceptor } from '@/lib/fetchInterceptor'
 
 // 定义网站的元数据配置
 export const metadata: Metadata = {
@@ -54,6 +55,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
+        <FetchInterceptor />
         {/* 云朵装饰层 */}
         <div className="bg-cloud-1" aria-hidden="true" />
         <div className="bg-cloud-2" aria-hidden="true" />

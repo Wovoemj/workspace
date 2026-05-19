@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+    </marker>
+    <marker id="arr-green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+    </marker>
+    <filter id="sh" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <rect width="1000" height="680" rx="12" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="1000" height="56" rx="12" fill="#0f172a"/>
+  <rect x="0" y="30" width="1000" height="26" fill="#0f172a"/>
+  <text x="500" y="36" text-anchor="middle" fill="white" font-size="20" font-weight="bold">AI 对话 + 行程生成 — 数据流程图</text>
+
+  <!-- Step 1: User Input -->
+  <rect x="40" y="80" width="180" height="70" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" filter="url(#sh)"/>
+  <text x="130" y="106" text-anchor="middle" fill="#1e40af" font-size="14" font-weight="bold">👤 用户输入</text>
+  <text x="130" y="126" text-anchor="middle" fill="#64748b" font-size="11">发送消息 / 生成行程</text>
+  <text x="130" y="142" text-anchor="middle" fill="#64748b" font-size="10">POST /api/chat</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="220" y1="115" x2="270" y2="115" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- Step 2: Flask Backend -->
+  <rect x="280" y="80" width="180" height="70" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" filter="url(#sh)"/>
+  <text x="370" y="106" text-anchor="middle" fill="#92400e" font-size="14" font-weight="bold">⚙️ Flask 路由</text>
+  <text x="370" y="126" text-anchor="middle" fill="#64748b" font-size="11">JWT鉴权 · 参数校验</text>
+  <text x="370" y="142" text-anchor="middle" fill="#64748b" font-size="10">app.py:3807</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="460" y1="115" x2="510" y2="115" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- Step 3: Build Messages -->
+  <rect x="520" y="80" width="200" height="70" rx="10" fill="#d1fae5" stroke="#10b981" stroke-width="2" filter="url(#sh)"/>
+  <text x="620" y="106" text-anchor="middle" fill="#065f46" font-size="14" font-weight="bold">📝 构建对话上下文</text>
+  <text x="620" y="126" text-anchor="middle" fill="#64748b" font-size="11">系统提示词 + 历史消息</text>
+  <text x="620" y="142" text-anchor="middle" fill="#64748b" font-size="10">Tool Definitions 注入</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="720" y1="115" x2="770" y2="115" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- Step 4: Call LLM -->
+  <rect x="780" y="80" width="180" height="70" rx="10" fill="#f3e8ff" stroke="#8b5cf6" stroke-width="2" filter="url(#sh)"/>
+  <text x="870" y="106" text-anchor="middle" fill="#5b21b6" font-size="14" font-weight="bold">🧠 调用 LLM</text>
+  <text x="870" y="126" text-anchor="middle" fill="#64748b" font-size="11">Kimi / 智谱 / OpenAI</text>
+  <text x="870" y="142" text-anchor="middle" fill="#64748b" font-size="10">流式 SSE 响应</text>
+
+  <!-- Decision Diamond -->
+  <polygon points="500,230 580,270 500,310 420,270" fill="#fff7ed" stroke="#f97316" stroke-width="2" filter="url(#sh)"/>
+  <text x="500" y="266" text-anchor="middle" fill="#9a3412" font-size="13" font-weight="bold">需要工具调用?</text>
+  <text x="500" y="282" text-anchor="middle" fill="#64748b" font-size="10">tool_calls?</text>
+
+  <!-- Arrow from Step 4 down to decision -->
+  <path d="M 870,150 L 870,270 L 580,270" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- YES path: Tool Call -->
+  <line x1="420" y1="270" x2="270" y2="270" stroke="#10b981" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="340" y="260" fill="#10b981" font-size="11" font-weight="bold">是 YES</text>
+
+  <!-- Tool Execution Box -->
+  <rect x="40" y="230" width="220" height="100" rx="10" fill="#d1fae5" stroke="#10b981" stroke-width="2" filter="url(#sh)"/>
+  <text x="150" y="256" text-anchor="middle" fill="#065f46" font-size="14" font-weight="bold">🔧 执行工具</text>
+  <text x="150" y="276" text-anchor="middle" fill="#64748b" font-size="11">查询景点 / 天气 / 航班</text>
+  <text x="150" y="294" text-anchor="middle" fill="#64748b" font-size="11">搜索酒店 / 地图定位</text>
+  <text x="150" y="312" text-anchor="middle" fill="#64748b" font-size="10">app.py 2611-2733</text>
+
+  <!-- Tool → Feed back to LLM -->
+  <path d="M 150,330 L 150,370 L 870,370 L 870,150" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arr-green)"/>
+  <text x="500" y="362" text-anchor="middle" fill="#10b981" font-size="10">工具结果回传给 LLM，重新生成</text>
+
+  <!-- NO path: Direct Response -->
+  <line x1="500" y1="310" x2="500" y2="370" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="512" y="340" fill="#3b82f6" font-size="11" font-weight="bold">否 NO</text>
+
+  <!-- Step 5: Stream Response -->
+  <rect x="370" y="380" width="260" height="70" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" filter="url(#sh)"/>
+  <text x="500" y="406" text-anchor="middle" fill="#1e40af" font-size="14" font-weight="bold">📡 流式返回响应</text>
+  <text x="500" y="426" text-anchor="middle" fill="#64748b" font-size="11">text/event-stream (SSE)</text>
+  <text x="500" y="442" text-anchor="middle" fill="#64748b" font-size="10">逐token推送到前端</text>
+
+  <!-- Arrow 5→6 -->
+  <line x1="500" y1="450" x2="500" y2="490" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- Step 6: Frontend Display -->
+  <rect x="370" y="494" width="260" height="70" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" filter="url(#sh)"/>
+  <text x="500" y="520" text-anchor="middle" fill="#1e40af" font-size="14" font-weight="bold">🖥 前端渲染</text>
+  <text x="500" y="540" text-anchor="middle" fill="#64748b" font-size="11">逐字显示 · Markdown渲染</text>
+  <text x="500" y="556" text-anchor="middle" fill="#64748b" font-size="10">行程卡片 · 地图标注</text>
+
+  <!-- Branch: Itinerary Generation -->
+  <line x1="630" y1="529" x2="740" y2="529" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="750" y="494" width="210" height="70" rx="10" fill="#f3e8ff" stroke="#8b5cf6" stroke-width="2" filter="url(#sh)"/>
+  <text x="855" y="520" text-anchor="middle" fill="#5b21b6" font-size="14" font-weight="bold">🗺 行程生成模式</text>
+  <text x="855" y="540" text-anchor="middle" fill="#64748b" font-size="11">POST /api/itinerary/generate</text>
+  <text x="855" y="556" text-anchor="middle" fill="#64748b" font-size="10">结构化行程 · 存入数据库</text>
+
+  <!-- Save to DB -->
+  <line x1="500" y1="564" x2="500" y2="600" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="360" y="604" width="280" height="50" rx="10" fill="#fce7f3" stroke="#ec4899" stroke-width="2" filter="url(#sh)"/>
+  <text x="500" y="626" text-anchor="middle" fill="#9d174d" font-size="14" font-weight="bold">💾 保存会话记录</text>
+  <text x="500" y="646" text-anchor="middle" fill="#64748b" font-size="11">conversations 表 · 历史可追溯</text>
+
+  <!-- Legend -->
+  <rect x="40" y="604" width="260" height="60" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="56" y="624" fill="#334155" font-size="12" font-weight="bold">图例：</text>
+  <line x1="56" y1="640" x2="96" y2="640" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="104" y="644" fill="#64748b" font-size="10">正常流程</text>
+  <line x1="160" y1="640" x2="200" y2="640" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arr-green)"/>
+  <text x="208" y="644" fill="#64748b" font-size="10">工具调用回路</text>
+</svg>

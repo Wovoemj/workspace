@@ -40,7 +40,7 @@ import {
 } from 'lucide-react'
 import { AdminGuard } from '@/components/AdminGuard'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+const API_BASE = ''  // 使用相对路径，通过 Next.js rewrites 代理
 
 type BookingDetails = {
   date?: string

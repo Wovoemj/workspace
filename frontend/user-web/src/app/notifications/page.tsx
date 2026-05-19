@@ -43,7 +43,7 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
+  const backendUrl = ''  // 使用相对路径，通过 Next.js rewrites 代理
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.is_read).length,

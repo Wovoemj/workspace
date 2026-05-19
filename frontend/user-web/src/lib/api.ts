@@ -43,7 +43,7 @@ function apiBaseURL() {
 export const api = axios.create({
   baseURL: apiBaseURL(),
   timeout: 20000,  // 请求超时时间：20秒
-  headers: { 'Content-Type': 'application/json' },  // 默认发送JSON格式
+  headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },  // ngrok免费版跳过警告页
 })
 
 /**

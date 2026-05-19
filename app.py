@@ -1,8 +1,31 @@
 ﻿"""
-智能旅游助手 - 性能优化版
-包含Redis缓存、API限流、查询优化等性能增强功能
+智能旅游助手 - Flask主应用（性能优化版）
+
+【文件功能说明】
+- 这是项目的主Flask应用，提供所有API接口
+- 包含Redis缓存、API限流、查询优化等性能增强功能
+- 支持用户认证（JWT）、角色权限管理
+- 提供景点、用户、订单、产品等完整CRUD接口
+
+【主要模块】
+1. 日志配置 - 记录系统运行状态和错误信息
+2. Redis缓存配置 - 延迟初始化，支持内存兜底
+3. API限流 - 防止恶意请求，保护服务器资源
+4. 用户认证 - JWT令牌签发与验证
+5. 景点接口 - 景点的CRUD操作
+6. 用户接口 - 用户注册、登录、资料管理
+7. 订单接口 - 订单创建、支付、取消、退款
+8. 产品接口 - 产品管理和搜索
+
+【性能优化】
+- Redis缓存：减少数据库查询
+- 内存缓存兜底：Redis不可用时自动切换
+- API限流：防止恶意请求
+- 查询优化：使用索引和分页
 """
-# 导入Flask框架核心模块：Flask应用、JSON响应、请求处理、错误中止
+
+# ==================== 模块导入部分 ===================
+# 导入Flask框架核心模块
 from flask import Flask, jsonify, request, abort, make_response
 # 导入Flask-SQLAlchemy数据库ORM扩展
 from flask_sqlalchemy import SQLAlchemy
@@ -24,7 +47,7 @@ import time
 from functools import wraps
 # 导入类型注解工具
 from typing import Any, Callable, TypeVar, cast
-# 导入WSGI代理修复中间件（用于反向代理环境）
+# 导入WSGI代理修复中间件（用于反向代理环境如Nginx）
 from werkzeug.middleware.proxy_fix import ProxyFix
 # 导入密码哈希工具
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -40,10 +63,11 @@ import math
 # 导入JWT令牌生成与验证模块
 import jwt
 
-# 加载.env文件中的环境变量
+# 加载.env文件中的环境变量（包含数据库URI、密钥等敏感信息）
 load_dotenv()
 
-# ==================== 日志配置 ====================
+
+# ==================== 日志配置部分 ===================
 # 检查logs目录是否存在
 if not os.path.exists('logs'):
     # 如果不存在则创建logs目录
@@ -51,7 +75,9 @@ if not os.path.exists('logs'):
 
 # 定义日志文件路径
 log_file = 'logs/travel_assistant.log'
-# 创建轮转文件日志处理器，单个文件最大10MB，保留5个备份文件
+# 创建轮转文件日志处理器
+# maxBytes=10000000：单个日志文件最大10MB
+# backupCount=5：保留最近5个日志文件
 handler = RotatingFileHandler(log_file, maxBytes=10000000, backupCount=5)
 # 设置日志格式：时间 级别 消息
 handler.setFormatter(logging.Formatter(
@@ -59,90 +85,141 @@ handler.setFormatter(logging.Formatter(
 ))
 # 获取当前模块的日志记录器
 logger = logging.getLogger(__name__)
-# 设置日志级别为INFO
+# 设置日志级别为INFO（记录INFO及以上级别的日志）
 logger.setLevel(logging.INFO)
 # 将处理器添加到日志记录器
 logger.addHandler(handler)
 
-# ==================== Redis缓存配置（Lazy Init） ====================
-# Redis 客户端，延迟初始化，首次使用时才创建连接
+
+# ==================== Redis缓存配置（Lazy Init） ===================
+# Redis客户端，延迟初始化（首次使用时才创建连接）
+# 这样可以避免启动时Redis不可用导致程序退出
 _redis_client = None
-_redis_available: bool | None = None  # None=未检测, True=可用, False=不可用
+# Redis可用状态：None=未检测, True=可用, False=不可用
+_redis_available: bool | None = None
 
 def get_redis():
-    """获取 Redis 客户端实例，延迟初始化，连接失败时返回 None（不可用后不再重试）"""
+    """
+    获取Redis客户端实例（延迟初始化）
+    
+    【功能】
+    - 首次调用时创建Redis连接
+    - 如果连接失败，标记为不可用并不再重试（避免每次请求都尝试连接）
+    - 返回Redis客户端或None
+    
+    【返回】
+    - Redis客户端实例 或 None
+    """
     global _redis_client, _redis_available
+    # 如果已知Redis不可用，直接返回None（不再重试）
     if _redis_available is False:
-        return None  # 已知不可用，直接返回，不重试
+        return None
+    # 如果已经初始化，直接返回
     if _redis_client is not None:
         return _redis_client
     
     try:
+        # 创建Redis客户端实例
         _redis_client = redis.Redis(
-            host=os.getenv('REDIS_HOST', 'localhost'),
-            port=int(os.getenv('REDIS_PORT', '6379')),
-            db=int(os.getenv('REDIS_DB', '0')),
-            password=os.getenv('REDIS_PASSWORD') or None,
-            decode_responses=True,
-            socket_connect_timeout=0.5,  # 连接超时 0.5s，快速失败
-            socket_timeout=1             # 命令超时 1s
+            host=os.getenv('REDIS_HOST', 'localhost'),      # Redis服务器地址
+            port=int(os.getenv('REDIS_PORT', '6379')),      # Redis端口
+            db=int(os.getenv('REDIS_DB', '0')),              # Redis数据库编号
+            password=os.getenv('REDIS_PASSWORD') or None,   # Redis密码（如果没有则为None）
+            decode_responses=True,                                  # 自动将字节串解码为字符串
+            socket_connect_timeout=0.5,                             # 连接超时0.5秒（快速失败）
+            socket_timeout=1                                        # 命令执行超时1秒
         )
+        # 测试Redis连接是否正常
         _redis_client.ping()
         _redis_available = True
         logger.info("Redis 连接成功")
     except Exception as e:
+        # 连接失败，记录警告日志
         logger.warning(f"Redis 不可用，缓存和限流功能已禁用: {e}")
         _redis_client = None
         _redis_available = False  # 标记为不可用，后续不再尝试
     return _redis_client
 
-# 兼容旧代码，提供 redis_client 属性访问
+
+# 兼容旧代码：提供redis_client属性访问
 class _RedisClientProxy:
-    """Redis 客户端代理，支持延迟初始化"""
+    """Redis客户端代理，支持延迟初始化"""
     def __getattr__(self, name):
+        # 获取Redis客户端（延迟初始化）
         client = get_redis()
         if client is None:
+            # 如果Redis不可用，返回一个什么都不做的空函数
             return lambda *args, **kwargs: None
+        # 返回Redis客户端的实际属性/方法
         return getattr(client, name)
 
+# 创建Redis客户端代理实例
 redis_client = _RedisClientProxy()
 
 # 从环境变量获取默认缓存过期时间（秒），默认300秒（5分钟）
 DEFAULT_CACHE_TIMEOUT = int(os.getenv('CACHE_TTL', '300'))
 
 
-# 进程内内存缓存兜底（Redis 不可用时使用），格式: {key: (value, expire_at)}
+# ==================== 进程内内存缓存兜底 ===================
+# 当Redis不可用时，使用进程内内存缓存作为兜底方案
+# 格式：{key: (value, expire_at)}，其中expire_at是过期时间戳
 _mem_cache: dict[str, tuple[str, float]] = {}
 
 def redis_cache_get(cache_key: str) -> str | None:
-    """从Redis缓存获取值，Redis不可用时从内存缓存取"""
+    """
+    从Redis缓存获取值
+    
+    【功能】
+    - 优先从Redis缓存获取
+    - Redis不可用时，从内存缓存获取
+    
+    【参数】
+    - cache_key: 缓存键名
+    
+    【返回】
+    - 缓存值 或 None
+    """
     try:
+        # 尝试从Redis获取缓存值
         val = cast(str | None, cast(Any, redis_client).get(cache_key))
         if val is not None:
             return val
     except Exception:
         pass
-    # Redis 不可用，查内存缓存
+    # Redis不可用，查内存缓存
     entry = _mem_cache.get(cache_key)
     if entry:
         value, expire_at = entry
         if time.time() < expire_at:
             return value
         else:
+            # 已过期，删除
             _mem_cache.pop(cache_key, None)
     return None
 
 
 def redis_cache_set(cache_key: str, value: str, timeout: int = DEFAULT_CACHE_TIMEOUT) -> None:
-    """设置Redis缓存值并指定过期时间，Redis不可用时写入内存缓存"""
+    """
+    设置Redis缓存值并指定过期时间
+    
+    【功能】
+    - 优先写入Redis缓存
+    - Redis不可用时，写入内存缓存
+    
+    【参数】
+    - cache_key: 缓存键名
+    - value: 要缓存的值
+    - timeout: 过期时间（秒）
+    """
     try:
+        # 尝试写入Redis（带过期时间）
         cast(Any, redis_client).setex(cache_key, timeout, value)
         return
     except Exception:
         pass
-    # Redis 不可用，写内存缓存
+    # Redis不可用，写内存缓存
     _mem_cache[cache_key] = (value, time.time() + timeout)
-    # 简单清理：超过 500 条时删掉已过期的
+    # 简单清理：超过500条时删掉已过期的
     if len(_mem_cache) > 500:
         now = time.time()
         expired = [k for k, (_, exp) in _mem_cache.items() if now > exp]
@@ -151,22 +228,35 @@ def redis_cache_set(cache_key: str, value: str, timeout: int = DEFAULT_CACHE_TIM
 
 
 def redis_cache_delete_pattern(prefix: str) -> None:
-    """删除匹配指定前缀的所有缓存键，Redis不可用时静默跳过"""
+    """
+    删除匹配指定前缀的所有缓存键
+    
+    【功能】
+    - 用于批量删除相关缓存（如更新景点后删除所有景点缓存）
+    
+    【参数】
+    - prefix: 键名前缀（如"destination:"）
+    """
     try:
+        # 使用SCAN命令遍历匹配指定前缀的所有键
         for key in cast(Any, redis_client).scan_iter(f"{prefix}*"):
+            # 删除匹配的键
             cast(Any, redis_client).delete(key)
     except Exception:
-        # Redis 不可用时也清理内存缓存
+        # Redis不可用时也清理内存缓存
         keys_to_del = [k for k in _mem_cache if k.startswith(prefix)]
         for k in keys_to_del:
             _mem_cache.pop(k, None)
         pass
 
-# ==================== API限流配置 ====================
+
+# ==================== API限流配置 ===================
 # 定义不同用户等级的请求限制配置
+# 普通用户：每分钟最多100次请求
+# 高级用户：每分钟最多500次请求
 RATE_LIMIT = {
-    'normal': 100,    # 普通用户每分钟最多100次请求
-    'premium': 500,   # 高级用户每分钟最多500次请求
+    'normal': 100,
+    'premium': 500,
 }
 
 # 定义泛型类型变量F，用于装饰器类型注解
@@ -174,23 +264,38 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 def rate_limit(limit_key: str, limit: int = 100) -> Callable[[F], F]:
-    """API限流装饰器，限制每个用户每分钟的请求次数。Redis不可用时跳过限流。"""
+    """
+    API限流装饰器
+    
+    【功能】
+    - 限制每个用户每分钟的请求次数
+    - 使用Redis有序集合（Sorted Set）存储请求时间戳
+    - 自动清理60秒前的旧记录
+    - Redis不可用时跳过限流（降级处理）
+    
+    【参数】
+    - limit_key: 限流键名（用于区分不同接口）
+    - limit: 限制次数（默认100次/分钟）
+    
+    【返回】
+    - 装饰器函数
+    """
     def decorator(f: F) -> F:
-        @wraps(f)  # 保留原函数的元信息
+        @wraps(f)  # 保留原函数的元信息（函数名、文档字符串等）
         def decorated_function(*args: Any, **kwargs: Any) -> Any:
             try:
                 # 从请求头获取用户ID，如果没有则使用客户端IP地址作为标识
                 user_id = request.headers.get('X-User-ID', request.remote_addr)
-
+                
                 # 生成限流键，格式为 rate_limit:接口名:用户ID
                 key = f"rate_limit:{limit_key}:{user_id}"
-
+                
                 # 获取当前Unix时间戳（秒）
                 current_time = int(time.time())
-
+                
                 # 删除60秒之前的所有请求记录，只保留最近一分钟的请求
                 cast(Any, redis_client).zremrangebyscore(key, 0, current_time - 60)
-
+                
                 # 获取当前时间窗口内的请求数量
                 current_count = cast(int, cast(Any, redis_client).zcard(key))
                 # 如果请求数量达到或超过限制
@@ -201,15 +306,15 @@ def rate_limit(limit_key: str, limit: int = 100) -> Callable[[F], F]:
                         'message': '请求过于频繁，请稍后再试',
                         'code': 'RATE_LIMIT_EXCEEDED'
                     }), 429
-
+                
                 # 将当前请求时间戳添加到有序集合中
                 cast(Any, redis_client).zadd(key, {str(current_time): current_time})
-                # 设置键的过期时间为60秒
+                # 设置键的过期时间为60秒（自动清理）
                 cast(Any, redis_client).expire(key, 60)
             except Exception:
-                # Redis不可用时跳过限流，直接放行
+                # Redis不可用时跳过限流，直接放行（降级处理）
                 pass
-
+            
             # 执行原函数
             return f(*args, **kwargs)
         # 将装饰后的函数转换为正确的类型并返回
@@ -219,17 +324,28 @@ def rate_limit(limit_key: str, limit: int = 100) -> Callable[[F], F]:
 
 
 def cache_response(timeout: int = 300, key_prefix: str = 'default') -> Callable[[F], F]:
-    """缓存响应装饰器，自动缓存GET请求的响应"""
+    """
+    缓存响应装饰器
+    
+    【功能】
+    - 自动缓存GET请求的响应
+    - 下次相同请求直接返回缓存，减少服务器负载
+    - 本地开发环境跳过缓存
+    
+    【参数】
+    - timeout: 缓存过期时间（秒），默认300秒
+    - key_prefix: 缓存键前缀（用于区分不同接口）
+    """
     def decorator(f: F) -> F:
-        @wraps(f)  # 保留原函数的元信息
+        @wraps(f)
         def decorated_function(*args: Any, **kwargs: Any) -> Any:
-            # 本地开发环境跳过缓存
+            # 本地开发环境跳过缓存（方便调试）
             if os.getenv('FLASK_ENV') != 'production':
                 return f(*args, **kwargs)
-
+            
             # 生成缓存键：前缀:请求路径:请求参数的MD5哈希
             cache_key = f"{key_prefix}:{request.path}:{hashlib.md5(str(request.args).encode()).hexdigest()}"
-
+            
             # 尝试从Redis缓存获取响应
             cached_response = redis_cache_get(cache_key)
             # 如果缓存中存在响应数据
@@ -238,32 +354,30 @@ def cache_response(timeout: int = 300, key_prefix: str = 'default') -> Callable[
                 logger.info(f"Cache hit for {cache_key}")
                 # 直接返回缓存的JSON响应
                 response = make_response(jsonify(json.loads(cached_response)))
-                # 添加 HTTP 缓存头
+                # 添加HTTP缓存头（让浏览器也缓存）
                 response.headers['Cache-Control'] = f'public, max-age={timeout}'
                 response.headers['X-Cache'] = 'HIT'
                 return response
-
+            
             # 缓存未命中，执行原视图函数获取响应
             response = f(*args, **kwargs)
-
+            
             # 如果响应状态码为200（成功），则缓存响应内容
             if response.status_code == 200:
                 # 将响应内容设置为字符串并缓存
                 redis_cache_set(cache_key, response.get_data(as_text=True), timeout=timeout)
-                # 添加 HTTP 缓存头
+                # 添加HTTP缓存头
                 response.headers['Cache-Control'] = f'public, max-age={timeout}'
                 response.headers['X-Cache'] = 'MISS'
-
+            
             # 返回响应对象
             return response
-        # 将装饰后的函数转换为正确的类型并返回
         return cast(F, decorated_function)
-    # 返回装饰器函数
     return decorator
 
 
 def add_cache_headers(response: Any, max_age: int = 300) -> Any:
-    """为响应添加 HTTP 缓存头"""
+    """为响应添加HTTP缓存头"""
     if hasattr(response, 'headers'):
         response.headers['Cache-Control'] = f'public, max-age={max_age}'
         response.headers['Expires'] = (datetime.utcnow() + timedelta(seconds=max_age)).strftime('%a, %d %b %Y %H:%M:%S GMT')
@@ -271,5474 +385,340 @@ def add_cache_headers(response: Any, max_age: int = 300) -> Any:
 
 
 def generate_etag(data: Any) -> str:
-    """生成 ETag 用于 HTTP 缓存验证"""
+    """生成ETag用于HTTP缓存验证"""
     return hashlib.md5(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
 
 
-# ==================== Flask应用初始化 ====================
+# ==================== Flask应用初始化 ===================
 # 创建Flask应用实例
 app = Flask(__name__)
 
+# ==================== 核心配置 ===================
+# JWT密钥（用于签发和验证令牌）
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'travel-assistant-secret-key-2024')
+# 禁用SQLAlchemy事件系统（性能优化）
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# 数据库连接URI（可从环境变量覆盖）
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL',
+    'mysql+pymysql://root:123456@localhost:3306/travel_assistant?charset=utf8mb4'
+)
+
+# ==================== 扩展初始化 ===================
+# 初始化SQLAlchemy（数据库ORM）
+db = SQLAlchemy(app)
+# 初始化CORS（允许跨域请求）
+CORS(app, supports_credentials=True)
+
 @app.after_request
 def add_security_headers(response: Any) -> Any:
-    """添加安全相关和性能优化相关的 HTTP 响应头"""
+    """添加安全相关和性能优化相关的HTTP响应头"""
     # 安全相关头部
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['X-Content-Type-Options'] = 'nosniff'           # 阻止浏览器嗅探MIME类型
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'           # 只允许同源网站嵌入iframe
+    response.headers['X-XSS-Protection'] = '1; mode=block'      # 启用XSS过滤保护
     
-    # CORS 头部
+    # CORS头部（跨域资源共享）
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     
     return response
+
 # 配置WSGI代理修复，支持反向代理环境（如Nginx）
+# 这会正确处理X-Forwarded-For等代理头
 app.wsgi_app = ProxyFix(app.wsgi_app)  # type: ignore[assignment]
 
 
-def get_secret_key():
-    """获取 JWT 密钥，生产环境必须设置"""
-    key = os.getenv('SECRET_KEY')
-    if key:
-        return key
-    if os.getenv('FLASK_ENV') == 'production':
-        logger.error("生产环境必须设置 SECRET_KEY 环境变量")
-        sys.exit(1)
-    import secrets
-    key = secrets.token_hex(32)
-    logger.warning(f"未设置 SECRET_KEY，使用临时密钥（重启后失效）")
-    return key
+# ==================== 健康检查接口 ====================
+
+@app.route('/api/health')
+def health_check():
+    """
+    健康检查接口
+    
+    【功能】
+    - 提供简单的健康检查端点
+    - 返回服务器状态和时间戳
+    - 可被负载均衡器或监控工具调用
+    
+    【返回】
+    - JSON格式：{"status": "ok", "timestamp": "..."}
+    """
+    return jsonify({
+        'status': 'ok',
+        'timestamp': datetime.utcnow().isoformat(),
+        'service': 'travel-assistant'
+    })
 
 
-# 从环境变量获取或设置Flask密钥键，用于会话加密
-app.config['SECRET_KEY'] = get_secret_key()
-# 重新导入os模块（冗余导入，可移除）
-import os
-# 获取当前文件所在的基础目录路径
-base_dir = os.path.abspath(os.path.dirname(__file__))
-# 配置SQLAlchemy数据库连接URI，默认使用SQLite数据库
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', f'sqlite:///{os.path.join(base_dir, "instance", "travel.db")}')
-# 禁用SQLAlchemy的修改追踪功能以节省内存
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# 配置SQLAlchemy数据库连接池参数
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_recycle': 3600,      # 连接回收时间：3600秒（1小时）
-    'pool_pre_ping': True,     # 使用连接前进行健康检查
-    'pool_size': 20,           # 连接池大小：20个连接
-    'max_overflow': 30,        # 最大溢出连接数：额外30个连接
-}
+# ==================== 统计接口 ====================
 
-# 导入并初始化SQLAlchemy数据库实例
-from extensions import db
-db.init_app(app)
+@app.route('/stats')
+@app.route('/api/stats')
+def get_stats():
+    """
+    获取统计数据
+    
+    【功能】
+    - 查询各个表的记录数
+    - 返回JSON格式的统计信息
+    - 用于管理后台仪表盘展示
+    
+    【返回】
+    - JSON格式：{"stats": {"destinations": N, "trips": N, ...}}
+    """
+    try:
+        # 初始化统计数据字典
+        stats = {
+            'destinations': 0,
+            'trips': 0,
+            'users': 0,
+            'pages': 0,
+            'configs': 0
+        }
+        
+        # 尝试查询各个表的记录数（使用try-except防止某个表不存在导致整个接口失败）
+        try:
+            from models import Destination
+            stats['destinations'] = Destination.query.count()
+        except Exception as e:
+            print(f"查询目的地失败: {e}")
+            pass
+        
+        try:
+            from models import Trip
+            stats['trips'] = Trip.query.count()
+        except Exception as e:
+            print(f"查询行程失败: {e}")
+            pass
+        
+        try:
+            from models import User
+            stats['users'] = User.query.count()
+        except Exception as e:
+            print(f"查询用户失败: {e}")
+            pass
+        
+        try:
+            from models import Page
+            stats['pages'] = Page.query.count()
+        except Exception as e:
+            print(f"查询页面失败: {e}")
+            pass
+        
+        try:
+            from models import Config
+            stats['configs'] = Config.query.count()
+        except Exception as e:
+            print(f"查询配置失败: {e}")
+            pass
+        
+        # 返回统计数据
+        return jsonify({'stats': stats})
+    except Exception as e:
+        # 捕获所有异常，返回错误信息（500状态码）
+        return jsonify({'error': str(e)}), 500
 
-# 导入数据模型（从 models.py 统一管理）
-from models import (
-    Destination, User, Trip, TripItem, UserLike, Favorite,
-    Notification, UserFootprint, Product, DestinationComment, ProductReview,
-    Page, SiteConfig, Menu, Order, OrderItem, ProductQA,
-    TravelNote, TravelNoteLike, Coupon, UserCoupon,
-    SupportTicket, TicketReply,
-    AIConversation, TravelPlan, PlanItem,
-    Comment
-)
-# 构建 CORS 白名单
-_cors_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-]
-# 添加 FRONTEND_URL（如果有）
-_frontend_url = os.getenv('FRONTEND_URL', '').strip()
-if _frontend_url and _frontend_url not in _cors_origins:
-    _cors_origins.append(_frontend_url)
-# 生产环境从 CORS_ORIGINS 读取（逗号分隔）
-if os.getenv('FLASK_ENV') == 'production':
-    _cors_env = os.getenv('CORS_ORIGINS', '').strip()
-    if _cors_env:
-        _cors_origins = [url.strip() for url in _cors_env.split(',') if url.strip()]
 
-# 启用CORS跨域支持
-CORS(app, resources={
-    r"/api/*": {
-        "origins": _cors_origins,
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
-        "supports_credentials": True,
-        "expose_headers": ["Content-Length", "X-Request-ID"],
-        "max_age": 3600
+# ==================== 用户认证接口 ====================
+
+@app.route('/api/users/register', methods=['POST'])
+def user_register():
+    """
+    用户注册接口
+    
+    【功能】
+    - 接收用户名、密码、邮箱等注册信息
+    - 检查用户名是否已存在
+    - 密码加密后存储
+    - 返回注册结果
+    
+    【请求体】
+    {
+        "username": "用户名",
+        "password": "密码",
+        "email": "邮箱（可选）"
     }
-})
-
-
-# ==================== 认证与权限 ====================
-
-def _is_admin_user(user: User) -> bool:
-    """判断用户是否具有管理员权限"""
-    # 如果用户对象的is_admin属性为True，则直接返回True
-    if getattr(user, 'is_admin', False):
-        return True
+    
+    【返回】
+    - 成功：{"success": true, "message": "注册成功"}
+    - 失败：{"success": false, "message": "错误信息"}
+    """
     try:
-        # 从环境变量获取管理员所需的最低会员等级，默认为9级
-        threshold = int(os.getenv("ADMIN_MEMBERSHIP_LEVEL", "9").strip() or "9")
-    except Exception:
-        # 如果环境变量解析失败，使用默认阈值9
-        threshold = 9
-    # 比较用户会员等级是否达到管理员阈值
-    return int(user.membership_level or 1) >= threshold
-
-
-def _issue_jwt(user_id: int) -> str:
-    """为用户签发JWT令牌"""
-    # 构建JWT payload载荷
-    payload = {
-        'user_id': user_id,                    # 用户ID作为唯一标识
-        'exp': datetime.utcnow() + timedelta(days=7),  # 过期时间：7天后
-        'iat': datetime.utcnow(),              # 签发时间：当前时间
-    }
-    # 使用HS256算法编码JWT令牌，密钥从环境变量获取
-    return jwt.encode(payload, get_secret_key(), algorithm='HS256')
-
-
-def _current_user_or_401():
-    """从请求头获取当前登录用户，如果未登录则返回401错误"""
-    # 从Authorization请求头获取令牌
-    auth = request.headers.get('Authorization', '')
-    # 检查Authorization头是否存在且以'Bearer '开头
-    if not auth.startswith('Bearer '):
-        # 如果格式不正确，返回401未授权错误
-        abort(401, description="Missing or invalid Authorization header")
-    # 提取Bearer后面的令牌部分（去掉'Bearer '前缀）
-    token = auth[7:]
-    try:
-        # 解码JWT令牌，验证签名和过期时间
-        payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-        # 从payload中获取用户ID
-        user_id = payload.get('user_id')
-        # 如果payload中没有用户ID
-        if not user_id:
-            # 返回401错误
-            abort(401, description="Invalid token payload")
-        # 根据用户ID从数据库查询用户
-        user = User.query.get(user_id)
-        # 如果用户不存在
-        if not user:
-            # 返回401错误
-            abort(401, description="User not found")
-        # 返回当前用户对象
-        return user
-    except jwt.ExpiredSignatureError:
-        # 如果令牌已过期，返回401错误
-        abort(401, description="Token expired")
-    except jwt.InvalidTokenError:
-        # 如果令牌无效，返回401错误
-        abort(401, description="Invalid token")
-
-
-# ==================== 管理员登录接口 ====================
-
-@app.route('/api/admin/login', methods=['POST'])
-def api_admin_login():
-    """管理员专属登录接口，支持用户名或邮箱登录"""
-    # 获取请求中的JSON数据，如果解析失败则返回空字典
-    data = request.get_json(silent=True) or {}
-    # 获取并清理用户名字段
-    username = (data.get("username") or "").strip()
-    # 获取并清理邮箱字段
-    email = (data.get("email") or "").strip()
-    # 获取密码字段
-    password = data.get("password") or ""
-
-    # 优先使用用户名作为标识符，否则使用邮箱
-    identifier = username or email
-    # 如果标识符为空
-    if not identifier:
-        # 返回400错误，提示用户名或邮箱必填
-        return jsonify({"success": False, "error": "用户名或邮箱为必填"}), 400
-    # 如果密码为空
-    if not password:
-        # 返回400错误，提示密码必填
-        return jsonify({"success": False, "error": "密码为必填"}), 400
-
-    # 初始化用户对象为None
-    user = None
-    # 如果提供了用户名，则按用户名查询用户
-    if username:
-        user = User.query.filter_by(username=username).first()
-    # 如果没有找到用户且提供了邮箱，则按邮箱查询（转小写以忽略大小写）
-    if not user and email:
-        user = User.query.filter_by(email=email.lower()).first()
-    # 如果仍未找到用户
-    if not user:
-        # 返回404错误，提示用户不存在
-        return jsonify({"success": False, "error": "用户不存在"}), 404
-    # 如果用户没有设置密码或密码验证失败
-    if not user.password_hash or not check_password_hash(user.password_hash, password):
-        # 返回401错误，提示密码错误
-        return jsonify({"success": False, "error": "密码错误"}), 401
-    # 如果用户不具备管理员权限
-    if not _is_admin_user(user):
-        # 返回403错误，提示无管理员权限
-        return jsonify({"success": False, "error": "该账号不具备管理员权限"}), 403
-
-    # 为该用户签发JWT令牌
-    token = _issue_jwt(user.id)
-    # 返回登录成功响应，包含令牌和用户信息
-    return jsonify({"success": True, "token": token, "user": user.to_dict()})
-
-
-
-
-# ==================== 用户登录接口 ====================
-
-@app.route('/api/users/login', methods=['POST'])
-@rate_limit('user_login', limit=20)
-def api_user_login():
-    """普通用户登录接口"""
-    data = request.get_json(silent=True) or {}
-    print(f"[DEBUG] login data received: {data}")
-    email = (data.get("email") or "").strip().lower()
-    phone = (data.get("phone") or "").strip()
-    username = (data.get("username") or "").strip()
-    password = data.get("password") or ""
-
-    identifier = email or phone or username
-    if not identifier:
-        return jsonify({"success": False, "error": "用户名、邮箱或手机号为必填"}), 400
-    if not password:
-        return jsonify({"success": False, "error": "密码为必填"}), 400
-
-    # 根据用户名、邮箱或手机号查询用户
-    user = None
-    if username:
-        user = User.query.filter_by(username=username).first()
-    if not user and email:
-        user = User.query.filter_by(email=email).first()
-    if not user and phone:
-        user = User.query.filter_by(phone=phone).first()
-
-    if not user:
-        return jsonify({"success": False, "error": "用户不存在"}), 404
-    if not check_password_hash(user.password_hash, password):
-        return jsonify({"success": False, "error": "密码错误"}), 401
-
-    try:
-        # 更新最后登录时间
-        from datetime import datetime
-        user.last_login = datetime.now()
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        email = data.get('email', '').strip()
+        
+        # 参数验证
+        if not username or not password:
+            return jsonify({'success': False, 'message': '用户名和密码不能为空'}), 400
+        
+        # 检查用户是否已存在
+        from models import User
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            return jsonify({'success': False, 'message': '用户名已存在'}), 400
+        
+        # 创建新用户
+        password_hash = generate_password_hash(password)
+        new_user = User(
+            username=username,
+            password_hash=password_hash,
+            email=email if email else None,
+            role='user',
+            created_at=datetime.utcnow()
+        )
+        
+        # 保存到数据库
+        db.session.add(new_user)
         db.session.commit()
         
-        token = _issue_jwt(user.id)
-        user_dict = user.to_dict()
-        return jsonify({"success": True, "token": token, "user": user_dict})
+        return jsonify({'success': True, 'message': '注册成功'})
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"success": False, "error": f"登录处理错误: {str(e)}"}), 500
+        db.session.rollback()
+        logger.error(f"用户注册失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
-
-
-
-
-# ==================== 用户注册接口 ====================
-
-@app.route('/api/users/check', methods=['POST'])
-def api_user_check():
-    """检查用户名/邮箱/手机号是否已存在"""
-    data = request.get_json(silent=True) or {}
-    username = (data.get("username") or "").strip()
-    email = (data.get("email") or "").strip().lower()
-    phone = (data.get("phone") or "").strip()
-
-    result = {}
-    if username:
-        exists = User.query.filter_by(username=username).first() is not None
-        result["username"] = exists
-
-    if email:
-        exists = User.query.filter_by(email=email).first() is not None
-        result["email"] = exists
-
-    if phone:
-        exists = User.query.filter_by(phone=phone).first() is not None
-        result["phone"] = exists
-
-    return jsonify({"success": True, "exists": result})
+@app.route('/api/users/login', methods=['POST'])
+def user_login():
+    """
+    用户登录接口
+    
+    【功能】
+    - 验证用户名和密码
+    - 验证成功后生成JWT令牌
+    - 返回令牌和用户信息
+    
+    【请求体】
+    {
+        "username": "用户名",
+        "password": "密码"
+    }
+    
+    【返回】
+    - 成功：{"success": true, "token": "...", "user": {...}}
+    - 失败：{"success": false, "message": "错误信息"}
+    """
+    try:
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        
+        # 参数验证
+        if not username or not password:
+            return jsonify({'success': False, 'message': '用户名和密码不能为空'}), 400
+        
+        # 查询用户
+        from models import User
+        user = User.query.filter_by(username=username).first()
+        
+        # 验证用户是否存在和密码是否正确
+        if not user or not check_password_hash(user.password_hash, password):
+            return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
+        
+        # 生成JWT令牌
+        payload = {
+            'user_id': user.id,
+            'username': user.username,
+            'role': user.role,
+            'exp': datetime.utcnow() + timedelta(days=7)  # 7天过期
+        }
+        token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+        
+        # 返回令牌和用户信息
+        return jsonify({
+            'success': True,
+            'token': token,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'role': user.role
+            }
+        })
+    except Exception as e:
+        logger.error(f"用户登录失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 @app.route('/api/users/me', methods=['GET'])
-@rate_limit('user_me', limit=60)
 def get_current_user():
-    """获取当前用户信息"""
-    try:
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'success': False, 'error': '用户不存在'}), 404
-        
-        return jsonify({'success': True, 'user': user.to_dict()})
-        
-    except Exception as e:
-        logger.error(f"获取用户信息失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# 积分相关 API
-def get_level_info(points):
-    """根据积分获取等级信息（10级会员体系）"""
-    # 会员等级体系：LV1-LV10
-    # LV1 普通会员: 0-499分
-    # LV2 铜牌会员: 500-999分
-    # LV3 银牌会员: 1000-1999分
-    # LV4 玉牌会员: 2000-3999分
-    # LV5 金牌会员: 4000-7999分
-    # LV6 钻石会员: 8000-14999分
-    # LV7 白金会员: 15000-29999分
-    # LV8 皇冠会员: 30000-49999分
-    # LV9 黑金会员: 50000-99999分
-    # LV10 至尊VIP: 100000+分
-    if points >= 100000:
-        return {'level': 10, 'name': '至尊VIP', 'icon': '👑', 'next_level': None, 'next_points': None}
-    elif points >= 50000:
-        return {'level': 9, 'name': '黑金会员', 'icon': '🖤', 'next_level': 10, 'next_points': 100000}
-    elif points >= 30000:
-        return {'level': 8, 'name': '皇冠会员', 'icon': '🏆', 'next_level': 9, 'next_points': 50000}
-    elif points >= 15000:
-        return {'level': 7, 'name': '白金会员', 'icon': '💠', 'next_level': 8, 'next_points': 30000}
-    elif points >= 8000:
-        return {'level': 6, 'name': '钻石会员', 'icon': '💎', 'next_level': 7, 'next_points': 15000}
-    elif points >= 4000:
-        return {'level': 5, 'name': '金牌会员', 'icon': '🥇', 'next_level': 6, 'next_points': 8000}
-    elif points >= 2000:
-        return {'level': 4, 'name': '玉牌会员', 'icon': '💚', 'next_level': 5, 'next_points': 4000}
-    elif points >= 1000:
-        return {'level': 3, 'name': '银牌会员', 'icon': '🥈', 'next_level': 4, 'next_points': 2000}
-    elif points >= 500:
-        return {'level': 2, 'name': '铜牌会员', 'icon': '🥉', 'next_level': 3, 'next_points': 1000}
-    else:
-        return {'level': 1, 'name': '普通会员', 'icon': '🎯', 'next_level': 2, 'next_points': 500}
-
-
-@app.route('/api/users/me/points', methods=['GET'])
-@rate_limit('user_points', limit=30)
-def get_user_points():
-    """获取当前用户积分和等级信息"""
-    try:
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'success': False, 'error': '用户不存在'}), 404
-        
-        points = user.points or 0
-        level_info = get_level_info(points)
-        
-        # 计算距离下一级还需要多少积分
-        progress = 0
-        if level_info['next_points']:
-            # 各等级所需积分
-            level_thresholds = {
-                1: 0, 2: 500, 3: 1000, 4: 2000, 5: 4000,
-                6: 8000, 7: 15000, 8: 30000, 9: 50000, 10: 100000
-            }
-            current_level = level_info['level']
-            prev = level_thresholds.get(current_level, 0)
-            progress = int((points - prev) / (level_info['next_points'] - prev) * 100)
-        
-        # 等级名称映射
-        level_names = {
-            1: '普通会员', 2: '铜牌会员', 3: '银牌会员', 4: '玉牌会员',
-            5: '金牌会员', 6: '钻石会员', 7: '白金会员', 8: '皇冠会员',
-            9: '黑金会员', 10: '至尊VIP'
-        }
-        
-        return jsonify({
-            'success': True,
-            'points': points,
-            'level': level_info['level'],
-            'level_name': level_info['name'],
-            'level_icon': level_info['icon'],
-            'next_level': level_info.get('next_level'),
-            'next_level_name': level_names.get(level_info.get('next_level', 0), ''),
-            'next_points': level_info.get('next_points'),
-            'progress': progress
-        })
-        
-    except Exception as e:
-        logger.error(f"获取积分信息失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/users/me/points/history', methods=['GET'])
-@rate_limit('points_history', limit=30)
-def get_points_history():
-    """获取积分变动记录"""
-    try:
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        # 简化版：返回模拟数据（实际需要 PointsHistory 模型）
-        return jsonify({
-            'success': True,
-            'history': [
-                {'type': 'register', 'points': 100, 'desc': '新用户注册奖励', 'created_at': datetime.now().isoformat()},
-            ]
-        })
-        
-    except Exception as e:
-        logger.error(f"获取积分记录失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# 邀请有礼 API
-def generate_invite_code():
-    """生成唯一邀请码"""
-    import random
-    import string
-    while True:
-        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        if not User.query.filter_by(invite_code=code).first():
-            return code
-
-
-@app.route('/api/users/invite', methods=['GET'])
-@rate_limit('user_invite', limit=20)
-def get_invite_info():
-    """获取我的邀请码和邀请链接"""
-    try:
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'success': False, 'error': '用户不存在'}), 404
-        
-        # 如果没有邀请码，生成一个
-        if not user.invite_code:
-            user.invite_code = generate_invite_code()
-            db.session.commit()
-        
-        invite_link = f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/register?invite_code={user.invite_code}"
-        
-        # 统计邀请人数
-        invited_count = User.query.filter_by(invited_by=user_id).count()
-        
-        return jsonify({
-            'success': True,
-            'invite_code': user.invite_code,
-            'invite_link': invite_link,
-            'invited_count': invited_count,
-            'reward_points': 50  # 邀请奖励积分
-        })
-        
-    except Exception as e:
-        logger.error(f"获取邀请信息失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/users/invite/stats', methods=['GET'])
-@rate_limit('invite_stats', limit=20)
-def get_invite_stats():
-    """获取邀请统计"""
-    try:
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        # 统计被邀请的用户
-        invited_users = User.query.filter_by(invited_by=user_id).all()
-        
-        return jsonify({
-            'success': True,
-            'total_invited': len(invited_users),
-            'total_reward_points': len(invited_users) * 50,
-            'invited_users': [
-                {
-                    'id': u.id,
-                    'username': u.username,
-                    'nickname': u.nickname,
-                    'created_at': u.created_at.isoformat() if u.created_at else None
-                }
-                for u in invited_users[:10]  # 只返回前10个
-            ]
-        })
-        
-    except Exception as e:
-        logger.error(f"获取邀请统计失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/users/me', methods=['PUT'])
-@rate_limit('user_update', limit=20)
-def update_current_user():
-    """更新当前用户信息"""
-    try:
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'success': False, 'error': '用户不存在'}), 404
-        
-        data = request.get_json() or {}
-        
-        if 'nickname' in data:
-            user.nickname = data['nickname']
-        if 'avatar' in data:
-            user.avatar = data['avatar']
-        if 'preferences' in data:
-            user.preferences = data['preferences']
-        
-        db.session.commit()
-        
-        return jsonify({'success': True, 'user': user.to_dict()})
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"更新用户信息失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/users/register', methods=['POST'])
-@rate_limit('user_register', limit=10)
-def api_user_register():
-    """普通用户注册接口"""
-    data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip().lower()
-    nickname = (data.get("nickname") or "").strip()
-    username = (data.get("username") or "").strip()
-    phone = (data.get("phone") or "").strip()
-    password = data.get("password") or ""
-
-    if not email:
-        return jsonify({"success": False, "error": "邮箱为必填"}), 400
-    import re
-    if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
-        return jsonify({"success": False, "error": "邮箱格式不正确"}), 400
-    if not nickname:
-        return jsonify({"success": False, "error": "昵称为必填"}), 400
-    if not username:
-        return jsonify({"success": False, "error": "用户名为必填"}), 400
-    if not password:
-        return jsonify({"success": False, "error": "密码为必填"}), 400
-    if len(password) < 8:
-        return jsonify({"success": False, "error": "密码至少8位"}), 400
-    if not re.search(r'[a-z]', password) or not re.search(r'[A-Z]', password) or not re.search(r'\d', password):
-        return jsonify({"success": False, "error": "密码需包含大小写字母和数字"}), 400
-
-    # 检查邮箱是否已存在
-    if User.query.filter_by(email=email).first():
-        return jsonify({"success": False, "error": "该邮箱已注册"}), 409
-
-    # 检查用户名是否已存在
-    if User.query.filter_by(username=username).first():
-        return jsonify({"success": False, "error": "该用户名已被注册"}), 409
-
-    # 检查手机号是否已存在（如果提供了手机号）
-    if phone and User.query.filter_by(phone=phone).first():
-        return jsonify({"success": False, "error": "该手机号已被注册"}), 409
-
-    try:
-        # 检查邀请码（如果有提供）
-        invite_code = (data.get("invite_code") or "").strip().upper()
-        inviter = None
-        if invite_code:
-            inviter = User.query.filter_by(invite_code=invite_code).first()
-        
-        # 创建新用户
-        user = User(
-            email=email,
-            username=username,
-            nickname=nickname,
-            phone=phone or None,
-            password_hash=generate_password_hash(password),
-            membership_level=1,
-            points=100,  # 新用户注册奖励100积分
-            invited_by=inviter.id if inviter else None,
-            invite_code=generate_invite_code()  # 生成自己的邀请码
-        )
-        db.session.add(user)
-        
-        # 如果有邀请人，给邀请人奖励积分
-        if inviter:
-            inviter.points = (inviter.points or 0) + 50  # 邀请奖励50积分
-        
-        db.session.commit()
-
-        token = _issue_jwt(user.id)
-        return jsonify({"success": True, "token": token, "user": user.to_dict()})
-    except AttributeError as e:
-        db.session.rollback()
-        import traceback
-        traceback.print_exc()
-        return jsonify({"success": False, "error": "用户字段错误，请稍后重试"}), 500
-    except Exception as e:
-        db.session.rollback()
-        import traceback
-        traceback.print_exc()
-        # 处理唯一约束冲突
-        if "UNIQUE constraint failed" in str(e):
-            if "user.username" in str(e):
-                return jsonify({"success": False, "error": "该用户名已被注册"}), 409
-            elif "user.email" in str(e):
-                return jsonify({"success": False, "error": "该邮箱已注册"}), 409
-            elif "user.phone" in str(e):
-                return jsonify({"success": False, "error": "该手机号已被注册"}), 409
-        return jsonify({"success": False, "error": "注册失败，请稍后重试"}), 500
-
-
-# ==================== 管理员API路由 ====================
-
-@app.route('/api/admin/destinations', methods=['GET'])
-@rate_limit('admin_destinations', limit=100)
-def admin_get_destinations():
-    """管理端获取目的地列表"""
-    page = request.args.get('page', 1, type=int)
-    per_page = min(request.args.get('per_page', 20, type=int), 100)
-    keyword = request.args.get('keyword', '').strip()
-    
-    query = Destination.query
-    
-    # 关键词搜索
-    if keyword:
-        query = query.filter(
-            db.or_(
-                Destination.name.contains(keyword),
-                Destination.city.contains(keyword),
-                Destination.province.contains(keyword)
-            )
-        )
-    
-    # 分页
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-    destinations = pagination.items
-    
-    return jsonify({
-        'success': True,
-        'destinations': [d.to_dict() for d in destinations],
-        'total': pagination.total,
-        'page': page,
-        'per_page': per_page
-    })
-
-
-@app.route('/api/admin/destinations/<int:id>', methods=['PUT'])
-@rate_limit('admin_destinations_update', limit=30)
-def admin_update_destination(id: int):
-    """管理端更新目的地"""
-    destination = Destination.query.get_or_404(id)
-    data = request.get_json() or {}
-    
-    # 更新字段
-    updatable_fields = ['name', 'city', 'province', 'description', 'rating', 
-                       'price', 'open_time', 'images', 'tags']
-    for field in updatable_fields:
-        if field in data:
-            setattr(destination, field, data[field])
-    
-    db.session.commit()
-    
-    # 清除缓存
-    redis_cache_delete_pattern(f'destinations:*')
-    redis_cache_delete_pattern(f'destination:{id}')
-    
-    return jsonify({'success': True, 'destination': destination.to_dict()})
-
-
-@app.route('/api/admin/destinations/<int:id>', methods=['DELETE'])
-@rate_limit('admin_destinations_delete', limit=20)
-def admin_delete_destination(id: int):
-    """管理端删除目的地"""
-    destination = Destination.query.get_or_404(id)
-    
-    db.session.delete(destination)
-    db.session.commit()
-    
-    # 清除缓存
-    redis_cache_delete_pattern(f'destinations:*')
-    redis_cache_delete_pattern(f'destination:{id}')
-    
-    return jsonify({'success': True, 'message': '删除成功'})
-
-
-# ==================== 优化的API路由 ====================
-
-@app.route('/api/destinations', methods=['GET'])
-@rate_limit('destinations', limit=100)  # 应用限流装饰器，每分钟最多100次请求
-@cache_response(timeout=300, key_prefix='destinations')  # 应用缓存装饰器，缓存5分钟
-def get_destinations():
-    """获取景点列表 - 支持分页、搜索、筛选和排序的优化版本（已针对大表优化）"""
-    # 记录查询开始时间用于性能监控
-    start_time = time.time()
-
-    # 获取分页参数：页码，默认第1页
-    page = request.args.get('page', 1, type=int)
-    # 获取每页数量参数，默认20条，最大不超过100条
-    per_page = min(request.args.get('per_page', 20, type=int), 100)
-    # 获取关键词搜索参数
-    keyword = request.args.get('keyword', '').strip()
-    # 获取城市筛选参数
-    city = request.args.get('city', '').strip()
-    # 获取省份筛选参数
-    province = request.args.get('province', '').strip()
-    # 获取最低评分筛选参数
-    min_rating = request.args.get('min_rating', type=float)
-    # 获取最高价格筛选参数
-    max_price = request.args.get('max_price', type=float)
-    # 获取排序字段参数，默认按创建时间排序
-    sort_by = request.args.get('sort_by', 'created_at')
-    # 获取排序方向参数，默认降序
-    order = request.args.get('order', 'desc')
-    # 获取是否只需要轻量级字段（用于首页卡片展示）
-    light = request.args.get('light', 'false').lower() == 'true'
-
-    # 初始化数据库查询对象 - 使用优化的查询方式
-    query = Destination.query
-    
-    # 优化：限制查询的字段，减少数据传输
-    if light:
-        from sqlalchemy.orm import load_only
-        query = query.options(load_only(
-            Destination.id, Destination.name, Destination.city, 
-            Destination.province, Destination.cover_image, Destination.rating
-        ))
-
-    # 如果有关键词，则按名称、描述或城市进行模糊搜索
-    if keyword:
-        query = query.filter(
-            db.or_(
-                Destination.name.ilike(f'%{keyword}%'),
-                Destination.description.ilike(f'%{keyword}%'),
-                Destination.city.ilike(f'%{keyword}%'),
-                Destination.province.ilike(f'%{keyword}%')
-            )
-        )
-
-    # 如果有城市筛选条件，则按城市进行模糊匹配
-    if city:
-        query = query.filter(Destination.city.ilike(f'%{city}%'))
-    
-    # 如果有省份筛选条件，则按省份进行模糊匹配
-    if province:
-        query = query.filter(Destination.province.ilike(f'%{province}%'))
-
-    # 如果有最低评分要求，则筛选评分大于等于该值的景点
-    if min_rating:
-        query = query.filter(Destination.rating >= min_rating)
-
-    # 如果有最高价格限制，则筛选门票价格小于等于该值的景点
-    if max_price:
-        query = query.filter(Destination.ticket_price <= max_price)
-
-    # 根据sort_by参数选择排序字段
-
-    if sort_by == 'rating':
-        sort_column = Destination.rating
-    elif sort_by == 'price':
-        sort_column = Destination.ticket_price
-    elif sort_by == 'name':
-        sort_column = Destination.name
-    elif sort_by == 'popular':
-        # 直接按评分降序（高评分 = 热门），避免大表 CASE WHEN 全表扫描
-        query = query.order_by(Destination.rating.desc().nullslast(), Destination.id.asc())
-    else:
-        sort_column = Destination.created_at
-        query = query.order_by(sort_column.desc().nullslast())
-
-    # 根据order参数选择升序或降序排列（仅对非 popular 排序生效）
-    if order == 'desc' and sort_by != 'popular':
-        query = query.order_by(sort_column.desc().nullslast())
-    elif sort_by != 'popular':
-        query = query.order_by(sort_column.asc().nullslast())
-
-    # 执行分页查询
-    pagination = query.paginate(
-        page=page,
-        per_page=per_page,
-        error_out=False  # 页码超出范围时不返回404错误
-    )
-
-    # 计算查询耗时
-    query_time = time.time() - start_time
-    # 记录查询性能日志
-    logger.info(f"景点查询耗时: {query_time:.3f}s, 页码: {page}, 每页: {per_page}, 轻量模式: {light}")
-
-    # 返回JSON响应，包含景点列表、分页信息和查询耗时
-    return jsonify({
-        'success': True,
-        'destinations': [d.to_dict() for d in pagination.items],
-        'total': pagination.total,
-        'page': page,
-        'pages_count': pagination.pages,
-        'query_time': round(query_time, 3),
-        'per_page': per_page,
-        'light_mode': light
-    })
-
-
-@app.route('/api/destinations/metadata', methods=['GET'])
-@rate_limit('destinations_metadata', limit=60)
-@cache_response(timeout=3600, key_prefix='destinations_metadata')  # 缓存1小时
-def get_destinations_metadata():
-    """获取景点元数据聚合信息（用于筛选条件展示）"""
-    start_time = time.time()
-    
-    try:
-        # 获取所有城市列表（带数量统计）
-        city_stats = db.session.query(
-            Destination.city,
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.city.isnot(None), Destination.city != '')\
-         .group_by(Destination.city)\
-         .order_by(db.desc('count'))\
-         .limit(100).all()
-        
-        # 获取所有省份列表（按名称A-Z排序）
-        province_stats = db.session.query(
-            Destination.province,
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.province.isnot(None), Destination.province != '')\
-         .group_by(Destination.province)\
-         .order_by(Destination.province.asc())\
-         .limit(50).all()
-        
-        # 获取评分分布
-        rating_stats = db.session.query(
-            db.func.round(Destination.rating, 1).label('rating'),
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.rating.isnot(None))\
-         .group_by(db.func.round(Destination.rating, 1))\
-         .order_by(db.desc('rating'))\
-         .limit(10).all()
-        
-        # 获取价格分布
-        price_ranges = db.session.query(
-            db.case(
-                (Destination.ticket_price == 0, 'free'),
-                (Destination.ticket_price < 50, '0-50'),
-                (Destination.ticket_price < 100, '50-100'),
-                (Destination.ticket_price < 200, '100-200'),
-                (Destination.ticket_price < 500, '200-500'),
-                else_='500+',
-            ).label('range'),
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.ticket_price.isnot(None))\
-         .group_by('range')\
-         .all()
-        
-        query_time = time.time() - start_time
-        logger.info(f"景点元数据查询耗时: {query_time:.3f}s")
-        
-        return jsonify({
-            'success': True,
-            'metadata': {
-                'cities': [{'name': c, 'count': n} for c, n in city_stats],
-                'provinces': [{'name': p, 'count': n} for p, n in province_stats],
-                'ratings': [{'rating': float(r) if r else 0, 'count': n} for r, n in rating_stats],
-                'price_ranges': [{'range': r, 'count': n} for r, n in price_ranges],
-                'total_destinations': Destination.query.count()
-            },
-            'query_time': round(query_time, 3)
-        })
-    except Exception as e:
-        logger.error(f"获取景点元数据失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': '获取元数据失败',
-            'message': str(e)
-        }), 500
-
-
-def generate_destination_recommendations(destination):
     """
-    根据景点信息动态生成推荐数据（时间轴、必看清单、实用锦囊）
+    获取当前登录用户信息
+    
+    【功能】
+    - 从请求头获取Authorization令牌
+    - 验证令牌有效性
+    - 返回用户信息
+    
+    【请求头】
+    - Authorization: Bearer <token>
+    
+    【返回】
+    - 成功：{"success": true, "user": {...}}
+    - 失败：{"success": false, "message": "错误信息"}
     """
-    name = destination.name
-    city = destination.city
-    province = destination.province
-    description = destination.description or ''
-    ticket_price = destination.ticket_price or 0
-    
-    # 判断景点类型
-    is_museum = any(kw in name.lower() or kw in description.lower() 
-                    for kw in ['博物馆', '博物院', '纪念馆', '展览馆', '美术馆'])
-    is_nature = any(kw in name.lower() or kw in description.lower() 
-                    for kw in ['山', '湖', '海', '公园', '森林', '峡谷', '瀑布', '湿地'])
-    is_temple = any(kw in name.lower() or kw in description.lower() 
-                     for kw in ['寺', '庙', '观', '庵', '教堂', '清真寺'])
-    is_palace = any(kw in name.lower() or kw in description.lower() 
-                     for kw in ['故宫', '宫', '殿', '府', '王府'])
-    is_great_wall = '长城' in name
-    
-    # 生成必看清单
-    if is_museum:
-        highlights = [
-            {'id': 1, 'title': '镇馆之宝', 'description': f'{name}最珍贵的藏品，不可错过', 'icon': 'crown'},
-            {'id': 2, 'title': '常设展厅', 'description': f'系统了解{province}{city}的历史文化', 'icon': 'history'},
-            {'id': 3, 'title': '特展', 'description': '当期特别展览，主题精选', 'icon': 'star'},
-            {'id': 4, 'title': '互动体验区', 'description': '适合亲子参与的互动项目', 'icon': 'gem'},
-        ]
-    elif is_nature:
-        highlights = [
-            {'id': 1, 'title': '主峰/最佳观景点', 'description': '登高望远， panoramic view', 'icon': 'crown'},
-            {'id': 2, 'title': '特色景观', 'description': f'{name}最具代表性的自然奇观', 'icon': 'gem'},
-            {'id': 3, 'title': '休闲步道', 'description': '适合漫步的林间小道', 'icon': 'tree'},
-            {'id': 4, 'title': '拍照打卡点', 'description': '最佳摄影位置推荐', 'icon': 'star'},
-        ]
-    elif is_great_wall:
-        highlights = [
-            {'id': 1, 'title': '烽火台', 'description': '保存完好的古代军事设施', 'icon': 'crown'},
-            {'id': 2, 'title': '好汉坡', 'description': '不到长城非好汉', 'icon': 'star'},
-            {'id': 3, 'title': '关城', 'description': '雄伟壮观的关隘建筑', 'icon': 'history'},
-            {'id': 4, 'title': '夕阳景观', 'description': '最佳日落观赏点', 'icon': 'gem'},
-        ]
-    elif is_temple:
-        highlights = [
-            {'id': 1, 'title': '主殿', 'description': '核心建筑，供奉主神', 'icon': 'crown'},
-            {'id': 2, 'title': '古树/古物', 'description': '千年古树或历史文物', 'icon': 'tree'},
-            {'id': 3, 'title': '祈福区', 'description': '香火最旺的祈福地点', 'icon': 'star'},
-            {'id': 4, 'title': '素斋', 'description': '特色素食餐饮体验', 'icon': 'gem'},
-        ]
-    elif is_palace:
-        highlights = [
-            {'id': 1, 'title': '正殿/大堂', 'description': '核心建筑，气势恢宏', 'icon': 'crown'},
-            {'id': 2, 'title': '御花园', 'description': '皇家园林景观', 'icon': 'tree'},
-            {'id': 3, 'title': '珍宝馆', 'description': '珍贵文物收藏展示', 'icon': 'gem'},
-            {'id': 4, 'title': '历史展厅', 'description': '了解建筑背后的历史故事', 'icon': 'history'},
-        ]
-    else:
-        highlights = [
-            {'id': 1, 'title': '核心景点', 'description': f'{name}最具代表性的景观', 'icon': 'crown'},
-            {'id': 2, 'title': '特色体验', 'description': f'{city}特色活动体验', 'icon': 'star'},
-            {'id': 3, 'title': '文化遗迹', 'description': '历史文化遗存', 'icon': 'history'},
-            {'id': 4, 'title': '周边美食', 'description': f'{city}特色小吃推荐', 'icon': 'gem'},
-        ]
-    
-    # 生成时间轴
-    if is_museum:
-        timeline = [
-            {'id': 1, 'timeLabel': '上午', 'title': '常设展厅参观', 'description': f'建议路线：从1楼到3楼，重点了解{province}{city}的历史文化', 'tags': ['2小时', '室内', '推荐']},
-            {'id': 2, 'timeLabel': '中午', 'title': f'{city}特色午餐', 'description': f'品尝{province}地道美食，人均约30-50元', 'tags': ['1小时', '餐饮', '特色']},
-            {'id': 3, 'timeLabel': '下午', 'title': '专题展览深度游', 'description': '根据当天开放的特展，深入了解感兴趣的专题', 'tags': ['2小时', '室内', '讲解']},
-            {'id': 4, 'timeLabel': '晚上', 'title': '文创购物', 'description': '选购特色纪念品，支持文化传播', 'tags': ['30分钟', '购物', '纪念']},
-        ]
-    elif is_nature:
-        timeline = [
-            {'id': 1, 'timeLabel': '上午', 'title': '登山/入园', 'description': '趁着天气凉爽，开始登山或游览', 'tags': ['2小时', '户外', '运动']},
-            {'id': 2, 'timeLabel': '中午', 'title': '山顶/景区午餐', 'description': '自带干粮或在景区餐厅用餐', 'tags': ['1小时', '简餐', '休息']},
-            {'id': 3, 'timeLabel': '下午', 'title': '核心景点游览', 'description': '观赏主要景观，拍照留念', 'tags': ['3小时', '拍照', '精华']},
-            {'id': 4, 'timeLabel': '傍晚', 'title': '日落观赏', 'description': '在最佳观景点欣赏日落美景', 'tags': ['1小时', '摄影', '必看']},
-        ]
-    elif is_great_wall:
-        timeline = [
-            {'id': 1, 'timeLabel': '上午', 'title': '登城游览', 'description': '从入口登上长城，沿途欣赏壮丽景色', 'tags': ['3小时', '登山', '必游']},
-            {'id': 2, 'timeLabel': '中午', 'title': '烽火台休息', 'description': '在烽火台休息，远眺群山', 'tags': ['1小时', '休息', '观景']},
-            {'id': 3, 'timeLabel': '下午', 'title': '继续探索', 'description': '向更远处探索，寻找人少的好汉坡', 'tags': ['2小时', '徒步', '深度']},
-            {'id': 4, 'timeLabel': '傍晚', 'title': '返回下山', 'description': '原路返回，结束长城之旅', 'tags': ['1小时', '返程', '']},
-        ]
-    elif is_temple:
-        timeline = [
-            {'id': 1, 'timeLabel': '上午', 'title': '礼佛祈福', 'description': '上午香火最旺，适合祈福许愿', 'tags': ['1小时', '室内', '祈福']},
-            {'id': 2, 'timeLabel': '上午', 'title': '参观主殿', 'description': '欣赏古建筑和宗教艺术', 'tags': ['1.5小时', '文化', '建筑']},
-            {'id': 3, 'timeLabel': '中午', 'title': '素斋午餐', 'description': '品尝清净素斋，体验禅意生活', 'tags': ['1小时', '素食', '特色']},
-            {'id': 4, 'timeLabel': '下午', 'title': '静心游览', 'description': '漫步寺院，感受宁静氛围', 'tags': ['1小时', '休闲', '禅意']},
-        ]
-    elif is_palace:
-        timeline = [
-            {'id': 1, 'timeLabel': '上午', 'title': '中轴线游览', 'description': '从午门到御花园，沿中轴线参观主要建筑', 'tags': ['3小时', '必游', '精华']},
-            {'id': 2, 'timeLabel': '中午', 'title': '简餐休息', 'description': '在冰窖餐厅或自带干粮休息', 'tags': ['1小时', '简餐', '休息']},
-            {'id': 3, 'timeLabel': '下午', 'title': '东西六宫', 'description': '探访后宫区域，了解皇室生活', 'tags': ['2小时', '历史', '深度']},
-            {'id': 4, 'timeLabel': '下午', 'title': '珍宝馆/特展', 'description': '参观珍贵文物和特展', 'tags': ['1.5小时', '文物', '展览']},
-        ]
-    else:
-        timeline = [
-            {'id': 1, 'timeLabel': '上午', 'title': '入园/抵达', 'description': f'开始游览{name}，感受{city}风情', 'tags': ['2小时', '入园', '游览']},
-            {'id': 2, 'timeLabel': '中午', 'title': f'{city}特色午餐', 'description': f'品尝{province}地道美食', 'tags': ['1小时', '餐饮', '特色']},
-            {'id': 3, 'timeLabel': '下午', 'title': '核心景点游览', 'description': '参观主要景点，拍照留念', 'tags': ['2小时', '精华', '推荐']},
-            {'id': 4, 'timeLabel': '傍晚', 'title': '休闲时光', 'description': '在周边漫步，享受悠闲时光', 'tags': ['1小时', '休闲', '自由']},
-        ]
-    
-    # 生成实用锦囊
-    tips = []
-    
-    # 交通指南
-    if is_museum:
-        tips.append({'id': 1, 'title': '交通指南', 'content': f'{name}位于{city}市区，建议乘坐公共交通前往。市内多条公交线路可达，也可选择地铁或打车。'})
-    elif is_nature:
-        tips.append({'id': 1, 'title': '交通指南', 'content': f'{name}位于{city}郊区，建议自驾或参加一日游团。如乘坐公共交通，需提前查询班次时间。'})
-    elif is_great_wall:
-        tips.append({'id': 1, 'title': '交通指南', 'content': '可乘坐877路公交或S2线火车前往八达岭。建议早上7点前出发，避开人流高峰。'})
-    else:
-        tips.append({'id': 1, 'title': '交通指南', 'content': f'{name}位于{city}，建议提前规划路线。可使用地图导航查询最佳交通方式。'})
-    
-    # 餐饮建议
-    if ticket_price == 0:
-        tips.append({'id': 2, 'title': '餐饮建议', 'content': f'{city}特色美食众多，周边餐厅选择丰富。推荐品尝当地特色小吃，人均消费约30-80元。'})
-    else:
-        tips.append({'id': 2, 'title': '餐饮建议', 'content': f'景区周边有各类餐厅，人均消费约50-100元。也可自带干粮，在指定区域休息用餐。'})
-    
-    # 拍照提示
-    if is_museum:
-        tips.append({'id': 3, 'title': '拍照提示', 'content': '室内禁止使用闪光灯，部分展厅禁止拍照（有明确标识）。可在展厅入口、大厅等允许区域拍照留念。'})
-    elif is_nature:
-        tips.append({'id': 3, 'title': '拍照提示', 'content': '建议携带广角镜头拍摄全景。日出日落时分光线最佳，是拍照的黄金时间。'})
-    else:
-        tips.append({'id': 3, 'title': '拍照提示', 'content': '建议穿着舒适的鞋子，方便长时间站立和行走。热门景点人流较多，建议错峰拍照。'})
-    
-    # 最佳游览时间
-    if is_museum:
-        tips.append({'id': 4, 'title': '最佳游览时间', 'content': '工作日早上9:00-11:00人较少，周末下午较拥挤。特展刚开放时人流最多，建议避开。'})
-    elif is_nature:
-        tips.append({'id': 4, 'title': '最佳游览时间', 'content': f'春秋两季气候宜人，是游览{name}的最佳季节。建议避开节假日和周末高峰期。'})
-    elif is_great_wall:
-        tips.append({'id': 4, 'title': '最佳游览时间', 'content': '春秋季节气候宜人，适合登长城。建议工作日前往，避开周末和节假日人流高峰。'})
-    else:
-        tips.append({'id': 4, 'title': '最佳游览时间', 'content': f'建议上午早些时候抵达，避开人流高峰。{city}四季皆宜，但春秋两季气候最为舒适。'})
-    
-    # 特殊服务/注意事项
-    if is_museum:
-        tips.append({'id': 5, 'title': '参观须知', 'content': '部分博物馆提供免费讲解服务，可在服务台咨询。建议提前预约门票，携带身份证入场。'})
-    elif is_nature:
-        tips.append({'id': 5, 'title': '安全提示', 'content': '登山时请注意安全，穿着防滑鞋。注意防晒补水，携带必要的药品和急救用品。'})
-    else:
-        tips.append({'id': 5, 'title': '温馨提示', 'content': '建议提前查看景区开放时间和门票信息。可携带充电宝、饮用水等物品，以备不时之需。'})
-    
-    return {
-        'highlights': highlights,
-        'timeline': timeline,
-        'tips': tips
-    }
-
-
-@app.route('/api/destinations/<int:id>', methods=['GET'])
-@rate_limit('destinations_detail', limit=200)  # 应用限流装饰器，每分钟最多200次请求
-@cache_response(timeout=600, key_prefix='destination_detail')  # 应用缓存装饰器，缓存10分钟
-def get_destination(id: int):
-    """获取单个景点详情 - 优化版本"""
-    # 记录查询开始时间
-    start_time = time.time()
-
-    # 构建缓存键
-    cache_key = f"destination:{id}"
-    # 尝试从Redis缓存获取景点详情
-    cached_destination = redis_cache_get(cache_key)
-    # 如果缓存命中
-    if cached_destination:
-        # 记录缓存命中日志
-        logger.info(f"缓存命中: {cache_key}")
-        # 直接返回缓存的景点数据
-        return jsonify({'success': True, 'destination': json.loads(cached_destination)})
-
-    # 缓存未命中，从数据库查询景点，如果不存在则返回404
-    destination = Destination.query.get_or_404(id)
-
-    # 将景点数据缓存到Redis，设置10分钟过期时间
-    redis_cache_set(cache_key, json.dumps(destination.to_dict()), timeout=600)
-
-    # 计算查询耗时
-    query_time = time.time() - start_time
-    # 记录查询性能日志
-    logger.info(f"景点详情查询耗时: {query_time:.3f}s")
-
-    # 返回景点详情JSON响应
-    return jsonify({'success': True, 'destination': destination.to_dict()})
-
-
-@app.route('/api/destinations/<int:id>/recommendations', methods=['GET'])
-def get_destination_recommendations(id: int):
-    """获取景点推荐数据（时间轴、必看清单、实用锦囊）"""
-    destination = Destination.query.get_or_404(id)
-    
-    # 生成推荐数据
-    recommendations = generate_destination_recommendations(destination)
-    
-    return jsonify({
-        'success': True,
-        'recommendations': recommendations
-    })
-
-
-# ==================== 景点评论API ====================
-
-@app.route('/api/destinations/<int:destination_id>/comments', methods=['GET'])
-def get_destination_comments(destination_id: int):
-    """获取景点的评论列表"""
     try:
-        # 验证景点是否存在（不使用 get_or_404，避免抛出异常）
-        destination = Destination.query.get(destination_id)
-        if not destination:
-            return jsonify({
-                'success': False,
-                'error': '景点不存在',
-                'code': 'DESTINATION_NOT_FOUND'
-            }), 404
-        
-        # 获取分页参数
-        limit = request.args.get('limit', 50, type=int)
-        offset = request.args.get('offset', 0, type=int)
-        
-        # 查询评论
-        comments = DestinationComment.query.filter_by(
-            destination_id=destination_id
-        ).order_by(
-            DestinationComment.created_at.desc()
-        ).offset(offset).limit(limit).all()
-        
-        return jsonify({
-            'success': True,
-            'comments': [comment.to_dict() for comment in comments],
-            'count': len(comments)
-        })
-    except Exception as e:
-        logger.error(f"获取景点评论失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': '获取评论失败'
-        }), 500
-
-
-@app.route('/api/destinations/<int:destination_id>/comments', methods=['POST'])
-def create_destination_comment(destination_id: int):
-    """创建景点评论"""
-    try:
-        # 验证景点是否存在
-        destination = Destination.query.get_or_404(destination_id)
-        
-        # 获取请求数据
-        data = request.get_json()
-        if not data:
-            return jsonify({'success': False, 'error': '请求数据为空'}), 400
-        
-        content = data.get('content', '').strip()
-        if not content:
-            return jsonify({'success': False, 'error': '评论内容不能为空'}), 400
-        
-        # 从请求头获取用户token
+        # 获取Authorization头
         auth_header = request.headers.get('Authorization', '')
         if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未登录'}), 401
+            return jsonify({'success': False, 'message': '未提供令牌'}), 401
         
-        token = auth_header[7:]  # 去掉 'Bearer ' 前缀
+        # 提取令牌
+        token = auth_header.split(' ')[1]
+        
+        # 验证令牌
         try:
             payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            user_id = payload.get('user_id')
-            if not user_id:
-                return jsonify({'success': False, 'error': '无效的token'}), 401
         except jwt.ExpiredSignatureError:
-            return jsonify({'success': False, 'error': 'token已过期'}), 401
+            return jsonify({'success': False, 'message': '令牌已过期'}), 401
         except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
+            return jsonify({'success': False, 'message': '无效的令牌'}), 401
         
-        # 创建评论
-        comment = DestinationComment(
-            destination_id=destination_id,
-            user_id=user_id,
-            content=content
-        )
-        db.session.add(comment)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'comment': comment.to_dict(),
-            'message': '评论发布成功'
-        })
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建评论失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': '发布评论失败'
-        }), 500
-
-
-# ==================== 用户足迹API ====================
-
-@app.route('/api/footprints', methods=['GET'])
-def get_user_footprints():
-    """获取当前用户的足迹列表"""
-    try:
-        # 从请求头获取用户token
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未登录'}), 401
-        
-        token = auth_header[7:]  # 去掉 'Bearer ' 前缀
-        try:
-            payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            user_id = payload.get('user_id')
-            if not user_id:
-                return jsonify({'success': False, 'error': '无效的token'}), 401
-        except jwt.ExpiredSignatureError:
-            return jsonify({'success': False, 'error': 'token已过期'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        # 查询用户的足迹
-        footprints = UserFootprint.query.filter_by(
-            user_id=user_id
-        ).order_by(
-            UserFootprint.view_time.desc()
-        ).all()
-        
-        return jsonify({
-            'success': True,
-            'footprints': [fp.to_dict() for fp in footprints],
-            'count': len(footprints)
-        })
-    except Exception as e:
-        logger.error(f"获取用户足迹失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': '获取足迹失败'
-        }), 500
-
-
-@app.route('/api/footprints', methods=['POST'])
-def create_user_footprint():
-    """创建用户足迹记录"""
-    try:
-        # 从请求头获取用户token
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未登录'}), 401
-        
-        token = auth_header[7:]  # 去掉 'Bearer ' 前缀
-        try:
-            payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            user_id = payload.get('user_id')
-            if not user_id:
-                return jsonify({'success': False, 'error': '无效的token'}), 401
-        except jwt.ExpiredSignatureError:
-            return jsonify({'success': False, 'error': 'token已过期'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        # 获取请求数据
-        data = request.get_json()
-        if not data:
-            return jsonify({'success': False, 'error': '请求数据为空'}), 400
-        
-        destination_id = data.get('destination_id')
-        
-        if not destination_id:
-            return jsonify({'success': False, 'error': '缺少destination_id'}), 400
-        
-        # 验证景点是否存在
-        destination = Destination.query.get(destination_id)
-        if not destination:
-            return jsonify({'success': False, 'error': '景点不存在'}), 404
-        
-        # 检查是否已存在相同足迹（24小时内不重复记录）
-        from datetime import timedelta
-        recent_footprint = UserFootprint.query.filter_by(
-            user_id=user_id,
-            destination_id=destination_id
-        ).filter(
-            UserFootprint.view_time >= datetime.now() - timedelta(hours=24)
-        ).first()
-        
-        if recent_footprint:
-            # 更新访问时间
-            recent_footprint.view_time = datetime.now()
-            db.session.commit()
-            return jsonify({
-                'success': True,
-                'message': '足迹已更新',
-                'footprint': recent_footprint.to_dict()
-            })
-        
-        # 创建新足迹
-        footprint = UserFootprint(
-            user_id=user_id,
-            destination_id=destination_id
-        )
-        db.session.add(footprint)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': '足迹记录成功',
-            'footprint': footprint.to_dict()
-        })
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建足迹失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': '记录足迹失败'
-        }), 500
-
-
-# ==================== 用户收藏API ====================
-
-def get_user_id_from_token():
-    """从请求头获取用户ID"""
-    auth_header = request.headers.get('Authorization', '')
-    if not auth_header.startswith('Bearer '):
-        return None
-    token = auth_header[7:]
-    try:
-        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        return payload.get('user_id')
-    except:
-        return None
-
-
-def get_current_user_id():
-    """获取当前用户ID（兼容已登录和未登录用户）"""
-    return get_user_id_from_token()
-
-
-@app.route('/api/favorites', methods=['GET'])
-def get_favorites():
-    """获取当前用户的收藏列表"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '未登录'}), 401
-
-    try:
-        favorites = Favorite.query.filter_by(user_id=user_id).order_by(
-            Favorite.created_at.desc()
-        ).all()
-
-        # 获取景点详情
-        destination_ids = [f.destination_id for f in favorites]
-        destinations = {d.id: d for d in Destination.query.filter(Destination.id.in_(destination_ids)).all()}
-
-        result = []
-        for fav in favorites:
-            dest = destinations.get(fav.destination_id)
-            result.append({
-                'id': fav.id,
-                'destination_id': fav.destination_id,
-                'name': dest.name if dest else '',
-                'city': dest.city if dest else '',
-                'province': dest.province if dest else '',
-                'cover_image': dest.cover_image if dest else '',
-                'created_at': fav.created_at.isoformat() if fav.created_at else None
-            })
-
-        return jsonify({
-            'success': True,
-            'destinations': result
-        })
-    except Exception as e:
-        logger.error(f"获取收藏失败: {e}")
-        return jsonify({'success': False, 'error': '获取收藏失败'}), 500
-
-
-@app.route('/api/favorites', methods=['POST'])
-def add_favorite():
-    """添加收藏"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '未登录'}), 401
-
-    data = request.get_json()
-    destination_id = data.get('destination_id')
-    if not destination_id:
-        return jsonify({'success': False, 'error': '缺少destination_id'}), 400
-
-    try:
-        # 检查是否已收藏
-        existing = Favorite.query.filter_by(user_id=user_id, destination_id=destination_id).first()
-        if existing:
-            return jsonify({'success': True, 'message': '已收藏'})
-
-        favorite = Favorite(user_id=user_id, destination_id=destination_id)
-        db.session.add(favorite)
-        db.session.commit()
-
-        return jsonify({'success': True, 'message': '收藏成功'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"添加收藏失败: {e}")
-        return jsonify({'success': False, 'error': '添加收藏失败'}), 500
-
-
-@app.route('/api/favorites/<int:favorite_id>', methods=['DELETE'])
-def remove_favorite(favorite_id):
-    """删除收藏"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '未登录'}), 401
-
-    try:
-        favorite = Favorite.query.filter_by(id=favorite_id, user_id=user_id).first()
-        if not favorite:
-            return jsonify({'success': False, 'error': '收藏不存在'}), 404
-
-        db.session.delete(favorite)
-        db.session.commit()
-
-        return jsonify({'success': True, 'message': '已取消收藏'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"删除收藏失败: {e}")
-        return jsonify({'success': False, 'error': '删除收藏失败'}), 500
-
-
-# ==================== 游记/攻略 API ====================
-
-@app.route('/api/travel-notes', methods=['GET'])
-def get_travel_notes():
-    """获取游记列表"""
-    page = request.args.get('page', 1, type=int)
-    per_page = min(request.args.get('per_page', 20, type=int), 100)
-    status = request.args.get('status', 'published')
-    destination_id = request.args.get('destination_id', type=int)
-    user_id = request.args.get('user_id', type=int)
-    sort_by = request.args.get('sort_by', 'created_at')
-    order = request.args.get('order', 'desc')
-    
-    query = TravelNote.query.filter_by(status=status)
-    
-    if destination_id:
-        query = query.filter_by(destination_id=destination_id)
-    if user_id:
-        query = query.filter_by(user_id=user_id)
-    
-    if sort_by == 'like_count':
-        query = query.order_by(TravelNote.like_count.desc() if order == 'desc' else TravelNote.like_count.asc())
-    elif sort_by == 'view_count':
-        query = query.order_by(TravelNote.view_count.desc() if order == 'desc' else TravelNote.view_count.asc())
-    else:
-        query = query.order_by(TravelNote.created_at.desc() if order == 'desc' else TravelNote.created_at.asc())
-    
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-    
-    return jsonify({
-        'success': True,
-        'travel_notes': [n.to_dict() for n in pagination.items],
-        'total': pagination.total,
-        'page': page,
-        'per_page': per_page,
-        'pages': pagination.pages
-    })
-
-
-@app.route('/api/travel-notes', methods=['POST'])
-@rate_limit('travel_note_create', limit=10)
-def create_travel_note():
-    """发布游记"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '未登录'}), 401
-    
-    data = request.get_json() or {}
-    title = data.get('title', '').strip()
-    content = data.get('content', '').strip()
-    destination_id = data.get('destination_id')
-    cover_image = data.get('cover_image')
-    tags = data.get('tags', [])
-    status = data.get('status', 'draft')
-    
-    if not title:
-        return jsonify({'success': False, 'error': '标题不能为空'}), 400
-    if not content:
-        return jsonify({'success': False, 'error': '内容不能为空'}), 400
-    
-    try:
-        note = TravelNote(
-            user_id=user_id,
-            destination_id=destination_id,
-            title=title,
-            cover_image=cover_image,
-            content=content,
-            tags=json.dumps(tags) if tags else None,
-            status=status
-        )
-        db.session.add(note)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'travel_note': note.to_dict()}), 201
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建游记失败: {e}")
-        return jsonify({'success': False, 'error': '创建失败'}), 500
-
-
-@app.route('/api/travel-notes/<int:note_id>', methods=['GET'])
-def get_travel_note(note_id):
-    """获取游记详情"""
-    note = TravelNote.query.get(note_id)
-    if not note:
-        return jsonify({'success': False, 'error': '游记不存在'}), 404
-    
-    # 浏览数+1
-    note.view_count += 1
-    db.session.commit()
-    
-    return jsonify({'success': True, 'travel_note': note.to_dict()})
-
-
-@app.route('/api/travel-notes/<int:note_id>', methods=['PUT'])
-def update_travel_note(note_id):
-    """编辑游记"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '未登录'}), 401
-    
-    note = TravelNote.query.get(note_id)
-    if not note:
-        return jsonify({'success': False, 'error': '游记不存在'}), 404
-    if note.user_id != user_id:
-        return jsonify({'success': False, 'error': '无权限编辑'}), 403
-    
-    data = request.get_json() or {}
-    
-    if 'title' in data:
-        note.title = data['title'].strip()
-    if 'content' in data:
-        note.content = data['content'].strip()
-    if 'destination_id' in data:
-        note.destination_id = data['destination_id']
-    if 'cover_image' in data:
-        note.cover_image = data['cover_image']
-    if 'tags' in data:
-        note.tags = json.dumps(data['tags']) if data['tags'] else None
-    if 'status' in data:
-        note.status = data['status']
-    
-    try:
-        db.session.commit()
-        return jsonify({'success': True, 'travel_note': note.to_dict()})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"更新游记失败: {e}")
-        return jsonify({'success': False, 'error': '更新失败'}), 500
-
-
-@app.route('/api/travel-notes/<int:note_id>', methods=['DELETE'])
-def delete_travel_note(note_id):
-    """删除游记"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '未登录'}), 401
-    
-    note = TravelNote.query.get(note_id)
-    if not note:
-        return jsonify({'success': False, 'error': '游记不存在'}), 404
-    if note.user_id != user_id:
-        return jsonify({'success': False, 'error': '无权限删除'}), 403
-    
-    try:
-        db.session.delete(note)
-        db.session.commit()
-        return jsonify({'success': True, 'message': '删除成功'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"删除游记失败: {e}")
-        return jsonify({'success': False, 'error': '删除失败'}), 500
-
-
-@app.route('/api/travel-notes/<int:note_id>/like', methods=['POST'])
-def like_travel_note(note_id):
-    """点赞游记"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    note = TravelNote.query.get(note_id)
-    if not note:
-        return jsonify({'success': False, 'error': '游记不存在'}), 404
-    
-    existing = TravelNoteLike.query.filter_by(user_id=user_id, travel_note_id=note_id).first()
-    if existing:
-        return jsonify({'success': False, 'error': '已点赞'}), 400
-    
-    try:
-        like = TravelNoteLike(user_id=user_id, travel_note_id=note_id)
-        db.session.add(like)
-        note.like_count += 1
-        db.session.commit()
-        return jsonify({'success': True, 'like_count': note.like_count})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"点赞失败: {e}")
-        return jsonify({'success': False, 'error': '点赞失败'}), 500
-
-
-@app.route('/api/travel-notes/<int:note_id>/unlike', methods=['POST'])
-def unlike_travel_note(note_id):
-    """取消点赞"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    like = TravelNoteLike.query.filter_by(user_id=user_id, travel_note_id=note_id).first()
-    if not like:
-        return jsonify({'success': False, 'error': '未点赞'}), 400
-    
-    note = TravelNote.query.get(note_id)
-    try:
-        db.session.delete(like)
-        if note and note.like_count > 0:
-            note.like_count -= 1
-        db.session.commit()
-        return jsonify({'success': True, 'like_count': note.like_count if note else 0})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"取消点赞失败: {e}")
-        return jsonify({'success': False, 'error': '操作失败'}), 500
-
-
-# ==================== 优惠券API ====================
-
-@app.route('/api/coupons/available', methods=['GET'])
-def get_available_coupons():
-    """获取可领取的优惠券列表"""
-    try:
-        now = datetime.now()
-        coupons = Coupon.query.filter(
-            Coupon.status == 'active',
-            or_(Coupon.start_date == None, Coupon.start_date <= now),
-            or_(Coupon.end_date == None, Coupon.end_date >= now),
-            or_(Coupon.max_uses == 0, Coupon.used_count < Coupon.max_uses)
-        ).order_by(Coupon.created_at.desc()).all()
-        
-        return jsonify({
-            'success': True,
-            'coupons': [c.to_dict() for c in coupons]
-        })
-    except Exception as e:
-        logger.error(f"获取优惠券列表失败: {e}")
-        return jsonify({'success': False, 'error': '获取失败'}), 500
-
-
-@app.route('/api/coupons/claim', methods=['POST'])
-@rate_limit('coupon_claim', limit=30)
-def claim_coupon():
-    """领取优惠券"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    data = request.get_json() or {}
-    coupon_id = data.get('coupon_id')
-    code = data.get('code')  # 也可以通过券码领取
-    
-    if not coupon_id and not code:
-        return jsonify({'success': False, 'error': '请提供优惠券ID或券码'}), 400
-    
-    try:
-        if coupon_id:
-            coupon = Coupon.query.get(coupon_id)
-        else:
-            coupon = Coupon.query.filter_by(code=code, status='active').first()
-        
-        if not coupon:
-            return jsonify({'success': False, 'error': '优惠券不存在'}), 404
-        
-        # 检查是否已领取
-        existing = UserCoupon.query.filter_by(user_id=user_id, coupon_id=coupon.id).first()
-        if existing:
-            return jsonify({'success': False, 'error': '您已领取过该优惠券'}), 400
-        
-        # 检查库存
-        now = datetime.now()
-        if coupon.max_uses > 0 and coupon.used_count >= coupon.max_uses:
-            return jsonify({'success': False, 'error': '优惠券已领完'}), 400
-        
-        # 检查有效期
-        if coupon.start_date and coupon.start_date > now:
-            return jsonify({'success': False, 'error': '优惠券还未开始'}), 400
-        if coupon.end_date and coupon.end_date < now:
-            return jsonify({'success': False, 'error': '优惠券已过期'}), 400
-        
-        # 领取
-        user_coupon = UserCoupon(user_id=user_id, coupon_id=coupon.id)
-        coupon.used_count += 1
-        db.session.add(user_coupon)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'user_coupon': user_coupon.to_dict()
-        })
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"领取优惠券失败: {e}")
-        return jsonify({'success': False, 'error': '领取失败'}), 500
-
-
-@app.route('/api/coupons/my', methods=['GET'])
-def get_my_coupons():
-    """获取我的优惠券列表"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    status = request.args.get('status', 'all')  # all/unused/used
-    
-    query = UserCoupon.query.filter_by(user_id=user_id).options(db.joinedload(UserCoupon.coupon))
-    
-    if status == 'unused':
-        query = query.filter_by(is_used=False)
-    elif status == 'used':
-        query = query.filter_by(is_used=True)
-    
-    coupons = query.order_by(UserCoupon.created_at.desc()).all()
-    
-    return jsonify({
-        'success': True,
-        'coupons': [uc.to_dict() for uc in coupons]
-    })
-
-
-@app.route('/api/coupons/apply', methods=['POST'])
-def apply_coupon():
-    """下单时使用优惠券"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    data = request.get_json() or {}
-    coupon_id = data.get('coupon_id')
-    order_amount = data.get('order_amount', 0)
-    
-    if not coupon_id:
-        return jsonify({'success': False, 'error': '请提供优惠券ID'}), 400
-    
-    try:
-        user_coupon = UserCoupon.query.filter_by(id=coupon_id, user_id=user_id).first()
-        if not user_coupon:
-            return jsonify({'success': False, 'error': '优惠券不存在'}), 404
-        
-        if user_coupon.is_used:
-            return jsonify({'success': False, 'error': '优惠券已使用'}), 400
-        
-        coupon = user_coupon.coupon
-        if not coupon:
-            return jsonify({'success': False, 'error': '优惠券无效'}), 400
-        
-        # 检查最低订单金额
-        if order_amount < coupon.min_order:
-            return jsonify({
-                'success': False, 
-                'error': f'订单金额需满{coupon.min_order}元'
-            }), 400
-        
-        # 计算折扣
-        if coupon.type == 'fixed':
-            discount = coupon.value
-        else:  # percent
-            discount = order_amount * coupon.value / 100
-        
-        # 折扣不超过订单金额
-        discount = min(discount, order_amount)
-        
-        return jsonify({
-            'success': True,
-            'discount': round(discount, 2),
-            'final_amount': round(order_amount - discount, 2)
-        })
-    except Exception as e:
-        logger.error(f"使用优惠券失败: {e}")
-        return jsonify({'success': False, 'error': '操作失败'}), 500
-
-
-@app.route('/api/destinations', methods=['POST'])
-@rate_limit('destinations_create', limit=20)  # 应用限流装饰器，每分钟最多20次创建请求
-def create_destination():
-    """创建新景点 - 优化版本"""
-    # 记录操作开始时间
-    start_time = time.time()
-
-    # 获取请求体中的JSON数据
-    data = request.get_json()
-
-    # 定义必填字段列表
-    required_fields = ['name', 'city', 'province']
-    # 遍历检查每个必填字段
-    for field in required_fields:
-        # 如果字段不存在或值为空
-        if field not in data or not data[field]:
-            # 返回400错误，提示缺少必填字段
-            return jsonify({
-                'success': False,
-                'message': f'缺少必填字段: {field}',
-                'code': 'MISSING_REQUIRED_FIELD'
-            }), 400
-
-    # 创建新的景点对象
-    destination = Destination(
-        name=data['name'],
-        city=data.get('city', ''),
-        province=data.get('province', ''),
-        description=data.get('description', ''),
-        cover_image=data.get('cover_image', ''),
-        rating=float(data.get('rating', 5.0)),
-        ticket_price=float(data.get('ticket_price', 0)),
-        open_time=data.get('open_time', '')
-    )
-
-    # 将新景点添加到数据库会话
-    db.session.add(destination)
-    # 提交事务，保存到数据库
-    db.session.commit()
-
-    # 清除所有相关缓存，确保数据一致性
-    redis_cache_delete_pattern('destinations:')
-    redis_cache_delete_pattern('destination_detail:')
-    redis_cache_delete_pattern('destination:')
-    redis_cache_delete_pattern('stats:')
-
-    # 计算操作耗时
-    query_time = time.time() - start_time
-    # 记录操作性能日志
-    logger.info(f"创建景点耗时: {query_time:.3f}s")
-
-    # 返回201 Created响应，包含新创建的景点信息和耗时
-    return jsonify({
-        'success': True,
-        'destination': destination.to_dict(),
-        'query_time': round(query_time, 3)
-    }), 201
-
-
-@app.route('/api/trips', methods=['GET'])
-@rate_limit('trips', limit=50)  # 应用限流装饰器，每分钟最多50次请求
-@cache_response(timeout=180, key_prefix='trips')  # 应用缓存装饰器，缓存3分钟
-def get_trips():
-    """获取行程列表 - 优化版本"""
-    # 记录查询开始时间
-    start_time = time.time()
-
-    # 获取用户ID筛选参数
-    user_id = request.args.get('user_id', type=int)
-    # 获取状态筛选参数
-    status = request.args.get('status')
-
-    # 初始化行程查询对象
-    query = Trip.query
-    # 如果指定了用户ID，则筛选该用户的行程
-    if user_id:
-        query = query.filter_by(user_id=user_id)
-    # 如果指定了状态，则筛选该状态的行程
-    if status:
-        query = query.filter_by(status=status)
-
-    # 按创建时间降序排列获取所有行程
-    trips = query.order_by(Trip.created_at.desc()).all()
-
-    # 计算查询耗时
-    query_time = time.time() - start_time
-    # 记录查询性能日志
-    logger.info(f"行程查询耗时: {query_time:.3f}s")
-
-    # 返回行程列表JSON响应
-    return jsonify({
-        'success': True,
-        'trips': [t.to_dict() for t in trips],
-        'query_time': round(query_time, 3)
-    })
-
-
-@app.route('/api/stats', methods=['GET'])
-@rate_limit('stats', limit=10)  # 应用限流装饰器，每分钟最多10次请求
-@cache_response(timeout=60, key_prefix='stats')  # 应用缓存装饰器，缓存1分钟
-def get_stats():
-    """获取平台统计信息 - 优化版本"""
-    # 记录查询开始时间
-    start_time = time.time()
-
-    # 构建统计信息缓存键
-    cache_key = 'stats:all'
-    # 尝试从Redis缓存获取统计信息
-    cached_stats = redis_cache_get(cache_key)
-    # 如果缓存命中
-    if cached_stats:
-        # 记录缓存命中日志
-        logger.info(f"统计信息缓存命中: {cache_key}")
-        # 直接返回缓存的统计数据
-        return jsonify({'success': True, 'stats': json.loads(cached_stats)})
-
-    # 缓存未命中，计算各项统计数据
-    stats = {
-        'destinations': Destination.query.count(),  # 景点总数
-        'users': User.query.count(),                # 用户总数
-        'trips': Trip.query.count(),                # 行程总数
-        'user_likes': UserLike.query.count(),       # 点赞总数
-        # 计算平均评分，保留2位小数
-        'avg_rating': round(Destination.query.with_entities(db.func.avg(Destination.rating)).scalar() or 0, 2),
-        # 计算总收入（所有景点门票价格总和），保留2位小数
-        'total_revenue': round(Destination.query.with_entities(db.func.sum(Destination.ticket_price)).scalar() or 0, 2),
-        # 补充管理员页面需要的统计
-        'comments': DestinationComment.query.count(),      # 评论总数
-        'orders': Order.query.count(),                     # 订单总数
-        'footprints': UserFootprint.query.count(),        # 用户足迹总数
-        'content_pages': 0,                                 # CMS内容页面（暂无CMS功能，设为0）
-        'notifications': Notification.query.count(),      # 通知消息总数
-    }
-    
-    # 省份分布统计（TOP 10）
-    province_stats = db.session.query(
-        Destination.province,
-        db.func.count(Destination.id).label('count')
-    ).filter(Destination.province.isnot(None), Destination.province != '')\
-     .group_by(Destination.province)\
-     .order_by(db.desc('count'))\
-     .limit(10).all()
-    stats['province_distribution'] = [{'province': prov, 'count': count} for prov, count in province_stats]
-    
-    # 城市排行统计（TOP 10）
-    city_stats = db.session.query(
-        Destination.city,
-        Destination.province,
-        db.func.count(Destination.id).label('count')
-    ).filter(Destination.city.isnot(None), Destination.city != '')\
-     .group_by(Destination.city, Destination.province)\
-     .order_by(db.desc('count'))\
-     .limit(10).all()
-    stats['city_top'] = [{'city': city, 'province': prov, 'count': count} for city, prov, count in city_stats]
-
-    # 行程状态分布统计
-    trip_status_stats = db.session.query(
-        Trip.status,
-        db.func.count(Trip.id).label('count')
-    ).group_by(Trip.status).all()
-    stats['trip_status'] = [{'status': status or 'planning', 'count': count} for status, count in trip_status_stats]
-
-    # 订单状态分布统计
-    order_status_stats = db.session.query(
-        Order.status,
-        db.func.count(Order.id).label('count'),
-        db.func.coalesce(db.func.sum(Order.total_amount), 0).label('amount')
-    ).group_by(Order.status).all()
-    stats['order_status'] = [{'status': status or 'pending', 'count': count, 'amount': float(amount)} for status, count, amount in order_status_stats]
-
-    # 最近注册用户（最近10个）
-    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
-    stats['recent_users'] = [u.to_dict() for u in recent_users]
-
-    # 最近行程
-    recent_trips = Trip.query.order_by(Trip.created_at.desc()).limit(5).all()
-    stats['recent_trips'] = [t.to_dict() for t in recent_trips]
-
-    # 最近订单
-    recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
-    stats['recent_orders'] = [o.to_dict() for o in recent_orders]
-
-    # 最近评论
-    recent_comments = Comment.query.order_by(Comment.created_at.desc()).limit(5).all()
-    stats['recent_comments'] = [c.to_dict() for c in recent_comments]
-
-    # 将统计信息缓存到Redis，设置60秒过期时间
-    redis_cache_set(cache_key, json.dumps(stats), timeout=60)
-
-    # 计算查询耗时
-    query_time = time.time() - start_time
-    # 记录查询性能日志
-    logger.info(f"统计信息查询耗时: {query_time:.3f}s")
-
-    # 返回统计信息JSON响应
-    return jsonify({
-        'success': True,
-        'stats': stats,
-        'query_time': round(query_time, 3)
-    })
-
-
-@app.route('/api/admin/users', methods=['GET'])
-@rate_limit('admin_users', limit=30)
-def admin_users():
-    """管理端获取用户列表"""
-    try:
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        keyword = request.args.get('keyword', '').strip()
-        
-        query = User.query
-        
-        # 关键词搜索
-        if keyword:
-            query = query.filter(
-                db.or_(
-                    User.username.ilike(f'%{keyword}%'),
-                    User.nickname.ilike(f'%{keyword}%'),
-                    User.email.ilike(f'%{keyword}%'),
-                    User.phone.ilike(f'%{keyword}%')
-                )
-            )
-        
-        # 获取总数
-        total = query.count()
-        
-        # 分页
-        users = query.order_by(User.created_at.desc())\
-                     .offset((page - 1) * per_page)\
-                     .limit(per_page)\
-                     .all()
-        
-        return jsonify({
-            'success': True,
-            'users': [u.to_dict() for u in users],
-            'total': total,
-            'page': page,
-            'per_page': per_page
-        })
-    except Exception as e:
-        logger.error(f"获取用户列表失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'users': [],
-            'total': 0
-        }), 500
-
-
-@app.route('/api/admin/users', methods=['POST'])
-@rate_limit('admin_create_user', limit=20)
-def admin_create_user():
-    """管理端创建用户"""
-    try:
-        data = request.get_json() or {}
-        
-        username = data.get('username', '').strip()
-        password = data.get('password', '')
-        nickname = data.get('nickname', '').strip() or username
-        email = data.get('email', '').strip().lower() or None
-        phone = data.get('phone', '').strip() or None
-        membership_level = data.get('membership_level', 1)
-        
-        if not username:
-            return jsonify({'success': False, 'error': '用户名为必填'}), 400
-        if not password:
-            return jsonify({'success': False, 'error': '密码为必填'}), 400
-        if len(password) < 6:
-            return jsonify({'success': False, 'error': '密码至少6位'}), 400
-        
-        # 检查用户名唯一
-        if User.query.filter_by(username=username).first():
-            return jsonify({'success': False, 'error': '用户名已存在'}), 409
-        
-        # 检查邮箱唯一
-        if email and User.query.filter_by(email=email).first():
-            return jsonify({'success': False, 'error': '邮箱已被注册'}), 409
-        
-        # 检查手机号唯一
-        if phone and User.query.filter_by(phone=phone).first():
-            return jsonify({'success': False, 'error': '手机号已被注册'}), 409
-        
-        # 创建用户
-        user = User(
-            username=username,
-            nickname=nickname,
-            email=email,
-            phone=phone,
-            password_hash=generate_password_hash(password),
-            membership_level=membership_level,
-            points=100,  # 新用户注册奖励100积分
-            invite_code=generate_invite_code()
-        )
-        db.session.add(user)
-        db.session.commit()
-        
-        logger.info(f"管理员创建用户成功: {username} (ID: {user.id})")
-        return jsonify({
-            'success': True,
-            'user': user.to_dict()
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建用户失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
-@rate_limit('admin_delete_user', limit=30)
-def admin_delete_user(user_id):
-    """管理端删除用户"""
-    try:
-        user = User.query.get(user_id)
+        # 查询用户信息
+        from models import User
+        user = User.query.get(payload['user_id'])
         if not user:
-            return jsonify({'success': False, 'error': '用户不存在'}), 404
+            return jsonify({'success': False, 'message': '用户不存在'}), 404
         
-        # 不允许删除自己
-        # 可以在这里添加更多权限检查
-        
-        db.session.delete(user)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': '用户已删除'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"删除用户失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/admin/geo/provinces', methods=['GET'])
-@rate_limit('geo_provinces', limit=30)
-def admin_geo_provinces():
-    """管理端获取省份分布和城市排行统计"""
-    try:
-        # 省份分布统计
-        province_stats = db.session.query(
-            Destination.province,
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.province.isnot(None), Destination.province != '')\
-         .group_by(Destination.province)\
-         .order_by(db.desc('count'))\
-         .limit(10).all()
-        
-        provinces_data = []
-        for prov, count in province_stats:
-            # 获取该省的城市分布
-            city_stats = db.session.query(
-                Destination.city,
-                db.func.count(Destination.id).label('count')
-            ).filter(Destination.province == prov, Destination.city.isnot(None), Destination.city != '')\
-             .group_by(Destination.city)\
-             .order_by(db.desc('count'))\
-             .limit(10).all()
-            
-            cities_data = [{'city': city, 'count': count} for city, count in city_stats]
-            provinces_data.append({
-                'province': prov,
-                'count': count,
-                'cities': cities_data
-            })
-        
+        # 返回用户信息
         return jsonify({
             'success': True,
-            'data': provinces_data
-        })
-    except Exception as e:
-        logger.error(f"省份统计查询失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'data': []
-        })
-
-
-@app.route('/api/admin/stats', methods=['GET'])
-@rate_limit('admin_stats', limit=30)
-def admin_stats():
-    """管理端获取详细统计数据"""
-    try:
-        # 省份分布TOP10
-        province_stats = db.session.query(
-            Destination.province,
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.province.isnot(None), Destination.province != '')\
-         .group_by(Destination.province)\
-         .order_by(db.desc('count'))\
-         .limit(10).all()
-        
-        # 城市排行TOP10
-        city_stats = db.session.query(
-            Destination.city,
-            Destination.province,
-            db.func.count(Destination.id).label('count')
-        ).filter(Destination.city.isnot(None), Destination.city != '')\
-         .group_by(Destination.city, Destination.province)\
-         .order_by(db.desc('count'))\
-         .limit(10).all()
-        
-        # 订单状态分布
-        order_status_stats = db.session.query(
-            Order.status,
-            db.func.count(Order.id).label('count')
-        ).group_by(Order.status).all()
-        
-        # 行程状态分布
-        trip_status_stats = db.session.query(
-            Trip.status,
-            db.func.count(Trip.id).label('count')
-        ).group_by(Trip.status).all()
-        
-        return jsonify({
-            'success': True,
-            'data': {
-                'provinces': [{'province': p, 'count': c} for p, c in province_stats],
-                'cities': [{'city': c, 'province': p, 'count': n} for c, p, n in city_stats],
-                'order_status': [{'status': s, 'count': c} for s, c in order_status_stats],
-                'trip_status': [{'status': s, 'count': c} for s, c in trip_status_stats]
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'role': user.role
             }
         })
     except Exception as e:
-        logger.error(f"管理端统计查询失败: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'data': {}
-        })
-
-
-@app.route('/api/health', methods=['GET'])
-def health_check():
-    """健康检查接口 - 检查数据库、Redis和缓存状态"""
-    # 记录检查开始时间
-    start_time = time.time()
-
-    # 检查数据库连接状态
-    try:
-        # 执行简单的SQL查询测试数据库连接
-        db.session.execute(text('SELECT 1'))
-        # 如果查询成功，数据库状态为healthy
-        db_status = 'healthy'
-    except Exception as e:
-        # 如果查询失败，记录异常信息
-        db_status = f'unhealthy: {str(e)}'
-        # 记录错误日志
-        logger.error(f"数据库健康检查失败: {e}")
-
-    # 检查Redis连接状态
-    try:
-        # 发送PING命令测试Redis连接
-        cast(Any, redis_client).ping()
-        # 如果PING成功，Redis状态为healthy
-        redis_status = 'healthy'
-    except Exception as e:
-        # 如果连接失败，记录异常信息
-        redis_status = f'unhealthy: {str(e)}'
-        # 记录错误日志
-        logger.error(f"Redis健康检查失败: {e}")
-
-    # 根据Redis状态确定缓存状态
-    cache_status = 'healthy' if redis_status == 'healthy' else 'degraded'
-
-    # 计算检查耗时
-    query_time = time.time() - start_time
-
-    # 返回健康检查JSON响应
-    return jsonify({
-        'success': True,
-        # 整体状态：数据库和Redis都健康则为healthy，否则为degraded
-        'status': 'healthy' if db_status == 'healthy' and redis_status == 'healthy' else 'degraded',
-        'database': db_status,
-        'redis': redis_status,
-        'cache': cache_status,
-        'response_time': round(query_time, 3),
-        'timestamp': datetime.now().isoformat()
-    })
-
-
-# ==================== 图片媒体API ====================
-
-@app.route('/api/media', methods=['GET'])
-def serve_media():
-    """媒体文件服务API - 提供景点图片访问"""
-    path = request.args.get('path', '')
-    
-    if not path.startswith('scenic_images/'):
-        return jsonify({'success': False, 'error': '无效的文件路径'}), 400
-    
-    file_path = os.path.join(os.path.dirname(__file__), path)
-    
-    if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        placeholder_path = os.path.join(os.path.dirname(__file__), 'scenic_images', '__auto__', 'placeholder.png')
-        if os.path.exists(placeholder_path):
-            file_path = placeholder_path
-        else:
-            return jsonify({'success': False, 'error': '文件不存在'}), 404
-    
-    ext = os.path.splitext(file_path)[1].lower()
-    mime_types = {
-        '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg',
-        '.png': 'image/png',
-        '.gif': 'image/gif',
-        '.webp': 'image/webp',
-        '.svg': 'image/svg+xml',
-    }
-    content_type = mime_types.get(ext, 'application/octet-stream')
-    
-    from flask import send_file, make_response
-    response = make_response(send_file(file_path, mimetype=content_type))
-    response.headers['Cache-Control'] = 'public, max-age=86400'
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    return response
-
-
-# ==================== 周边联动API ====================
-
-
-# ============ 心知天气API ============
-@app.route('/api/weather', methods=['GET'])
-def get_weather():
-    """获取城市天气 - 使用心知天气API"""
-    city = request.args.get('city', '')
-    if not city:
-        return jsonify({'success': False, 'error': '缺少city参数'}), 400
-    
-    api_key = os.getenv('SENIVERSE_API_KEY', '')
-    if not api_key:
-        return jsonify({'success': False, 'error': '未配置心知天气API Key'}), 500
-    
-    try:
-        import requests
-        # 心知天气实时天气API
-        url = 'https://api.seniverse.com/v3/weather/now.json'
-        params = {
-            'key': api_key,
-            'location': city,
-            'language': 'zh-Hans',
-            'unit': 'c'
-        }
-        resp = requests.get(url, params=params, timeout=10)
-        
-        if resp.status_code == 200:
-            data = resp.json()
-            if data.get('results'):
-                result = data['results'][0]
-                now = result.get('now', {})
-                return jsonify({
-                    'success': True,
-                    'city': result.get('location', {}).get('name', city),
-                    'weather': now.get('text', '未知'),
-                    'temperature': now.get('temperature', '0'),
-                    'humidity': now.get('humidity', '0'),
-                    'wind': now.get('wind_direction', '') + now.get('wind_scale', '') + '级',
-                    'update_time': result.get('last_update', '')
-                })
-        
-        return jsonify({'success': False, 'error': '获取天气失败'}), 500
-        
-    except Exception as e:
-        logger.error(f"天气API错误: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# ==================== 机票/酒店 API ====================
-
-@app.route('/api/flights/search', methods=['GET'])
-@rate_limit('flight_search', limit=30)
-def search_flights():
-    """搜索航班"""
-    origin = request.args.get('origin', '')
-    destination = request.args.get('destination', '')
-    date = request.args.get('date', '')
-    passengers = request.args.get('passengers', 1, type=int)
-    
-    if not origin or not destination or not date:
-        return jsonify({'success': False, 'error': '缺少必要参数'}), 400
-    
-    try:
-        from services.flight_service import search_flights as search
-        flights = search(origin, destination, date, passengers)
-        return jsonify({'success': True, 'flights': flights})
-    except Exception as e:
-        logger.error(f"搜索航班失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/flights/<flight_id>', methods=['GET'])
-@rate_limit('flight_detail', limit=30)
-def get_flight(flight_id):
-    """获取航班详情"""
-    try:
-        from services.flight_service import get_flight_detail
-        flight = get_flight_detail(flight_id)
-        if flight:
-            return jsonify({'success': True, 'flight': flight})
-        return jsonify({'success': False, 'error': '航班不存在'}), 404
-    except Exception as e:
-        logger.error(f"获取航班详情失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/hotels/search', methods=['GET'])
-@rate_limit('hotel_search', limit=30)
-def search_hotels():
-    """搜索酒店"""
-    city = request.args.get('city', '')
-    checkin = request.args.get('checkin', '')
-    checkout = request.args.get('checkout', '')
-    guests = request.args.get('guests', 1, type=int)
-    rooms = request.args.get('rooms', 1, type=int)
-    
-    if not city or not checkin or not checkout:
-        return jsonify({'success': False, 'error': '缺少必要参数'}), 400
-    
-    try:
-        from services.hotel_service import search_hotels as search
-        hotels = search(city, checkin, checkout, guests, rooms)
-        return jsonify({'success': True, 'hotels': hotels})
-    except Exception as e:
-        logger.error(f"搜索酒店失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/hotels/<hotel_id>', methods=['GET'])
-@rate_limit('hotel_detail', limit=30)
-def get_hotel(hotel_id):
-    """获取酒店详情"""
-    try:
-        from services.hotel_service import get_hotel_detail
-        hotel = get_hotel_detail(hotel_id)
-        if hotel:
-            return jsonify({'success': True, 'hotel': hotel})
-        return jsonify({'success': False, 'error': '酒店不存在'}), 404
-    except Exception as e:
-        logger.error(f"获取酒店详情失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/hotels/<hotel_id>/rooms', methods=['GET'])
-@rate_limit('hotel_rooms', limit=30)
-def get_hotel_rooms(hotel_id):
-    """获取酒店房型"""
-    checkin = request.args.get('checkin', '')
-    checkout = request.args.get('checkout', '')
-    
-    if not checkin or not checkout:
-        return jsonify({'success': False, 'error': '缺少必要参数'}), 400
-    
-    try:
-        from services.hotel_service import get_hotel_rooms
-        rooms = get_hotel_rooms(hotel_id, checkin, checkout)
-        return jsonify({'success': True, 'rooms': rooms})
-    except Exception as e:
-        logger.error(f"获取房型失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# ==================== 客服系统 API ====================
-
-@app.route('/api/support/tickets', methods=['GET'])
-@rate_limit('support_tickets', limit=30)
-def get_support_tickets():
-    """获取当前用户的工单列表"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    try:
-        tickets = SupportTicket.query.filter_by(user_id=user_id).order_by(
-            SupportTicket.created_at.desc()
-        ).all()
-        return jsonify({
-            'success': True,
-            'tickets': [t.to_dict() for t in tickets]
-        })
-    except Exception as e:
-        logger.error(f"获取工单列表失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/support/tickets', methods=['POST'])
-@rate_limit('create_ticket', limit=20)
-def create_support_ticket():
-    """创建新工单"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    data = request.get_json() or {}
-    title = (data.get('title') or '').strip()
-    description = (data.get('description') or '').strip()
-    ticket_type = (data.get('ticket_type') or 'other').strip()
-    
-    if not title or not description:
-        return jsonify({'success': False, 'error': '标题和描述不能为空'}), 400
-    
-    try:
-        ticket = SupportTicket(
-            user_id=user_id,
-            title=title,
-            description=description,
-            ticket_type=ticket_type,
-            status='open'
-        )
-        db.session.add(ticket)
-        db.session.commit()
-        return jsonify({'success': True, 'ticket': ticket.to_dict()}), 201
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建工单失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/support/tickets/<int:ticket_id>', methods=['GET'])
-@rate_limit('ticket_detail', limit=30)
-def get_ticket_detail(ticket_id):
-    """获取工单详情"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    try:
-        ticket = SupportTicket.query.get(ticket_id)
-        if not ticket:
-            return jsonify({'success': False, 'error': '工单不存在'}), 404
-        
-        if ticket.user_id != user_id:
-            return jsonify({'success': False, 'error': '无权限查看'}), 403
-        
-        # 获取回复
-        replies = TicketReply.query.filter_by(ticket_id=ticket_id).order_by(
-            TicketReply.created_at.asc()
-        ).all()
-        
-        return jsonify({
-            'success': True,
-            'ticket': ticket.to_dict(),
-            'replies': [r.to_dict() for r in replies]
-        })
-    except Exception as e:
-        logger.error(f"获取工单详情失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/support/tickets/<int:ticket_id>/reply', methods=['POST'])
-@rate_limit('ticket_reply', limit=20)
-def reply_to_ticket(ticket_id):
-    """回复工单"""
-    user_id = get_user_id_from_token()
-    if not user_id:
-        return jsonify({'success': False, 'error': '请先登录'}), 401
-    
-    data = request.get_json() or {}
-    content = (data.get('content') or '').strip()
-    
-    if not content:
-        return jsonify({'success': False, 'error': '回复内容不能为空'}), 400
-    
-    try:
-        ticket = SupportTicket.query.get(ticket_id)
-        if not ticket:
-            return jsonify({'success': False, 'error': '工单不存在'}), 404
-        
-        if ticket.user_id != user_id:
-            return jsonify({'success': False, 'error': '无权限回复'}), 403
-        
-        # 创建回复
-        reply = TicketReply(
-            ticket_id=ticket_id,
-            user_id=user_id,
-            content=content,
-            is_admin=False
-        )
-        db.session.add(reply)
-        
-        # 更新工单状态
-        ticket.status = 'processing'
-        db.session.commit()
-        
-        return jsonify({'success': True, 'reply': reply.to_dict()})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"回复工单失败: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# ==================== 天气 API（复用 services） ====================
-
-def get_weather_info(city: str) -> str:
-    """获取天气信息字符串，供AI使用"""
-    api_key = os.getenv('SENIVERSE_API_KEY', '')
-    if not api_key:
-        return f"【{city}】天气信息获取失败：未配置天气API"
-    
-    try:
-        import requests
-        
-        # 并行获取多个数据
-        results = {}
-        
-        # 1. 实时天气
-        now_resp = requests.get('https://api.seniverse.com/v3/weather/now.json', 
-            params={'key': api_key, 'location': city, 'language': 'zh-Hans', 'unit': 'c'}, timeout=10)
-        if now_resp.status_code == 200:
-            data = now_resp.json()
-            if data.get('results'):
-                results['now'] = data['results'][0]
-        
-        # 2. 3天预报
-        daily_resp = requests.get('https://api.seniverse.com/v3/weather/daily.json',
-            params={'key': api_key, 'location': city, 'language': 'zh-Hans', 'unit': 'c', 'days': 3}, timeout=10)
-        if daily_resp.status_code == 200:
-            data = daily_resp.json()
-            if data.get('results'):
-                results['daily'] = data['results'][0]
-        
-        if not results.get('now'):
-            return f"【{city}】获取天气信息失败"
-        
-        result = results['now']
-        location = result.get('location', {})
-        now = result.get('now', {})
-        
-        city_name = location.get('name', city)
-        weather = now.get('text', '未知')
-        temp = now.get('temperature', '0')
-        humidity = now.get('humidity')
-        wind_dir = now.get('wind_direction', '')
-        wind_scale = now.get('wind_scale', '')
-        wind = f"{wind_dir}{wind_scale}级" if wind_dir and wind_scale else '免费版暂不支持'
-        feel_temp = now.get('feels_like', temp)
-        uv = now.get('uv')
-        humidity_str = f"{humidity}%" if humidity else '免费版暂不支持'
-        uv_str = f"{uv}级" if uv else '免费版暂不支持'
-        
-        # 预报数据
-        forecast_text = ""
-        if 'daily' in results:
-            daily = results['daily'].get('daily', [])
-            if daily:
-                forecast_parts = []
-                from datetime import datetime, timedelta
-                today = datetime.now().date()
-                for day in daily[:3]:
-                    date_str = day.get('date', '')
-                    date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else today
-                    high = day.get('high', '-')
-                    low = day.get('low', '-')
-                    day_weather = day.get('text_day', day.get('text', '未知'))
-                    if date == today:
-                        label = "今天"
-                    elif date == today + timedelta(days=1):
-                        label = "明天"
-                    elif date == today + timedelta(days=2):
-                        label = "后天"
-                    else:
-                        label = date_str[-5:]
-                    forecast_parts.append(f"{label} {day_weather} {low}~{high}°C")
-                forecast_text = "\n📅 未来3天预报：" + " | ".join(forecast_parts)
-        
-        # 组装详细信息
-        info = f"""【{city_name}】实时天气
-🌤️ 天气状况：{weather}
-🌡️ 气温：{temp}°C（体感 {feel_temp}°C）
-💧 湿度：{humidity_str}
-🌬️ 风力：{wind}
-☀️ 紫外线：{uv_str}{forecast_text}
-
-建议："""
-        
-        # 根据天气添加建议
-        if '雨' in weather:
-            info += "记得带伞哦！☂️ 建议穿防水鞋子。"
-        elif '雪' in weather:
-            info += "注意防寒保暖！❄️ 建议穿防滑鞋。"
-        elif '晴' in weather:
-            if uv and uv != '未知' and int(uv) >= 3:
-                info += "紫外线较强，记得涂防晒霜！🧴"
-            else:
-                info += "适合户外活动，注意补水。"
-        elif '阴' in weather or '多云' in weather:
-            info += "天气还不错，适合出行。"
-        else:
-            info += "注意关注天气变化。"
-            
-        return info
-        
-    except Exception as e:
-        logger.error(f"天气查询错误: {e}")
-        return f"【{city}】天气查询异常：{str(e)}"
-
-
-@app.route('/api/nearby', methods=['GET'])
-def get_nearby():
-    """获取周边完整数据API - 返回真实景点和周边设施（餐厅、酒店、商场等）"""
-    location = request.args.get('location', '')
-    if not location:
-        return jsonify({'success': False, 'error': '缺少位置参数'}), 400
-
-    try:
-        lng, lat = map(float, location.split(','))
-    except (ValueError, AttributeError):
-        return jsonify({'success': False, 'error': '无效的位置格式'}), 400
-
-    # 搜索半径
-    radius = float(request.args.get('radius', 10))
-    limit = int(request.args.get('limit', 12))
-
-    def haversine_distance(lat1, lon1, lat2, lon2):
-        R = 6371
-        dlat = math.radians(lat2 - lat1)
-        dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
-        c = 2 * math.asin(math.sqrt(a))
-        return R * c
-
-    items = []
-
-    # 1. 从数据库获取附近的其他真实景点
-    try:
-        lat_range = radius / 111.0
-        lng_range = radius / (111.0 * abs(math.cos(math.radians(lat))) if lat != 0 else 111.0)
-
-        has_lat_lng = hasattr(Destination, 'lat') and hasattr(Destination, 'lng')
-
-        if has_lat_lng:
-            nearby_destinations = Destination.query.filter(
-                Destination.lat.between(lat - lat_range, lat + lat_range),
-                Destination.lng.between(lng - lng_range, lng + lng_range),
-                Destination.lng.isnot(None),
-                Destination.lat.isnot(None)
-            ).limit(20).all()
-
-            for dest in nearby_destinations:
-                if has_lat_lng and dest.lng and dest.lat:
-                    distance = haversine_distance(lat, lng, dest.lat, dest.lng)
-                    if distance > 0.1 and distance <= radius:
-                        items.append({
-                            'id': f"dest_{dest.id}",
-                            'name': dest.name,
-                            'description': dest.description or f'{dest.city}热门景点',
-                            'address': f"{dest.province}{dest.city}" or '附近',
-                            'distance': f'{distance:.1f}km',
-                            'lng': dest.lng,
-                            'lat': dest.lat,
-                            'type': '景点',
-                            'rating': dest.rating or 4.5,
-                            'icon': 'tree',
-                            'data_source': 'database'
-                        })
-    except Exception as e:
-        logger.warning(f"从数据库获取周边景点失败: {e}")
-
-    # 2. 周边设施数据由前端 AMap.PlaceSearch 插件直接获取真实 POI
-    #    后端只提供数据库中的景点数据
-
-    # 按距离排序
-    items.sort(key=lambda x: float(x['distance'].replace('km', '')))
-    items = items[:limit]
-
-    # 标记数据来源
-    for item in items:
-        if item.get('data_source') is None:
-            item['data_source'] = 'generated'
-
-    return jsonify({
-        'success': True,
-        'items': items,
-        'count': len(items),
-        'center': {'lng': lng, 'lat': lat},
-        'radius_km': radius
-    })
-
-
-# ==================== 初始化函数 ====================
-
-def init_db():
-    """初始化数据库 - 创建表结构和示例数据"""
-    # 记录初始化开始时间
-    start_time = time.time()
-
-    # 在Flask应用上下文中执行数据库操作
-    with app.app_context():
-        # 创建所有数据库表
-        db.create_all()
-
-        # 检查景点表是否已有数据
-        if Destination.query.count() > 0:
-            # 如果已有数据，记录日志并跳过初始化
-            logger.info("✅ 数据库已存在，跳过初始化")
-            return
-
-        # 记录开始初始化数据的日志
-        logger.info("🌱 初始化基础数据...")
-
-        # 定义系统配置数据列表
-        configs = [
-            {'key': 'site_name', 'value': '智能旅游助手', 'value_type': 'string', 'category': 'basic', 'is_public': True},
-            {'key': 'site_description', 'value': '您的专属智能旅游规划助手', 'value_type': 'string', 'category': 'basic', 'is_public': True},
-            {'key': 'contact_email', 'value': 'contact@travel-assistant.com', 'value_type': 'string', 'category': 'contact', 'is_public': True},
-            {'key': 'enable_caching', 'value': 'true', 'value_type': 'bool', 'category': 'performance', 'is_public': False},
-            {'key': 'cache_timeout', 'value': '300', 'value_type': 'int', 'category': 'performance', 'is_public': False},
-        ]
-
-        # 定义示例景点数据列表
-        destinations = [
-            {
-                'name': '北京故宫',
-                'city': '北京',
-                'province': '北京市',
-                'description': '明清两朝的皇宫，现为故宫博物院，是世界上现存规模最大、保存最为完整的木质结构古建筑之一。',
-                'cover_image': '/images/forbidden-city.jpg',
-                'rating': 4.8,
-                'ticket_price': 60.0,
-                'open_time': '08:30-17:00'
-            },
-            {
-                'name': '上海外滩',
-                'city': '上海',
-                'province': '上海市',
-                'description': '上海的标志性景观，集古典与现代于一体，是上海的城市名片。',
-                'cover_image': '/images/bund.jpg',
-                'rating': 4.6,
-                'ticket_price': 0.0,
-                'open_time': '全天开放'
-            },
-            {
-                'name': '杭州西湖',
-                'city': '杭州',
-                'province': '浙江省',
-                'description': '中国著名的旅游胜地，以其秀丽的湖光山色和众多的名胜古迹闻名中外。',
-                'cover_image': '/images/west-lake.jpg',
-                'rating': 4.7,
-                'ticket_price': 0.0,
-                'open_time': '全天开放'
-            }
-        ]
-
-        # 遍历示例景点数据列表
-        for dest_data in destinations:
-            # 创建景点对象并添加到数据库会话
-            destination = Destination(**dest_data)
-            db.session.add(destination)
-
-        # 提交事务，批量保存景点数据到数据库
-        db.session.commit()
-
-        # 计算初始化耗时
-        init_time = time.time() - start_time
-        # 记录初始化完成日志
-        logger.info(f"✅ 数据库初始化完成，耗时: {init_time:.3f}s")
-        # 记录配置数量日志
-        logger.info(f"   - 配置：{len(configs)}")
-        # 记录景点数量日志
-        logger.info(f"   - 景点：{Destination.query.count()}")
-        # 记录用户数量日志
-        logger.info(f"   - 用户：{User.query.count()}")
-        # 记录行程数量日志
-        logger.info(f"   - 行程：{Trip.query.count()}")
-
-
-def seed_travel_notes():
-    """如果游记表为空，则插入示例游记数据"""
-    with app.app_context():
-        if TravelNote.query.count() > 0:
-            return
-
-        logger.info("🌱 初始化示例游记数据...")
-
-        # 获取可用的用户和目的地
-        users = User.query.limit(6).all()
-        user_ids = [u.id for u in users] if users else [1]
-
-        dest_map = {}
-        for d in Destination.query.filter(Destination.name.in_([
-            '故宫博物院', '杭州西湖', '西安城墙', '丽江古城', '外滩',
-            '张家界武陵源', '鼓浪屿', '黄山', '九寨沟', '桂林漓江景区', '泰山'
-        ])).all():
-            dest_map[d.name] = d.id
-
-        notes_data = [
-            {
-                'title': '北京3日游 | 打卡故宫、长城、颐和园',
-                'content': '这次北京之行真的太充实了！第一天早上直奔故宫，红墙黄瓦的皇家气派让人震撼，建议提前在官网预约门票。\n\n第二天去了八达岭长城，虽然有点累，但站在烽火台上俯瞰群山的瞬间，一切都值得了。记得穿舒适的运动鞋！\n\n最后一天游览了颐和园，昆明湖的游船体验很棒，十七孔桥的日落简直美哭了。\n\n美食推荐：全聚德烤鸭、护国寺小吃、炸酱面。\n\n住宿建议住在东城区，交通便利，离景点近。',
-                'cover_image': 'scenic_images/故宫博物院/故宫博物院_2.jpg',
-                'tags': ['北京', '亲子游', '摄影'],
-                'dest_name': '故宫博物院',
-                'view_count': 2356,
-                'like_count': 156,
-            },
-            {
-                'title': '杭州西湖2日游攻略 | 必去景点推荐',
-                'content': '西湖真的是百去不厌！这次趁着春天来，苏堤春晓名不虚传，桃红柳绿倒映在湖面上，像一幅水墨画。\n\n第一天沿着白堤漫步，断桥残雪、平湖秋月一路打卡。下午去了雷峰塔，登塔远眺西湖全景。\n\n第二天游览了灵隐寺，香火很旺，环境清幽。随后去了龙井村品茶，正宗的西湖龙井清香扑鼻。\n\n推荐美食：西湖醋鱼、东坡肉、龙井虾仁、知味小笼。\n\n小贴士：周末游客很多，建议工作日来；自行车环湖骑行体验超棒！',
-                'cover_image': 'scenic_images/杭州西湖/杭州西湖_1.jpg',
-                'tags': ['杭州', '闺蜜游', '网红打卡'],
-                'dest_name': '杭州西湖',
-                'view_count': 1890,
-                'like_count': 98,
-            },
-            {
-                'title': '西安旅行 | 兵马俑、回民街、城墙深度游',
-                'content': '西安，一座承载着千年历史的古都。这次4天3夜的行程让我彻底爱上了这座城市。\n\n第一天参观兵马俑，一号坑的阵势让人叹为观止，建议请个讲解，否则会错过很多故事。\n\n晚上直奔回民街，肉夹馍、羊肉泡馍、凉皮……吃到扶墙出！\n\n第二天骑行西安城墙，全长13.7公里，租辆自行车边骑边看，古城风光尽收眼底。\n\n第三天去了大雁塔和陕西历史博物馆，藏品丰富，讲解员专业。晚上大唐不夜城的灯光秀绝对不能错过！\n\n交通：地铁很方便，大多数景点都能直达。',
-                'cover_image': 'scenic_images/西安城墙/西安城墙_1.jpg',
-                'tags': ['西安', '文化之旅', '美食'],
-                'dest_name': '西安城墙',
-                'view_count': 3201,
-                'like_count': 203,
-            },
-            {
-                'title': '丽江古城3天2夜 | 邂逅最美古镇',
-                'content': '丽江，一个让人来了就不想走的地方。古城的石板路、小桥流水、纳西民居，处处透着慵懒和浪漫。\n\n第一天在古城里闲逛，四方街、木府、狮子山观景台，每一个角落都适合拍照。\n\n第二天去了玉龙雪山，坐大索道到4506米，然后徒步到4680米的观景台。蓝月谷的水真的像蓝宝石一样！\n\n第三天体验了拉市海骑马走茶马古道，虽然有点颠，但沿途风景绝美。\n\n晚上一定要去酒吧街坐坐，听着民谣，喝着啤酒，感受丽江的夜生活。\n\n注意：古城内拉行李箱很不方便，建议住古城边缘。',
-                'cover_image': 'scenic_images/丽江古城/丽江古城_1.jpg',
-                'tags': ['丽江', '情侣游', '古镇'],
-                'dest_name': '丽江古城',
-                'view_count': 4102,
-                'like_count': 287,
-            },
-            {
-                'title': '上海外滩 | 魔都夜景全攻略',
-                'content': '来上海，外滩是必打卡的地方。无论是白天的万国建筑博览群，还是夜晚的霓虹璀璨，都让人流连忘返。\n\n推荐路线：从南京东路步行街出发，一路走到外滩观景台。傍晚时分到达，可以同时欣赏日落和夜景。\n\n拍照最佳机位：外滩观景台、外滩源、北外滩滨江绿地。如果想拍全景，可以坐轮渡到浦东，从对岸拍外滩。\n\n周边推荐：和平饭店下午茶、外滩三号晚餐、豫园城隍庙小吃。\n\nTips：节假日人超级多，建议工作日晚上来；冬天江风大，记得带外套。',
-                'cover_image': 'scenic_images/外滩/外滩_1.jpg',
-                'tags': ['上海', '周末去哪', '拍照圣地'],
-                'dest_name': '外滩',
-                'view_count': 5621,
-                'like_count': 334,
-            },
-            {
-                'title': '张家界国家森林公园 | 奇峰怪石之旅',
-                'content': '张家界，阿凡达悬浮山的灵感来源地，这里的奇峰怪石绝对会让你大开眼界！\n\n第一天游览袁家界，乾坤柱、天下第一桥、迷魂台，每个景点都让人惊叹大自然的鬼斧神工。\n\n第二天去了天子山，云海翻涌时仿佛置身仙境。贺龙公园的观景台视野极佳。\n\n第三天走金鞭溪，7.5公里的峡谷步道，溪水清澈，空气清新，还能偶遇野生猕猴（注意别投喂哦）。\n\n住宿建议住在武陵源区，离景区近，餐饮选择也多。\n\n交通：张家界荷花机场有直达景区的班车，约40分钟。',
-                'cover_image': 'scenic_images/张家界武陵源/张家界武陵源_1.jpg',
-                'tags': ['张家界', '徒步', '自然风光'],
-                'dest_name': '张家界武陵源',
-                'view_count': 1876,
-                'like_count': 145,
-            },
-            {
-                'title': '厦门鼓浪屿 | 文艺小清新之旅',
-                'content': '鼓浪屿，一个没有机动车的小岛，只有琴声、海浪和慢时光。\n\n第一天逛了菽庄花园和钢琴博物馆，花园依海而建，亭台楼阁错落有致。钢琴博物馆里收藏了上百架古董钢琴。\n\n第二天去了日光岩，虽然爬山有点累，但登顶后俯瞰全岛风光，红瓦绿树、碧海蓝天，美得像一幅画。\n\n岛上的小吃也很棒：叶氏麻糍、沈家肠粉、龙头路海蛎煎……\n\n注意事项：上岛需要提前在公众号预约船票；岛上全靠步行，穿双舒服的鞋很重要。',
-                'cover_image': 'scenic_images/鼓浪屿/鼓浪屿_1.jpg',
-                'tags': ['厦门', '小众景点', '海岛'],
-                'dest_name': '鼓浪屿',
-                'view_count': 2987,
-                'like_count': 198,
-            },
-            {
-                'title': '黄山日出云海 | 摄影师的必去之地',
-                'content': '黄山归来不看岳，这句话只有亲自来过才能真正体会。\n\n第一天从云谷寺坐索道上山，游览始信峰、黑虎松、梦笔生花。晚上住在山顶酒店，虽然贵但看日出超值。\n\n第二天凌晨4点半起床去光明顶等日出。当第一缕阳光穿透云海，金色的光芒洒在奇松怪石上，那种震撼无法用语言形容。\n\n下午去了西海大峡谷，网红小火车一定要坐，穿梭在云雾中的感觉太梦幻了。\n\n装备建议：登山杖、防滑鞋、雨衣（山顶天气多变）、保温杯。',
-                'cover_image': 'scenic_images/黄山/黄山_1.jpg',
-                'tags': ['黄山', '摄影', '登山'],
-                'dest_name': '黄山',
-                'view_count': 2345,
-                'like_count': 167,
-            },
-            {
-                'title': '九寨沟秋天 | 童话般的彩色世界',
-                'content': '秋天的九寨沟，是大自然最绚烂的调色盘。\n\n五花海的水呈现出蓝、绿、黄、橙等多种颜色，像一块巨大的宝石镶嵌在山谷中。珍珠滩瀑布水流湍急，溅起的水珠在阳光下像珍珠一样闪闪发光。\n\n长海是九寨沟最大的海子，湖水碧绿深邃，周围的雪山倒映其中，美得让人窒息。\n\n诺日朗瀑布是西游记的取景地，宽达300米的瀑布群气势恢宏。\n\n最佳游览时间：10月中下旬，彩林最美的时候。\n\n注意：海拔较高，部分人会有轻微高反；景区内不能住宿，建议住沟口。',
-                'cover_image': 'scenic_images/九寨沟/九寨沟_1.jpg',
-                'tags': ['九寨沟', '秋天', '自然风光'],
-                'dest_name': '九寨沟',
-                'view_count': 4567,
-                'like_count': 389,
-            },
-            {
-                'title': '桂林山水 | 泛舟漓江的悠闲时光',
-                'content': '桂林山水甲天下，漓江山水甲桂林。这次来桂林，最大的感受就是：这里的山水果然名不虚传！\n\n第一天从桂林坐船游漓江到阳朔，4小时的船程，两岸奇峰倒映在碧绿的江水中，像一幅徐徐展开的水墨长卷。九马画山、黄布倒影……每一处的风景都让人沉醉。\n\n第二天在阳朔租了辆电动车，沿着遇龙河骑行，田园牧歌般的风光让人心旷神怡。下午体验了竹筏漂流，慢慢悠悠地漂在河上，看着两岸的青山绿水，时间仿佛都静止了。\n\n美食推荐：桂林米粉、啤酒鱼、荔浦芋扣肉。\n\nTips：漓江游船建议选三星或四星船，体验更好。',
-                'cover_image': 'scenic_images/桂林漓江景区/桂林漓江景区_1.jpg',
-                'tags': ['桂林', '周末游', '省钱攻略'],
-                'dest_name': '桂林漓江景区',
-                'view_count': 3124,
-                'like_count': 234,
-            },
-            {
-                'title': '泰山登顶 | 看日出云海的震撼之旅',
-                'content': '泰山，五岳之首，这次终于完成了登顶的心愿！\n\n选择了夜爬路线，晚上10点从红门出发，一路经过中天门、十八盘。十八盘那段真的很陡，台阶又窄又长，建议大家带登山杖，能省很多力。\n\n凌晨4点左右到达南天门，稍作休息后继续前往日观峰。虽然又冷又累，但当太阳从云海中缓缓升起，金色的光芒洒满群山的那一刻，所有的辛苦都化为了感动。\n\n下山时选择了桃花峪路线，风景秀丽，比原路返回轻松不少。\n\n必备物品：头灯/手电筒、厚外套（山顶很冷）、手套、热水、高热量零食。',
-                'cover_image': 'scenic_images/泰山/泰山_1.jpg',
-                'tags': ['泰山', '登山', '日出'],
-                'dest_name': '泰山',
-                'view_count': 2789,
-                'like_count': 201,
-            },
-        ]
-
-        import random
-        for idx, note_data in enumerate(notes_data):
-            dest_id = dest_map.get(note_data['dest_name'])
-            if not dest_id:
-                continue
-            user_id = user_ids[idx % len(user_ids)]
-            note = TravelNote(
-                user_id=user_id,
-                destination_id=dest_id,
-                title=note_data['title'],
-                content=note_data['content'],
-                cover_image=note_data['cover_image'],
-                tags=json.dumps(note_data['tags']),
-                view_count=note_data['view_count'],
-                like_count=note_data['like_count'],
-                status='published',
-                created_at=datetime.now() - timedelta(days=random.randint(10, 120))
-            )
-            db.session.add(note)
-
-        db.session.commit()
-        logger.info(f"✅ 已插入 {TravelNote.query.count()} 条示例游记")
-
-
-# ==================== 产品API ====================
-
-@app.route('/api/products', methods=['GET'])
-@rate_limit('products', limit=100)
-@cache_response(timeout=300, key_prefix='products')
-def get_products():
-    """获取产品列表 - 支持分页、筛选、排序"""
-    start_time = time.time()
-
-    page = request.args.get('page', 1, type=int)
-    per_page = min(request.args.get('per_page', 20, type=int), 100)
-    product_type = request.args.get('type', '').strip()
-    status = request.args.get('status', 'active').strip()
-    keyword = request.args.get('keyword', '').strip()
-    sort_by = request.args.get('sort_by', 'created_at')
-    sort_order = request.args.get('sort', 'desc')
-    min_price = request.args.get('min_price', type=float)
-    max_price = request.args.get('max_price', type=float)
-    limit = request.args.get('limit', type=int)
-
-    query = Product.query
-
-    if status:
-        query = query.filter_by(status=status)
-    if product_type:
-        query = query.filter_by(category=product_type)
-    if keyword:
-        query = query.filter(
-            db.or_(
-                Product.name.ilike(f'%{keyword}%'),
-                Product.description.ilike(f'%{keyword}%')
-            )
-        )
-    if min_price is not None:
-        query = query.filter(Product.base_price >= min_price)
-    if max_price is not None:
-        query = query.filter(Product.base_price <= max_price)
-
-    # 排序
-    sort_map = {
-        'rating': Product.rating,
-        'price': Product.base_price,
-        'sales': Product.sold_count,
-        'created_at': Product.created_at,
-    }
-    sort_column = sort_map.get(sort_by, Product.created_at)
-    if sort_order == 'asc':
-        query = query.order_by(sort_column.asc())
-    else:
-        query = query.order_by(sort_column.desc())
-
-    # 如果指定了limit参数，直接返回固定条数
-    if limit and limit > 0:
-        items = query.limit(min(limit, 100)).all()
-        return jsonify({
-            'success': True,
-            'products': [p.to_dict() for p in items],
-            'total': len(items),
-            'query_time': round(time.time() - start_time, 3)
-        })
-
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-
-    return jsonify({
-        'success': True,
-        'products': [p.to_dict() for p in pagination.items],
-        'total': pagination.total,
-        'page': page,
-        'pages': pagination.pages,
-        'per_page': per_page,
-        'query_time': round(time.time() - start_time, 3)
-    })
-
-
-# ==================== 搜索API ====================
-
-@app.route('/api/search', methods=['GET'])
-@rate_limit('search', limit=60)
-def global_search():
-    """全局搜索接口 - 搜索目的地和产品
-    
-    参数:
-    - q: 搜索关键词
-    - type: 搜索类型 (destinations/products/all)
-    - page: 页码
-    - per_page: 每页数量
-    """
-    keyword = request.args.get('q', '').strip()
-    search_type = request.args.get('type', 'all')
-    page = request.args.get('page', 1, type=int)
-    per_page = min(request.args.get('per_page', 20, type=int), 50)
-    
-    if not keyword:
-        return jsonify({
-            'success': True,
-            'destinations': [],
-            'products': [],
-            'total': 0
-        })
-    
-    results = {
-        'destinations': [],
-        'products': [],
-        'total': 0
-    }
-    
-    # 搜索目的地
-    if search_type in ('all', 'destinations'):
-        dest_query = Destination.query.filter(
-            db.or_(
-                Destination.name.contains(keyword),
-                Destination.city.contains(keyword),
-                Destination.province.contains(keyword),
-                Destination.description.contains(keyword)
-            )
-        )
-        dest_page = dest_query.paginate(page=page, per_page=per_page, error_out=False)
-        results['destinations'] = [d.to_dict() for d in dest_page.items]
-    
-    # 搜索产品
-    if search_type in ('all', 'products'):
-        prod_query = Product.query.filter(
-            db.or_(
-                Product.name.contains(keyword),
-                Product.subtitle.contains(keyword),
-                Product.description.contains(keyword)
-            ),
-            Product.status == 'active'
-        )
-        prod_page = prod_query.paginate(page=page, per_page=per_page, error_out=False)
-        results['products'] = [p.to_dict() for p in prod_page.items]
-    
-    # 计算总结果数
-    results['total'] = len(results['destinations']) + len(results['products'])
-    
-    return jsonify({
-        'success': True,
-        **results,
-        'page': page,
-        'per_page': per_page
-    })
-
-
-@app.route('/api/products/<int:id>', methods=['GET'])
-@rate_limit('products_detail', limit=200)
-@cache_response(timeout=600, key_prefix='product_detail')
-def get_product(id: int):
-    """获取单个产品详情"""
-    product = Product.query.get_or_404(id)
-    return jsonify({'success': True, 'product': product.to_dict()})
-
-
-@app.route('/api/products/<int:id>/reviews', methods=['GET'])
-@rate_limit('product_reviews', limit=100)
-def get_product_reviews(id: int):
-    """获取产品评价列表"""
-    product = Product.query.get_or_404(id)
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
-    reviews = ProductReview.query.filter_by(product_id=id).order_by(ProductReview.created_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
-    )
-    return jsonify({
-        'success': True,
-        'reviews': [r.to_dict() for r in reviews.items],
-        'total': reviews.total,
-        'page': page,
-        'per_page': per_page,
-    })
-
-
-@app.route('/api/products/<int:id>/reviews', methods=['POST'])
-@rate_limit('product_review_create', limit=20)
-def create_product_review(id: int):
-    """提交产品评价（需登录）"""
-    auth_header = request.headers.get('Authorization', '')
-    if not auth_header.startswith('Bearer '):
-        return jsonify({'success': False, 'error': '未授权'}), 401
-
-    token = auth_header[7:]
-    try:
-        payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-        user_id = payload.get('user_id')
-    except jwt.InvalidTokenError:
-        return jsonify({'success': False, 'error': '无效的token'}), 401
-
-    product = Product.query.get_or_404(id)
-    data = request.get_json() or {}
-    rating = data.get('rating', 5)
-    content = (data.get('content') or '').strip()
-    images = data.get('images', [])
-
-    if not content:
-        return jsonify({'success': False, 'error': '评价内容不能为空'}), 400
-    if not isinstance(rating, int) or rating < 1 or rating > 5:
-        return jsonify({'success': False, 'error': '评分必须是1-5的整数'}), 400
-
-    review = ProductReview(
-        product_id=id,
-        user_id=user_id,
-        rating=rating,
-        content=content,
-        images=json.dumps(images, ensure_ascii=False) if images else None,
-    )
-    db.session.add(review)
-
-    # 更新产品平均评分
-    avg_rating = db.session.query(db.func.avg(ProductReview.rating)).filter_by(product_id=id).scalar()
-    if avg_rating is not None:
-        product.rating = round(float(avg_rating), 1)
-
-    db.session.commit()
-    return jsonify({'success': True, 'review': review.to_dict()})
-
-
-
-
-# ==================== 通知API ====================
-
-@app.route('/api/notifications', methods=['GET'])
-@rate_limit('notifications', limit=50)
-def get_notifications():
-    """获取用户通知列表"""
-    try:
-        # 获取查询参数
-        user_id = request.args.get('user_id', type=int)
-        is_read = request.args.get('is_read', type=str)
-        per_page = request.args.get('per_page', default=20, type=int)
-        page = request.args.get('page', default=1, type=int)
-        
-        if not user_id:
-            return jsonify({'error': '缺少用户ID参数'}), 400
-        
-        # 构建查询
-        query = Notification.query.filter_by(user_id=user_id)
-        
-        # 如果指定了已读状态
-        if is_read is not None and is_read in ['true', 'false']:
-            query = query.filter_by(is_read=(is_read == 'true'))
-        
-        # 分页查询
-        notifications = query.order_by(Notification.created_at.desc()).paginate(
-            page=page, per_page=per_page, error_out=False
-        )
-        
-        # 构建响应数据
-        result = {
-            'notifications': [n.to_dict() for n in notifications.items],
-            'pagination': {
-                'page': page,
-                'per_page': per_page,
-                'total': notifications.total,
-                'pages': notifications.pages
-            }
-        }
-        
-        return jsonify(result)
-    
-    except Exception as e:
-        logger.error(f"获取通知列表失败: {str(e)}")
-        return jsonify({'error': '获取通知列表失败'}), 500
-
-
-@app.route('/api/notifications/<int:notification_id>/read', methods=['PUT'])
-@rate_limit('notifications_read', limit=100)
-def mark_notification_read(notification_id):
-    """标记通知为已读"""
-    try:
-        notification = Notification.query.get_or_404(notification_id)
-        
-        # 更新为已读状态
-        notification.is_read = True
-        notification.read_at = datetime.now()
-        db.session.commit()
-        
-        return jsonify({'message': '通知已标记为已读'})
-    
-    except Exception as e:
-        logger.error(f"标记通知为已读失败: {str(e)}")
-        return jsonify({'error': '操作失败'}), 500
-
-
-# ==================== 推荐API ====================
-
-@app.route('/api/recommendations', methods=['GET'])
-@rate_limit('recommendations', limit=50)
-def get_recommendations():
-    """获取个性化推荐"""
-    try:
-        # 获取查询参数
-        user_id = request.args.get('user_id', type=int)
-        limit = request.args.get('limit', default=8, type=int)
-        
-        # 如果没有用户ID，返回热门推荐
-        if not user_id:
-            # 返回热门景点（按评分排序）
-            recommendations = Destination.query.filter(
-                Destination.rating.isnot(None)
-            ).order_by(
-                Destination.rating.desc(),
-                Destination.id.desc()
-            ).limit(limit).all()
-            
-            result = [d.to_dict() for d in recommendations]
-            return jsonify(result)
-        
-        # 有用户ID时，基于用户行为推荐
-        # 1. 获取用户点赞的景点
-        user_likes = UserLike.query.filter_by(user_id=user_id).all()
-        liked_destinations = [like.destination_id for like in user_likes]
-        
-        # 2. 获取用户足迹
-        user_footprints = UserFootprint.query.filter_by(user_id=user_id).all()
-        visited_destinations = [fp.destination_id for fp in user_footprints]
-        
-        # 3. 推荐逻辑：推荐用户喜欢的景点的相似景点
-        if liked_destinations:
-            # 获取用户喜欢的景点所在城市
-            liked_cities = db.session.query(Destination.city).filter(
-                Destination.id.in_(liked_destinations)
-            ).distinct().all()
-            liked_cities = [city[0] for city in liked_cities]
-            
-            # 推荐同一城市的热门景点（排除已访问的）
-            recommendations = Destination.query.filter(
-                Destination.city.in_(liked_cities),
-                Destination.id.notin_(visited_destinations + liked_destinations)
-            ).order_by(
-                Destination.rating.desc(),
-                Destination.id.desc()
-            ).limit(limit).all()
-            
-            if recommendations:
-                result = [d.to_dict() for d in recommendations]
-                return jsonify(result)
-        
-        # 4. 如果没有基于城市推荐，返回热门景点
-        recommendations = Destination.query.filter(
-            Destination.rating.isnot(None),
-            Destination.id.notin_(visited_destinations)
-        ).order_by(
-            Destination.rating.desc(),
-            Destination.id.desc()
-        ).limit(limit).all()
-        
-        result = [d.to_dict() for d in recommendations]
-        return jsonify(result)
-    
-    except Exception as e:
-        logger.error(f"获取推荐失败: {str(e)}")
-        return jsonify({'error': '获取推荐失败'}), 500
-
-
-# ==================== AI助手对话API ====================
-
-# AI服务缓存，避免每次请求都重新创建
-_ai_service_cache = None
-_ai_service_config_hash = None
-
-# 所有AI服务商配置
-_ai_configs = None
-
-def _get_all_ai_configs():
-    """获取所有AI服务商配置"""
-    global _ai_configs
-    if _ai_configs is not None:
-        return _ai_configs
-    
-    _ai_configs = [
-        {
-            'name': 'Moonshot',
-            'api_key': os.getenv('MOONSHOT_API_KEY', ''),
-            'base_url': os.getenv('MOONSHOT_BASE_URL', 'https://api.moonshot.cn/v1'),
-            'model': os.getenv('MOONSHOT_MODEL', 'moonshot-v1-8k')
-        },
-        {
-            'name': 'Zhipu',
-            'api_key': os.getenv('ZHIPU_API_KEY', ''),
-            'base_url': os.getenv('ZHIPU_BASE_URL', 'https://open.bigmodel.cn/api/paas/v4'),
-            'model': os.getenv('ZHIPU_MODEL', 'glm-4-flash')
-        },
-        {
-            'name': 'Zhipu-Backup',
-            'api_key': os.getenv('ZHIPU_API_KEY', ''),
-            'base_url': os.getenv('ZHIPU_BASE_URL', 'https://open.bigmodel.cn/api/paas/v4'),
-            'model': os.getenv('ZHIPU_MODEL_BACKUP', 'glm-4.5-air')
-        },
-        {
-            'name': 'OpenAI',
-            'api_key': os.getenv('OPENAI_API_KEY', ''),
-            'base_url': os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-            'model': os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
-        },
-    ]
-    # 过滤掉没有api_key或重复的配置
-    seen = set()
-    filtered = []
-    for c in _ai_configs:
-        key = (c['api_key'], c['model'])
-        if c['api_key'] and key not in seen:
-            seen.add(key)
-            filtered.append(c)
-    _ai_configs = filtered
-    return _ai_configs
-
-def get_ai_service():
-    """获取AI服务实例 - 支持多服务商自动切换"""
-    global _ai_service_cache, _ai_service_config_hash
-
-    # 根据配置生成hash，用于检测配置是否变化
-    all_keys = tuple(f"{k}={os.getenv(k, '')}" for k in [
-        'MOONSHOT_API_KEY', 'MOONSHOT_MODEL', 'ZHIPU_API_KEY', 'ZHIPU_MODEL', 
-        'OPENAI_API_KEY', 'OPENAI_MODEL', 'AI_API_KEY', 'AI_MODEL'
-    ])
-    current_hash = hash(all_keys)
-
-    # 如果配置没变且缓存存在，直接返回缓存
-    if _ai_service_cache is not None and _ai_service_config_hash == current_hash:
-        return _ai_service_cache
-
-    configs = _get_all_ai_configs()
-    if not configs:
-        logger.warning("未配置任何AI API Key")
-        _ai_service_cache = None
-        _ai_service_config_hash = current_hash
-        return None
-
-    logger.info(f"已配置 {len(configs)} 个AI服务商: {[c['name'] for c in configs]}")
-
-    class AIService:
-        """多服务商AI服务，支持自动切换"""
-        def __init__(self):
-            self.configs = _get_all_ai_configs()
-            self.current_idx = 0
-            
-        def _call_api(self, config, messages, timeout=30):
-            """调用单个AI服务"""
-            import requests as req
-            resp = req.post(
-                f"{config['base_url']}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {config['api_key']}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": config['model'],
-                    "messages": messages,
-                    "max_tokens": 2048
-                },
-                timeout=timeout
-            )
-            return resp
-
-        def chat(self, messages, timeout=120):
-            """同步非流式调用，自动切换到可用的AI服务"""
-            last_error = None
-            
-            # 遍历所有AI配置
-            for i in range(len(self.configs)):
-                config = self.configs[i]
-                try:
-                    resp = self._call_api(config, messages, timeout)
-                    
-                    # 429限流，尝试下一个服务
-                    if resp.status_code == 429:
-                        logger.warning(f"[{config['name']}] {config['model']} 限流(429)，切换到下一个AI服务")
-                        last_error = "429"
-                        continue
-                    
-                    resp.raise_for_status()
-                    data = resp.json()
-                    logger.info(f"AI调用成功: {config['name']} {config['model']}")
-                    return data['choices'][0]['message']['content']
-                    
-                except Exception as e:
-                    err_str = str(e)
-                    if '429' in err_str or 'Too Many Requests' in err_str:
-                        logger.warning(f"[{config['name']}] {config['model']} 限流，切换到下一个AI服务")
-                        last_error = "429"
-                        continue
-                    logger.error(f"[{config['name']}] {config['model']} 调用失败: {err_str}")
-                    last_error = err_str
-                    # 非限流错误，尝试下一个服务
-                    continue
-            
-            # 所有AI服务都失败
-            raise Exception(last_error or "所有AI服务均不可用")
-
-        def chat_stream(self, messages):
-            """真实 SSE 流式调用，收到 token 立即 yield，优化延迟"""
-            import requests as req
-            # 遍历所有配置尝试
-            for config in self.configs:
-                try:
-                    resp = req.post(
-                        f"{config['base_url']}/chat/completions",
-                        headers={
-                            "Authorization": f"Bearer {config['api_key']}",
-                            "Content-Type": "application/json"
-                        },
-                        json={
-                            "model": config['model'],
-                            "messages": messages,
-                            "max_tokens": 2048,
-                            "stream": True,
-                            "temperature": 0.7
-                        },
-                        timeout=30,
-                        stream=True
-                    )
-                    if resp.status_code == 429:
-                        continue
-                    resp.raise_for_status()
-                    for line in resp.iter_lines():
-                        if not line:
-                            continue
-                        line_text = line.decode('utf-8') if isinstance(line, bytes) else line
-                        if line_text.startswith('data: '):
-                            payload = line_text[6:]
-                            if payload.strip() == '[DONE]':
-                                return
-                            try:
-                                chunk_data = json.loads(payload)
-                                delta = chunk_data.get('choices', [{}])[0].get('delta', {})
-                                content = delta.get('content', '')
-                                if content:
-                                    yield content
-                            except Exception:
-                                pass
-                    return
-                except Exception as e:
-                    if '429' in str(e):
-                        continue
-                    logger.warning(f"[{config['name']}] 流式调用失败: {e}")
-                    continue
-            raise Exception("所有AI服务均不可用")
-
-        def chat_with_tools(self, messages, tools):
-            """带函数调用的对话 - 支持自动执行工具（遍历所有AI服务）"""
-            import requests as req
-            last_error = None
-            
-            # 遍历所有AI配置尝试
-            for config in self.configs:
-                try:
-                    # 第一次调用 - 检查是否需要函数调用
-                    resp = req.post(
-                        f"{config['base_url']}/chat/completions",
-                        headers={
-                            "Authorization": f"Bearer {config['api_key']}",
-                            "Content-Type": "application/json"
-                        },
-                        json={
-                            "model": config['model'],
-                            "messages": messages,
-                            "max_tokens": 2048,
-                            "stream": False,
-                            "temperature": 0.7,
-                            "tools": tools
-                        },
-                        timeout=30
-                    )
-                    
-                    if resp.status_code == 429:
-                        logger.warning(f"[{config['name']}] 限流，切换")
-                        continue
-                    
-                    resp.raise_for_status()
-                    data = resp.json()
-                    assistant_msg = data['choices'][0]['message']
-                    
-                    # 检查是否有函数调用，限制最多 3 轮工具调用
-                    if 'tool_calls' in assistant_msg:
-                        logger.info(f"[{config['name']}] 触发了函数调用")
-                        messages = messages + [assistant_msg]
-                        
-                        tool_call_count = 0
-                        max_tool_calls = 3  # 最多 3 轮工具调用
-                        
-                        while 'tool_calls' in assistant_msg and tool_call_count < max_tool_calls:
-                            tool_call_count += 1
-                            logger.info(f"[{config['name']}] 工具调用第 {tool_call_count} 轮")
-                            
-                            for tool_call in assistant_msg['tool_calls']:
-                                func_name = tool_call['function']['name']
-                                func_args = json.loads(tool_call['function']['arguments'])
-                                result = self.execute_tool(func_name, func_args)
-                                messages.append({
-                                    'role': 'tool',
-                                    'tool_call_id': tool_call['id'],
-                                    'content': result
-                                })
-                            
-                            # 再次调用获取下一轮响应
-                            resp2 = req.post(
-                                f"{config['base_url']}/chat/completions",
-                                headers={
-                                    "Authorization": f"Bearer {config['api_key']}",
-                                    "Content-Type": "application/json"
-                                },
-                                json={
-                                    "model": config['model'],
-                                    "messages": messages,
-                                    "max_tokens": 2048,
-                                    "stream": False,
-                                    "temperature": 0.7,
-                                    "tools": tools  # 继续传递 tools 以支持多轮调用
-                                },
-                                timeout=30
-                            )
-
-                            if resp2.status_code == 429:
-                                break
-                            
-                            resp2.raise_for_status()
-                            final_data = resp2.json()
-                            assistant_msg = final_data['choices'][0]['message']
-                            
-                            # 如果没有更多工具调用，返回结果
-                            if 'tool_calls' not in assistant_msg:
-                                return assistant_msg.get('content', '') or ''
-                        
-                        # 达到最大轮次或出错，返回当前内容
-                        return assistant_msg.get('content', '') or ''
-                    
-                    return assistant_msg.get('content', '')
-                    
-                except Exception as e:
-                    err_str = str(e)
-                    if '429' in err_str:
-                        logger.warning(f"[{config['name']}] 限流，尝试下一个")
-                        continue
-                    logger.error(f"[{config['name']}] 失败: {err_str}")
-                    last_error = err_str
-                    continue
-            
-            raise Exception(last_error or "所有AI服务均不可用")
-        
-        def execute_tool(self, name, args):
-            """执行工具函数"""
-            if name == 'get_weather':
-                city = args.get('city', '')
-                result = get_weather_info(city)
-                return result
-            elif name == 'search_destinations':
-                query = args.get('query', '')
-                # 简单搜索实现
-                from app import Destination
-                dests = Destination.query.filter(
-                    Destination.name.like(f'%{query}%') | 
-                    Destination.city.like(f'%{query}%')
-                ).limit(5).all()
-                if dests:
-                    result = '找到以下目的地：' + '、'.join([f"{d.name}({d.city})" for d in dests])
-                else:
-                    result = f'没有找到与"{query}"相关的目的地'
-                return result
-            elif name == 'get_itinerary':
-                destination = args.get('destination', '')
-                days = args.get('days', 3)
-                # 搜索目的地景点
-                from app import Destination
-                dests = Destination.query.filter(
-                    Destination.name.like(f'%{destination}%') | 
-                    Destination.city.like(f'%{destination}%') |
-                    Destination.province.like(f'%{destination}%')
-                ).limit(10).all()
-                
-                if dests:
-                    spots = '\n'.join([f"- **{d.name}**（{d.city}，{d.rating}分，门票约{d.ticket_price}元）" for d in dests[:6]])
-                    itinerary = f"""# {destination} {days}日游行程规划
-
-## 🎯 目的地概览
-{len(dests)}个热门景点推荐
-
-## 🏞️ 推荐景点
-{spots}
-
-## 📅 建议行程安排
-
-**第1天**：抵达后先办理入住，下午游览{dests[0].name if dests else destination}，晚上品尝当地美食
-
-**第2天**：全天游览{dests[1].name if len(dests) > 1 else destination}，体验当地文化
-
-**第3天**：根据返程时间，可选择{dests[2].name if len(dests) > 2 else destination}或自由活动
-
-## 💡 小贴士
-- 建议提前预约热门景点门票
-- 河南美食：烩面、胡辣汤、灌汤包
-- 出行注意防晒，带好雨具
-
-祝您旅途愉快！🚗"""
-                    return itinerary
-                else:
-                    return f"""# {destination} {days}日游行程规划
-
-抱歉，数据库中暂未收录{destination}的详细景点信息。
-
-## 📋 建议行程
-
-**第1天**：抵达{destination}，入住酒店，品尝当地美食
-
-**第2天**：游览当地著名景点（建议提前查询热门景区）
-
-**第3天**：根据返程时间安排自由活动
-
-## 💡 出行建议
-- 可通过本平台的景点搜索功能查找{destination}的景点
-- 建议提前查看天气情况
-- 预订门票时注意开放时间
-
-祝您旅途愉快！🚗"""
-
-    _ai_service_cache = AIService()
-    _ai_service_config_hash = current_hash
-    return _ai_service_cache
-
-
-@app.route('/api/chat', methods=['POST', 'OPTIONS'])
-@rate_limit('chat', limit=20)
-def chat():
-    """AI助手对话接口（简化版，代理到AI服务）"""
-    # 处理OPTIONS请求
-    if request.method == 'OPTIONS':
-        response = make_response()
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        return response
-    
-    try:
-        # 获取请求数据
-        data = request.get_json()
-
-        # 支持 messages 数组格式 或单个 message 格式
-        if not data:
-            return jsonify({'error': '缺少参数'}), 400
-
-        # 如果是 messages 数组格式（前端发送的格式）
-        if 'messages' in data and isinstance(data['messages'], list):
-            messages = [
-                {'role': 'system', 'content': '''你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。
-
-重要提示：
-1. 回答时使用 Markdown 格式来美化内容
-2. 表格数据请使用 Markdown 表格格式，例如：
-   | 城市 | 天气 | 温度 | 建议 |
-   |------|------|------|------|
-   | 北京 | ☀️ 晴 | 25°C | 适合户外活动 |
-3. 列表项目使用有序或无序列表
-4. 标题使用 ## 或 ### 标注
-5. 重点信息使用 **加粗**'''},
-            ]
-            messages.extend(data['messages'])
-        elif 'message' in data:
-            # 单个 message 格式（兼容旧格式）
-            user_message = data['message']
-            messages = [
-                {'role': 'system', 'content': '''你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。
-
-重要提示：
-1. 回答时使用 Markdown 格式来美化内容
-2. 表格数据请使用 Markdown 表格格式
-3. 列表项目使用有序或无序列表
-4. 标题使用 ## 或 ### 标注'''},
-                {'role': 'user', 'content': user_message}
-            ]
-        else:
-            return jsonify({'error': '缺少message参数'}), 400
-        
-        # 获取AI服务配置
-        ai_service = get_ai_service()
-        if not ai_service:
-            # AI服务未配置，返回降级响应
-            logger.warning("AI服务未配置，返回降级响应")
-            return jsonify({
-                'success': True,
-                'reply': '您好！我是您的旅行助手小游。目前AI服务暂未配置，但我可以帮您查看景点信息。请告诉我您想去哪里旅行？',
-                'timestamp': datetime.now().isoformat(),
-                'mode': 'fallback'
-            })
-        
-        # 调用AI服务进行对话
-        response = ai_service.chat(messages)
-        
-        # 构建响应
-        result = {
-            'success': True,
-            'reply': response,
-            'timestamp': datetime.now().isoformat(),
-            'mode': 'ai'
-        }
-        
-        return jsonify(result)
-    
-    except Exception as e:
-        logger.error(f"AI对话失败: {str(e)}")
-        return jsonify({
-            'success': False,
-            'reply': '抱歉，AI服务暂时不可用。您可以尝试刷新页面或稍后重试。',
-            'timestamp': datetime.now().isoformat(),
-            'mode': 'error_fallback',
-            'error': str(e)
-        })
-
-
-def generate_agent_stream(ai_service, messages):
-    """生成Agent模式SSE流式响应 - 支持工具调用"""
-    try:
-        yield f"data: {json.dumps({'type': 'thinking', 'tool': 'ai', 'label': '正在思考'}, ensure_ascii=False)}\n\n"
-
-        # 尝试带工具调用的流式模式
-        try:
-            has_stream = hasattr(ai_service, 'chat_stream_with_tools')
-            has_sync = hasattr(ai_service, 'chat_with_tools')
-
-            if has_stream:
-                # 真正的流式工具调用：边生成边输出
-                full = ''
-                for event in ai_service.chat_stream_with_tools(messages, TRAVEL_AGENT_TOOLS):
-                    etype = event.get('type', 'content')
-                    if etype == 'thinking':
-                        yield f"data: {json.dumps({'type': 'thinking', 'tool': event.get('tool', 'tool'), 'label': event.get('label', '处理中')}, ensure_ascii=False)}\n\n"
-                    elif etype == 'tool_result':
-                        yield f"data: {json.dumps({'type': 'tool_result', 'tool': event.get('tool', 'tool')}, ensure_ascii=False)}\n\n"
-                    elif etype == 'content':
-                        chunk = event.get('data', '')
-                        full += chunk
-                        if chunk:
-                            yield f"data: {json.dumps({'type': 'content', 'data': chunk}, ensure_ascii=False)}\n\n"
-                if not full:
-                    yield f"data: {json.dumps({'type': 'content', 'data': '未收到回复，请稍后再试'}, ensure_ascii=False)}\n\n"
-            elif has_sync:
-                # 同步工具调用：完成后一次性流式输出
-                yield f"data: {json.dumps({'type': 'thinking', 'tool': 'tool', 'label': '正在处理'}, ensure_ascii=False)}\n\n"
-                content = ai_service.chat_with_tools(messages, TRAVEL_AGENT_TOOLS)
-                if content:
-                    for i in range(0, len(content), 10):
-                        yield f"data: {json.dumps({'type': 'content', 'data': content[i:i+10]}, ensure_ascii=False)}\n\n"
-                else:
-                    yield f"data: {json.dumps({'type': 'content', 'data': '未收到回复，请稍后再试'}, ensure_ascii=False)}\n\n"
-                yield f"data: {json.dumps({'type': 'tool_result', 'tool': 'tool'}, ensure_ascii=False)}\n\n"
-            else:
-                # 无工具支持：回退到普通流式
-                for token in ai_service.chat_stream(messages):
-                    yield f"data: {json.dumps({'type': 'content', 'data': token}, ensure_ascii=False)}\n\n"
-
-        except Exception as inner_e:
-            logger.error(f"Agent流式生成内部错误: {str(inner_e)}")
-            yield f"data: {json.dumps({'type': 'content', 'data': 'AI 服务暂时繁忙，请稍后再试～'}, ensure_ascii=False)}\n\n"
-
-        yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
-
-    except Exception as e:
-        logger.error(f"Agent流式生成失败: {str(e)}")
-        yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
-
-
-# AI Agent 工具定义
-TRAVEL_AGENT_TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "获取指定城市的实时天气信息。当用户询问某个地方的天气时调用此工具。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "city": {
-                        "type": "string",
-                        "description": "城市名称，如：北京、上海、郑州"
-                    }
-                },
-                "required": ["city"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "search_destinations",
-            "description": "搜索旅游景点目的地。当用户想了解某个地方的景点时调用此工具。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "搜索关键词，可以是城市名或景点名"
-                    }
-                },
-                "required": ["query"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_itinerary",
-            "description": "生成旅行行程规划。当用户需要制定旅行计划时调用此工具。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "destination": {
-                        "type": "string",
-                        "description": "目的地城市或景点"
-                    },
-                    "days": {
-                        "type": "integer",
-                        "description": "旅行天数，默认3天"
-                    }
-                },
-                "required": ["destination"]
-            }
-        }
-    }
-]
-
-
-@app.route('/api/agent/chat', methods=['POST', 'OPTIONS'])
-@rate_limit('agent_chat', limit=20)
-def agent_chat():
-    """AI助手对话接口（Agent模式）- 支持SSE流式响应"""
-    # 处理OPTIONS请求
-    if request.method == 'OPTIONS':
-        response = make_response()
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        return response
-    
-    try:
-        # 获取请求数据
-        data = request.get_json()
-        if not data or 'messages' not in data:
-            return jsonify({'error': '缺少messages参数'}), 400
-        
-        messages = data['messages']
-        
-        # 添加 system prompt（与 /api/chat 保持一致）
-        system_msg = {'role': 'system', 'content': '''你是小游，一个热情友好的旅行规划师。请用专业、简洁的方式回答用户的问题。
-
-重要提示：
-1. 回答时使用 Markdown 格式来美化内容
-2. 表格数据请使用 Markdown 表格格式，例如：
-   | 城市 | 天气 | 温度 | 建议 |
-   |------|------|------|------|
-   | 北京 | ☀️ 晴 | 25°C | 适合户外活动 |
-3. 列表项目使用有序或无序列表
-4. 标题使用 ## 或 ### 标注
-5. 重点信息使用 **加粗**'''}
-        if messages and isinstance(messages, list):
-            # 如果第一条不是 system 消息，插入 system prompt
-            if not (messages[0].get('role') == 'system'):
-                messages = [system_msg] + messages
-        
-        # 验证消息格式
-        if not isinstance(messages, list) or len(messages) == 0:
-            return jsonify({'error': 'messages必须是非空数组'}), 400
-        
-        # 获取AI服务配置
-        ai_service = get_ai_service()
-        if not ai_service:
-            # AI服务未配置，返回流式降级响应
-            def generate_fallback():
-                fallback_msg = '您好！我是您的旅行助手。目前AI服务暂未配置，但我可以帮您查看景点信息和规划基础行程。请告诉我您想去哪里旅行？'
-                yield f"data: {json.dumps({'type': 'content', 'data': fallback_msg}, ensure_ascii=False)}\n\n"
-                yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
-            
-            response = make_response(generate_fallback(), 200)
-            response.headers['Content-Type'] = 'text/event-stream; charset=utf-8'
-            response.headers['Cache-Control'] = 'no-cache'
-            response.headers['X-Accel-Buffering'] = 'no'
-            return response
-        
-        # 返回SSE流式响应
-        response = make_response(generate_agent_stream(ai_service, messages), 200)
-        response.headers['Content-Type'] = 'text/event-stream; charset=utf-8'
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-        response.headers['X-Accel-Buffering'] = 'no'
-        response.headers['Connection'] = 'keep-alive'
-        return response
-    
-    except Exception as e:
-        logger.error(f"AI对话失败: {str(e)}")
-        # 返回流式错误响应
-        def generate_error():
-            yield f"data: {json.dumps({'type': 'error', 'message': 'AI服务暂时不可用'}, ensure_ascii=False)}\n\n"
-
-        response = make_response(generate_error(), 200)
-        response.headers['Content-Type'] = 'text/event-stream; charset=utf-8'
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-        response.headers['X-Accel-Buffering'] = 'no'
-        response.headers['Connection'] = 'keep-alive'
-        return response
-
-
-# ==================== 行程生成API ====================
-
-@app.route('/api/itinerary/generate', methods=['POST'])
-@rate_limit('itinerary_generate', limit=10)
-def generate_itinerary():
-    """生成行程API"""
-    try:
-        # 验证用户身份
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未登录，请先登录'}), 401
-
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-            if not user_id:
-                return jsonify({'success': False, 'error': '无效的token'}), 401
-        except jwt.ExpiredSignatureError:
-            return jsonify({'success': False, 'error': 'token已过期，请重新登录'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'success': False, 'error': '用户不存在'}), 401
-
-        data = request.get_json() or {}
-        destination = data.get('destination', '')
-        days = min(7, max(1, int(data.get('days', 3))))
-        budget = data.get('budget_hint', 0)
-        preferences = data.get('preferences', {})
-
-        if not destination:
-            return jsonify({'success': False, 'error': '请提供目的地'}), 400
-
-        # 构建AI提示词
-        budget_text = f"预算{budget}元" if budget else "自由行"
-        prompt = f"""请为去{destination}旅行{days}天({budget_text})生成一份详细行程规划。
-
-请以JSON格式返回，结构如下：
-{{
-  "title": "行程标题，如：杭州3日游",
-  "description": "行程简介",
-  "days": [
-    {{
-      "day": 1,
-      "theme": "第一天主题",
-      "items": [
-        {{"time": "09:00", "title": "景点名称", "description": "景点描述", "location": "地址"}},
-        {{"time": "12:00", "title": "午餐推荐", "description": "美食推荐", "location": "餐厅地址"}}
-      ]
-    }}
-  ]
-}}
-
-请确保JSON格式正确，可以被JSON.parse解析。"""
-
-        # 调用AI生成行程
-        ai_service = get_ai_service()
-        if not ai_service:
-            return jsonify({'success': False, 'error': 'AI服务暂不可用'}), 500
-
-        try:
-            response_text = ai_service.chat([{"role": "user", "content": prompt}], timeout=120)
-        except Exception as e:
-            error_str = str(e)
-            # 限流处理：返回降级行程
-            if '429' in error_str or 'Too Many Requests' in error_str:
-                logger.warning("AI限流，返回降级行程")
-                # 使用内置行程模板
-                fallback_trip = {
-                    "title": f"{destination}{days}日游",
-                    "description": f"根据您的需求，为您规划了{days}天{destination}之旅",
-                    "days": [
-                        {"day": i+1, "theme": f"第{i+1}天", "items": [
-                            {"time": "09:00", "title": f"{destination}著名景点", "description": "根据您的偏好推荐", "location": destination},
-                            {"time": "12:00", "title": "当地美食", "description": "品尝特色美食", "location": ""},
-                            {"time": "14:00", "title": "游览观光", "description": "继续探索", "location": ""},
-                            {"time": "18:00", "title": "晚餐/休息", "description": "结束一天的行程", "location": ""}
-                        ]} for i in range(days)
-                    ]
-                }
-                trip_data = fallback_trip
-                json_text = json.dumps(fallback_trip)
-            else:
-                logger.error(f"AI生成行程失败: {error_str}")
-                return jsonify({'success': False, 'error': 'AI生成失败，请稍后重试'}), 500
-
-        # 解析AI返回内容
-        import re
-        # 尝试多种方式提取JSON
-        json_text = None
-
-        # 方法1: 尝试直接解析整个响应
-        try:
-            trip_data = json.loads(response_text.strip())
-            json_text = response_text
-        except:
-            pass
-
-        # 方法2: 尝试找到 ```json ... ``` 块
-        if not json_text:
-            json_blocks = re.findall(r'```(?:json)?\s*([\s\S]*?)\s*```', response_text)
-            for block in json_blocks:
-                try:
-                    trip_data = json.loads(block.strip())
-                    json_text = block.strip()
-                    break
-                except:
-                    continue
-
-        # 方法3: 尝试找到 { ... } 块
-        if not json_text:
-            json_match = re.search(r'\{[\s\S]*\}', response_text)
-            if json_match:
-                try:
-                    trip_data = json.loads(json_match.group())
-                    json_text = json_match.group()
-                except:
-                    pass
-
-        if not json_text:
-            logger.error(f"AI返回内容无法解析: {response_text[:500]}")
-            return jsonify({'success': False, 'error': '行程生成格式错误，请重试'}), 500
-
-        try:
-            trip_data = json.loads(json_text)
-        except:
-            logger.error(f"JSON解析失败: {json_text[:500]}")
-            return jsonify({'success': False, 'error': '行程解析失败，请重试'}), 500
-
-        # 创建行程记录
-        from datetime import datetime, timedelta
-        start_date = datetime.now().date()
-        end_date = start_date + timedelta(days=days)
-
-        trip = Trip(
-            user_id=user.id,
-            title=trip_data.get('title', f'{destination}{days}日游'),
-            description=trip_data.get('description', ''),
-            start_date=start_date,
-            end_date=end_date,
-            status='planning'
-        )
-        db.session.add(trip)
-        db.session.flush()  # 获取trip.id
-
-        # 创建行程项目
-        items = []
-        for day_info in (trip_data.get('days') or [])[:days]:
-            day_num = day_info.get('day', 1)
-            for idx, item in enumerate(day_info.get('items') or []):
-                trip_item = TripItem(
-                    trip_id=trip.id,
-                    day_number=day_num,
-                    title=item.get('title', ''),
-                    description=item.get('description', ''),
-                    location=item.get('location', ''),
-                    start_time=datetime.strptime(item.get('time', '09:00'), '%H:%M').time() if item.get('time') else None,
-                    sort_order=idx
-                )
-                db.session.add(trip_item)
-                items.append(trip_item)
-
-        db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'trip': trip.to_dict(),
-            'items': [item.to_dict() for item in items]
-        })
-
-    except Exception as e:
-        import traceback
-        logger.error(f"行程生成失败: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({'success': False, 'error': f'服务器错误: {str(e)}'}), 500
-
-
-# ==================== AI对话与行程规划 API ====================
-
-def _detect_intent(text: str) -> str:
-    """简单的意图识别"""
-    text_lower = text.lower()
-    if any(k in text_lower for k in ['行程', '规划', '攻略', '几天', '旅行']):
-        return '行程规划'
-    elif any(k in text_lower for k in ['推荐', '建议', '哪个好']):
-        return '推荐咨询'
-    elif any(k in text_lower for k in ['酒店', '住宿', '住哪']):
-        return '酒店咨询'
-    elif any(k in text_lower for k in ['天气', '温度', '气候']):
-        return '天气咨询'
-    elif any(k in text_lower for k in ['价格', '多少钱', '费用', '预算']):
-        return '价格咨询'
-    elif any(k in text_lower for k in ['预订', '订票', '买票']):
-        return '预订咨询'
-    return '通用咨询'
-
-
-@app.route('/api/conversations/save', methods=['POST'])
-def save_conversation():
-    """保存单条对话记录到数据库"""
-    try:
-        data = request.get_json() or {}
-        user_id = data.get('user_id')
-        session_id = data.get('session_id', 'default')
-        role = data.get('role', 'user')
-        content = data.get('content', '')
-        intent = data.get('intent') or _detect_intent(content)
-        metadata = data.get('metadata')
-
-        if not content:
-            return jsonify({'success': False, 'error': '内容不能为空'}), 400
-
-        conversation = AIConversation(
-            user_id=user_id,
-            session_id=session_id,
-            role=role,
-            content=content,
-            intent=intent,
-            meta_data=metadata
-        )
-        db.session.add(conversation)
-        db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'id': conversation.id,
-            'conversation': conversation.to_dict()
-        })
-
-    except Exception as e:
-        logger.error(f"保存对话失败: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/conversations/history', methods=['GET'])
-def get_conversation_history():
-    """获取对话历史"""
-    try:
-        session_id = request.args.get('session_id')
-        user_id = request.args.get('user_id', type=int)
-        limit = min(100, max(1, request.args.get('limit', 50, type=int)))
-        offset = max(0, request.args.get('offset', 0, type=int))
-
-        query = AIConversation.query
-
-        if session_id:
-            query = query.filter(AIConversation.session_id == session_id)
-        if user_id:
-            query = query.filter(AIConversation.user_id == user_id)
-
-        total = query.count()
-        conversations = query.order_by(AIConversation.created_at.desc()).offset(offset).limit(limit).all()
-
-        return jsonify({
-            'success': True,
-            'total': total,
-            'conversations': [c.to_dict() for c in conversations]
-        })
-
-    except Exception as e:
-        logger.error(f"获取对话历史失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/conversations/sessions', methods=['GET'])
-def get_conversation_sessions():
-    """获取用户的所有会话列表"""
-    try:
-        user_id = request.args.get('user_id', type=int)
-        
-        # 未登录用户也允许访问，返回空列表
-        if not user_id:
-            return jsonify({'success': True, 'sessions': []})
-
-        # 按session_id分组，获取每个会话的最新一条和消息数量
-        from sqlalchemy import func
-
-        sessions = db.session.query(
-            AIConversation.session_id,
-            func.max(AIConversation.created_at).label('latest_at'),
-            func.count(AIConversation.id).label('message_count'),
-            func.max(AIConversation.content).label('latest_content')
-        ).filter(
-            AIConversation.user_id == user_id
-        ).group_by(
-            AIConversation.session_id
-        ).order_by(
-            func.max(AIConversation.created_at).desc()
-        ).limit(20).all()
-
-        result = []
-        for s in sessions:
-            # 获取会话的第一条用户消息作为标题
-            first_msg = AIConversation.query.filter(
-                AIConversation.session_id == s.session_id,
-                AIConversation.role == 'user'
-            ).order_by(AIConversation.created_at.asc()).first()
-
-            title = first_msg.content[:30] + '...' if first_msg and len(first_msg.content) > 30 else (first_msg.content if first_msg else '新对话')
-
-            result.append({
-                'session_id': s.session_id,
-                'title': title,
-                'latest_at': s.latest_at.isoformat() if s.latest_at else None,
-                'message_count': s.message_count,
-                'latest_content': s.latest_content[:100] if s.latest_content else ''
-            })
-
-        return jsonify({
-            'success': True,
-            'sessions': result
-        })
-
-    except Exception as e:
-        logger.error(f"获取会话列表失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/travel-plans', methods=['GET', 'POST'])
-@app.route('/api/travel-plans/<int:plan_id>', methods=['GET', 'PUT', 'DELETE'])
-def manage_travel_plans(plan_id=None):
-    """行程规划管理API"""
-    try:
-        if request.method == 'GET' and plan_id:
-            # 获取单个行程详情
-            plan = TravelPlan.query.get(plan_id)
-            if not plan:
-                return jsonify({'success': False, 'error': '行程不存在'}), 404
-
-            items = PlanItem.query.filter_by(plan_id=plan_id).order_by(
-                PlanItem.day_number, PlanItem.sort_order
-            ).all()
-
-            return jsonify({
-                'success': True,
-                'plan': plan.to_dict(),
-                'items': [item.to_dict() for item in items]
-            })
-
-        elif request.method == 'GET':
-            # 获取行程列表
-            user_id = request.args.get('user_id', type=int)
-            status = request.args.get('status')
-            destination = request.args.get('destination')
-
-            query = TravelPlan.query
-
-            if user_id:
-                query = query.filter(TravelPlan.user_id == user_id)
-            if status:
-                query = query.filter(TravelPlan.status == status)
-            if destination:
-                query = query.filter(TravelPlan.destination.like(f'%{destination}%'))
-
-            plans = query.order_by(TravelPlan.created_at.desc()).limit(50).all()
-
-            return jsonify({
-                'success': True,
-                'plans': [p.to_dict() for p in plans]
-            })
-
-        elif request.method == 'POST':
-            # 创建行程规划
-            data = request.get_json() or {}
-
-            plan = TravelPlan(
-                user_id=data.get('user_id'),
-                session_id=data.get('session_id'),
-                plan_name=data.get('plan_name'),
-                destination=data.get('destination'),
-                start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
-                end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data.get('end_date') else None,
-                budget=data.get('budget'),
-                preferences=data.get('preferences'),
-                plan_details=data.get('plan_details'),
-                status=data.get('status', 'draft')
-            )
-            db.session.add(plan)
-            db.session.flush()
-
-            # 添加行程项目
-            items_data = data.get('items', [])
-            for idx, item_data in enumerate(items_data):
-                item = PlanItem(
-                    plan_id=plan.id,
-                    day_number=item_data.get('day_number', 1),
-                    sort_order=item_data.get('sort_order', idx),
-                    time_slot=item_data.get('time_slot'),
-                    activity_type=item_data.get('activity_type'),
-                    title=item_data.get('title'),
-                    description=item_data.get('description'),
-                    location=item_data.get('location'),
-                    start_time=datetime.strptime(item_data['start_time'], '%H:%M').time() if item_data.get('start_time') else None,
-                    duration_minutes=item_data.get('duration_minutes'),
-                    cost=item_data.get('cost'),
-                    booking_info=item_data.get('booking_info')
-                )
-                db.session.add(item)
-
-            db.session.commit()
-
-            return jsonify({
-                'success': True,
-                'plan': plan.to_dict()
-            }), 201
-
-        elif request.method == 'PUT' and plan_id:
-            # 更新行程
-            plan = TravelPlan.query.get(plan_id)
-            if not plan:
-                return jsonify({'success': False, 'error': '行程不存在'}), 404
-
-            data = request.get_json() or {}
-
-            if 'plan_name' in data:
-                plan.plan_name = data['plan_name']
-            if 'destination' in data:
-                plan.destination = data['destination']
-            if 'start_date' in data:
-                plan.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data['start_date'] else None
-            if 'end_date' in data:
-                plan.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data['end_date'] else None
-            if 'budget' in data:
-                plan.budget = data['budget']
-            if 'preferences' in data:
-                plan.preferences = data['preferences']
-            if 'plan_details' in data:
-                plan.plan_details = data['plan_details']
-            if 'status' in data:
-                plan.status = data['status']
-
-            db.session.commit()
-
-            return jsonify({
-                'success': True,
-                'plan': plan.to_dict()
-            })
-
-        elif request.method == 'DELETE' and plan_id:
-            # 删除行程
-            plan = TravelPlan.query.get(plan_id)
-            if not plan:
-                return jsonify({'success': False, 'error': '行程不存在'}), 404
-
-            # 先删除关联的项目
-            PlanItem.query.filter_by(plan_id=plan_id).delete()
-            db.session.delete(plan)
-            db.session.commit()
-
-            return jsonify({'success': True, 'message': '行程已删除'})
-
-    except Exception as e:
-        logger.error(f"行程管理失败: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/travel-plans/history', methods=['GET'])
-def get_user_travel_history():
-    """获取用户的历史行程（用于参考规划新行程）"""
-    try:
-        user_id = request.args.get('user_id', type=int)
-        
-        # 未登录用户也允许访问，返回空列表
-        if not user_id:
-            return jsonify({'success': True, 'history': []})
-
-        limit = min(10, max(1, request.args.get('limit', 5, type=int)))
-
-        # 获取用户已完成或确认的行程
-        plans = TravelPlan.query.filter(
-            TravelPlan.user_id == user_id,
-            TravelPlan.status.in_(['confirmed', 'completed'])
-        ).order_by(TravelPlan.created_at.desc()).limit(limit).all()
-
-        result = []
-        for plan in plans:
-            items = PlanItem.query.filter_by(plan_id=plan.id).order_by(
-                PlanItem.day_number, PlanItem.sort_order
-            ).all()
-
-            result.append({
-                'id': plan.id,
-                'plan_name': plan.plan_name,
-                'destination': plan.destination,
-                'start_date': plan.start_date.isoformat() if plan.start_date else None,
-                'end_date': plan.end_date.isoformat() if plan.end_date else None,
-                'budget': plan.budget,
-                'preferences': plan.preferences,
-                'status': plan.status,
-                'items': [item.to_dict() for item in items]
-            })
-
-        return jsonify({
-            'success': True,
-            'history': result
-        })
-
-    except Exception as e:
-        logger.error(f"获取历史行程失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/travel-plans/similar', methods=['GET'])
-def get_similar_plans():
-    """获取相似行程（用于参考）"""
-    try:
-        destination = request.args.get('destination')
-        if not destination:
-            return jsonify({'success': False, 'error': '需要destination'}), 400
-
-        # 查找目的地相似的已完成行程
-        plans = TravelPlan.query.filter(
-            TravelPlan.destination.like(f'%{destination}%'),
-            TravelPlan.status == 'completed'
-        ).order_by(TravelPlan.created_at.desc()).limit(5).all()
-
-        result = []
-        for plan in plans:
-            items = PlanItem.query.filter_by(plan_id=plan.id).all()
-            result.append({
-                'id': plan.id,
-                'plan_name': plan.plan_name,
-                'destination': plan.destination,
-                'preferences': plan.preferences,
-                'budget': plan.budget,
-                'item_count': len(items)
-            })
-
-        return jsonify({
-            'success': True,
-            'similar_plans': result
-        })
-
-    except Exception as e:
-        logger.error(f"获取相似行程失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# ==================== 行程 API ====================
-
-@app.route('/api/itineraries', methods=['GET'])
-@rate_limit('itineraries_list', limit=60)
-def get_itineraries():
-    """获取当前用户的行程列表（基于Trip表）"""
-    try:
-        # 验证用户登录
-        user_id = get_current_user_id()
-        if not user_id:
-            return jsonify({'success': False, 'error': '请先登录', 'itineraries': []}), 401
-        
-        # 获取查询参数
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 20, type=int)
-        per_page = min(per_page, 50)  # 限制最大每页数量
-        status = request.args.get('status')  # 可选：planning/active/completed
-        
-        # 构建查询
-        query = Trip.query.filter_by(user_id=user_id)
-        if status:
-            query = query.filter_by(status=status)
-        query = query.order_by(Trip.created_at.desc())
-        
-        # 分页
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-        trips = pagination.items
-        
-        # 转换为字典格式
-        itineraries = []
-        for trip in trips:
-            item = trip.to_dict()
-            # 获取行程中的景点数量
-            item_count = TripItem.query.filter_by(trip_id=trip.id).count()
-            item['item_count'] = item_count
-            # 获取目的地名称（如果有行程项目关联到景点）
-            first_item = TripItem.query.filter_by(trip_id=trip.id).first()
-            if first_item and first_item.destination_id:
-                dest = Destination.query.get(first_item.destination_id)
-                if dest:
-                    item['destination'] = dest.name
-            itineraries.append(item)
-        
-        return jsonify({
-            'success': True,
-            'itineraries': itineraries,
-            'total': pagination.total,
-            'pages': pagination.pages,
-            'page': page
-        })
-        
-    except Exception as e:
-        logger.error(f"获取行程列表失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e), 'itineraries': []}), 500
-
-
-@app.route('/api/itineraries/<int:trip_id>', methods=['GET'])
-@rate_limit('itinerary_detail', limit=60)
-def get_itinerary_detail(trip_id):
-    """获取行程详情"""
-    try:
-        user_id = get_current_user_id()
-        
-        trip = Trip.query.filter_by(id=trip_id).first()
-        if not trip:
-            return jsonify({'success': False, 'error': '行程不存在'}), 404
-        
-        # 检查权限（自己的行程或者公开行程）
-        if trip.user_id != user_id:
-            return jsonify({'success': False, 'error': '无权访问'}), 403
-        
-        # 获取行程项目
-        items = TripItem.query.filter_by(trip_id=trip_id).order_by(TripItem.day_number, TripItem.sort_order).all()
-        
-        result = trip.to_dict()
-        result['items'] = [item.to_dict() for item in items]
-        
-        # 获取目的地详情
-        if items:
-            dest_ids = list(set([item.destination_id for item in items if item.destination_id]))
-            if dest_ids:
-                destinations = Destination.query.filter(Destination.id.in_(dest_ids)).all()
-                result['destinations'] = [d.to_dict() for d in destinations]
-        
-        return jsonify({'success': True, 'itinerary': result})
-        
-    except Exception as e:
-        logger.error(f"获取行程详情失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/itineraries', methods=['POST'])
-@rate_limit('itineraries_create', limit=20)
-def create_itinerary():
-    """创建行程"""
-    try:
-        user_id = get_current_user_id()
-        if not user_id:
-            return jsonify({'success': False, 'error': '请先登录'}), 401
-        
-        data = request.get_json()
-        if not data:
-            return jsonify({'success': False, 'error': '请提供行程数据'}), 400
-        
-        # 创建行程
-        trip = Trip(
-            user_id=user_id,
-            title=data.get('title', '我的新行程'),
-            description=data.get('description', ''),
-            start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
-            end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data.get('end_date') else None,
-            status=data.get('status', 'planning')
-        )
-        db.session.add(trip)
-        db.session.flush()  # 获取trip.id
-        
-        # 添加行程项目
-        items = data.get('items', [])
-        for idx, item_data in enumerate(items):
-            item = TripItem(
-                trip_id=trip.id,
-                destination_id=item_data.get('destination_id'),
-                day_number=item_data.get('day_number', 1),
-                title=item_data.get('title', ''),
-                description=item_data.get('description', ''),
-                location=item_data.get('location', ''),
-                start_time=datetime.strptime(item_data['start_time'], '%H:%M').time() if item_data.get('start_time') else None,
-                end_time=datetime.strptime(item_data['end_time'], '%H:%M').time() if item_data.get('end_time') else None,
-                sort_order=item_data.get('sort_order', idx)
-            )
-            db.session.add(item)
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': '行程创建成功',
-            'itinerary': trip.to_dict()
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建行程失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/itineraries/<int:trip_id>', methods=['PUT'])
-@rate_limit('itineraries_update', limit=20)
-def update_itinerary(trip_id):
-    """更新行程"""
-    try:
-        user_id = get_current_user_id()
-        if not user_id:
-            return jsonify({'success': False, 'error': '请先登录'}), 401
-        
-        trip = Trip.query.filter_by(id=trip_id, user_id=user_id).first()
-        if not trip:
-            return jsonify({'success': False, 'error': '行程不存在或无权访问'}), 404
-        
-        data = request.get_json()
-        if not data:
-            return jsonify({'success': False, 'error': '请提供更新数据'}), 400
-        
-        # 更新字段
-        if 'title' in data:
-            trip.title = data['title']
-        if 'description' in data:
-            trip.description = data['description']
-        if 'start_date' in data:
-            trip.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data['start_date'] else None
-        if 'end_date' in data:
-            trip.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data['end_date'] else None
-        if 'status' in data:
-            trip.status = data['status']
-        
-        # 如果提供了新的行程项目，替换旧的
-        if 'items' in data:
-            TripItem.query.filter_by(trip_id=trip_id).delete()
-            for idx, item_data in enumerate(data['items']):
-                item = TripItem(
-                    trip_id=trip.id,
-                    destination_id=item_data.get('destination_id'),
-                    day_number=item_data.get('day_number', 1),
-                    title=item_data.get('title', ''),
-                    description=item_data.get('description', ''),
-                    location=item_data.get('location', ''),
-                    start_time=datetime.strptime(item_data['start_time'], '%H:%M').time() if item_data.get('start_time') else None,
-                    end_time=datetime.strptime(item_data['end_time'], '%H:%M').time() if item_data.get('end_time') else None,
-                    sort_order=item_data.get('sort_order', idx)
-                )
-                db.session.add(item)
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': '行程更新成功',
-            'itinerary': trip.to_dict()
-        })
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"更新行程失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/itineraries/<int:trip_id>', methods=['DELETE'])
-@rate_limit('itineraries_delete', limit=20)
-def delete_itinerary(trip_id):
-    """删除行程"""
-    try:
-        user_id = get_current_user_id()
-        if not user_id:
-            return jsonify({'success': False, 'error': '请先登录'}), 401
-        
-        trip = Trip.query.filter_by(id=trip_id, user_id=user_id).first()
-        if not trip:
-            return jsonify({'success': False, 'error': '行程不存在或无权访问'}), 404
-        
-        # 删除行程（关联的TripItem会通过级联删除）
-        db.session.delete(trip)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': '行程删除成功'})
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"删除行程失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/itineraries/from-chat', methods=['GET'])
-@rate_limit('itineraries_from_chat', limit=30)
-def get_itineraries_from_chat():
-    """从用户的AI对话中提取景点，生成行程推荐"""
-    try:
-        user_id = get_current_user_id()
-        # 支持多个 session_id 参数
-        session_ids = request.args.getlist('session_id')
-        
-        # 构建查询条件：优先用 user_id，其次用 session_id(s)
-        query = AIConversation.query.filter_by(role='user')
-        
-        if user_id:
-            # 已登录用户：优先使用 user_id
-            query = query.filter(AIConversation.user_id == user_id)
-        elif session_ids:
-            # 未登录用户：使用 session_id（查询 user_id 为 null 的记录）
-            if len(session_ids) == 1:
-                query = query.filter(
-                    AIConversation.user_id.is_(None),
-                    AIConversation.session_id == session_ids[0]
-                )
-            else:
-                query = query.filter(
-                    AIConversation.user_id.is_(None),
-                    AIConversation.session_id.in_(session_ids)
-                )
-        else:
-            # 既没有登录也没有 session_id，返回空
-            return jsonify({'success': True, 'recommendations': [], 'message': '暂无对话记录，请先和小游聊天'})
-        
-        conversations = query.order_by(AIConversation.created_at.desc()).limit(100).all()
-        
-        if not conversations:
-            return jsonify({'success': True, 'recommendations': [], 'message': '暂无对话记录，请先和小游聊天'})
-        
-        # 提取所有对话内容
-        all_content = ' '.join([c.content for c in conversations])
-        all_content_lower = all_content.lower()
-        
-        # 从数据库中搜索匹配的景点
-        recommendations = []
-        seen_destinations = set()
-        
-        # 1. 搜索对话中提到的目的地（通过关键词匹配）
-        keywords = _extract_travel_keywords(all_content)
-        
-        # 搜索匹配的目的地
-        for keyword in keywords:
-            if len(keyword) >= 2:
-                dests = Destination.query.filter(
-                    db.or_(
-                        Destination.name.ilike(f'%{keyword}%'),
-                        Destination.city.ilike(f'%{keyword}%'),
-                        Destination.province.ilike(f'%{keyword}%')
-                    )
-                ).limit(5).all()
-                
-                for dest in dests:
-                    if dest.id not in seen_destinations:
-                        seen_destinations.add(dest.id)
-                        recommendations.append({
-                            'destination': dest.to_dict(),
-                            'reason': f'您在对话中提到了"{keyword}"',
-                            'matched_keyword': keyword,
-                            'source': 'chat_match'
-                        })
-        
-        # 2. 如果匹配到的景点不够，补充热门景点
-        if len(recommendations) < 3:
-            popular_dests = Destination.query.filter(
-                Destination.rating >= 4.0,
-                Destination.id.notin_(seen_destinations) if seen_destinations else True
-            ).order_by(Destination.rating.desc()).limit(5).all()
-            
-            for dest in popular_dests:
-                if dest.id not in seen_destinations:
-                    seen_destinations.add(dest.id)
-                    recommendations.append({
-                        'destination': dest.to_dict(),
-                        'reason': '热门推荐景点',
-                        'matched_keyword': None,
-                        'source': 'popular'
-                    })
-        
-        # 3. 分析对话意图，生成行程规划建议
-        plan_suggestions = []
-        intent_keywords = {
-            '行程规划': ['行程', '规划', '安排', '几天', '几天游', '旅行计划'],
-            '景点推荐': ['景点', '好玩', '推荐', '值得去'],
-            '美食推荐': ['美食', '好吃', '餐厅', '小吃', '美食街'],
-            '住宿推荐': ['酒店', '住宿', '民宿', '客栈'],
-        }
-        
-        detected_intents = []
-        for intent, keys in intent_keywords.items():
-            if any(k in all_content_lower for k in keys):
-                detected_intents.append(intent)
-        
-        # 生成行程规划建议
-        if recommendations:
-            trip_days = _extract_trip_days(all_content)
-            plan_suggestions.append({
-                'type': '行程规划',
-                'title': f'{trip_days}日游推荐行程',
-                'destinations': [r['destination'] for r in recommendations[:3]],
-                'description': f'根据您与小游的对话，为您推荐了这{trip_days}天的行程规划'
-            })
-        
-        return jsonify({
-            'success': True,
-            'recommendations': recommendations[:6],  # 最多返回6个推荐
-            'plan_suggestions': plan_suggestions,
-            'detected_intents': detected_intents,
-            'total_conversations': len(conversations),
-            'total_sessions': len(session_ids) if session_ids else (1 if user_id else 0)
-        })
-        
-    except Exception as e:
-        logger.error(f"从对话生成行程推荐失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e), 'recommendations': []}), 500
-
-
-def _extract_travel_keywords(text):
-    """从文本中提取旅行相关关键词"""
-    import re
-    
-    # 常见城市/地区名
-    common_places = [
-        '北京', '上海', '广州', '深圳', '杭州', '苏州', '南京', '成都', '重庆',
-        '西安', '厦门', '三亚', '青岛', '大连', '丽江', '大理', '桂林', '阳朔',
-        '黄山', '泰山', '张家界', '九寨沟', '峨眉山', '青海湖', '拉萨', '新疆',
-        '西藏', '云南', '四川', '贵州', '湖南', '湖北', '安徽', '福建', '山东',
-        '河南', '河北', '山西', '内蒙古', '东北', '海南', '港澳', '台湾', '日本',
-        '泰国', '韩国', '新加坡', '马尔代夫', '巴黎', '伦敦', '纽约', '悉尼'
-    ]
-    
-    keywords = []
-    text_lower = text.lower()
-    
-    # 匹配常见地名
-    for place in common_places:
-        if place in text or place[:2] in text:
-            keywords.append(place)
-    
-    # 提取数字+景点组合
-    patterns = [
-        r'(\d+天|\d+日)',
-        r'(周边|附近|附近)景点',
-        r'适合(\w+)的地方',
-    ]
-    
-    for pattern in patterns:
-        matches = re.findall(pattern, text)
-        keywords.extend(matches)
-    
-    # 去重
-    return list(set(keywords))[:10]
-
-
-def _extract_trip_days(text):
-    """从文本中提取行程天数"""
-    import re
-    match = re.search(r'(\d+)(天|日)', text)
-    if match:
-        days = int(match.group(1))
-        return min(days, 7)  # 最多7天
-    return 3  # 默认3天
-
-
-# ==================== 订单 API ====================
-
-@app.route('/api/orders', methods=['POST'])
-@rate_limit('orders_create', limit=20)
-def create_order():
-    """创建订单"""
-    try:
-        # 验证用户登录
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        data = request.get_json() or {}
-        items = data.get('items', [])
-        
-        if not items:
-            return jsonify({'success': False, 'error': '订单项目不能为空'}), 400
-        
-        # 计算总金额
-        total_amount = sum(item.get('total_price', 0) for item in items)
-        
-        # 生成订单号
-        import random
-        order_no = f"TA{int(datetime.now().timestamp()*1000)}{random.randint(1000,9999)}"
-        
-        # 创建订单
-        order = Order(
-            order_no=order_no,
-            user_id=user_id,
-            total_amount=total_amount,
-            payment_method=data.get('payment_method', 'alipay'),
-            status='pending'
-        )
-        db.session.add(order)
-        db.session.flush()  # 获取自增 order.id
-        
-        # 创建订单项
-        for item in items:
-            order_item = OrderItem(
-                order_id=order.id,
-                product_id=item.get('product_id'),
-                product_name=item.get('product_name', ''),
-                product_type=item.get('product_type', 'product'),
-                quantity=item.get('quantity', 1),
-                unit_price=item.get('unit_price', 0),
-                total_price=item.get('total_price', 0)
-            )
-            db.session.add(order_item)
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'order': order.to_dict()
-        })
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"创建订单失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/orders', methods=['GET'])
-@rate_limit('orders_list', limit=60)
-def get_orders():
-    """获取当前用户的订单列表"""
-    try:
-        # 验证用户登录
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        page = request.args.get('page', 1, type=int)
-        per_page = min(request.args.get('per_page', 20, type=int), 100)
-        status = request.args.get('status')
-        
-        query = Order.query.filter_by(user_id=user_id)
-        if status:
-            query = query.filter_by(status=status)
-        
-        orders = query.order_by(Order.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
-        
-        return jsonify({
-            'success': True,
-            'orders': [o.to_dict() for o in orders.items],
-            'total': orders.total,
-            'page': page,
-            'per_page': per_page
-        })
-        
-    except Exception as e:
-        logger.error(f"获取订单列表失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/orders/<order_no>', methods=['GET'])
-@rate_limit('order_detail', limit=60)
-def get_order_detail(order_no):
-    """获取订单详情"""
-    try:
-        # 验证用户登录
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        query = Order.query.filter_by(user_id=user_id)
-        if order_no.isdigit():
-            order = query.filter(db.or_(Order.order_no == order_no, Order.id == int(order_no))).first()
-        else:
-            order = query.filter_by(order_no=order_no).first()
-        if not order:
-            return jsonify({'success': False, 'error': '订单不存在'}), 404
-        
-        return jsonify({
-            'success': True,
-            'order': order.to_dict()
-        })
-        
-    except Exception as e:
-        logger.error(f"获取订单详情失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/orders/<order_no>/cancel', methods=['PUT', 'POST'])
-@rate_limit('order_cancel', limit=20)
-def cancel_order(order_no):
-    """取消订单"""
-    try:
-        # 验证用户登录
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        query = Order.query.filter_by(user_id=user_id)
-        if order_no.isdigit():
-            order = query.filter(db.or_(Order.order_no == order_no, Order.id == int(order_no))).first()
-        else:
-            order = query.filter_by(order_no=order_no).first()
-        if not order:
-            return jsonify({'success': False, 'error': '订单不存在'}), 404
-        
-        if order.status != 'pending':
-            return jsonify({'success': False, 'error': '只有待支付的订单才能取消'}), 400
-        
-        order.status = 'cancelled'
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': '订单已取消'})
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"取消订单失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/orders/<order_no>/pay', methods=['PUT', 'POST'])
-@rate_limit('order_pay', limit=20)
-def pay_order(order_no):
-    """支付订单（模拟）"""
-    try:
-        # 验证用户登录
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': '未授权'}), 401
-        
-        token = auth_header[7:]
-        try:
-            payload = jwt.decode(token, get_secret_key(), algorithms=['HS256'])
-            user_id = payload.get('user_id')
-        except jwt.InvalidTokenError:
-            return jsonify({'success': False, 'error': '无效的token'}), 401
-        
-        query = Order.query.filter_by(user_id=user_id)
-        if order_no.isdigit():
-            order = query.filter(db.or_(Order.order_no == order_no, Order.id == int(order_no))).first()
-        else:
-            order = query.filter_by(order_no=order_no).first()
-        if not order:
-            return jsonify({'success': False, 'error': '订单不存在'}), 404
-        
-        if order.status != 'pending':
-            return jsonify({'success': False, 'error': '订单状态不正确'}), 400
-        
-        order.status = 'paid'
-        order.payment_time = datetime.now()
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': '支付成功'})
-        
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"支付订单失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# ==================== 数据库管理 API ====================
-
-@app.route('/api/admin/database/tables', methods=['GET'])
-@rate_limit('db_tables', limit=60)
-def get_database_tables():
-    """获取所有数据库表及其结构"""
-    try:
-        # 验证管理员登录
-        auth_header = request.headers.get('Authorization', '')
-        admin_token = localStorage.get_item('admin_token') if 'localStorage' in dir() else None
-        
-        # 直接查询 SQLite 的 sqlite_master 获取表信息
-        result = db.session.execute(text(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
-        ))
-        tables = [row[0] for row in result]
-        
-        table_info = []
-        for table_name in tables:
-            # 获取表的列信息（表名加引号防止保留字冲突）
-            columns_result = db.session.execute(text(f'PRAGMA table_info("{table_name}")'))
-            columns = []
-            for col in columns_result:
-                columns.append({
-                    'cid': col[0],
-                    'name': col[1],
-                    'type': col[2],
-                    'notnull': bool(col[3]),
-                    'default': col[4],
-                    'pk': bool(col[5])
-                })
-            
-            # 获取表的行数（表名加引号防止保留字冲突）
-            count_result = db.session.execute(text(f'SELECT COUNT(*) FROM "{table_name}"'))
-            row_count = count_result.scalar()
-            
-            table_info.append({
-                'name': table_name,
-                'columns': columns,
-                'row_count': row_count
-            })
-        
-        return jsonify({
-            'success': True,
-            'tables': table_info
-        })
-        
-    except Exception as e:
-        logger.error(f"获取数据库表失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/admin/database/tables/<table_name>', methods=['GET'])
-@rate_limit('db_table_data', limit=60)
-def get_table_data(table_name):
-    """获取指定表的数据"""
-    try:
-        page = request.args.get('page', 1, type=int)
-        per_page = min(request.args.get('per_page', 50, type=int), 200)
-        offset = (page - 1) * per_page
-        
-        # 验证表名是否合法（防止 SQL 注入）
-        allowed_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
-        if not all(c in allowed_chars for c in table_name):
-            return jsonify({'success': False, 'error': '无效的表名'}), 400
-        
-        # 获取数据（表名加引号防止保留字冲突）
-        data_result = db.session.execute(text(
-            f'SELECT * FROM "{table_name}" LIMIT :limit OFFSET :offset'
-        ), {'limit': per_page, 'offset': offset})
-        
-        columns = data_result.keys()
-        rows = [dict(zip(columns, row)) for row in data_result]
-        
-        # 获取总数（表名加引号防止保留字冲突）
-        count_result = db.session.execute(text(f'SELECT COUNT(*) FROM "{table_name}"'))
-        total = count_result.scalar()
-        
-        return jsonify({
-            'success': True,
-            'table_name': table_name,
-            'columns': list(columns),
-            'data': rows,
-            'total': total,
-            'page': page,
-            'per_page': per_page
-        })
-        
-    except Exception as e:
-        logger.error(f"获取表数据失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-# ==================== 数据库管理 - 增删改 API ====================
-
-def _get_table_columns(table_name: str):
-    """获取表列信息"""
-    result = db.session.execute(text(f'PRAGMA table_info("{table_name}")'))
-    cols = []
-    pk_col = None
-    for col in result:
-        cols.append({
-            'name': col[1],
-            'type': col[2],
-            'notnull': bool(col[3]),
-            'default': col[4],
-            'pk': bool(col[5])
-        })
-        if bool(col[5]):
-            pk_col = col[1]
-    return cols, pk_col
-
-
-def _validate_table_name(table_name: str):
-    allowed = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
-    return all(c in allowed for c in table_name)
-
-
-@app.route('/api/admin/database/tables/<table_name>/row', methods=['POST'])
-@rate_limit('db_insert', limit=30)
-def insert_table_row(table_name: str):
-    """插入新行"""
-    try:
-        if not _validate_table_name(table_name):
-            return jsonify({'success': False, 'error': '无效的表名'}), 400
-
-        data = request.get_json() or {}
-        if not data:
-            return jsonify({'success': False, 'error': '数据不能为空'}), 400
-
-        cols, pk_col = _get_table_columns(table_name)
-        col_names = [c['name'] for c in cols]
-
-        # 过滤出有效字段
-        valid_data = {}
-        for k, v in data.items():
-            if k in col_names:
-                # JSON 对象/数组转为字符串
-                if isinstance(v, (dict, list)):
-                    v = json.dumps(v, ensure_ascii=False)
-                valid_data[k] = v
-
-        if not valid_data:
-            return jsonify({'success': False, 'error': '没有有效字段'}), 400
-
-        keys = list(valid_data.keys())
-        placeholders = ', '.join([f':{k}' for k in keys])
-        columns_str = ', '.join([f'"{k}"' for k in keys])
-
-        sql = f'INSERT INTO "{table_name}" ({columns_str}) VALUES ({placeholders})'
-        db.session.execute(text(sql), valid_data)
-        db.session.commit()
-
-        return jsonify({'success': True, 'message': '插入成功'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"插入数据失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/admin/database/tables/<table_name>/row', methods=['PUT'])
-@rate_limit('db_update', limit=30)
-def update_table_row(table_name: str):
-    """更新行（需要主键）"""
-    try:
-        if not _validate_table_name(table_name):
-            return jsonify({'success': False, 'error': '无效的表名'}), 400
-
-        data = request.get_json() or {}
-        if not data or 'where' not in data or 'values' not in data:
-            return jsonify({'success': False, 'error': '需要 where 和 values 字段'}), 400
-
-        cols, pk_col = _get_table_columns(table_name)
-        col_names = [c['name'] for c in cols]
-
-        # 构建 SET 子句
-        set_clauses = []
-        set_params = {}
-        for k, v in data['values'].items():
-            if k in col_names:
-                # 密码字段自动哈希处理
-                if k == 'password_hash' and v and not v.startswith('scrypt:'):
-                    v = generate_password_hash(str(v))
-                if isinstance(v, (dict, list)):
-                    v = json.dumps(v, ensure_ascii=False)
-                param_key = f'set_{k}'
-                set_clauses.append(f'"{k}" = :{param_key}')
-                set_params[param_key] = v
-
-        if not set_clauses:
-            return jsonify({'success': False, 'error': '没有有效更新字段'}), 400
-
-        # 构建 WHERE 子句
-        where_clauses = []
-        where_params = {}
-        for k, v in data['where'].items():
-            if k in col_names:
-                param_key = f'where_{k}'
-                where_clauses.append(f'"{k}" = :{param_key}')
-                where_params[param_key] = v
-
-        if not where_clauses:
-            return jsonify({'success': False, 'error': 'WHERE 条件不能为空'}), 400
-
-        sql = f'UPDATE "{table_name}" SET {", ".join(set_clauses)} WHERE {" AND ".join(where_clauses)}'
-        params = {**set_params, **where_params}
-        db.session.execute(text(sql), params)
-        db.session.commit()
-
-        return jsonify({'success': True, 'message': '更新成功'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"更新数据失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/admin/database/tables/<table_name>/row', methods=['DELETE'])
-@rate_limit('db_delete', limit=30)
-def delete_table_row(table_name: str):
-    """删除行（需要主键）"""
-    try:
-        if not _validate_table_name(table_name):
-            return jsonify({'success': False, 'error': '无效的表名'}), 400
-
-        data = request.get_json() or {}
-        if not data:
-            return jsonify({'success': False, 'error': '需要 WHERE 条件'}), 400
-
-        cols, pk_col = _get_table_columns(table_name)
-        col_names = [c['name'] for c in cols]
-
-        where_clauses = []
-        where_params = {}
-        for k, v in data.items():
-            if k in col_names:
-                param_key = f'where_{k}'
-                where_clauses.append(f'"{k}" = :{param_key}')
-                where_params[param_key] = v
-
-        if not where_clauses:
-            return jsonify({'success': False, 'error': 'WHERE 条件不能为空'}), 400
-
-        sql = f'DELETE FROM "{table_name}" WHERE {" AND ".join(where_clauses)}'
-        db.session.execute(text(sql), where_params)
-        db.session.commit()
-
-        return jsonify({'success': True, 'message': '删除成功'})
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"删除数据失败: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        logger.error(f"获取用户信息失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 # ==================== 应用启动入口 ====================
 if __name__ == '__main__':
-    # 调用数据库初始化函数
-    init_db()
-    # 初始化示例游记数据
-    seed_travel_notes()
-
-    # 从环境变量读取端口，默认5001
-    port = int(os.getenv('PORT', 5001))
+    """
+    应用启动入口
     
-    # 记录服务器启动日志
-    logger.info(f"🚀 启动优化版服务器 http://127.0.0.1:{port}")
-    # 记录健康检查端点日志
-    logger.info(f"📊 性能监控: http://127.0.0.1:{port}/api/health")
+    【功能】
+    - 启动Flask开发服务器
+    - 默认监听 0.0.0.0:5001（与 start.py 配置一致）
+    - 开启调试模式（debug=True），支持热重载
+    
+    【使用】
+    python app.py
+    """
+    # 启动Flask应用
+    # host='0.0.0.0'：监听所有网络接口，允许外部访问
+    # port=5001：与 start.py 中的 BACKEND_PORT 保持一致
+    # debug=True：开启调试模式，代码修改后自动重启
+    app.run(host='0.0.0.0', port=5001, debug=True)
 
-    # 启动Flask开发服务器
-    app.run(
-        debug=True,          # 启用调试模式
-        host='0.0.0.0',      # 监听所有网络接口
-        port=port,           # 使用环境变量PORT
-        threaded=True        # 启用多线程处理请求
-    )
+
+
+
+

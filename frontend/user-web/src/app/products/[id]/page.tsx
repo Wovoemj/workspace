@@ -154,7 +154,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [related, setRelated] = useState<Product[]>([])
   const [loadingRelated, setLoadingRelated] = useState(true)
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001';
+  const API_BASE_URL = '';  // 使用相对路径，通过 Next.js rewrites 代理
 
   useEffect(() => {
     // 默认日期：今天
