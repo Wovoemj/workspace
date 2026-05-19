@@ -1,6 +1,6 @@
 export async function generateMetadata({ params }: { params: { id: string } }) {
   // 获取产品信息的API调用
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:5001'}/api/products/${params.id}`;
+  const apiUrl = `/api/products/${params.id}`;
 
   try {
     const res = await fetch(apiUrl, {

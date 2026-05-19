@@ -481,7 +481,7 @@ export default function AssistantPage() {
   // 保存对话到数据库
   async function saveConversationToDB(userMsg: ChatMsg, assistantMsg: ChatMsg) {
     try {
-      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const backendBase = ''  // 使用相对路径，通过 Next.js rewrites 代理
       
       // 保存用户消息
       await fetch(`${backendBase}/api/conversations/save`, {
@@ -533,7 +533,7 @@ export default function AssistantPage() {
   // 保存行程到数据库
   async function saveTravelPlan(assistantMsg: ChatMsg) {
     try {
-      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const backendBase = ''  // 使用相对路径，通过 Next.js rewrites 代理
       const parsed = parseTripContent(assistantMsg.content)
       if (parsed.length === 0) return
 
@@ -594,7 +594,7 @@ export default function AssistantPage() {
   // 从数据库加载历史对话
   async function loadHistoryFromDB() {
     try {
-      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const backendBase = ''  // 使用相对路径，通过 Next.js rewrites 代理
       const res = await fetch(`${backendBase}/api/conversations/sessions?user_id=${null}`, {
         cache: 'no-store'
       })
@@ -633,7 +633,7 @@ export default function AssistantPage() {
     let accContent = ''
 
     try {
-      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const backendBase = ''  // 使用相对路径，通过 Next.js rewrites 代理
       const res = await fetch(`${backendBase}/api/agent/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1087,7 +1087,7 @@ function HistoryPlansButton({ onSelectPlan }: { onSelectPlan: (plan: any) => voi
     if (plans.length > 0) return
     setLoading(true)
     try {
-      const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+      const backendBase = ''  // 使用相对路径，通过 Next.js rewrites 代理
       const res = await fetch(`${backendBase}/api/travel-plans?status=completed&limit=10`)
       const data = await res.json()
       if (data.success) {

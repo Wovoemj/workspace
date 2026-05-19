@@ -318,7 +318,8 @@ export default function HomePage() {
       setPopularLoading(true)
       try {
         const res = await fetch(`/api/destinations?per_page=4&page=1&light=true&sort_by=popular&order=desc`, {
-          cache: 'default' // 使用浏览器缓存
+          cache: 'default', // 使用浏览器缓存
+          headers: { 'ngrok-skip-browser-warning': 'true' },
         })
         const data = await res.json().catch(() => ({}))
         const list = (data?.destinations ?? data?.items ?? data?.data ?? []) as Destination[]
@@ -357,7 +358,8 @@ export default function HomePage() {
       setProductsLoading(true)
       try {
         const res = await fetch(`/api/products?status=active&sort=rating&limit=8&_t=${Date.now()}`, { 
-          cache: 'no-store'
+          cache: 'no-store',
+          headers: { 'ngrok-skip-browser-warning': 'true' },
         })
         const data = await res.json().catch(() => ({}))
         const list = (data?.products ?? data?.items ?? data?.data ?? []) as Product[]

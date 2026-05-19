@@ -44,7 +44,7 @@ import { Footer } from '@/components/Footer'
 import { useUserStore } from '@/store'
 import type { Order } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+const API_BASE_URL = ''  // 使用相对路径，通过 Next.js rewrites 代理
 
 
 const statusMap: Record<string, { label: string; color: string; icon: React.ReactNode }> = {

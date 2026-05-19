@@ -24,7 +24,7 @@ import { toast } from 'react-hot-toast'
 import { Lock, LogIn, Loader2, Eye, EyeOff, AlertCircle, Shield, ChevronDown, User, LogOut } from 'lucide-react'
 
 /** 后端地址，与 admin/page.tsx 保持一致 */
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
+const API_BASE = ''  // 使用相对路径，通过 Next.js rewrites 代理
 
 type Props = {
   children: React.ReactNode

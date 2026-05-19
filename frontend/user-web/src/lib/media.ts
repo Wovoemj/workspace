@@ -23,9 +23,9 @@ export const FALLBACK_MEDIA_PATH = 'scenic_images/__auto__/placeholder.png'
  * // 返回: '/api/media?path=scenic_images%2Fbeijing.jpg'
  */
 export function apiMediaUrl(path: string) {
-  // 始终使用完整 URL，避免 Next.js SSR 和客户端 hydration 不一致
-  const base = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001'
-  return `${base}/api/media?path=${encodeURIComponent(path)}`
+  // 使用相对路径，通过 Next.js rewrites 代理到后端，兼容公网隧道访问
+  // SSR 和客户端均使用相同相对路径，避免 hydration 不一致
+  return `/api/media?path=${encodeURIComponent(path)}`
 }
 
 /**

@@ -136,8 +136,8 @@ export default function DestinationDetailPage({ params }: { params: { id: string
         
         // 并行加载景点详情和推荐数据
         const [destRes, recRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}`),
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/destinations/${params.id}/recommendations`)
+          fetch(`/api/destinations/${params.id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
+          fetch(`/api/destinations/${params.id}/recommendations`, { headers: { 'ngrok-skip-browser-warning': 'true' } })
         ])
         
         const destData = await destRes.json()
@@ -160,7 +160,7 @@ export default function DestinationDetailPage({ params }: { params: { id: string
           if (token) {
             fetch('/api/footprints', {
               method: 'POST',
-              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
               body: JSON.stringify({ destination_id: Number(params.id), source: 'view' }),
             }).catch(() => {})
           }

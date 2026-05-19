@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+    <linearGradient id="header" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="layer1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dbeafe"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
+    </linearGradient>
+    <linearGradient id="layer2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <linearGradient id="layer3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d1fae5"/>
+      <stop offset="100%" stop-color="#a7f3d0"/>
+    </linearGradient>
+    <linearGradient id="layer4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f3e8ff"/>
+      <stop offset="100%" stop-color="#e9d5ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="720" rx="12" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="1000" height="56" rx="12" fill="url(#header)"/>
+  <rect x="0" y="30" width="1000" height="26" fill="url(#header)"/>
+  <text x="500" y="36" text-anchor="middle" fill="white" font-size="20" font-weight="bold">小游智能旅行助手 — 系统架构图</text>
+
+  <!-- Layer 1: Client -->
+  <rect x="40" y="76" width="920" height="100" rx="10" fill="url(#layer1)" stroke="#93c5fd" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="100" fill="#1e40af" font-size="14" font-weight="bold">🖥 客户端层 Client Layer</text>
+  <rect x="80" y="112" width="220" height="48" rx="8" fill="white" stroke="#60a5fa" stroke-width="1.2"/>
+  <text x="190" y="132" text-anchor="middle" fill="#1e3a5f" font-size="13" font-weight="bold">用户 Web 前端</text>
+  <text x="190" y="150" text-anchor="middle" fill="#64748b" font-size="11">Next.js 14 + TypeScript</text>
+  <rect x="370" y="112" width="220" height="48" rx="8" fill="white" stroke="#60a5fa" stroke-width="1.2"/>
+  <text x="480" y="132" text-anchor="middle" fill="#1e3a5f" font-size="13" font-weight="bold">管理 Web 前端</text>
+  <text x="480" y="150" text-anchor="middle" fill="#64748b" font-size="11">React + Ant Design Pro</text>
+  <rect x="660" y="112" width="220" height="48" rx="8" fill="white" stroke="#60a5fa" stroke-width="1.2"/>
+  <text x="770" y="132" text-anchor="middle" fill="#1e3a5f" font-size="13" font-weight="bold">移动端 PWA</text>
+  <text x="770" y="150" text-anchor="middle" fill="#64748b" font-size="11">React Native (规划中)</text>
+
+  <!-- Arrow: Client → Gateway -->
+  <line x1="500" y1="176" x2="500" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 2: Gateway -->
+  <rect x="40" y="204" width="920" height="80" rx="10" fill="url(#layer2)" stroke="#fbbf24" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="228" fill="#92400e" font-size="14" font-weight="bold">🔀 网关层 Gateway Layer</text>
+  <rect x="200" y="236" width="600" height="36" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="500" y="260" text-anchor="middle" fill="#78350f" font-size="13" font-weight="bold">Nginx 反向代理 / Flask 路由</text>
+
+  <!-- Arrow: Gateway → App -->
+  <line x1="500" y1="284" x2="500" y2="308" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 3: Application -->
+  <rect x="40" y="312" width="920" height="160" rx="10" fill="url(#layer3)" stroke="#34d399" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="336" fill="#065f46" font-size="14" font-weight="bold">⚙️ 应用层 Application Layer</text>
+
+  <!-- Main App -->
+  <rect x="60" y="350" width="260" height="56" rx="8" fill="white" stroke="#10b981" stroke-width="1.2"/>
+  <text x="190" y="374" text-anchor="middle" fill="#064e3b" font-size="13" font-weight="bold">Flask 主应用 (app.py)</text>
+  <text x="190" y="392" text-anchor="middle" fill="#64748b" font-size="11">RESTful API · 业务逻辑 · JWT鉴权</text>
+
+  <!-- AI Module -->
+  <rect x="350" y="350" width="200" height="56" rx="8" fill="white" stroke="#10b981" stroke-width="1.2"/>
+  <text x="450" y="374" text-anchor="middle" fill="#064e3b" font-size="13" font-weight="bold">🤖 AI 服务模块</text>
+  <text x="450" y="392" text-anchor="middle" fill="#64748b" font-size="11">Kimi · 智谱 · OpenAI</text>
+
+  <!-- Cache Module -->
+  <rect x="580" y="350" width="180" height="56" rx="8" fill="white" stroke="#10b981" stroke-width="1.2"/>
+  <text x="670" y="374" text-anchor="middle" fill="#064e3b" font-size="13" font-weight="bold">📦 缓存模块</text>
+  <text x="670" y="392" text-anchor="middle" fill="#64748b" font-size="11">Redis · 限流 · 缓存</text>
+
+  <!-- Notification Module -->
+  <rect x="790" y="350" width="150" height="56" rx="8" fill="white" stroke="#10b981" stroke-width="1.2"/>
+  <text x="865" y="374" text-anchor="middle" fill="#064e3b" font-size="13" font-weight="bold">🔔 通知模块</text>
+  <text x="865" y="392" text-anchor="middle" fill="#64748b" font-size="11">消息推送</text>
+
+  <!-- 20 Modules -->
+  <rect x="60" y="420" width="880" height="38" rx="6" fill="white" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="500" y="444" text-anchor="middle" fill="#065f46" font-size="12">20 个功能模块：用户系统 · 景点管理 · 行程规划 · AI对话 · 收藏 · 足迹 · 游记 · 优惠券 · 天气 · 机票 · 酒店 · 通知 · 推荐 · 客服 · 统计 · 搜索 ...</text>
+
+  <!-- Arrow: App → Data -->
+  <line x1="500" y1="472" x2="500" y2="496" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 4: Data -->
+  <rect x="40" y="500" width="920" height="100" rx="10" fill="url(#layer4)" stroke="#a78bfa" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="524" fill="#5b21b6" font-size="14" font-weight="bold">💾 数据层 Data Layer</text>
+  <rect x="80" y="538" width="240" height="46" rx="8" fill="white" stroke="#8b5cf6" stroke-width="1.2"/>
+  <text x="200" y="558" text-anchor="middle" fill="#4c1d95" font-size="13" font-weight="bold">主数据库</text>
+  <text x="200" y="574" text-anchor="middle" fill="#64748b" font-size="11">SQLite / MySQL · 15张表</text>
+  <rect x="380" y="538" width="240" height="46" rx="8" fill="white" stroke="#8b5cf6" stroke-width="1.2"/>
+  <text x="500" y="558" text-anchor="middle" fill="#4c1d95" font-size="13" font-weight="bold">缓存数据库</text>
+  <text x="500" y="574" text-anchor="middle" fill="#64748b" font-size="11">Redis · Session · 热数据</text>
+  <rect x="680" y="538" width="260" height="46" rx="8" fill="white" stroke="#8b5cf6" stroke-width="1.2"/>
+  <text x="810" y="558" text-anchor="middle" fill="#4c1d95" font-size="13" font-weight="bold">文件存储</text>
+  <text x="810" y="574" text-anchor="middle" fill="#64748b" font-size="11">本地磁盘 / 云OSS</text>
+
+  <!-- Arrow: Data → External -->
+  <line x1="500" y1="600" x2="500" y2="624" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 5: External -->
+  <rect x="40" y="628" width="920" height="80" rx="10" fill="#fce7f3" stroke="#f472b6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="652" fill="#9d174d" font-size="14" font-weight="bold">🌐 外部服务 External Services</text>
+  <rect x="80" y="664" width="200" height="32" rx="6" fill="white" stroke="#ec4899" stroke-width="1"/>
+  <text x="180" y="685" text-anchor="middle" fill="#831843" font-size="12">AI 模型 (Kimi/智谱)</text>
+  <rect x="310" y="664" width="180" height="32" rx="6" fill="white" stroke="#ec4899" stroke-width="1"/>
+  <text x="400" y="685" text-anchor="middle" fill="#831843" font-size="12">🌤 心知天气 API</text>
+  <rect x="520" y="664" width="180" height="32" rx="6" fill="white" stroke="#ec4899" stroke-width="1"/>
+  <text x="610" y="685" text-anchor="middle" fill="#831843" font-size="12">🗺 高德地图 API</text>
+  <rect x="730" y="664" width="210" height="32" rx="6" fill="white" stroke="#ec4899" stroke-width="1"/>
+  <text x="835" y="685" text-anchor="middle" fill="#831843" font-size="12">✈️ 航班/酒店 API</text>
+</svg>

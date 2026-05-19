@@ -112,7 +112,15 @@
 - layout.tsx 添加 manifest/appleWebApp/themeColor
 - 支持添加到主屏幕
 
-## 前端大规模损坏修复（2026-04-10）
+## 论文修正记录（2026-05-14）
+对比项目代码与论文（paper-output/论文改写版.md），修正以下不一致问题：
+- Agent工具：5个→3个（get_weather/search_destinations/get_itinerary）
+- SSE实现：明确/api/chat为同步非流式，/api/agent/chat才是SSE流式
+- 系统提示词：P0-P3四级结构→三层结构（角色设定/格式规范/行为约束）
+- AI模型配置：3种→4种配置（含Zhipu-Backup/GLM-4.5-Air）
+- Docker容器：21个→20个，更新表7-1服务清单
+- API端点：90个→89个，更新表4-3端点统计
+- Go微服务：补充AI服务技术栈细节，明确Dockerfile情况
 ### 问题根源
 自动注释注入脚本将 `//` 注释插入所有行（包括 JSX 标签行），导致 ~66 个前端文件编译失败。
 JSX 只支持 `{/* */}` 注释，`//` 注释会导致 SWC 编译报错。

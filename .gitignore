@@ -29,3 +29,14 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# Documents (not for repo)
+*.pptx
+*.ppt
+*.docx
+*.doc
+*.pdf
+paper-output/
+paper-context/
+毕业*
+论文*

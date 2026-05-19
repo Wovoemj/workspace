@@ -45,6 +45,7 @@ export async function apiClient<T>(pathOrUrl: string, options: ApiClientOptions 
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
   }
 
   if (typeof window !== 'undefined') {
